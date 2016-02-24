@@ -1,0 +1,74 @@
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "infra/util/public/StaticStorage.hpp"
+
+TEST(StaticStorageTest, TestConstruction)
+{
+    infra::StaticStorage<bool> s;
+    (void)s;
+}
+
+TEST(StaticStorageTest, TestConstructionOfValue)
+{
+    infra::StaticStorage<bool> s;
+    s.Construct(true);
+    EXPECT_TRUE(*s);
+}
+
+//TEST(StaticStorageTest, TestDestruction)
+//{
+//    infra::MockCallback<void()> constructor;
+//    infra::MockCallback<void()> destructor;
+//
+//    struct X
+//    {
+//        X() { constructor.callback(); }
+//        ~X() { destructor.callback(); }
+//    };
+//
+//    infra::StaticStorage<X> s;
+//
+//    EXPECT_CALL(constructor, callback());
+//    EXPECT_CALL(destructor, callback());
+//
+//    s.Construct();
+//    s.Destruct();
+//}
+
+TEST(StaticStorageTest, TestInheritanceTree)
+{
+    struct A
+    {
+        virtual ~A() = default;
+    };
+
+    struct B
+        : A
+    {};
+
+    struct C
+        : A
+    {
+        C(uint64_t aX)
+            : x(aX)
+        {}
+
+        uint64_t x;
+    };
+
+    infra::StaticStorageForInheritanceTree<A> a;
+    infra::StaticStorageForInheritanceTree<A, B> b;
+    infra::StaticStorageForInheritanceTree<A, B, C> c;
+
+    EXPECT_EQ(sizeof(a), 4);
+    EXPECT_EQ(sizeof(b), 4);
+    EXPECT_EQ(sizeof(c), 16);
+
+    a.Construct<A>();
+    b.Construct<B>();
+    c.Construct<C>(5);
+
+    a.Destruct();
+    b.Destruct();
+    c.Destruct();
+}
