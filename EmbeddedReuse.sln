@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "external", "external", "{81D99702-3203-4200-8F07-A04795AC1B45}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmock", "external\gmock\msvc\2013\gmock.vcxproj", "{E53A840F-3EF4-44E5-B796-4711B709FAE8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infra", "infra", "{A597B868-E677-4341-8479-120897243DCD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infra_util", "infra\util\infra_util.vcxproj", "{1C860AC0-083C-47CE-B70E-A1913937EF2B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infra_util_test", "infra\util\infra_util_test.vcxproj", "{98C1629C-CB94-4039-BAB1-324F19E2BFD0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E53A840F-3EF4-44E5-B796-4711B709FAE8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E53A840F-3EF4-44E5-B796-4711B709FAE8}.Debug|Win32.Build.0 = Debug|Win32
+		{E53A840F-3EF4-44E5-B796-4711B709FAE8}.Release|Win32.ActiveCfg = Release|Win32
+		{E53A840F-3EF4-44E5-B796-4711B709FAE8}.Release|Win32.Build.0 = Release|Win32
+		{1C860AC0-083C-47CE-B70E-A1913937EF2B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1C860AC0-083C-47CE-B70E-A1913937EF2B}.Debug|Win32.Build.0 = Debug|Win32
+		{1C860AC0-083C-47CE-B70E-A1913937EF2B}.Release|Win32.ActiveCfg = Release|Win32
+		{1C860AC0-083C-47CE-B70E-A1913937EF2B}.Release|Win32.Build.0 = Release|Win32
+		{98C1629C-CB94-4039-BAB1-324F19E2BFD0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{98C1629C-CB94-4039-BAB1-324F19E2BFD0}.Debug|Win32.Build.0 = Debug|Win32
+		{98C1629C-CB94-4039-BAB1-324F19E2BFD0}.Release|Win32.ActiveCfg = Release|Win32
+		{98C1629C-CB94-4039-BAB1-324F19E2BFD0}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E53A840F-3EF4-44E5-B796-4711B709FAE8} = {81D99702-3203-4200-8F07-A04795AC1B45}
+		{1C860AC0-083C-47CE-B70E-A1913937EF2B} = {A597B868-E677-4341-8479-120897243DCD}
+		{98C1629C-CB94-4039-BAB1-324F19E2BFD0} = {A597B868-E677-4341-8479-120897243DCD}
+	EndGlobalSection
+EndGlobal

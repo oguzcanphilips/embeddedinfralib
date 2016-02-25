@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="public">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="private">
+      <UniqueIdentifier>{67cee4c3-9304-4422-8922-e197106abfe7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="public\AutoResetFunction.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\BitLogic.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\BoundedDeque.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\BoundedPriorityQueue.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\BoundedString.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\BoundedVector.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\ByteRange.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\Compare.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\CyclicBuffer.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\FixedPoint.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\Function.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\InterfaceConnector.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\IntrusiveBinarySearchTree.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\IntrusiveForwardList.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\IntrusiveList.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\IntrusivePriorityQueue.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\IntrusiveSet.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\MemoryRange.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\Optional.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\ReallyAssert.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\ReferenceCountedSingleton.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\ReverseRange.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\StaticStorage.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\Unit.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\VariadicTemplates.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\Variant.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\VariantDetail.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\WithStorage.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="private\dummy.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
