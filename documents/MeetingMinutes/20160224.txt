@@ -1,0 +1,38 @@
+
+Take in:
+infra_util:
+	- AutoResetFunction
+	- BitLogic
+	- BoundedDeque
+	- BoundedPriorityQueue (Remove vector specialisation --> unbounded support)
+	- BoundedString
+	- ByteRange
+	- BoundedVector
+	- CyclicBuffer (Rename!)
+	- FixedPoint
+	- Function
+	- InterfaceConnector
+	- Intrusive stuff
+	- MemoryRange
+	- Optional
+	- ReallyAssert (Discussion needed)
+	- ReferenceCountedSingleton(s)
+	- ReverseRange
+	- StaticStorage
+	- Unit (Discussion needed)
+	- VariadicTemplates (Needs review)
+	- Variant
+	- VariantDetail
+	- WithStorage
+	- Compare (Taken in because used by others. Maybe useful, needs review!)
+
+
+Do not take in:
+infra_util:
+	- Allocator (Nice2Have)
+	- BoundedObjectPool (used by allocator)
+	- Gate
+	- All streams (should be discussed)
+	- Observer (Maybe useful, needs discussion)
+	- SignalSlot (we will use another one)
+
