@@ -6,7 +6,7 @@
     <ProjectGuid>c2427504-83f4-48e3-96d0-3df52b3a5d37</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>BuildAndTest.py</StartupFile>
+    <StartupFile>BuildAndTest_Ccola.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -28,7 +28,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AsyncFileReader.py" />
-    <Compile Include="BuildAndTest.py" />
+    <Compile Include="BuildAndTest_Ccola.py" />
+    <Compile Include="BuildAndTest_VisualStudio.py" />
     <Compile Include="BuildUtils.py" />
     <Compile Include="BuildVisualStudio.py" />
     <Compile Include="TestGTest.py" />
