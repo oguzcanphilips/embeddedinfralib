@@ -14,14 +14,6 @@ def ConfigureCcolaProjects():
     repoRootDir = os.path.abspath(os.path.join(scriptDir, "..\\"))
     os.chdir(repoRootDir)
     ExecuteCommand(["ConfigVisualStudio.cmd"])
-    #ExecuteCommand(["ConfigSTM32F407.cmd"])
-    os.chdir(scriptDir)
-
-def BuildFirmware():
-    scriptDir = os.getcwd()
-    dir = os.path.abspath(os.path.join(scriptDir, "..\\"))
-    os.chdir(dir)
-    ExecuteCommand(["BuildSTM32F407.cmd"])
     os.chdir(scriptDir)
 
 def BuildEmbeddedReuse_CcolaProjects():
