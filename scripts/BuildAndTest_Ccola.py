@@ -20,9 +20,12 @@ def BuildEmbeddedReuse_CcolaProjects():
     PrintHeader("Building Embedded Reuse Ccola Projects")
     dir = GetMicroTestsProjectDir()
     ExecuteCommand(["cmake","--build",dir,"--config","Debug"])
+    #TODO: BO, why does the release build fail?
+    #ExecuteCommand(["cmake","--build",dir,"--config","Release"])
 
 def RunMicroTests_CcolaProjects():
     dir = GetMicroTestsProjectDir()
+    #TODO: BO, when release build suceeds, make this run in release mode.
     ExecuteCommand(["cmake","--build",dir,"--config","Debug", "--target", "RUN_TESTS"])
 
 if __name__ == '__main__':
