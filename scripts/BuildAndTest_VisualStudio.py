@@ -8,11 +8,13 @@ def RunMicroTests():
     PrintHeader("Running Embedded Reuse Platform Microtests")
     scriptDir = os.getcwd()
     pathToTestExecutables = os.path.abspath(os.path.join(scriptDir, "..\\Release"))
-    #TODO: BO, add iterating through the dir and gathering all test executables instead of fixed names
-    microTests = [ { "exeFile": "infra_util_test.exe",       "resultFile": "infra_util_test.xml" }]
+    
+    microTests = []
+    for test in glob.glob(pathToTestExecutables + "\\*test*.exe"):
+        microTests.append({ "exeFile": test, "resultFile": (test + ".xml") })
     
     for microTest in microTests:
-         TestGTest(path.join(pathToTestExecutables, microTest["exeFile"]), microTest["resultFile"])
+         TestGTest(microTest["exeFile"], microTest["resultFile"])
 
 
 def BuildEmbeddedReuse_VisualStudio():

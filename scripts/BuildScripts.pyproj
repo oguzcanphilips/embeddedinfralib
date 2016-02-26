@@ -6,7 +6,7 @@
     <ProjectGuid>c2427504-83f4-48e3-96d0-3df52b3a5d37</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>BuildAndTest_Ccola.py</StartupFile>
+    <StartupFile>BuildAndTest_VisualStudio.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
