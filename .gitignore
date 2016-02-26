@@ -1,3 +1,7 @@
 Debug/
 *.suo
 *.sdf
+*.opensdf
+Release/
+scripts/__pycache__/
+scripts/*.xml
