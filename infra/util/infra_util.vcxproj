@@ -33,6 +33,7 @@
     <ClInclude Include="public\ReallyAssert.hpp" />
     <ClInclude Include="public\ReferenceCountedSingleton.hpp" />
     <ClInclude Include="public\ReverseRange.hpp" />
+    <ClInclude Include="public\SignalSlot.hpp" />
     <ClInclude Include="public\StaticStorage.hpp" />
     <ClInclude Include="public\Unit.hpp" />
     <ClInclude Include="public\VariadicTemplates.hpp" />

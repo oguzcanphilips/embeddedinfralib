@@ -10,20 +10,35 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="public\DataModel.hpp" />
+    <ClInclude Include="public\DataModelConfig.hpp" />
+    <ClInclude Include="public\DataModelContent.hpp" />
+    <ClInclude Include="public\DataModelDebugger.hpp" />
+    <ClInclude Include="public\DataModelDebuggerContent.hpp" />
+    <ClInclude Include="public\DataModelString.hpp" />
+    <ClInclude Include="public\Utils.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="private\DataModel.cpp" />
+    <ClCompile Include="private\DataModelDebugger.cpp" />
+    <ClCompile Include="private\DataModelString.cpp" />
+    <ClCompile Include="private\Utils.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{98C1629C-CB94-4039-BAB1-324F19E2BFD0}</ProjectGuid>
+    <ProjectGuid>{E0A3DAE3-401C-4AAA-8E1A-ECE5C0AAF712}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>infra_util_test</RootNamespace>
+    <RootNamespace>DataModel</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -34,29 +49,24 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PropertySheet_Test.props" />
+    <Import Project="..\..\PropertySheet_Lib.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PropertySheet_Test.props" />
+    <Import Project="..\..\PropertySheet_Lib.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
+  <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -68,48 +78,15 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="test\Main.cpp" />
-    <ClCompile Include="test\TestAutoResetFunction.cpp" />
-    <ClCompile Include="test\TestBoundedDeque.cpp" />
-    <ClCompile Include="test\TestBoundedPriorityQueue.cpp" />
-    <ClCompile Include="test\TestBoundedString.cpp" />
-    <ClCompile Include="test\TestBoundedVector.cpp" />
-    <ClCompile Include="test\TestCompare.cpp" />
-    <ClCompile Include="test\TestFixedPoint.cpp" />
-    <ClCompile Include="test\TestFunction.cpp" />
-    <ClCompile Include="test\TestInterfaceConnector.cpp" />
-    <ClCompile Include="test\TestIntrusiveBinarySearchTree.cpp" />
-    <ClCompile Include="test\TestIntrusiveForwardList.cpp" />
-    <ClCompile Include="test\TestIntrusiveList.cpp" />
-    <ClCompile Include="test\TestIntrusivePriorityQueue.cpp" />
-    <ClCompile Include="test\TestIntrusiveSet.cpp" />
-    <ClCompile Include="test\TestMemoryRange.cpp" />
-    <ClCompile Include="test\TestOptional.cpp" />
-    <ClCompile Include="test\TestReferenceCountedSingleton.cpp" />
-    <ClCompile Include="test\TestSignalSlot.cpp" />
-    <ClCompile Include="test\TestSignalSlotLegacy.cpp" />
-    <ClCompile Include="test\TestStaticStorage.cpp" />
-    <ClCompile Include="test\TestUnit.cpp" />
-    <ClCompile Include="test\TestVariant.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\external\gmock\msvc\2013\gmock.vcxproj">
-      <Project>{e53a840f-3ef4-44e5-b796-4711b709fae8}</Project>
-    </ProjectReference>
-    <ProjectReference Include="infra_util.vcxproj">
-      <Project>{1c860ac0-083c-47ce-b70e-a1913937ef2b}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

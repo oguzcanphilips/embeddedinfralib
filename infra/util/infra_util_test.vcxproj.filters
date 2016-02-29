@@ -70,5 +70,11 @@
     <ClCompile Include="test\Main.cpp">
       <Filter>test</Filter>
     </ClCompile>
+    <ClCompile Include="test\TestSignalSlot.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\TestSignalSlotLegacy.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

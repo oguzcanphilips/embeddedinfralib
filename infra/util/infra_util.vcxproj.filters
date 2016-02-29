@@ -94,6 +94,9 @@
     <ClInclude Include="public\WithStorage.hpp">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="public\SignalSlot.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\dummy.cpp">
