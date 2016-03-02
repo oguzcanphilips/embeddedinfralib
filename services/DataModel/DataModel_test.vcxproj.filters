@@ -18,13 +18,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="test\DataModelContent.dm" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="test\TestConfig.hpp">
       <Filter>test</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="test\DataModelContent.dm">
-      <Filter>test</Filter>
-    </None>
   </ItemGroup>
 </Project>
