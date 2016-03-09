@@ -9,23 +9,6 @@
 
 namespace infra
 {
-    struct Text {};
-    struct Hex {};
-    struct Data {};
-
-    const Text text;
-    const Hex hex;
-    const Data data;
-
-    class TextOutputStream;
-
-    struct Width
-    {
-        explicit Width(std::size_t width);
-
-        std::size_t width;
-    };
-
     template<class T>
     class DataInputStreamHelper
         : public IndirectInputStream<T>
@@ -66,7 +49,6 @@ namespace infra
         infra::Optional<std::size_t> width;
     };
 
-
     template<class T>
         TextInputStreamHelper<T> operator>>(DataInputStreamHelper<T>& stream, Text);
     template<class T>
@@ -77,10 +59,6 @@ namespace infra
         TextInputStreamHelper<T> operator>>(TextInputStreamHelper<T>& textStream, Width);
 
     ////    Implementation    ////
-
-    inline Width::Width(std::size_t width)
-        : width(width)
-    {}
 
     template<class T>
     DataInputStreamHelper<T>::DataInputStreamHelper(InputStream<T>& stream)

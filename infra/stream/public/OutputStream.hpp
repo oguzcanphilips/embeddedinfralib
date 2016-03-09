@@ -2,13 +2,15 @@
 #define INFRA_OUTPUT_STREAM_HPP
 
 #include "infra/stream/public/StreamManipulators.hpp"
-#include "infra/stream/public/InputOutputStreamHelpers.hpp"
 #include "infra/util/public/ByteRange.hpp"
+#include "infra/util/public/Optional.hpp"
 #include <cstdlib>
 #include <type_traits>
 
 namespace infra
 {
+    class TextOutputStream;
+
     class OutputStreamWriter
     {
     public:
