@@ -11,43 +11,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="public\AutoResetFunction.hpp" />
-    <ClInclude Include="public\BitLogic.hpp" />
-    <ClInclude Include="public\BoundedDeque.hpp" />
-    <ClInclude Include="public\BoundedPriorityQueue.hpp" />
-    <ClInclude Include="public\BoundedString.hpp" />
-    <ClInclude Include="public\BoundedVector.hpp" />
-    <ClInclude Include="public\ByteRange.hpp" />
-    <ClInclude Include="public\Compare.hpp" />
-    <ClInclude Include="public\CyclicBuffer.hpp" />
-    <ClInclude Include="public\FixedPoint.hpp" />
-    <ClInclude Include="public\Function.hpp" />
-    <ClInclude Include="public\InterfaceConnector.hpp" />
-    <ClInclude Include="public\IntrusiveBinarySearchTree.hpp" />
-    <ClInclude Include="public\IntrusiveForwardList.hpp" />
-    <ClInclude Include="public\IntrusiveList.hpp" />
-    <ClInclude Include="public\IntrusivePriorityQueue.hpp" />
-    <ClInclude Include="public\IntrusiveSet.hpp" />
-    <ClInclude Include="public\MemoryRange.hpp" />
-    <ClInclude Include="public\Optional.hpp" />
-    <ClInclude Include="public\ReallyAssert.hpp" />
-    <ClInclude Include="public\ReferenceCountedSingleton.hpp" />
-    <ClInclude Include="public\ReverseRange.hpp" />
-    <ClInclude Include="public\SignalSlot.hpp" />
-    <ClInclude Include="public\StaticStorage.hpp" />
-    <ClInclude Include="public\Unit.hpp" />
-    <ClInclude Include="public\VariadicTemplates.hpp" />
-    <ClInclude Include="public\Variant.hpp" />
-    <ClInclude Include="public\VariantDetail.hpp" />
-    <ClInclude Include="public\WithStorage.hpp" />
+    <ClInclude Include="public\ByteStream.hpp" />
+    <ClInclude Include="public\InputOutputStream.hpp" />
+    <ClInclude Include="public\InputOutputStreamHelpers.hpp" />
+    <ClInclude Include="public\MemoryStream.hpp" />
+    <ClInclude Include="public\StdStringStream.hpp" />
+    <ClInclude Include="public\StringStream.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="private\dummy.cpp" />
+    <ClCompile Include="private\StdStringStream.cpp" />
+    <ClCompile Include="private\StringStream.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1C860AC0-083C-47CE-B70E-A1913937EF2B}</ProjectGuid>
+    <ProjectGuid>{1532C322-A152-486B-8842-CA07F2F43057}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>infra_util</RootNamespace>
+    <RootNamespace>infra_stream</RootNamespace>
+    <ProjectName>stream</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -68,9 +47,11 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PropertySheet_Lib.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PropertySheet_Lib.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
