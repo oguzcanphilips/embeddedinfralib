@@ -11,9 +11,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="public\ByteStream.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="public\InputOutputStream.hpp">
       <Filter>public</Filter>
     </ClInclude>
@@ -27,6 +24,15 @@
       <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="public\StringStream.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\ByteOutputStream.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\OutputStream.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\StreamManipulators.hpp">
       <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>

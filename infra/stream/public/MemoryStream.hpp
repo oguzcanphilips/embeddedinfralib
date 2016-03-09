@@ -51,31 +51,6 @@ namespace infra
         std::size_t offset = 0;
     };
 
-    class ByteOutputStream
-        : private OutputStreamWriter
-        , public DataOutputStream
-    {
-    public:
-        ByteOutputStream(ByteRange range);
-
-        ByteRange Processed() const;   // Invariant: Processed() ++ Remaining() == range
-        ByteRange Remaining() const;
-
-        void Reset();
-
-        template<std::size_t Size>
-            using WithStorage = infra::WithStorage<ByteOutputStream, std::array<uint8_t, Size>>;
-
-    private:
-        void Insert(ConstByteRange range) override;
-        void Insert(uint8_t element) override;
-        void Forward(std::size_t amount) override;
-
-    private:
-        ByteRange range;
-        std::size_t offset = 0;
-    };
-
     ////    Implementation    ////
 
     template<class T>

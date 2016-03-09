@@ -41,22 +41,6 @@ namespace infra
             DataInputStreamHelper& operator>>(MemoryRange<Data> data);
     };
 
-    class DataOutputStream
-    {
-    public:
-        DataOutputStream(OutputStreamWriter& writer);
-
-        TextOutputStream operator<<(Text);
-
-        template<class Data>
-            DataOutputStream& operator<<(const Data& data);
-        template<class Data>
-            DataOutputStream& operator<<(MemoryRange<Data> data);
-
-    private:
-        OutputStreamWriter& writer;
-    };
-
     template<class T>
     class TextInputStreamHelper
         : public IndirectInputStream<T>
@@ -82,30 +66,6 @@ namespace infra
         infra::Optional<std::size_t> width;
     };
 
-    class TextOutputStream
-    {
-    public:
-        explicit TextOutputStream(OutputStreamWriter& stream);
-
-        TextOutputStream operator<<(Hex);
-        TextOutputStream operator<<(Width width);
-        DataOutputStream operator<<(Data);
-
-        TextOutputStream& operator<<(const char* zeroTerminatedString);
-        TextOutputStream& operator<<(char c);
-        TextOutputStream& operator<<(uint8_t v);
-        TextOutputStream& operator<<(int32_t v);
-        TextOutputStream& operator<<(uint32_t v);
-
-    private:
-        void OutputAsDecimal(uint32_t v);
-        void OutputAsHex(uint32_t v);
-
-    private:
-        OutputStreamWriter& writer;
-        bool decimal = true;
-        infra::Optional<std::size_t> width;
-    };
 
     template<class T>
         TextInputStreamHelper<T> operator>>(DataInputStreamHelper<T>& stream, Text);
@@ -151,22 +111,6 @@ namespace infra
     {
         MemoryRange<typename std::remove_const<T>::type> dataRange(ReinterpretCastMemoryRange<typename std::remove_const<T>::type>(data));
         this->stream.Extract(dataRange);
-        return *this;
-    }
-
-    template<class Data>
-    DataOutputStream& DataOutputStream::operator<<(const Data& data)
-    {
-        ConstByteRange dataRange(ReinterpretCastByteRange(MakeRange(&data, &data + 1)));
-        writer.Insert(dataRange);
-        return *this;
-    }
-
-    template<class Data>
-    DataOutputStream& DataOutputStream::operator<<(MemoryRange<Data> data)
-    {
-        ConstByteRange dataRange(ReinterpretCastByteRange(data));
-        writer.Insert(dataRange);
         return *this;
     }
 

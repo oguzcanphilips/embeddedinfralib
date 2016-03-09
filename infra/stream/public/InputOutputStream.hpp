@@ -1,6 +1,7 @@
 #ifndef INFRA_INPUT_OUTPUT_STREAM_HPP
 #define INFRA_INPUT_OUTPUT_STREAM_HPP
 
+#include "infra/stream/public/StreamManipulators.hpp"
 #include "infra/util/public/ByteRange.hpp"
 #include <cstdlib>
 #include <type_traits>
@@ -36,17 +37,6 @@ namespace infra
         mutable bool checkedFail = true;
     };
 
-    class OutputStreamWriter
-    {
-    public:
-        virtual void Insert(ConstByteRange range) = 0;
-        virtual void Insert(uint8_t element) = 0;
-        virtual void Forward(std::size_t amount) = 0;
-
-    protected:
-        ~OutputStreamWriter() = default;
-    };
-
     template<class T>
     class IndirectInputStream
         : public InputStream<T>
@@ -70,17 +60,8 @@ namespace infra
         InputStream<T>& stream;
     };
 
-    struct ForwardStream
-    {
-        explicit ForwardStream(std::size_t amount);
-
-        std::size_t amount;
-    };
-
     template<class Stream>
         Stream& operator>>(Stream& stream, ForwardStream forward);
-    template<class Stream>
-        Stream& operator<<(Stream& stream, ForwardStream forward);
 
     ////    Implementation    ////
 
@@ -176,19 +157,8 @@ namespace infra
         stream.ResetFail();
     }
 
-    inline ForwardStream::ForwardStream(std::size_t amount)
-        : amount(amount)
-    {}
-
     template<class Stream>
     Stream& operator>>(Stream& stream, ForwardStream forward)
-    {
-        stream.Forward(forward.amount);
-        return stream;
-    }
-
-    template<class Stream>
-    Stream& operator<<(Stream& stream, ForwardStream forward)
     {
         stream.Forward(forward.amount);
         return stream;

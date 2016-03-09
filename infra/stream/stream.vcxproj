@@ -11,10 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="public\ByteStream.hpp" />
+    <ClInclude Include="public\ByteOutputStream.hpp" />
+    <ClInclude Include="public\StreamManipulators.hpp" />
     <ClInclude Include="public\InputOutputStream.hpp" />
     <ClInclude Include="public\InputOutputStreamHelpers.hpp" />
     <ClInclude Include="public\MemoryStream.hpp" />
+    <ClInclude Include="public\OutputStream.hpp" />
     <ClInclude Include="public\StdStringStream.hpp" />
     <ClInclude Include="public\StringStream.hpp" />
   </ItemGroup>

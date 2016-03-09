@@ -1,4 +1,4 @@
-#include "infra/stream/public/MemoryStream.hpp"
+#include "infra/stream/public/ByteOutputStream.hpp"
 
 namespace infra
 {

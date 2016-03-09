@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "infra/stream/public/MemoryStream.hpp"
+#include "infra/stream/public/ByteOutputStream.hpp"
 
 TEST(MemoryStreamTest, StreamFromRange)
 {
