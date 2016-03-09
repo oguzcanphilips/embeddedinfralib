@@ -33,7 +33,7 @@ namespace infra
     };
 
     class StringOutputStream
-        : public TextOutputStreamHelper<char>
+        : public TextOutputStream<char>
     {
     public:
         template<std::size_t Size>

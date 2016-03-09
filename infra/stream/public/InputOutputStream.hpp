@@ -1,13 +1,12 @@
 #ifndef INFRA_INPUT_OUTPUT_STREAM_HPP
 #define INFRA_INPUT_OUTPUT_STREAM_HPP
 
-#include "infra/util/public/MemoryRange.hpp"
+#include "infra/util/public/ByteRange.hpp"
 #include <cstdlib>
 #include <type_traits>
 
 namespace infra
 {
-
     struct SoftFail {};
     const SoftFail softFail;
 
@@ -37,16 +36,15 @@ namespace infra
         mutable bool checkedFail = true;
     };
 
-    template<class T>
-    class OutputStream
+    class OutputStreamWriter
     {
     public:
-        virtual void Insert(MemoryRange<const T> range) = 0;
-        virtual void Insert(T element) = 0;
+        virtual void Insert(ConstByteRange range) = 0;
+        virtual void Insert(uint8_t element) = 0;
         virtual void Forward(std::size_t amount) = 0;
 
     protected:
-        ~OutputStream() = default;
+        ~OutputStreamWriter() = default;
     };
 
     template<class T>
@@ -70,22 +68,6 @@ namespace infra
 
     protected:
         InputStream<T>& stream;
-    };
-
-    template<class T>
-    class IndirectOutputStream
-        : public OutputStream<T>
-    {
-    public:
-        IndirectOutputStream(OutputStream<T>& stream);
-
-    public:
-        void Insert(MemoryRange<const T> range) override;
-        void Insert(T element) override;
-        void Forward(std::size_t amount) override;
-
-    protected:
-        OutputStream<T>& stream;
     };
 
     struct ForwardStream
@@ -192,29 +174,6 @@ namespace infra
     void IndirectInputStream<T>::ResetFail()
     {
         stream.ResetFail();
-    }
-
-    template<class T>
-    IndirectOutputStream<T>::IndirectOutputStream(OutputStream<T>& stream)
-        : stream(stream)
-    {}
-
-    template<class T>
-    void IndirectOutputStream<T>::Insert(MemoryRange<const T> range)
-    {
-        stream.Insert(range);
-    }
-
-    template<class T>
-    void IndirectOutputStream<T>::Insert(T element)
-    {
-        stream.Insert(element);
-    }
-
-    template<class T>
-    void IndirectOutputStream<T>::Forward(std::size_t amount)
-    {
-        stream.Forward(amount);
     }
 
     inline ForwardStream::ForwardStream(std::size_t amount)

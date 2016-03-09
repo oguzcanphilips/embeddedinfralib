@@ -32,7 +32,7 @@ namespace infra
     };
 
     class StdStringOutputStream
-        : public TextOutputStreamHelper<char>
+        : public TextOutputStream<char>
     {
     public:
         using WithStorage = infra::WithStorage<StdStringOutputStream, std::string>;

@@ -25,31 +25,31 @@ TEST(MemoryStreamTest, StreamToRange)
 {
     struct From
     {
-        int a;
-        int b;
+        uint8_t a;
+        uint8_t b;
 
         bool operator==(const From& other) const { return a == other.a && b == other.b; };
     } from = { 0, 1 };
 
-    std::array<int, 4> to = { 2, 3, 4, 5 };
+    std::array<uint8_t, 4> to = { 2, 3, 4, 5 };
 
-    infra::MemoryOutputStream<int> stream(to);
+    infra::ByteOutputStream stream(to);
     stream << from;
 
-    EXPECT_EQ((std::array<int, 4>{{ 0, 1, 4, 5 }}), to);
-    EXPECT_EQ((std::vector<int>{ 4, 5 }), stream.Remaining());
-    EXPECT_EQ((std::vector<int>{ 0, 1 }), stream.Processed());
+    EXPECT_EQ((std::array<uint8_t, 4>{{ 0, 1, 4, 5 }}), to);
+    EXPECT_EQ((std::vector<uint8_t>{ 4, 5 }), stream.Remaining());
+    EXPECT_EQ((std::vector<uint8_t>{ 0, 1 }), stream.Processed());
 }
 
 TEST(MemoryStreamTest, StreamFromMemoryRange)
 {
-    std::array<int, 2> from = { 0, 1 };
-    std::array<int, 4> buffer = { 2, 3, 4, 5 };
+    std::array<uint8_t, 2> from = { 0, 1 };
+    std::array<uint8_t, 4> buffer = { 2, 3, 4, 5 };
 
-    infra::MemoryOutputStream<int> stream(buffer);
+    infra::ByteOutputStream stream(buffer);
     stream << from;
 
-    EXPECT_EQ((std::array<int, 4>{{ 0, 1, 4, 5 }}), buffer);
+    EXPECT_EQ((std::array<uint8_t, 4>{{ 0, 1, 4, 5 }}), buffer);
 }
 
 TEST(MemoryStreamTest, StreamToMemoryRange)
@@ -76,8 +76,8 @@ TEST(MemoryStreamTest, ForwardSkipsBytes)
 
 TEST(MemoryStreamTest, WithStorage)
 {
-    infra::MemoryOutputStream<int>::WithStorage<5> stream;
-    stream << 1 << 2 << 3;
+    infra::ByteOutputStream::WithStorage<5> stream;
+    stream << uint8_t(1) << uint8_t(2) << uint8_t(3);
 
-    EXPECT_EQ((std::array<int, 3>{{ 1, 2, 3 }}), stream.Processed());
+    EXPECT_EQ((std::array<uint8_t, 3>{{ 1, 2, 3 }}), stream.Processed());
 }

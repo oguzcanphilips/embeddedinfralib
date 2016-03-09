@@ -19,6 +19,8 @@
     <ClInclude Include="public\StringStream.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="private\ByteOutputStream.cpp" />
+    <ClCompile Include="private\OutputStream.cpp" />
     <ClCompile Include="private\StdStringStream.cpp" />
     <ClCompile Include="private\StringStream.cpp" />
   </ItemGroup>

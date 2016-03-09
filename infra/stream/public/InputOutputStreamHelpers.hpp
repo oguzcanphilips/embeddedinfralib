@@ -17,6 +17,8 @@ namespace infra
     const Hex hex;
     const Data data;
 
+    class TextOutputStream;
+
     struct Width
     {
         explicit Width(std::size_t width);
@@ -39,17 +41,20 @@ namespace infra
             DataInputStreamHelper& operator>>(MemoryRange<Data> data);
     };
 
-    template<class T>
-    class DataOutputStreamHelper
-        : public IndirectOutputStream<T>
+    class DataOutputStream
     {
     public:
-        DataOutputStreamHelper(OutputStream<T>& stream);
+        DataOutputStream(OutputStreamWriter& writer);
+
+        TextOutputStream operator<<(Text);
 
         template<class Data>
-            DataOutputStreamHelper& operator<<(const Data& data);
+            DataOutputStream& operator<<(const Data& data);
         template<class Data>
-            DataOutputStreamHelper& operator<<(MemoryRange<Data> data);
+            DataOutputStream& operator<<(MemoryRange<Data> data);
+
+    private:
+        OutputStreamWriter& writer;
     };
 
     template<class T>
@@ -77,26 +82,27 @@ namespace infra
         infra::Optional<std::size_t> width;
     };
 
-    template<class T>
-    class TextOutputStreamHelper
-        : public IndirectOutputStream<T>
+    class TextOutputStream
     {
     public:
-        explicit TextOutputStreamHelper(OutputStream<T>& stream);
-        TextOutputStreamHelper(TextOutputStreamHelper<T>& stream, Hex);
-        TextOutputStreamHelper(TextOutputStreamHelper<T>& stream, Width width);
+        explicit TextOutputStream(OutputStreamWriter& stream);
 
-        TextOutputStreamHelper& operator<<(const char* zeroTerminatedString);
-        TextOutputStreamHelper& operator<<(char c);
-        TextOutputStreamHelper& operator<<(uint8_t v);
-        TextOutputStreamHelper& operator<<(uint32_t v);
-        TextOutputStreamHelper& operator<<(int32_t v);
+        TextOutputStream operator<<(Hex);
+        TextOutputStream operator<<(Width width);
+        DataOutputStream operator<<(Data);
+
+        TextOutputStream& operator<<(const char* zeroTerminatedString);
+        TextOutputStream& operator<<(char c);
+        TextOutputStream& operator<<(uint8_t v);
+        TextOutputStream& operator<<(int32_t v);
+        TextOutputStream& operator<<(uint32_t v);
 
     private:
         void OutputAsDecimal(uint32_t v);
         void OutputAsHex(uint32_t v);
 
     private:
+        OutputStreamWriter& writer;
         bool decimal = true;
         infra::Optional<std::size_t> width;
     };
@@ -109,19 +115,6 @@ namespace infra
         TextInputStreamHelper<T> operator>>(TextInputStreamHelper<T>& textStream, Hex);
     template<class T>
         TextInputStreamHelper<T> operator>>(TextInputStreamHelper<T>& textStream, Width);
-
-    template<class T>
-        TextOutputStreamHelper<T> operator<<(DataOutputStreamHelper<T>& stream, Text);
-    template<class T>
-        DataOutputStreamHelper<T> operator<<(TextOutputStreamHelper<T>& textStream, Data);
-    template<class T>
-        TextOutputStreamHelper<T> operator<<(TextOutputStreamHelper<T>& textStream, Hex);
-    template<class T>
-        TextOutputStreamHelper<T> operator<<(TextOutputStreamHelper<T>& textStream, Width);
-    template<class T>
-        TextOutputStreamHelper<T> operator<<(TextOutputStreamHelper<T>&& textStream, Hex);
-    template<class T>
-        TextOutputStreamHelper<T> operator<<(TextOutputStreamHelper<T>&& textStream, Width);
 
     ////    Implementation    ////
 
@@ -161,26 +154,19 @@ namespace infra
         return *this;
     }
 
-    template<class T>
-    DataOutputStreamHelper<T>::DataOutputStreamHelper(OutputStream<T>& stream)
-        : IndirectOutputStream<T>(stream)
-    {}
-
-    template<class T>
     template<class Data>
-    DataOutputStreamHelper<T>& DataOutputStreamHelper<T>::operator<<(const Data& data)
+    DataOutputStream& DataOutputStream::operator<<(const Data& data)
     {
-        MemoryRange<const T> dataRange(ReinterpretCastMemoryRange<const T>(MakeRange(&data, &data + 1)));
-        this->stream.Insert(dataRange);
+        ConstByteRange dataRange(ReinterpretCastByteRange(MakeRange(&data, &data + 1)));
+        writer.Insert(dataRange);
         return *this;
     }
 
-    template<class T>
     template<class Data>
-    DataOutputStreamHelper<T>& DataOutputStreamHelper<T>::operator<<(MemoryRange<Data> data)
+    DataOutputStream& DataOutputStream::operator<<(MemoryRange<Data> data)
     {
-        MemoryRange<const T> dataRange(ReinterpretCastMemoryRange<const T>(data));
-        this->stream.Insert(dataRange);
+        ConstByteRange dataRange(ReinterpretCastByteRange(data));
+        writer.Insert(dataRange);
         return *this;
     }
 
@@ -315,124 +301,6 @@ namespace infra
     }
 
     template<class T>
-    TextOutputStreamHelper<T>::TextOutputStreamHelper(OutputStream<T>& stream)
-        : IndirectOutputStream<T>(stream)
-    {}
-
-    template<class T>
-    TextOutputStreamHelper<T>::TextOutputStreamHelper(TextOutputStreamHelper<T>& stream, Hex)
-        : IndirectOutputStream<T>(static_cast<OutputStream<T>&>(stream))
-        , decimal(false)
-        , width(stream.width)
-    {}
-
-    template<class T>
-    TextOutputStreamHelper<T>::TextOutputStreamHelper(TextOutputStreamHelper<T>& stream, Width width)
-        : IndirectOutputStream<T>(static_cast<OutputStream<T>&>(stream))
-        , decimal(stream.decimal)
-        , width(infra::inPlace, width.width)
-    {}
-
-    template<class T>
-    TextOutputStreamHelper<T>& TextOutputStreamHelper<T>::operator<<(const char* zeroTerminatedString)
-    {
-        this->stream.Insert(ReinterpretCastMemoryRange<const T>(MakeRange(zeroTerminatedString, zeroTerminatedString + std::strlen(zeroTerminatedString))));
-
-        return *this;
-    }
-
-    template<class T>
-    TextOutputStreamHelper<T>& TextOutputStreamHelper<T>::operator<<(char c)
-    {
-        this->stream.Insert(c);
-
-        return *this;
-    }
-
-    template<class T>
-    TextOutputStreamHelper<T>& TextOutputStreamHelper<T>::operator<<(uint8_t v)
-    {
-        if (decimal)
-            OutputAsDecimal(v);
-        else
-            OutputAsHex(v);
-
-        return *this;
-    }
-
-    template<class T>
-    TextOutputStreamHelper<T>& TextOutputStreamHelper<T>::operator<<(uint32_t v)
-    {
-        if (decimal)
-            OutputAsDecimal(v);
-        else
-            OutputAsHex(v);
-
-        return *this;
-    }
-
-    template<class T>
-    TextOutputStreamHelper<T>& TextOutputStreamHelper<T>::operator<<(int32_t v)
-    {
-        if (v < 0)
-            this->stream.Insert('-');
-        if (decimal)
-            OutputAsDecimal(std::abs(v));
-        else
-            OutputAsHex(std::abs(v));
-
-        return *this;
-    }
-
-    template<class T>
-    void TextOutputStreamHelper<T>::OutputAsDecimal(uint32_t v)
-    {
-        uint32_t nofDigits = 1;
-        uint32_t mask = 1;
-
-        while (v / mask >= 10)
-        {
-            mask *= 10;
-            ++nofDigits;
-        }
-
-        if (width)
-            for (std::size_t i = nofDigits; i < *width; ++i)
-                this->stream.Insert('0');
-
-        while (mask)
-        {
-            this->stream.Insert(static_cast<char>(((v / mask) % 10) + '0'));
-            mask /= 10;
-        }
-    }
-
-    template<class T>
-    void TextOutputStreamHelper<T>::OutputAsHex(uint32_t v)
-    {
-        static const char hexChars[] = "0123456789abcdef";
-
-        uint32_t nofDigits = 1;
-        uint32_t mask = 1;
-
-        while (v / mask >= 16)
-        {
-            mask *= 16;
-            ++nofDigits;
-        }
-
-        if (width)
-            for (std::size_t i = nofDigits; i < *width; ++i)
-                this->stream.Insert('0');
-
-        while (mask)
-        {
-            this->stream.Insert(static_cast<char>(hexChars[(v / mask) % 16]));
-            mask /= 16;
-        }
-    }
-
-    template<class T>
     TextInputStreamHelper<T> operator>>(DataInputStreamHelper<T>& stream, Text)
     {
         return TextInputStreamHelper<T>(static_cast<InputStream<T>&>(stream));
@@ -454,42 +322,6 @@ namespace infra
     TextInputStreamHelper<T> operator>>(TextInputStreamHelper<T>& textStream, Width width)
     {
         return TextInputStreamHelper<T>(textStream, width);
-    }
-
-    template<class T>
-    TextOutputStreamHelper<T> operator<<(DataOutputStreamHelper<T>& stream, Text)
-    {
-        return TextOutputStreamHelper<T>(static_cast<OutputStream<T>&>(stream));
-    }
-
-    template<class T>
-    DataOutputStreamHelper<T> operator<<(TextOutputStreamHelper<T>& textStream, Data)
-    {
-        return DataOutputStreamHelper<T>(static_cast<OutputStream<T>&>(textStream));
-    }
-
-    template<class T>
-    TextOutputStreamHelper<T> operator<<(TextOutputStreamHelper<T>& textStream, Hex)
-    {
-        return TextOutputStreamHelper<T>(textStream, hex);
-    }
-
-    template<class T>
-    TextOutputStreamHelper<T> operator<<(TextOutputStreamHelper<T>& textStream, Width width)
-    {
-        return TextOutputStreamHelper<T>(textStream, width);
-    }
-
-    template<class T>
-    TextOutputStreamHelper<T> operator<<(TextOutputStreamHelper<T>&& textStream, Hex)
-    {
-        return TextOutputStreamHelper<T>(textStream, hex);
-    }
-
-    template<class T>
-    TextOutputStreamHelper<T> operator<<(TextOutputStreamHelper<T>&& textStream, Width width)
-    {
-        return TextOutputStreamHelper<T>(textStream, width);
     }
 }
 

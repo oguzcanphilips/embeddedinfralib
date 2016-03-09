@@ -13,7 +13,7 @@
 // uint16_t myChecksum = 0x5678;
 //
 // std::array<uint8_t, 20> memory;
-// infra::MemoryOutputStream writeStream(memory);
+// infra::ByteOutputStream writeStream(memory);
 // writeStream << uint8_t(4) << myData << myChecksum;
 //
 // Now memory contains the bytes 0x04, 0x12, 0x34, 0x56, 0x78.
@@ -51,28 +51,28 @@ namespace infra
         std::size_t offset = 0;
     };
 
-    template<class T>
-    class MemoryOutputStream
-        : public DataOutputStreamHelper<T>
+    class ByteOutputStream
+        : private OutputStreamWriter
+        , public DataOutputStream
     {
     public:
-        explicit MemoryOutputStream(MemoryRange<T> aRange);
+        ByteOutputStream(ByteRange range);
 
-        MemoryRange<T> Processed() const;   // Invariant: Processed() ++ Remaining() == range
-        MemoryRange<T> Remaining() const;
+        ByteRange Processed() const;   // Invariant: Processed() ++ Remaining() == range
+        ByteRange Remaining() const;
 
         void Reset();
 
         template<std::size_t Size>
-            using WithStorage = infra::WithStorage<MemoryOutputStream<T>, std::array<T, Size>>;
+            using WithStorage = infra::WithStorage<ByteOutputStream, std::array<uint8_t, Size>>;
 
-    public:
-        void Insert(MemoryRange<const T> range) override;
-        void Insert(T element) override;
+    private:
+        void Insert(ConstByteRange range) override;
+        void Insert(uint8_t element) override;
         void Forward(std::size_t amount) override;
 
     private:
-        MemoryRange<T> range;
+        ByteRange range;
         std::size_t offset = 0;
     };
 
@@ -130,52 +130,6 @@ namespace infra
     bool MemoryInputStream<T>::Empty() const
     {
         return offset == range.size();
-    }
-
-    template<class T>
-    MemoryOutputStream<T>::MemoryOutputStream(MemoryRange<T> aRange)
-        : DataOutputStreamHelper<T>(static_cast<OutputStream<T>&>(*this))
-        , range(aRange)
-    {}
-
-    template<class T>
-    MemoryRange<T> MemoryOutputStream<T>::Processed() const
-    {
-        return MakeRange(range.begin(), range.begin() + offset);
-    }
-
-    template<class T>
-    MemoryRange<T> MemoryOutputStream<T>::Remaining() const
-    {
-        return MakeRange(range.begin() + offset, range.end());
-    }
-
-    template<class T>
-    void MemoryOutputStream<T>::Reset()
-    {
-        offset = 0;
-    }
-
-    template<class T>
-    void MemoryOutputStream<T>::Insert(MemoryRange<const T> dataRange)
-    {
-        assert(dataRange.size() <= range.size() - offset);
-        std::copy(dataRange.begin(), dataRange.begin() + dataRange.size(), range.begin() + offset);
-        offset += dataRange.size();
-    }
-
-    template<class T>
-    void MemoryOutputStream<T>::Insert(T element)
-    {
-        MemoryRange<T> dataRange(MakeRange(&element, &element + 1));
-        Insert(dataRange);
-    }
-
-    template<class T>
-    void MemoryOutputStream<T>::Forward(std::size_t amount)
-    {
-        assert(amount <= range.size() - offset);
-        offset += amount;
     }
 }
 

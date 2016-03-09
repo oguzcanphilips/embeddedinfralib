@@ -8,7 +8,7 @@ namespace infra
 {
 
     typedef MemoryInputStream<uint8_t> ByteInputStream;
-    typedef MemoryOutputStream<uint8_t> ByteOutputStream;
+    typedef ByteOutputStream<uint8_t> ByteOutputStream;
 
 }
 

@@ -37,5 +37,11 @@
     <ClCompile Include="private\StringStream.cpp">
       <Filter>private</Filter>
     </ClCompile>
+    <ClCompile Include="private\OutputStream.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\ByteOutputStream.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
