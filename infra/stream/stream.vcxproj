@@ -22,6 +22,11 @@
     <ClCompile Include="private\StdStringStream.cpp" />
     <ClCompile Include="private\StringStream.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\util\util.vcxproj">
+      <Project>{1c860ac0-083c-47ce-b70e-a1913937ef2b}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1532C322-A152-486B-8842-CA07F2F43057}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
