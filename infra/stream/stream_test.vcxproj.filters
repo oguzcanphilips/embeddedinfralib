@@ -16,5 +16,11 @@
     <ClCompile Include="test\Main.cpp">
       <Filter>test</Filter>
     </ClCompile>
+    <ClCompile Include="test\TestByteOutputStream.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\TestStringOuputStream.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

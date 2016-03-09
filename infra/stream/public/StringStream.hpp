@@ -2,6 +2,7 @@
 #define INFRA_STRING_STREAM_HPP
 
 #include "infra/stream/public/InputOutputStreamHelpers.hpp"
+#include "infra/stream/public/OutputStream.hpp"
 #include "infra/util/public/BoundedString.hpp"
 #include <cstdint>
 
@@ -33,7 +34,8 @@ namespace infra
     };
 
     class StringOutputStream
-        : public TextOutputStream<char>
+        : private OutputStreamWriter
+        , public TextOutputStream
     {
     public:
         template<std::size_t Size>
@@ -43,12 +45,13 @@ namespace infra
         StringOutputStream(BoundedString& string, SoftFail);
         ~StringOutputStream();
 
-        void Insert(MemoryRange<const char> range) override;
-        void Insert(char element) override;
-        void Forward(std::size_t amount) override;
-
         bool HasFailed() const;
         void ResetFail();
+
+    private:
+        void Insert(ConstByteRange range) override;
+        void Insert(uint8_t element) override;
+        void Forward(std::size_t amount) override;
 
     private:
         BoundedString& string;

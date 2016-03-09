@@ -2,13 +2,13 @@
 #define INFRA_STD_STRING_STREAM_HPP
 
 #include "infra/stream/public/InputOutputStreamHelpers.hpp"
+#include "infra/stream/public/OutputStream.hpp"
 #include "infra/util/public/WithStorage.hpp"
 #include <cstdint>
 #include <string>
 
 namespace infra
 {
-
     class StdStringInputStream
         : public TextInputStreamHelper<char>
     {
@@ -32,7 +32,8 @@ namespace infra
     };
 
     class StdStringOutputStream
-        : public TextOutputStream<char>
+        : private OutputStreamWriter
+        , public TextOutputStream
     {
     public:
         using WithStorage = infra::WithStorage<StdStringOutputStream, std::string>;
@@ -41,12 +42,13 @@ namespace infra
         StdStringOutputStream(std::string& string, SoftFail);
         ~StdStringOutputStream();
 
-        void Insert(MemoryRange<const char> range) override;
-        void Insert(char element) override;
-        void Forward(std::size_t amount) override;
-
         bool HasFailed() const;
         void ResetFail();
+
+    private:
+        void Insert(ConstByteRange range) override;
+        void Insert(uint8_t element) override;
+        void Forward(std::size_t amount) override;
 
     private:
         std::string& string;
