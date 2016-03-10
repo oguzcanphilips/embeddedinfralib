@@ -25,6 +25,11 @@
     <ClCompile Include="private\DataModelString.cpp" />
     <ClCompile Include="private\Utils.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\infra\util\util.vcxproj">
+      <Project>{1c860ac0-083c-47ce-b70e-a1913937ef2b}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E0A3DAE3-401C-4AAA-8E1A-ECE5C0AAF712}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

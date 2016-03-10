@@ -1,7 +1,5 @@
 #ifndef DATAMODELCONFIG_H
 #define DATAMODELCONFIG_H
-#include <stdint.h>
-#include <stdlib.h>
 
 #ifdef WIN32
     #include <exception>

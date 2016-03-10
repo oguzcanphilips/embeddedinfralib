@@ -5,19 +5,22 @@
 #include <cstdint>
 #include <cstring>
 
-class DataModelString
+namespace service
 {
-public:
-    DataModelString(const char* s);
+    class DataModelString
+    {
+    public:
+        DataModelString(const char* s);
 
-    void operator=(const char* s);
-    bool operator==(const DataModelString& rhs);
-    bool operator!=(const DataModelString& rhs);
-    operator const char*() const;
+        void operator=(const char* s);
+        bool operator==(const DataModelString& rhs);
+        bool operator!=(const DataModelString& rhs);
+        operator const char*() const;
 
-private:
-    void Copy(const char* s);
-    char str[32];
-};
+    private:
+        void Copy(const char* s);
+        char str[32];
+    };
+}
 
 #endif
