@@ -5,13 +5,10 @@
 
 namespace infra
 {
-    struct Text {};
-    struct Hex {};
-    struct Data {};
-
-    const Text text;
-    const Hex hex;
-    const Data data;
+    const struct Text {} text;
+    const struct Hex {} hex;
+    const struct Data {} data;
+    const struct SoftFail {} softFail;
 
     struct Width
     {

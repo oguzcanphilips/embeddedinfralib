@@ -1,11 +1,10 @@
 #include "gtest/gtest.h"
-#include "infra/stream/public/StdStringStream.hpp"
-#include "infra/stream/public/StringStream.hpp"
-#include "infra/stream/public/MemoryStream.hpp"
+#include "infra/stream/public/StdStringInputStream.hpp"
+#include "infra/stream/public/StringInputStream.hpp"
 #include "infra/util/public/BoundedString.hpp"
 #include <cstdint>
 
-TEST(StringStreamTest, ExtractDecimal)
+TEST(StringInputStreamTest, ExtractDecimal)
 {
     infra::BoundedString::WithStorage<10> string("12");
     infra::StringInputStream stream(string);
@@ -15,7 +14,7 @@ TEST(StringStreamTest, ExtractDecimal)
     EXPECT_EQ(12, value);
 }
 
-TEST(StringStreamTest, ExtractHex)
+TEST(StringInputStreamTest, ExtractHex)
 {
     infra::BoundedString::WithStorage<10> string("ab");
     infra::StringInputStream stream(string);
@@ -25,7 +24,7 @@ TEST(StringStreamTest, ExtractHex)
     EXPECT_EQ(0xab, value);
 }
 
-TEST(StringStreamTest, ExtractSmallValue)
+TEST(StringInputStreamTest, ExtractSmallValue)
 {
     infra::BoundedString::WithStorage<10> string("a");
     infra::StringInputStream stream(string);
@@ -35,7 +34,7 @@ TEST(StringStreamTest, ExtractSmallValue)
     EXPECT_EQ(0xa, value);
 }
 
-TEST(StringStreamTest, ExtractDelimitedValue)
+TEST(StringInputStreamTest, ExtractDelimitedValue)
 {
     infra::BoundedString::WithStorage<10> string("a ");
     infra::StringInputStream stream(string);
@@ -45,7 +44,7 @@ TEST(StringStreamTest, ExtractDelimitedValue)
     EXPECT_EQ(0xa, value);
 }
 
-TEST(StringStreamTest, ExtractPartialValue)
+TEST(StringInputStreamTest, ExtractPartialValue)
 {
     infra::BoundedString::WithStorage<10> string("abcd");
     infra::StringInputStream stream(string);
@@ -55,7 +54,7 @@ TEST(StringStreamTest, ExtractPartialValue)
     EXPECT_EQ(0xa, value);
 }
 
-TEST(StringStreamTest, ExtractUint16)
+TEST(StringInputStreamTest, ExtractUint16)
 {
     infra::BoundedString::WithStorage<10> string("abcd");
     infra::StringInputStream stream(string);
@@ -65,7 +64,7 @@ TEST(StringStreamTest, ExtractUint16)
     EXPECT_EQ(0xabcd, value);
 }
 
-TEST(StringStreamTest, ExtractUint32)
+TEST(StringInputStreamTest, ExtractUint32)
 {
     infra::BoundedString::WithStorage<10> string("abcd0123");
     infra::StringInputStream stream(string);
@@ -75,7 +74,7 @@ TEST(StringStreamTest, ExtractUint32)
     EXPECT_EQ(0xabcd0123, value);
 }
 
-TEST(StringStreamTest, StdStringInputStream)
+TEST(StringInputStreamTest, StdStringInputStream)
 {
     std::string string("abcd");
     infra::StdStringInputStream stream(string);
@@ -85,7 +84,7 @@ TEST(StringStreamTest, StdStringInputStream)
     EXPECT_EQ(0xa, value);
 }
 
-TEST(StringStreamTest, ExtractHexWithOverflow)
+TEST(StringInputStreamTest, ExtractHexWithOverflow)
 {
     infra::StringInputStream::WithStorage<2> stream(infra::softFail);
 
@@ -95,7 +94,7 @@ TEST(StringStreamTest, ExtractHexWithOverflow)
     EXPECT_TRUE(stream.HasFailed());
 }
 
-TEST(StringStreamTest, StringOutputStreamResetFail)
+TEST(StringInputStreamTest, StringOutputStreamResetFail)
 {
     infra::StringInputStream::WithStorage<2> stream(infra::softFail);
 
@@ -106,7 +105,7 @@ TEST(StringStreamTest, StringOutputStreamResetFail)
     EXPECT_FALSE(stream.HasFailed());
 }
 
-TEST(StringStreamTest, ExtractHexFrowStdStringInputStreamWithOverflow)
+TEST(StringInputStreamTest, ExtractHexFrowStdStringInputStreamWithOverflow)
 {
     infra::StdStringInputStream::WithStorage stream(infra::softFail);
 
@@ -116,7 +115,7 @@ TEST(StringStreamTest, ExtractHexFrowStdStringInputStreamWithOverflow)
     EXPECT_TRUE(stream.HasFailed());
 }
 
-TEST(StringStreamTest, StdStringOutputStreamResetFail)
+TEST(StringInputStreamTest, StdStringOutputStreamResetFail)
 {
     infra::StdStringInputStream::WithStorage stream(infra::softFail);
 
@@ -127,7 +126,7 @@ TEST(StringStreamTest, StdStringOutputStreamResetFail)
     EXPECT_FALSE(stream.HasFailed());
 }
 
-TEST(StringStreamTest, ExtractHexWithoutGoodCharacters)
+TEST(StringInputStreamTest, ExtractHexWithoutGoodCharacters)
 {
     infra::StringInputStream::WithStorage<2> stream(infra::inPlace, "k", infra::softFail);
 
@@ -137,7 +136,7 @@ TEST(StringStreamTest, ExtractHexWithoutGoodCharacters)
     EXPECT_TRUE(stream.HasFailed());
 }
 
-TEST(StringStreamTest, ExtractStringLiteral)
+TEST(StringInputStreamTest, ExtractStringLiteral)
 {
     infra::StdStringInputStream::WithStorage stream(infra::inPlace, "abcd");
 

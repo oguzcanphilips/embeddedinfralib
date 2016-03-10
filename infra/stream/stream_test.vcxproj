@@ -13,9 +13,10 @@
   <ItemGroup>
     <ClCompile Include="test\Main.cpp" />
     <ClCompile Include="test\TestByteOutputStream.cpp" />
-    <ClCompile Include="test\TestMemoryStream.cpp" />
+    <ClCompile Include="test\TestByteInputStream.cpp" />
+    <ClCompile Include="test\TestStdStringOuputStream.cpp" />
     <ClCompile Include="test\TestStringOuputStream.cpp" />
-    <ClCompile Include="test\TestStringStream.cpp" />
+    <ClCompile Include="test\TestStringInputStream.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\external\gmock\msvc\2013\gmock.vcxproj">

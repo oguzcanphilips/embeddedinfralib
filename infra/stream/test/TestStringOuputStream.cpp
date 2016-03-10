@@ -1,7 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/stream/public/StdStringStream.hpp"
-#include "infra/stream/public/StringStream.hpp"
-#include "infra/stream/public/MemoryStream.hpp"
+#include "infra/stream/public/StringOutputStream.hpp"
 #include "infra/util/public/BoundedString.hpp"
 #include <cstdint>
 
@@ -154,13 +152,4 @@ TEST(StringOuputStreamTest, ResetFail)
     ASSERT_TRUE(stream.HasFailed());
     stream.ResetFail();
     EXPECT_FALSE(stream.HasFailed());
-}
-
-TEST(StringOuputStreamTest, StdStringOutputStream)
-{
-    infra::StdStringOutputStream::WithStorage stream;
-
-    stream << "abcd";
-
-    EXPECT_EQ("abcd", stream.Storage());
 }

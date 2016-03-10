@@ -8,9 +8,6 @@
 
 namespace infra
 {
-    struct SoftFail {};
-    const SoftFail softFail;
-
     template<class T>
     class InputStream
     {

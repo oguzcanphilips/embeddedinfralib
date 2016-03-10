@@ -1,7 +1,7 @@
 #ifndef INFRA_INPUT_OUTPUT_STREAM_HELPERS_HPP
 #define INFRA_INPUT_OUTPUT_STREAM_HELPERS_HPP
 
-#include "infra/stream/public/InputOutputStream.hpp"
+#include "infra/stream/public/InputStream.hpp"
 #include "infra/util/public/Optional.hpp"
 #include <cstdint>
 #include <cstring>

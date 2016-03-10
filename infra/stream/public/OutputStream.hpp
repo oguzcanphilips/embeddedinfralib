@@ -30,9 +30,9 @@ namespace infra
         TextOutputStream operator<<(Text);
 
         template<class Data>
-        DataOutputStream& operator<<(const Data& data);
+            DataOutputStream& operator<<(const Data& data);
         template<class Data>
-        DataOutputStream& operator<<(MemoryRange<Data> data);
+            DataOutputStream& operator<<(MemoryRange<Data> data);
 
     private:
         OutputStreamWriter& writer;

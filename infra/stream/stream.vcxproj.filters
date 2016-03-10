@@ -11,43 +11,55 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="public\InputOutputStream.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="public\InputOutputStreamHelpers.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="public\MemoryStream.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="public\StdStringStream.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="public\StringStream.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="public\ByteOutputStream.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="public\OutputStream.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="public\StreamManipulators.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="private\StdStringStream.cpp">
-      <Filter>private</Filter>
-    </ClCompile>
-    <ClCompile Include="private\StringStream.cpp">
-      <Filter>private</Filter>
-    </ClCompile>
     <ClCompile Include="private\OutputStream.cpp">
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="private\ByteOutputStream.cpp">
       <Filter>private</Filter>
     </ClCompile>
+    <ClCompile Include="private\StringOutputStream.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\StringInputStream.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\StdStringOutputStream.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\StdStringInputStream.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="public\ByteOutputStream.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\OutputStream.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\StdStringInputStream.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\StdStringOutputStream.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\StreamManipulators.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\StringInputStream.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\StringOutputStream.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\ByteInputStream.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\InputStream.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\InputStreamHelpers.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
