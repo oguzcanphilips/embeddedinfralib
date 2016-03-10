@@ -12,9 +12,15 @@
     <ClInclude Include="public\CyclicFlashStorage.hpp">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="public\CyclicFlashStorageImpl.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\CyclicFlashStorage.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\CyclicFlashStorageImpl.cpp">
       <Filter>private</Filter>
     </ClCompile>
   </ItemGroup>

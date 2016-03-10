@@ -11,19 +11,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{CE75A4BE-D5AD-4211-9F76-88FEB6C2A132}</ProjectGuid>
-    <RootNamespace>services_util</RootNamespace>
-    <ProjectName>util</ProjectName>
+    <ProjectGuid>{5D08B7A0-C279-4E1F-95F0-01ACC6F529B5}</ProjectGuid>
+    <RootNamespace>sequencer</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -34,11 +33,11 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PropertySheet_Lib.props" />
+    <Import Project="..\..\PropertySheet_Test.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PropertySheet_Lib.props" />
+    <Import Project="..\..\PropertySheet_Test.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
@@ -67,12 +66,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="private\CyclicFlashStorage.cpp" />
-    <ClCompile Include="private\CyclicFlashStorageImpl.cpp" />
+    <ClCompile Include="test\Main.cpp" />
+    <ClCompile Include="test\TestSequencer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="public\CyclicFlashStorage.hpp" />
-    <ClInclude Include="public\CyclicFlashStorageImpl.hpp" />
+    <ProjectReference Include="..\..\external\gmock\msvc\2013\gmock.vcxproj">
+      <Project>{e53a840f-3ef4-44e5-b796-4711b709fae8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\util\util.vcxproj">
+      <Project>{1c860ac0-083c-47ce-b70e-a1913937ef2b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="sequencer.vcxproj">
+      <Project>{81b06b61-efd6-439b-b883-292d384bfb0c}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -9,13 +9,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="private\Flash.cpp">
-      <Filter>private</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="public\Flash.hpp">
       <Filter>public</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="private\Flash.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
