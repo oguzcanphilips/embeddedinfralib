@@ -28,6 +28,7 @@ namespace infra
         DataOutputStream(OutputStreamWriter& writer);
 
         TextOutputStream operator<<(Text);
+        DataOutputStream& operator<<(ForwardStream forward);
 
         template<class Data>
             DataOutputStream& operator<<(const Data& data);

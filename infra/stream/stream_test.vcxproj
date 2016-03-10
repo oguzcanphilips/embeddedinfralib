@@ -14,6 +14,7 @@
     <ClCompile Include="test\Main.cpp" />
     <ClCompile Include="test\TestByteOutputStream.cpp" />
     <ClCompile Include="test\TestByteInputStream.cpp" />
+    <ClCompile Include="test\TestStdStringInputStream.cpp" />
     <ClCompile Include="test\TestStdStringOuputStream.cpp" />
     <ClCompile Include="test\TestStringOuputStream.cpp" />
     <ClCompile Include="test\TestStringInputStream.cpp" />

@@ -1,164 +1,98 @@
-#ifndef INFRA_INPUT_OUTPUT_STREAM_HPP
-#define INFRA_INPUT_OUTPUT_STREAM_HPP
+#ifndef INFRA_INPUT_STREAM_HPP
+#define INFRA_INPUT_STREAM_HPP
 
 #include "infra/stream/public/StreamManipulators.hpp"
 #include "infra/util/public/ByteRange.hpp"
+#include "infra/util/public/Optional.hpp"
 #include <cstdlib>
 #include <type_traits>
 
 namespace infra
 {
-    template<class T>
-    class InputStream
+    class TextInputStream;
+
+    class InputStreamReader
     {
     public:
-        InputStream() = default;
-        explicit InputStream(SoftFail);
-
-        virtual void Extract(MemoryRange<T> range) = 0;
-        virtual void Extract(T& element) = 0;
-        virtual void Peek(T& element) = 0;
+        InputStreamReader();
+        ~InputStreamReader();
+        InputStreamReader(SoftFail);
+        virtual void Extract(ByteRange range) = 0;
+        virtual void Extract(uint8_t& element) = 0;
+        virtual void Peek(uint8_t& element) = 0;
         virtual void Forward(std::size_t amount) = 0;
         virtual bool Empty() const = 0;
-
-        virtual void ReportFailureCheck(bool hasCheckFailed);
-        virtual bool HasFailed() const;
-        virtual void ResetFail();
-
-    protected:
-        ~InputStream();
-
+        bool Failed() const;
+        void ReportResult(bool ok);
     private:
-        bool softFailMode = false;
+        bool softFail = false;
         bool failed = false;
         mutable bool checkedFail = true;
     };
 
-    template<class T>
-    class IndirectInputStream
-        : public InputStream<T>
+    class InputStream
     {
     public:
-        IndirectInputStream(InputStream<T>& stream);
-        IndirectInputStream(InputStream<T>& stream, SoftFail);
-
-    public:
-        void Extract(MemoryRange<T> range) override;
-        void Extract(T& element) override;
-        void Peek(T& element) override;
-        void Forward(std::size_t amount) override;
-        bool Empty() const override;
-
-        void ReportFailureCheck(bool hasCheckFailed) override;
-        bool HasFailed() const override;
-        void ResetFail() override;
-
+        bool IsEmpty() const;
+        bool IsFailed() const;
     protected:
-        InputStream<T>& stream;
+        InputStream(InputStreamReader& reader);
+        InputStreamReader& Reader();
+    private:
+        InputStreamReader& reader;
     };
 
-    template<class Stream>
-        Stream& operator>>(Stream& stream, ForwardStream forward);
-
-    ////    Implementation    ////
-
-    template<class T>
-    InputStream<T>::InputStream(SoftFail)
-        : softFailMode(true)
-    {}
-
-    template<class T>
-    InputStream<T>::~InputStream()
+    class DataInputStream : public InputStream
     {
-        assert(checkedFail);
-    }
+    public:
+        DataInputStream(InputStreamReader& reader);
 
-    template<class T>
-    void InputStream<T>::ReportFailureCheck(bool hasCheckFailed)
+        TextInputStream operator>>(Text);
+        DataInputStream& operator>>(ForwardStream forward);
+        DataInputStream& operator>>(ByteRange range);
+        template<class Data>
+            DataInputStream& operator>>(Data& data);
+    };
+    
+    class TextInputStream : public InputStream
     {
-        checkedFail = !softFailMode;
-        failed = hasCheckFailed;
-        assert(softFailMode || !hasCheckFailed);
-    }
+    public:
+        explicit TextInputStream(InputStreamReader& reader);
+        TextInputStream(InputStreamReader& reader, SoftFail);
 
-    template<class T>
-    bool InputStream<T>::HasFailed() const
+
+        DataInputStream operator>>(Data);
+        TextInputStream operator>>(Hex);
+        TextInputStream operator>>(Width width);
+
+        TextInputStream& operator>>(MemoryRange<char> text);
+        TextInputStream& operator>>(int8_t& v);
+        TextInputStream& operator>>(int16_t& v);
+        TextInputStream& operator>>(int32_t& v);
+        TextInputStream& operator>>(uint8_t& v);
+        TextInputStream& operator>>(uint16_t& v);
+        TextInputStream& operator>>(uint32_t& v);
+        TextInputStream& operator>>(const char* literal);
+
+    private:
+        void SkipSpaces();
+        void Read(int32_t& v);
+        void Read(uint32_t& v);
+        void ReadAsDecimal(int32_t& v);
+        void ReadAsDecimal(uint32_t& v);
+        void ReadAsHex(int32_t& v);
+        void ReadAsHex(uint32_t& v);
+
+        bool isDecimal = true;
+        infra::Optional<std::size_t> width;
+    };
+
+    template<class Data>
+    DataInputStream& DataInputStream::operator>>(Data& data)
     {
-        checkedFail = true;
-        return failed;
-    }
-
-    template<class T>
-    void InputStream<T>::ResetFail()
-    {
-        assert(checkedFail);
-        failed = false;
-    }
-
-    template<class T>
-    IndirectInputStream<T>::IndirectInputStream(InputStream<T>& stream)
-        : stream(stream)
-    {}
-
-    template<class T>
-    IndirectInputStream<T>::IndirectInputStream(InputStream<T>& stream, SoftFail)
-        : InputStream<T>(softFail)
-        , stream(stream)
-    {}
-
-    template<class T>
-    void IndirectInputStream<T>::Extract(MemoryRange<T> range)
-    {
-        stream.Extract(range);
-    }
-
-    template<class T>
-    void IndirectInputStream<T>::Extract(T& element)
-    {
-        stream.Extract(element);
-    }
-
-    template<class T>
-    void IndirectInputStream<T>::Peek(T& element)
-    {
-        stream.Peek(element);
-    }
-
-    template<class T>
-    void IndirectInputStream<T>::Forward(std::size_t amount)
-    {
-        stream.Forward(amount);
-    }
-
-    template<class T>
-    bool IndirectInputStream<T>::Empty() const
-    {
-        return stream.Empty();
-    }
-
-    template<class T>
-    void IndirectInputStream<T>::ReportFailureCheck(bool hasCheckFailed)
-    {
-        stream.ReportFailureCheck(hasCheckFailed);
-    }
-
-    template<class T>
-    bool IndirectInputStream<T>::HasFailed() const
-    {
-        return stream.HasFailed();
-    }
-
-    template<class T>
-    void IndirectInputStream<T>::ResetFail()
-    {
-        stream.ResetFail();
-    }
-
-    template<class Stream>
-    Stream& operator>>(Stream& stream, ForwardStream forward)
-    {
-        stream.Forward(forward.amount);
-        return stream;
+        MemoryRange<typename std::remove_const<uint8_t>::type> dataRange(ReinterpretCastMemoryRange<typename std::remove_const<uint8_t>::type>(MakeRange(&data, &data + 1)));
+        Reader().Extract(dataRange);
+        return *this;
     }
 }
 

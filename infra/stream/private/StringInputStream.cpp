@@ -3,24 +3,25 @@
 namespace infra
 {
     StringInputStream::StringInputStream(BoundedString& string)
-        : TextInputStreamHelper<char>(static_cast<InputStream<char>&>(*this))
+        : TextInputStream(static_cast<InputStreamReader&>(*this))
         , string(string)
     {}
-
     StringInputStream::StringInputStream(BoundedString& string, SoftFail)
-        : TextInputStreamHelper<char>(static_cast<InputStream<char>&>(*this), softFail)
+        : InputStreamReader(infra::softFail)
+        , TextInputStream(static_cast<InputStreamReader&>(*this), infra::softFail)
         , string(string)
-    {}
-
-    void StringInputStream::Extract(MemoryRange<char> range)
     {
-        ReportFailureCheck(range.size() > string.size());
+    }
+
+    void StringInputStream::Extract(ByteRange range)
+    {
+        assert(range.size() <= string.size());
         range.shrink_from_back_to(string.size());
         std::copy(string.begin(), string.begin() + range.size(), range.begin());
         string.erase(0, range.size());
     }
 
-    void StringInputStream::Extract(char& element)
+    void StringInputStream::Extract(uint8_t& element)
     {
         Peek(element);
 
@@ -28,9 +29,8 @@ namespace infra
             string.erase(0, 1);
     }
 
-    void StringInputStream::Peek(char& element)
+    void StringInputStream::Peek(uint8_t& element)
     {
-        ReportFailureCheck(string.empty());
         if (string.empty())
             element = 0;
         else
@@ -39,7 +39,7 @@ namespace infra
 
     void StringInputStream::Forward(std::size_t amount)
     {
-        ReportFailureCheck(amount > string.size());
+        assert(amount <= string.size());
         amount = std::min(amount, string.size());
         string.erase(0, amount);
     }
@@ -47,21 +47,6 @@ namespace infra
     bool StringInputStream::Empty() const
     {
         return string.empty();
-    }
-
-    void StringInputStream::ReportFailureCheck(bool hasCheckFailed)
-    {
-        InputStream::ReportFailureCheck(hasCheckFailed);
-    }
-
-    bool StringInputStream::HasFailed() const
-    {
-        return InputStream::HasFailed();
-    }
-
-    void StringInputStream::ResetFail()
-    {
-        InputStream::ResetFail();
     }
 }
 

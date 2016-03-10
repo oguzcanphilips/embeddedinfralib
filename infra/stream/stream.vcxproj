@@ -11,7 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="private\ByteInputStream.cpp" />
     <ClCompile Include="private\ByteOutputStream.cpp" />
+    <ClCompile Include="private\InputStream.cpp" />
     <ClCompile Include="private\OutputStream.cpp" />
     <ClCompile Include="private\StdStringOutputStream.cpp" />
     <ClCompile Include="private\StdStringInputStream.cpp" />
@@ -24,10 +26,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="public\ByteInputStream.hpp" />
     <ClInclude Include="public\ByteOutputStream.hpp" />
     <ClInclude Include="public\InputStream.hpp" />
+    <ClInclude Include="public\InputStreamOld.hpp" />
     <ClInclude Include="public\InputStreamHelpers.hpp" />
-    <ClInclude Include="public\ByteInputStream.hpp" />
+    <ClInclude Include="public\ByteInputStreamOld.hpp" />
     <ClInclude Include="public\OutputStream.hpp" />
     <ClInclude Include="public\StdStringInputStream.hpp" />
     <ClInclude Include="public\StdStringOutputStream.hpp" />

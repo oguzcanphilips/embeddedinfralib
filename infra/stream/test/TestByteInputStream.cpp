@@ -15,11 +15,15 @@ TEST(ByteInputStreamTest, StreamFromRange)
     } to = { 4, 5 };
 
     infra::ByteInputStream stream(from);
-    stream >> to;
 
-    EXPECT_EQ((std::vector<uint8_t>{ 2, 3 }), stream.Remaining());
-    EXPECT_EQ((std::vector<uint8_t>{ 0, 1 }), stream.Processed());
+    stream >> to;
     EXPECT_EQ((To{ 0, 1 }), to);
+    EXPECT_FALSE(stream.IsEmpty());
+
+    stream >> to;
+    EXPECT_EQ((To{ 2, 3 }), to);
+    EXPECT_TRUE(stream.IsEmpty());
+
 }
 
 TEST(ByteInputStreamTest, StreamToMemoryRange)
@@ -43,3 +47,4 @@ TEST(ByteInputStreamTest, ForwardSkipsBytes)
 
     EXPECT_EQ((std::array<uint8_t, 2>{{ 3, 4 }}), to);
 }
+ 

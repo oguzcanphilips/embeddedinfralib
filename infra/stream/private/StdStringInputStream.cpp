@@ -2,25 +2,26 @@
 
 namespace infra
 {
-    StdStringInputStream::StdStringInputStream(std::string& string)
-        : TextInputStreamHelper<char>(static_cast<InputStream<char>&>(*this))
+    StdStringInputStream::StdStringInputStream(const std::string& string)
+        : TextInputStream(static_cast<InputStreamReader&>(*this))
         , string(string)
     {}
 
-    StdStringInputStream::StdStringInputStream(std::string& string, SoftFail)
-        : TextInputStreamHelper<char>(static_cast<InputStream<char>&>(*this), softFail)
+    StdStringInputStream::StdStringInputStream(const std::string& string, SoftFail)
+        : InputStreamReader(infra::softFail)
+        , TextInputStream(static_cast<InputStreamReader&>(*this), infra::softFail)
         , string(string)
     {}
 
-    void StdStringInputStream::Extract(MemoryRange<char> range)
+    void StdStringInputStream::Extract(ByteRange range)
     {
-        ReportFailureCheck(range.size() > string.size());
+        Reader().ReportResult(range.size() <= string.size());
         range.shrink_from_back_to(string.size());
         std::copy(string.begin(), string.begin() + range.size(), range.begin());
         string.erase(0, range.size());
     }
 
-    void StdStringInputStream::Extract(char& element)
+    void StdStringInputStream::Extract(uint8_t& element)
     {
         Peek(element);
 
@@ -28,9 +29,9 @@ namespace infra
             string.erase(0, 1);
     }
 
-    void StdStringInputStream::Peek(char& element)
+    void StdStringInputStream::Peek(uint8_t& element)
     {
-        ReportFailureCheck(string.empty());
+        Reader().ReportResult(!string.empty());
 
         if (string.empty())
             element = 0;
@@ -40,7 +41,7 @@ namespace infra
 
     void StdStringInputStream::Forward(std::size_t amount)
     {
-        ReportFailureCheck(amount > string.size());
+        Reader().ReportResult(amount <= string.size());
         amount = std::min(amount, string.size());
         string.erase(0, amount);
     }
@@ -48,20 +49,5 @@ namespace infra
     bool StdStringInputStream::Empty() const
     {
         return string.empty();
-    }
-
-    void StdStringInputStream::ReportFailureCheck(bool hasCheckFailed)
-    {
-        InputStream::ReportFailureCheck(hasCheckFailed);
-    }
-
-    bool StdStringInputStream::HasFailed() const
-    {
-        return InputStream::HasFailed();
-    }
-
-    void StdStringInputStream::ResetFail()
-    {
-        InputStream::ResetFail();
     }
 }

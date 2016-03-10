@@ -29,6 +29,12 @@
     <ClCompile Include="private\StdStringInputStream.cpp">
       <Filter>private</Filter>
     </ClCompile>
+    <ClCompile Include="private\InputStream.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\ByteInputStream.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="public\ByteOutputStream.hpp">
@@ -52,13 +58,19 @@
     <ClInclude Include="public\StringOutputStream.hpp">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="public\ByteInputStream.hpp">
+    <ClInclude Include="public\InputStreamHelpers.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\InputStreamOld.hpp">
       <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="public\InputStream.hpp">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="public\InputStreamHelpers.hpp">
+    <ClInclude Include="public\ByteInputStreamOld.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\ByteInputStream.hpp">
       <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,33 +1,27 @@
 #ifndef INFRA_STD_STRING_INPUT_STREAM_HPP
 #define INFRA_STD_STRING_INPUT_STREAM_HPP
 
-#include "infra/stream/public/InputStreamHelpers.hpp"
-#include "infra/util/public/WithStorage.hpp"
+#include "infra/stream/public/InputStream.hpp"
 #include <cstdint>
 #include <string>
 
 namespace infra
 {
     class StdStringInputStream
-        : public TextInputStreamHelper<char>
+        : private InputStreamReader
+        , public TextInputStream
     {
     public:
-        using WithStorage = infra::WithStorage<StdStringInputStream, std::string>;
-
-        explicit StdStringInputStream(std::string& string);
-        StdStringInputStream(std::string& string, SoftFail);
-
-        void Extract(MemoryRange<char> range) override;
-        void Extract(char& element) override;
-        void Peek(char& element) override;
+        explicit StdStringInputStream(const std::string& string);
+        StdStringInputStream(const std::string& string, SoftFail);
+    private:
+        void Extract(ByteRange range) override;
+        void Extract(uint8_t& element) override;
+        void Peek(uint8_t& element) override;
         void Forward(std::size_t amount) override;
         bool Empty() const override;
-        void ReportFailureCheck(bool hasCheckFailed) override;
-        bool HasFailed() const override;
-        void ResetFail();
-
     private:
-        std::string& string;
+        std::string string;
     };
 }
 

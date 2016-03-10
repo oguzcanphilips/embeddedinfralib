@@ -11,6 +11,12 @@ namespace infra
         return TextOutputStream(writer);
     }
 
+    DataOutputStream& DataOutputStream::operator<<(ForwardStream forward)
+    {
+        writer.Forward(forward.amount);
+        return *this;
+    }
+
     TextOutputStream::TextOutputStream(OutputStreamWriter& writer)
         : writer(writer)
     {}
@@ -125,5 +131,4 @@ namespace infra
             mask /= 16;
         }
     }
-
 }
