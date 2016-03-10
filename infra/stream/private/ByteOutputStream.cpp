@@ -3,7 +3,7 @@
 namespace infra
 {
     ByteOutputStream::ByteOutputStream(ByteRange range)
-        : DataOutputStream(static_cast<OutputStreamWriter&>(*this))
+        : DataOutputStream(static_cast<StreamWriter&>(*this))
         , range(range)
     {}
 

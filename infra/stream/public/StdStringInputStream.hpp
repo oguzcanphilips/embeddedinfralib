@@ -8,7 +8,7 @@
 namespace infra
 {
     class StdStringInputStream
-        : private InputStreamReader
+        : private StreamReader
         , public TextInputStream
     {
     public:

@@ -3,7 +3,7 @@
 namespace infra
 {
     ByteInputStream::ByteInputStream(ConstByteRange range)
-        : DataInputStream(static_cast<InputStreamReader&>(*this))
+        : DataInputStream(static_cast<StreamReader&>(*this))
         , range(range)
     {}
 

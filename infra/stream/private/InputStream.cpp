@@ -3,30 +3,30 @@
 
 namespace infra
 {
-    InputStreamReader::InputStreamReader()
+    StreamReader::StreamReader()
         : softFail(false)
     {
 
     }
 
-    InputStreamReader::InputStreamReader(SoftFail)
+    StreamReader::StreamReader(SoftFail)
         : softFail(true)
     {
 
     }
 
-    InputStreamReader::~InputStreamReader()
+    StreamReader::~StreamReader()
     {
         assert(checkedFail);
     }
 
-    bool InputStreamReader::Failed() const
+    bool StreamReader::Failed() const
     {
         checkedFail = true;
         return failed;
     }
     
-    void InputStreamReader::ReportResult(bool ok)
+    void StreamReader::ReportResult(bool ok)
     {
         if (!ok)
         {
@@ -36,7 +36,7 @@ namespace infra
         checkedFail = !softFail;
     }
     
-    InputStream::InputStream(InputStreamReader& reader)
+    InputStream::InputStream(StreamReader& reader)
         : reader(reader)
     {
     }
@@ -50,12 +50,12 @@ namespace infra
     {
         return reader.Failed();
     }
-    InputStreamReader& InputStream::Reader()
+    StreamReader& InputStream::Reader()
     {
         return reader;
     }
 
-    DataInputStream::DataInputStream(InputStreamReader& reader)
+    DataInputStream::DataInputStream(StreamReader& reader)
         : InputStream(reader)
     {
     }
@@ -77,12 +77,12 @@ namespace infra
         return *this;
     }
 
-    TextInputStream::TextInputStream(InputStreamReader& reader)
+    TextInputStream::TextInputStream(StreamReader& reader)
         : InputStream(reader)
     {
     }
 
-    TextInputStream::TextInputStream(InputStreamReader& reader, SoftFail)
+    TextInputStream::TextInputStream(StreamReader& reader, SoftFail)
         : InputStream(reader)
     {
     }

@@ -6,7 +6,7 @@
 namespace infra
 {
     class ByteInputStream
-        : private InputStreamReader
+        : private StreamReader
         , public DataInputStream
     {
     public:

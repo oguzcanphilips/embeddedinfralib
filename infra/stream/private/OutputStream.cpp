@@ -2,7 +2,7 @@
 
 namespace infra
 {
-    DataOutputStream::DataOutputStream(OutputStreamWriter& writer)
+    DataOutputStream::DataOutputStream(StreamWriter& writer)
         : writer(writer)
     {}
 
@@ -17,7 +17,7 @@ namespace infra
         return *this;
     }
 
-    TextOutputStream::TextOutputStream(OutputStreamWriter& writer)
+    TextOutputStream::TextOutputStream(StreamWriter& writer)
         : writer(writer)
     {}
 

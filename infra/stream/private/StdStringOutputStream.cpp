@@ -3,7 +3,7 @@
 namespace infra
 {
     StdStringOutputStream::StdStringOutputStream(std::string& string)
-        : TextOutputStream(static_cast<OutputStreamWriter&>(*this))
+        : TextOutputStream(static_cast<StreamWriter&>(*this))
         , string(string)
     {}
 

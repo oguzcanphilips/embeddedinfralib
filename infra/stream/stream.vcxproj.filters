@@ -58,16 +58,7 @@
     <ClInclude Include="public\StringOutputStream.hpp">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="public\InputStreamHelpers.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="public\InputStreamOld.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="public\InputStream.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
-    <ClInclude Include="public\ByteInputStreamOld.hpp">
       <Filter>public</Filter>
     </ClInclude>
     <ClInclude Include="public\ByteInputStream.hpp">

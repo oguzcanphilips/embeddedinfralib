@@ -9,7 +9,7 @@
 namespace infra
 {
     class StdStringOutputStream
-        : private OutputStreamWriter
+        : private StreamWriter
         , public TextOutputStream
     {
     public:

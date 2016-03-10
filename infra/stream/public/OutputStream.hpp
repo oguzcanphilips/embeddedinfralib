@@ -11,7 +11,7 @@ namespace infra
 {
     class TextOutputStream;
 
-    class OutputStreamWriter
+    class StreamWriter
     {
     public:
         virtual void Insert(ConstByteRange range) = 0;
@@ -19,13 +19,13 @@ namespace infra
         virtual void Forward(std::size_t amount) = 0;
 
     protected:
-        ~OutputStreamWriter() = default;
+        ~StreamWriter() = default;
     };
 
     class DataOutputStream
     {
     public:
-        DataOutputStream(OutputStreamWriter& writer);
+        DataOutputStream(StreamWriter& writer);
 
         TextOutputStream operator<<(Text);
         DataOutputStream& operator<<(ForwardStream forward);
@@ -36,13 +36,13 @@ namespace infra
             DataOutputStream& operator<<(MemoryRange<Data> data);
 
     private:
-        OutputStreamWriter& writer;
+        StreamWriter& writer;
     };
 
     class TextOutputStream
     {
     public:
-        explicit TextOutputStream(OutputStreamWriter& stream);
+        explicit TextOutputStream(StreamWriter& stream);
 
         TextOutputStream operator<<(Hex);
         TextOutputStream operator<<(Width width);
@@ -59,7 +59,7 @@ namespace infra
         void OutputAsHex(uint32_t v);
 
     private:
-        OutputStreamWriter& writer;
+        StreamWriter& writer;
         bool decimal = true;
         infra::Optional<std::size_t> width;
     };

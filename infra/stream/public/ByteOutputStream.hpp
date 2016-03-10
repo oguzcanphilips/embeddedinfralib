@@ -22,7 +22,7 @@
 namespace infra
 {
     class ByteOutputStream
-        : private OutputStreamWriter
+        : private StreamWriter
         , public DataOutputStream
     {
     public:

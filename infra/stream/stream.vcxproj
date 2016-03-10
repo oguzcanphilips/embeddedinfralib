@@ -29,9 +29,6 @@
     <ClInclude Include="public\ByteInputStream.hpp" />
     <ClInclude Include="public\ByteOutputStream.hpp" />
     <ClInclude Include="public\InputStream.hpp" />
-    <ClInclude Include="public\InputStreamOld.hpp" />
-    <ClInclude Include="public\InputStreamHelpers.hpp" />
-    <ClInclude Include="public\ByteInputStreamOld.hpp" />
     <ClInclude Include="public\OutputStream.hpp" />
     <ClInclude Include="public\StdStringInputStream.hpp" />
     <ClInclude Include="public\StdStringOutputStream.hpp" />

@@ -11,12 +11,12 @@ namespace infra
 {
     class TextInputStream;
 
-    class InputStreamReader
+    class StreamReader
     {
     public:
-        InputStreamReader();
-        ~InputStreamReader();
-        InputStreamReader(SoftFail);
+        StreamReader();
+        ~StreamReader();
+        StreamReader(SoftFail);
         virtual void Extract(ByteRange range) = 0;
         virtual void Extract(uint8_t& element) = 0;
         virtual void Peek(uint8_t& element) = 0;
@@ -36,16 +36,16 @@ namespace infra
         bool IsEmpty() const;
         bool IsFailed() const;
     protected:
-        InputStream(InputStreamReader& reader);
-        InputStreamReader& Reader();
+        InputStream(StreamReader& reader);
+        StreamReader& Reader();
     private:
-        InputStreamReader& reader;
+        StreamReader& reader;
     };
 
     class DataInputStream : public InputStream
     {
     public:
-        DataInputStream(InputStreamReader& reader);
+        DataInputStream(StreamReader& reader);
 
         TextInputStream operator>>(Text);
         DataInputStream& operator>>(ForwardStream forward);
@@ -57,8 +57,8 @@ namespace infra
     class TextInputStream : public InputStream
     {
     public:
-        explicit TextInputStream(InputStreamReader& reader);
-        TextInputStream(InputStreamReader& reader, SoftFail);
+        explicit TextInputStream(StreamReader& reader);
+        TextInputStream(StreamReader& reader, SoftFail);
 
 
         DataInputStream operator>>(Data);

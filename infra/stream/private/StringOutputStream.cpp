@@ -3,13 +3,13 @@
 namespace infra
 {
     StringOutputStream::StringOutputStream(BoundedString& string)
-        : TextOutputStream(static_cast<OutputStreamWriter&>(*this))
+        : TextOutputStream(static_cast<StreamWriter&>(*this))
         , string(string)
         , softFail(false)
     {}
 
     StringOutputStream::StringOutputStream(BoundedString& string, SoftFail)
-        : TextOutputStream(static_cast<OutputStreamWriter&>(*this))
+        : TextOutputStream(static_cast<StreamWriter&>(*this))
         , string(string)
         , softFail(true)
     {}

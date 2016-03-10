@@ -3,12 +3,12 @@
 namespace infra
 {
     StringInputStream::StringInputStream(BoundedString& string)
-        : TextInputStream(static_cast<InputStreamReader&>(*this))
+        : TextInputStream(static_cast<StreamReader&>(*this))
         , string(string)
     {}
     StringInputStream::StringInputStream(BoundedString& string, SoftFail)
-        : InputStreamReader(infra::softFail)
-        , TextInputStream(static_cast<InputStreamReader&>(*this), infra::softFail)
+        : StreamReader(infra::softFail)
+        , TextInputStream(static_cast<StreamReader&>(*this), infra::softFail)
         , string(string)
     {
     }
