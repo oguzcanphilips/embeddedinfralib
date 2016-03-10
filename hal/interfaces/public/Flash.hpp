@@ -10,12 +10,10 @@ namespace hal
 {
     class Flash
     {
-    public:
+    protected:
         Flash() = default;
         Flash(const Flash& other) = delete;
         Flash& operator=(const Flash& other) = delete;
-
-    protected:
         ~Flash() = default;
 
     public:
@@ -38,7 +36,7 @@ namespace hal
 
         void EraseSector(uint32_t sectorIndex, infra::Function<void()> onDone);
         virtual void EraseSectors(uint32_t beginIndex, uint32_t endIndex, infra::Function<void()> onDone) = 0;  // Erases sectors in de range [beginIndex, endIndex)
-        void EraseAll(infra::Function<void()> onDone);
+        virtual void EraseAll(infra::Function<void()> onDone);
     };
 }
 
