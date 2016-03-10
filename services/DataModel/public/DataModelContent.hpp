@@ -16,11 +16,12 @@
 #undef FIELD_P
 #undef FIELD_MINMAX
 #undef FIELD_P_MINMAX
-
-class Dummy {};
-
-enum class DataModelContentFieldId
+namespace service
 {
+    class DataModelContentDummy {};
+
+    enum class DataModelContentFieldId
+    {
 #define FIELD(ID,N,T,V) N = ID,
 #define FIELD_P(ID,N,T,V) N = ID,
 #define FIELD_MINMAX(ID,N,T,V,MIN,MAX) N = ID,
@@ -31,57 +32,57 @@ enum class DataModelContentFieldId
 #undef FIELD_MINMAX
 #undef FIELD_P_MINMAX
         Unknown
-};
+    };
 
 
-class DataModelContent
-	: private Dummy
-{
-    #define FIELD(ID,N,T,V) DataModel::FieldGeneric<DataModelContentFieldId, T> m##N;
-    #define FIELD_P(ID,N,T,V) DataModel::FieldNonVolatile<DataModelContentFieldId, T> m##N;
-    #define FIELD_MINMAX(ID,N,T,V,MIN,MAX) DataModel::FieldGenericBounded<DataModelContentFieldId, T, MIN, MAX > m##N;
-    #define FIELD_P_MINMAX(ID,N,T,V,MIN,MAX) DataModel::FieldNonVolatileBounded<DataModelContentFieldId, T, MIN, MAX > m##N;
-    #include "DataModelContent.dm"
-    #undef FIELD
-    #undef FIELD_P
-    #undef FIELD_MINMAX
-    #undef FIELD_P_MINMAX
-public:
-    enum
+    class DataModelContent
+        : private DataModelContentDummy
     {
-        NonVolatileSize = sizeof(DataModel::SerializeProtocolVersion)
-        #define FIELD(ID,N,T,V)
-        #define FIELD_P(ID,N,T,V) +sizeof(DataModelContentFieldId)+sizeof(uint8_t)+sizeof(uint8_t)+sizeof(T)
-        #define FIELD_MINMAX(ID,N,T,V,MIN,MAX)
-        #define FIELD_P_MINMAX(ID,N,T,V,MIN,MAX) +sizeof(DataModelContentFieldId)+sizeof(uint8_t)+sizeof(uint8_t)+sizeof(T)
-        #include "DataModelContent.dm"
-        #undef FIELD
-        #undef FIELD_P
-        #undef FIELD_MINMAX
-        #undef FIELD_P_MINMAX
-	};
-    
-    DataModelContent()
-        : Dummy()
-        #define FIELD(ID,N,T,V)                  , m##N(DataModelContentFieldId::N, V)
-        #define FIELD_P(ID,N,T,V)                , m##N(DataModelContentFieldId::N, V)
-        #define FIELD_MINMAX(ID,N,T,V,MIN,MAX)   , m##N(DataModelContentFieldId::N, V)
-        #define FIELD_P_MINMAX(ID,N,T,V,MIN,MAX) , m##N(DataModelContentFieldId::N, V)
-        #include "DataModelContent.dm"
-        #undef FIELD
-        #undef FIELD_P
-        #undef FIELD_MINMAX
-        #undef FIELD_P_MINMAX
-            {
-            }
-   
-    template<DataModelContentFieldId ID>
-    class Writer;
-    template<DataModelContentFieldId ID>
-    class Reader;
-    template<DataModelContentFieldId I>
-    struct IdToType;
-};
+#define FIELD(ID,N,T,V) DataModel::FieldGeneric<DataModelContentFieldId, T> m##N;
+#define FIELD_P(ID,N,T,V) DataModel::FieldNonVolatile<DataModelContentFieldId, T> m##N;
+#define FIELD_MINMAX(ID,N,T,V,MIN,MAX) DataModel::FieldGenericBounded<DataModelContentFieldId, T, MIN, MAX > m##N;
+#define FIELD_P_MINMAX(ID,N,T,V,MIN,MAX) DataModel::FieldNonVolatileBounded<DataModelContentFieldId, T, MIN, MAX > m##N;
+#include "DataModelContent.dm"
+#undef FIELD
+#undef FIELD_P
+#undef FIELD_MINMAX
+#undef FIELD_P_MINMAX
+    public:
+        enum
+        {
+            NonVolatileSize = sizeof(DataModel::SerializeProtocolVersion)
+#define FIELD(ID,N,T,V)
+#define FIELD_P(ID,N,T,V) +sizeof(DataModelContentFieldId)+sizeof(uint8_t)+sizeof(uint8_t)+sizeof(T)
+#define FIELD_MINMAX(ID,N,T,V,MIN,MAX)
+#define FIELD_P_MINMAX(ID,N,T,V,MIN,MAX) +sizeof(DataModelContentFieldId)+sizeof(uint8_t)+sizeof(uint8_t)+sizeof(T)
+#include "DataModelContent.dm"
+#undef FIELD
+#undef FIELD_P
+#undef FIELD_MINMAX
+#undef FIELD_P_MINMAX
+        };
+
+        DataModelContent()
+            : DataModelContentDummy()
+#define FIELD(ID,N,T,V)                  , m##N(DataModelContentFieldId::N, V)
+#define FIELD_P(ID,N,T,V)                , m##N(DataModelContentFieldId::N, V)
+#define FIELD_MINMAX(ID,N,T,V,MIN,MAX)   , m##N(DataModelContentFieldId::N, V)
+#define FIELD_P_MINMAX(ID,N,T,V,MIN,MAX) , m##N(DataModelContentFieldId::N, V)
+#include "DataModelContent.dm"
+#undef FIELD
+#undef FIELD_P
+#undef FIELD_MINMAX
+#undef FIELD_P_MINMAX
+        {
+        }
+
+        template<DataModelContentFieldId ID>
+        class Writer;
+        template<DataModelContentFieldId ID>
+        class Reader;
+        template<DataModelContentFieldId I>
+        struct IdToType;
+    };
 
 #define FIELD_P(ID,N,T,V)                template<> struct DataModelContent::IdToType<DataModelContentFieldId::N>{ typedef T Type; };
 #define FIELD(ID,N,T,V)                  template<> struct DataModelContent::IdToType<DataModelContentFieldId::N>{ typedef T Type; };
@@ -93,18 +94,19 @@ public:
 #undef FIELD_MINMAX
 #undef FIELD_P_MINMAX
 
-template<DataModelContentFieldId ID>
-class DataModelContent::Writer : public DataModel::Writer<typename DataModelContent::IdToType<ID>::Type>
-{
-public:
-    using DataModel::Writer<typename DataModelContent::IdToType<ID>::Type>::operator=;
-    Writer() : DataModel::Writer<typename DataModelContent::IdToType<ID>::Type>(ID){}
-};
+    template<DataModelContentFieldId ID>
+    class DataModelContent::Writer : public DataModel::Writer<typename DataModelContent::IdToType<ID>::Type>
+    {
+    public:
+        using DataModel::Writer<typename DataModelContent::IdToType<ID>::Type>::operator=;
+        Writer() : DataModel::Writer<typename DataModelContent::IdToType<ID>::Type>(ID){}
+    };
 
-template<DataModelContentFieldId ID>
-class DataModelContent::Reader : public DataModel::Reader<typename DataModelContent::IdToType<ID>::Type>
-{
-public:
-    Reader() : DataModel::Reader<typename DataModelContent::IdToType<ID>::Type>(ID){}
-};
+    template<DataModelContentFieldId ID>
+    class DataModelContent::Reader : public DataModel::Reader<typename DataModelContent::IdToType<ID>::Type>
+    {
+    public:
+        Reader() : DataModel::Reader<typename DataModelContent::IdToType<ID>::Type>(ID){}
+    };
+}
 #endif

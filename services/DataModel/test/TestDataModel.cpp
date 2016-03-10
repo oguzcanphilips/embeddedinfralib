@@ -9,7 +9,6 @@
 #include <string>
 #include <iostream>
 
-
 using ::testing::StrictMock;
 using ::testing::_;
 
@@ -19,7 +18,7 @@ enum FieldId
 	FieldBottom
 };
 
-class TestDebugger : public DataModelDebugger
+class TestDebugger : public service::DataModelDebugger
 {
 public:
     TestDebugger()
@@ -40,7 +39,7 @@ private:
     {
         output += c;
     }
-    DataModelDebuggerContent content;
+    service::DataModelDebuggerContent content;
 };
 
 class Observer
@@ -59,13 +58,13 @@ public:
 
 TEST(TestDataModel, NotificationUpdated)
 {
-	DataModel::FieldGenericBounded<FieldId,int,0,200> fi(FieldBottom,9);
+    service::DataModel::FieldGenericBounded<FieldId, int, 0, 200> fi(FieldBottom, 9);
 	
     Observer observerUpdated;
     Observer observerChanged;
 
-    DataModel::Reader<int> rd(FieldBottom);
-    DataModel::Writer<int> wr(FieldBottom);
+    service::DataModel::Reader<int> rd(FieldBottom);
+    service::DataModel::Writer<int> wr(FieldBottom);
 
     rd.UpdateNotification() += observerUpdated.counterSlot;
     rd.ChangedNotification() += observerChanged.counterSlot;
@@ -79,13 +78,13 @@ TEST(TestDataModel, NotificationUpdated)
 
 TEST(TestDataModel, NotificationChanged)
 {
-    DataModel::FieldGenericBounded<FieldId, int, 0, 200> fi(FieldBottom, 9);
+    service::DataModel::FieldGenericBounded<FieldId, int, 0, 200> fi(FieldBottom, 9);
 
     Observer observerUpdated;
     Observer observerChanged;
 
-    DataModel::Reader<int> rd(FieldBottom);
-    DataModel::Writer<int> wr(FieldBottom);
+    service::DataModel::Reader<int> rd(FieldBottom);
+    service::DataModel::Writer<int> wr(FieldBottom);
 
     rd.UpdateNotification() += observerUpdated.counterSlot;
     rd.ChangedNotification() += observerChanged.counterSlot;
@@ -105,12 +104,12 @@ TEST(TestDataModel, NotificationChanged)
 
 TEST(TestDataModel, NewWriter)
 {
-	DataModel::FieldNonVolatileBounded<FieldId, int,0,200> fi(FieldBottom,9);
+	service::DataModel::FieldNonVolatileBounded<FieldId, int,0,200> fi(FieldBottom,9);
 	
-    DataModel::Reader<int> rd(FieldBottom);
+    service::DataModel::Reader<int> rd(FieldBottom);
     for(int i=0;i<10;++i)
     {
-        DataModel::Writer<int> wr(FieldBottom);
+        service::DataModel::Writer<int> wr(FieldBottom);
         wr = i;
         ASSERT_EQ(i, rd);
     }
@@ -118,10 +117,10 @@ TEST(TestDataModel, NewWriter)
 
 TEST(TestDataModel, Content)
 {
-    DataModelContent content;
+    service::DataModelContent content;
 
-    DataModel::Writer<int> wr(DataModelContentFieldId::NumberInt);
-    DataModel::Reader<int> rd(DataModelContentFieldId::NumberInt);
+    service::DataModel::Writer<int> wr(service::DataModelContentFieldId::NumberInt);
+    service::DataModel::Reader<int> rd(service::DataModelContentFieldId::NumberInt);
 
     wr = 100;
 
@@ -130,33 +129,33 @@ TEST(TestDataModel, Content)
 
 TEST(TestDataModel, SerializeSize)
 {
-    DataModelContent content;
-    ASSERT_EQ(DataModelContent::NonVolatileSize, DataModel::Instance().SerializeSize());
+    service::DataModelContent content;
+    ASSERT_EQ(service::DataModelContent::NonVolatileSize, service::DataModel::Instance().SerializeSize());
 }
 
 TEST(TestDataModel, Serialize)
 {
-    DataModelContent content;
+    service::DataModelContent content;
     
-    uint8_t buffer[DataModelContent::NonVolatileSize];
-    DataModel::Instance().Serialize(buffer);
-    DataModel::Writer<uint32_t> wr(DataModelContentFieldId::N12);
-    DataModel::Reader<uint32_t> rd(DataModelContentFieldId::N12);
+    uint8_t buffer[service::DataModelContent::NonVolatileSize];
+    service::DataModel::Instance().Serialize(buffer);
+    service::DataModel::Writer<uint32_t> wr(service::DataModelContentFieldId::N12);
+    service::DataModel::Reader<uint32_t> rd(service::DataModelContentFieldId::N12);
     wr = wr + 1;
     ASSERT_EQ(3312, rd);
-    DataModel::Instance().Deserialize(
-        DataModel::InputMemory(buffer, DataModelContent::NonVolatileSize));
+    service::DataModel::Instance().Deserialize(
+        service::DataModel::InputMemory(buffer, service::DataModelContent::NonVolatileSize));
     ASSERT_EQ(3311, rd);
 }
 
 TEST(TestDataModel, SerializeDifferentProtocolVersion)
 {
-    DataModelContent content;
+    service::DataModelContent content;
 
-    uint8_t buffer[DataModelContent::NonVolatileSize];
-    DataModel::Instance().Serialize(buffer);
-    DataModel::Writer<uint32_t> wr(DataModelContentFieldId::N12);
-    DataModel::Reader<uint32_t> rd(DataModelContentFieldId::N12);
+    uint8_t buffer[service::DataModelContent::NonVolatileSize];
+    service::DataModel::Instance().Serialize(buffer);
+    service::DataModel::Writer<uint32_t> wr(service::DataModelContentFieldId::N12);
+    service::DataModel::Reader<uint32_t> rd(service::DataModelContentFieldId::N12);
     wr = wr + 1;
 
     uint32_t protocolVersion = 0;
@@ -165,7 +164,7 @@ TEST(TestDataModel, SerializeDifferentProtocolVersion)
     memcpy(buffer, &protocolVersion, sizeof(protocolVersion));
     
     ASSERT_EQ(3312, rd);
-    DataModel::Instance().Deserialize(DataModel::InputMemory(buffer, DataModelContent::NonVolatileSize));
+    service::DataModel::Instance().Deserialize(service::DataModel::InputMemory(buffer, service::DataModelContent::NonVolatileSize));
     ASSERT_EQ(3312, rd);
 }
 
@@ -174,58 +173,58 @@ TEST(TestDataModel, SerializeRemovedField)
     uint8_t buffer[100];
     uint32_t s;
     {
-        DataModel::FieldNonVolatile<FieldId, int> fi(FieldBottom, 9);
-        s = DataModel::Instance().Serialize(buffer);
+        service::DataModel::FieldNonVolatile<FieldId, int> fi(FieldBottom, 9);
+        s = service::DataModel::Instance().Serialize(buffer);
     }
-    DataModel::FieldNonVolatile<FieldId, int> fi(FieldTop, 100);
-    DataModel::Instance().Deserialize(DataModel::InputMemory(buffer, s));
-    DataModel::Reader<int> rd(FieldTop);
+    service::DataModel::FieldNonVolatile<FieldId, int> fi(FieldTop, 100);
+    service::DataModel::Instance().Deserialize(service::DataModel::InputMemory(buffer, s));
+    service::DataModel::Reader<int> rd(FieldTop);
     ASSERT_EQ(100, rd);
 }
 
 TEST(TestDataModel, InvalidSizeDeserialize)
 {
-    DataModel::FieldNonVolatile<FieldId, int> fi(FieldBottom, 9);
-    DataModel::Writer<int> wr(FieldBottom);
+    service::DataModel::FieldNonVolatile<FieldId, int> fi(FieldBottom, 9);
+    service::DataModel::Writer<int> wr(FieldBottom);
 
     wr = 50;
     std::array<uint8_t, 100> buffer;
-    uint32_t s = DataModel::Instance().Serialize(buffer.data());
+    uint32_t s = service::DataModel::Instance().Serialize(buffer.data());
     
     wr = 100;
     // find size
     ASSERT_EQ(10, buffer[4]);
     buffer[4] = buffer[4] + 1; // invalid size should be ignored
-    DataModel::Instance().Deserialize(DataModel::InputMemory(buffer.data(), s));
+    service::DataModel::Instance().Deserialize(service::DataModel::InputMemory(buffer.data(), s));
     ASSERT_EQ(100, wr);
 }
 
 TEST(TestDataModel, InvalidSizeZeroDeserialize)
 {
-    DataModel::FieldNonVolatile<FieldId, int> fi(FieldBottom, 9);
-    DataModel::Writer<int> wr(FieldBottom);
+    service::DataModel::FieldNonVolatile<FieldId, int> fi(FieldBottom, 9);
+    service::DataModel::Writer<int> wr(FieldBottom);
 
     wr = 50;
     std::array<uint8_t, 100> buffer;
-    uint32_t s = DataModel::Instance().Serialize(buffer.data());
+    uint32_t s = service::DataModel::Instance().Serialize(buffer.data());
 
     wr = 100;
     // find size
     ASSERT_EQ(10, buffer[4]);
     buffer[4] = 0; // invalid size should be ignored
-    ASSERT_FALSE(DataModel::Instance().Deserialize(DataModel::InputMemory(buffer.data(), s)));
+    ASSERT_FALSE(service::DataModel::Instance().Deserialize(service::DataModel::InputMemory(buffer.data(), s)));
     ASSERT_EQ(100, wr);
 }
 TEST(TestDataModel, NotifyChangedNonVolatile)
 {
-    DataModelContent content;
+    service::DataModelContent content;
 
     Observer obs;
 
-    DataModel::Instance().NonVolatileFieldChanged += obs.counterSlot;
+    service::DataModel::Instance().NonVolatileFieldChanged += obs.counterSlot;
     
-    DataModel::Writer<int16_t>  wr(DataModelContentFieldId::NumberShort);
-    DataModel::Writer<uint32_t> wrV(DataModelContentFieldId::N12);
+    service::DataModel::Writer<int16_t>  wr(service::DataModelContentFieldId::NumberShort);
+    service::DataModel::Writer<uint32_t> wrV(service::DataModelContentFieldId::N12);
     
     ASSERT_EQ(0, obs.cnt);
     wr = 1;
@@ -235,39 +234,39 @@ TEST(TestDataModel, NotifyChangedNonVolatile)
     wrV = 1;
     ASSERT_EQ(1, obs.cnt);
 
-    DataModel::Instance().NonVolatileFieldChanged -= obs.counterSlot;
+    service::DataModel::Instance().NonVolatileFieldChanged -= obs.counterSlot;
 }
 
 TEST(TestDataModel, NoNotifyChangedNonVolatileDuringDeserialization)
 {
-    DataModelContent content;
+    service::DataModelContent content;
     Observer obs;
-    DataModel::Instance().NonVolatileFieldChanged += obs.counterSlot;
-    uint8_t buffer[DataModelContent::NonVolatileSize];
-    DataModel::Instance().Serialize(buffer);
-    DataModel::Writer<uint32_t> wr1(DataModelContentFieldId::N12);
-    DataModel::Reader<uint32_t> rd1(DataModelContentFieldId::N12);
-    DataModel::Writer<uint32_t> wr2(DataModelContentFieldId::N13);
-    DataModel::Reader<uint32_t> rd2(DataModelContentFieldId::N13);
+    service::DataModel::Instance().NonVolatileFieldChanged += obs.counterSlot;
+    uint8_t buffer[service::DataModelContent::NonVolatileSize];
+    service::DataModel::Instance().Serialize(buffer);
+    service::DataModel::Writer<uint32_t> wr1(service::DataModelContentFieldId::N12);
+    service::DataModel::Reader<uint32_t> rd1(service::DataModelContentFieldId::N12);
+    service::DataModel::Writer<uint32_t> wr2(service::DataModelContentFieldId::N13);
+    service::DataModel::Reader<uint32_t> rd2(service::DataModelContentFieldId::N13);
 	wr1 = wr1 + 1;
 	wr2 = wr2 + 1;
 	ASSERT_EQ(3312, rd1);
 	ASSERT_EQ(14, rd2);
 	ASSERT_EQ(2, obs.cnt);
-    DataModel::Instance().Deserialize(DataModel::InputMemory(buffer, DataModelContent::NonVolatileSize));
+    service::DataModel::Instance().Deserialize(service::DataModel::InputMemory(buffer, service::DataModelContent::NonVolatileSize));
 	ASSERT_EQ(3311, rd1);
 	ASSERT_EQ(13, rd2);
 	ASSERT_EQ(2, obs.cnt);
 
-    DataModel::Instance().NonVolatileFieldChanged -= obs.counterSlot;
+    service::DataModel::Instance().NonVolatileFieldChanged -= obs.counterSlot;
 }
 
 TEST(TestDataModel, 2Writers)
 {
-    DataModelContent content;
+    service::DataModelContent content;
   
-    DataModel::Writer<uint32_t> wr1(DataModelContentFieldId::N12);
-    DataModel::Writer<uint32_t> wr2(DataModelContentFieldId::N12);
+    service::DataModel::Writer<uint32_t> wr1(service::DataModelContentFieldId::N12);
+    service::DataModel::Writer<uint32_t> wr2(service::DataModelContentFieldId::N12);
     
     wr1=4000;
     ASSERT_EQ(4000, wr1);
@@ -297,15 +296,15 @@ TEST(TestDataModel, 2Writers)
 
 TEST(TestDataModel, UnknownField)
 {
-    EXPECT_THROW(DataModel::Writer<uint32_t> wr(DataModelContentFieldId::N12), std::exception);
-    EXPECT_THROW(DataModel::Reader<uint32_t> rd(DataModelContentFieldId::N12), std::exception);
+    EXPECT_THROW(service::DataModel::Writer<uint32_t> wr(service::DataModelContentFieldId::N12), std::exception);
+    EXPECT_THROW(service::DataModel::Reader<uint32_t> rd(service::DataModelContentFieldId::N12), std::exception);
 }
 
 TEST(TestDataModel, Clipping)
 {
-    DataModelContent content;
+    service::DataModelContent content;
 
-    DataModel::Writer<int> wr(DataModelContentFieldId::NumberInt);
+    service::DataModel::Writer<int> wr(service::DataModelContentFieldId::NumberInt);
 
     ASSERT_EQ(1000, wr);
     wr = -1000;
@@ -316,13 +315,13 @@ TEST(TestDataModel, Clipping)
 
 TEST(TestDataModel, StructField)
 {
-	DataModelContent content;
+	service::DataModelContent content;
 
 	TestConfig config;
 	config.data[0] = 1;
 	config.data[1] = 2;
 	config.index = 3;
-    DataModel::Writer<TestConfig> wr(DataModelContentFieldId::TestConfig1);
+    service::DataModel::Writer<TestConfig> wr(service::DataModelContentFieldId::TestConfig1);
 
 	wr = config;
     TestConfig fromDataModel = wr;
@@ -334,7 +333,7 @@ TEST(TestDataModel, StructField)
 
 TEST(TestDataModel, DebuggerPrint)
 {
-    DataModelContent content;
+    service::DataModelContent content;
     TestDebugger debugger;
 
     debugger.ProcessInput("p\n");
@@ -357,7 +356,7 @@ TEST(TestDataModel, DebuggerPrint)
 
 TEST(TestDataModel, DebuggerPrintInfo)
 {
-    DataModelContent content;
+    service::DataModelContent content;
     TestDebugger debugger;
 
     debugger.ProcessInput("P0\n");
@@ -386,7 +385,7 @@ TEST(TestDataModel, DebuggerPrintInfo)
 
 TEST(TestDataModel, DebuggerPrintFieldName)
 {
-    DataModelContent content;
+    service::DataModelContent content;
     TestDebugger debugger;
 
     debugger.ProcessInput("pNu\n");
@@ -400,7 +399,7 @@ TEST(TestDataModel, DebuggerPrintFieldName)
 
 TEST(TestDataModel, DebuggerPrintFieldId)
 {
-    DataModelContent content;
+    service::DataModelContent content;
     TestDebugger debugger;
 
     debugger.ProcessInput("p10\n");
@@ -412,12 +411,12 @@ TEST(TestDataModel, DebuggerPrintFieldId)
 
 TEST(TestDataModel, DebuggerObserve)
 {
-    DataModelContent content;
+    service::DataModelContent content;
     TestDebugger debugger;
 
     debugger.ProcessInput("a1\n");
 
-    DataModel::Writer<int16_t> wr(DataModelContentFieldId::NumberShort);
+    service::DataModel::Writer<int16_t> wr(service::DataModelContentFieldId::NumberShort);
     wr = 123;
 
     std::string expected = "1   , NumberShort : 123\r\n";
@@ -431,9 +430,9 @@ TEST(TestDataModel, DebuggerObserve)
 
 TEST(TestDataModel, DebuggerWriteId)
 {
-    DataModelContent content;
+    service::DataModelContent content;
     TestDebugger debugger;
-    DataModel::Reader<int16_t> rd(DataModelContentFieldId::NumberShort);
+    service::DataModel::Reader<int16_t> rd(service::DataModelContentFieldId::NumberShort);
     debugger.ProcessInput("w1 135\n");
     ASSERT_EQ(135, rd);
 
@@ -443,9 +442,9 @@ TEST(TestDataModel, DebuggerWriteId)
 
 TEST(TestDataModel, DebuggerWriteName)
 {
-    DataModelContent content;
+    service::DataModelContent content;
     TestDebugger debugger;
-    DataModel::Reader<int16_t> rd(DataModelContentFieldId::NumberShort);
+    service::DataModel::Reader<int16_t> rd(service::DataModelContentFieldId::NumberShort);
     debugger.ProcessInput("wNumberShort 135\n");
     ASSERT_EQ(135, rd);
 
@@ -455,9 +454,9 @@ TEST(TestDataModel, DebuggerWriteName)
 
 TEST(TestDataModel, IsSetSameValue)
 {
-    DataModelContent content;
-    DataModel::Writer<int16_t> wr(DataModelContentFieldId::NumberShort);
-    DataModel::Reader<int16_t> rd(DataModelContentFieldId::NumberShort);
+    service::DataModelContent content;
+    service::DataModel::Writer<int16_t> wr(service::DataModelContentFieldId::NumberShort);
+    service::DataModel::Reader<int16_t> rd(service::DataModelContentFieldId::NumberShort);
 
     ASSERT_FALSE(wr.IsSet());
 
@@ -470,9 +469,9 @@ TEST(TestDataModel, IsSetSameValue)
 
 TEST(TestDataModel, IsSetDifferentValue)
 {
-    DataModelContent content;
-    DataModel::Writer<int16_t> wr(DataModelContentFieldId::NumberShort);
-    DataModel::Reader<int16_t> rd(DataModelContentFieldId::NumberShort);
+    service::DataModelContent content;
+    service::DataModel::Writer<int16_t> wr(service::DataModelContentFieldId::NumberShort);
+    service::DataModel::Reader<int16_t> rd(service::DataModelContentFieldId::NumberShort);
 
     ASSERT_FALSE(wr.IsSet());
 
@@ -485,52 +484,52 @@ TEST(TestDataModel, IsSetDifferentValue)
 
 TEST(TestDataModel, IsSetAfterDeserialize)
 {
-    std::array<uint8_t, DataModelContent::NonVolatileSize> buffer;
+    std::array<uint8_t, service::DataModelContent::NonVolatileSize> buffer;
     {
-        DataModelContent content;
-        DataModel::Writer<uint32_t> wr(DataModelContentFieldId::N12);
+        service::DataModelContent content;
+        service::DataModel::Writer<uint32_t> wr(service::DataModelContentFieldId::N12);
         wr = wr + 1;
         ASSERT_TRUE(wr.IsSet());
-        DataModel::Instance().Serialize(buffer.data());
+        service::DataModel::Instance().Serialize(buffer.data());
     }
     {
-        DataModelContent content;
-        DataModel::Reader<uint32_t> rd(DataModelContentFieldId::N12);
+        service::DataModelContent content;
+        service::DataModel::Reader<uint32_t> rd(service::DataModelContentFieldId::N12);
         ASSERT_FALSE(rd.IsSet());
-        DataModel::Instance().Deserialize(DataModel::InputMemory(buffer.data(), buffer.size()));
+        service::DataModel::Instance().Deserialize(service::DataModel::InputMemory(buffer.data(), buffer.size()));
         ASSERT_TRUE(rd.IsSet());
     }
 }
 
 TEST(TestDataModel, ResetToDefaultField)
 {
-    DataModelContent content;
-    DataModel::Writer<uint32_t> wr(DataModelContentFieldId::N12);
+    service::DataModelContent content;
+    service::DataModel::Writer<uint32_t> wr(service::DataModelContentFieldId::N12);
 
     wr = wr + 1;
     wr.ResetToDefault();
     EXPECT_EQ(3311, wr);
 }
-/*
-FIELD_MINMAX(  10, N10,         uint8_t,    33,     10,  100)
-FIELD(         11, N11,         uint8_t,    33)
-FIELD_P_MINMAX(12, N12,         uint32_t, 3311,0,100000000)
-FIELD_P(       13, N13,         uint32_t, 13)
-*/
+
+//FIELD_MINMAX(  10, N10,         uint8_t,    33,     10,  100)
+//FIELD(         11, N11,         uint8_t,    33)
+//FIELD_P_MINMAX(12, N12,         uint32_t, 3311,0,100000000)
+//FIELD_P(       13, N13,         uint32_t, 13)
+
 TEST(TestDataModel, ResetToDefaultFieldNonVolatile)
 {
-    DataModelContent content;
-    DataModel::Writer<uint8_t> wr1(DataModelContentFieldId::N10);
-    DataModel::Writer<uint8_t> wr2(DataModelContentFieldId::N11);
-    DataModel::Writer<uint32_t> wr3(DataModelContentFieldId::N12);
-    DataModel::Writer<uint32_t> wr4(DataModelContentFieldId::N13);
+    service::DataModelContent content;
+    service::DataModel::Writer<uint8_t> wr1(service::DataModelContentFieldId::N10);
+    service::DataModel::Writer<uint8_t> wr2(service::DataModelContentFieldId::N11);
+    service::DataModel::Writer<uint32_t> wr3(service::DataModelContentFieldId::N12);
+    service::DataModel::Writer<uint32_t> wr4(service::DataModelContentFieldId::N13);
 
     wr1 = wr1 + 1;
     wr2 = wr2 + 2;
     wr3 = wr3 + 3;
     wr4 = wr4 + 4;
 
-    DataModel::Instance().ResetToDefault(true);
+    service::DataModel::Instance().ResetToDefault(true);
 
     EXPECT_EQ(34, wr1);
     EXPECT_EQ(35, wr2);
@@ -540,18 +539,18 @@ TEST(TestDataModel, ResetToDefaultFieldNonVolatile)
 
 TEST(TestDataModel, ResetToDefaultFieldAll)
 {
-    DataModelContent content;
-    DataModel::Writer<uint8_t> wr1(DataModelContentFieldId::N10);
-    DataModel::Writer<uint8_t> wr2(DataModelContentFieldId::N11);
-    DataModel::Writer<uint32_t> wr3(DataModelContentFieldId::N12);
-    DataModel::Writer<uint32_t> wr4(DataModelContentFieldId::N13);
+    service::DataModelContent content;
+    service::DataModel::Writer<uint8_t> wr1(service::DataModelContentFieldId::N10);
+    service::DataModel::Writer<uint8_t> wr2(service::DataModelContentFieldId::N11);
+    service::DataModel::Writer<uint32_t> wr3(service::DataModelContentFieldId::N12);
+    service::DataModel::Writer<uint32_t> wr4(service::DataModelContentFieldId::N13);
 
     wr1 = wr1 + 1;
     wr2 = wr2 + 2;
     wr3 = wr3 + 3;
     wr4 = wr4 + 4;
 
-    DataModel::Instance().ResetToDefault(false);
+    service::DataModel::Instance().ResetToDefault(false);
 
     EXPECT_EQ(33, wr1);
     EXPECT_EQ(33, wr2);
@@ -561,12 +560,12 @@ TEST(TestDataModel, ResetToDefaultFieldAll)
 
 TEST(TestDataModel, ReaderWriterId)
 {
-    DataModelContent content;
+    service::DataModelContent content;
 
-    DataModelContent::Writer<DataModelContentFieldId::N10> n10wr;
-    DataModelContent::Reader<DataModelContentFieldId::N10> n10rd;
+    service::DataModelContent::Writer<service::DataModelContentFieldId::N10> n10wr;
+    service::DataModelContent::Reader<service::DataModelContentFieldId::N10> n10rd;
 
-    DataModelContent::IdToType<DataModelContentFieldId::N10>::Type value = 99;
+    service::DataModelContent::IdToType<service::DataModelContentFieldId::N10>::Type value = 99;
     n10wr = value;
 
     EXPECT_EQ(value, n10rd);
