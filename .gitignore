@@ -2,3 +2,5 @@ Debug/
 *.suo
 *.sdf
 *.opensdf
+Release/
+scripts/__pycache__/
