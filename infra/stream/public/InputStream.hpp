@@ -15,8 +15,8 @@ namespace infra
     {
     public:
         StreamReader();
-        ~StreamReader();
         StreamReader(SoftFail);
+        ~StreamReader();
         virtual void Extract(ByteRange range) = 0;
         virtual void Extract(uint8_t& element) = 0;
         virtual void Peek(uint8_t& element) = 0;
@@ -34,7 +34,7 @@ namespace infra
     {
     public:
         bool IsEmpty() const;
-        bool IsFailed() const;
+        bool HasFailed() const;
     protected:
         InputStream(StreamReader& reader);
         StreamReader& Reader();

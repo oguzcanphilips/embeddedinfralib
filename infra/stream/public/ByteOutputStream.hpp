@@ -26,7 +26,8 @@ namespace infra
         , public DataOutputStream
     {
     public:
-        ByteOutputStream(ByteRange range);
+        explicit ByteOutputStream(ByteRange range);
+        ByteOutputStream(ByteRange range, SoftFail);
 
         ByteRange Processed() const;   // Invariant: Processed() ++ Remaining() == range
         ByteRange Remaining() const;

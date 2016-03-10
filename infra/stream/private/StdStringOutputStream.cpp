@@ -24,12 +24,4 @@ namespace infra
     {
         string.append(amount, ' ');
     }
-
-    bool StdStringOutputStream::HasFailed() const
-    {
-        return false;
-    }
-
-    void StdStringOutputStream::ResetFail()
-    {}
 }

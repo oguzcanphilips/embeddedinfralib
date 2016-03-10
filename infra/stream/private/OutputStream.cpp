@@ -2,35 +2,83 @@
 
 namespace infra
 {
-    DataOutputStream::DataOutputStream(StreamWriter& writer)
+    StreamWriter::StreamWriter()
+        : softFail(false)
+    {
+
+    }
+
+    StreamWriter::StreamWriter(SoftFail)
+        : softFail(true)
+    {
+
+    }
+
+    StreamWriter::~StreamWriter()
+    {
+        assert(checkedFail);
+    }
+
+    bool StreamWriter::Failed() const
+    {
+        checkedFail = true;
+        return failed;
+    }
+
+    void StreamWriter::ReportResult(bool ok)
+    {
+        if (!ok)
+        {
+            failed = true;
+            assert(softFail);
+        }
+        checkedFail = !softFail;
+    }
+
+    OutputStream::OutputStream(StreamWriter& writer)
         : writer(writer)
+    {
+    }
+    
+    bool OutputStream::HasFailed() const
+    {
+        return writer.Failed();
+    }
+
+    StreamWriter& OutputStream::Writer()
+    {
+        return writer;
+    }
+
+    DataOutputStream::DataOutputStream(StreamWriter& writer)
+        : OutputStream(writer)
     {}
 
     TextOutputStream DataOutputStream::operator<<(Text)
     {
-        return TextOutputStream(writer);
+        return TextOutputStream(Writer());
     }
 
     DataOutputStream& DataOutputStream::operator<<(ForwardStream forward)
     {
-        writer.Forward(forward.amount);
+        Writer().Forward(forward.amount);
         return *this;
     }
 
     TextOutputStream::TextOutputStream(StreamWriter& writer)
-        : writer(writer)
+        : OutputStream(writer)
     {}
 
     TextOutputStream& TextOutputStream::operator<<(const char* zeroTerminatedString)
     {
-        writer.Insert(ReinterpretCastByteRange(MakeRange(zeroTerminatedString, zeroTerminatedString + std::strlen(zeroTerminatedString))));
+        Writer().Insert(ReinterpretCastByteRange(MakeRange(zeroTerminatedString, zeroTerminatedString + std::strlen(zeroTerminatedString))));
 
         return *this;
     }
 
     DataOutputStream TextOutputStream::operator<<(Data)
     {
-        return DataOutputStream(writer);
+        return DataOutputStream(Writer());
     }
 
     TextOutputStream TextOutputStream::operator<<(Hex)
@@ -49,7 +97,7 @@ namespace infra
 
     TextOutputStream& TextOutputStream::operator<<(char c)
     {
-        writer.Insert(c);
+        Writer().Insert(c);
 
         return *this;
     }
@@ -77,7 +125,7 @@ namespace infra
     TextOutputStream& TextOutputStream::operator<<(int32_t v)
     {
         if (v < 0)
-            writer.Insert('-');
+            Writer().Insert('-');
         if (decimal)
             OutputAsDecimal(std::abs(v));
         else
@@ -99,11 +147,11 @@ namespace infra
 
         if (width)
         for (std::size_t i = nofDigits; i < *width; ++i)
-            writer.Insert('0');
+            Writer().Insert('0');
 
         while (mask)
         {
-            writer.Insert(static_cast<char>(((v / mask) % 10) + '0'));
+            Writer().Insert(static_cast<char>(((v / mask) % 10) + '0'));
             mask /= 10;
         }
     }
@@ -123,11 +171,11 @@ namespace infra
 
         if (width)
         for (std::size_t i = nofDigits; i < *width; ++i)
-            writer.Insert('0');
+            Writer().Insert('0');
 
         while (mask)
         {
-            writer.Insert(static_cast<char>(hexChars[(v / mask) % 16]));
+            Writer().Insert(static_cast<char>(hexChars[(v / mask) % 16]));
             mask /= 16;
         }
     }

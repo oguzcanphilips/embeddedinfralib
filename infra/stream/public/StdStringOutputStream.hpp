@@ -19,9 +19,6 @@ namespace infra
         StdStringOutputStream(std::string& string, SoftFail);
         ~StdStringOutputStream();
 
-        bool HasFailed() const;
-        void ResetFail();
-
     private:
         void Insert(ConstByteRange range) override;
         void Insert(uint8_t element) override;
@@ -29,9 +26,6 @@ namespace infra
 
     private:
         std::string& string;
-        bool softFail = false;
-        bool failed = false;
-        mutable bool checkedFail = true;
     };
 }
 

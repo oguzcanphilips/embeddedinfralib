@@ -143,13 +143,3 @@ TEST(StringOuputStreamTest, OverflowTwice)
     EXPECT_EQ("ab", stream.Storage());
     EXPECT_TRUE(stream.HasFailed());
 }
-
-TEST(StringOuputStreamTest, ResetFail)
-{
-    infra::StringOutputStream::WithStorage<2> stream(infra::softFail);
-
-    stream << "abc";
-    ASSERT_TRUE(stream.HasFailed());
-    stream.ResetFail();
-    EXPECT_FALSE(stream.HasFailed());
-}

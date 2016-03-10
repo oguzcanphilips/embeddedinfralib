@@ -14,15 +14,32 @@ namespace infra
     class StreamWriter
     {
     public:
+        StreamWriter();
+        StreamWriter(SoftFail);
+        ~StreamWriter();
         virtual void Insert(ConstByteRange range) = 0;
         virtual void Insert(uint8_t element) = 0;
         virtual void Forward(std::size_t amount) = 0;
-
-    protected:
-        ~StreamWriter() = default;
+        bool Failed() const;
+        void ReportResult(bool ok);
+    private:
+        bool softFail = false;
+        bool failed = false;
+        mutable bool checkedFail = true;
     };
 
-    class DataOutputStream
+    class OutputStream
+    {
+    public:
+        bool HasFailed() const;
+    protected:
+        OutputStream(StreamWriter& writer);
+        StreamWriter& Writer();
+    private:
+        StreamWriter& writer;
+    };
+
+    class DataOutputStream : public OutputStream
     {
     public:
         DataOutputStream(StreamWriter& writer);
@@ -34,12 +51,9 @@ namespace infra
             DataOutputStream& operator<<(const Data& data);
         template<class Data>
             DataOutputStream& operator<<(MemoryRange<Data> data);
-
-    private:
-        StreamWriter& writer;
     };
 
-    class TextOutputStream
+    class TextOutputStream : public OutputStream
     {
     public:
         explicit TextOutputStream(StreamWriter& stream);
@@ -59,7 +73,6 @@ namespace infra
         void OutputAsHex(uint32_t v);
 
     private:
-        StreamWriter& writer;
         bool decimal = true;
         infra::Optional<std::size_t> width;
     };
@@ -70,7 +83,7 @@ namespace infra
     DataOutputStream& DataOutputStream::operator<<(const Data& data)
     {
         ConstByteRange dataRange(ReinterpretCastByteRange(MakeRange(&data, &data + 1)));
-        writer.Insert(dataRange);
+        Writer().Insert(dataRange);
         return *this;
     }
 
@@ -78,7 +91,7 @@ namespace infra
     DataOutputStream& DataOutputStream::operator<<(MemoryRange<Data> data)
     {
         ConstByteRange dataRange(ReinterpretCastByteRange(data));
-        writer.Insert(dataRange);
+        Writer().Insert(dataRange);
         return *this;
     }
 }

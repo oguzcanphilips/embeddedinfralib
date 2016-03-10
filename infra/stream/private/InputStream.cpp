@@ -46,7 +46,7 @@ namespace infra
         return reader.Empty();
     }
 
-    bool InputStream::IsFailed() const
+    bool InputStream::HasFailed() const
     {
         return reader.Failed();
     }
