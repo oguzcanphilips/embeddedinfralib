@@ -1,9 +1,9 @@
 #ifndef HAL_INTERFACE_FLASH_HPP
 #define HAL_INTERFACE_FLASH_HPP
 
-#include "infra_util/ByteRange.hpp"
-#include "infra_util/Compare.hpp"
-#include "infra_util/Function.hpp"
+#include "infra/util/public/ByteRange.hpp"
+#include "infra/util/public/Compare.hpp"
+#include "infra/util/public/Function.hpp"
 #include <cstdint>
 
 namespace hal

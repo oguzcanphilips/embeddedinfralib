@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="private">
+      <UniqueIdentifier>{e0770679-86f6-4cf8-a47b-3492f4ab5d68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{49e25a86-279d-4155-b256-e2b1759e78b4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="test_helper\public\MockCallback.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="test_helper\public\MoveConstructible.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

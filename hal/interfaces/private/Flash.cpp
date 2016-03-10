@@ -1,4 +1,4 @@
-/*#include "hal/interfaces/public/Flash.hpp"
+#include "hal/interfaces/public/Flash.hpp"
 
 namespace hal
 {
@@ -57,4 +57,4 @@ namespace hal
     {
         EraseSectors(0, NumberOfSectors(), onDone);
     }
-}*/
+}
