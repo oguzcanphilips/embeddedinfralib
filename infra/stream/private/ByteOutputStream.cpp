@@ -48,6 +48,6 @@ namespace infra
         ReportResult(amount <= range.size() - offset);
         offset += amount;
         if (offset > range.size())
-            offset == range.size();
+            offset = range.size();
     }
 }

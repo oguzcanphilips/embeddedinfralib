@@ -10,101 +10,67 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="public\AutoResetFunction.hpp" />
-    <ClInclude Include="public\BitLogic.hpp" />
-    <ClInclude Include="public\BoundedDeque.hpp" />
-    <ClInclude Include="public\BoundedPriorityQueue.hpp" />
-    <ClInclude Include="public\BoundedString.hpp" />
-    <ClInclude Include="public\BoundedVector.hpp" />
-    <ClInclude Include="public\ByteRange.hpp" />
-    <ClInclude Include="public\Compare.hpp" />
-    <ClInclude Include="public\CyclicBuffer.hpp" />
-    <ClInclude Include="public\FixedPoint.hpp" />
-    <ClInclude Include="public\Function.hpp" />
-    <ClInclude Include="public\InterfaceConnector.hpp" />
-    <ClInclude Include="public\IntrusiveBinarySearchTree.hpp" />
-    <ClInclude Include="public\IntrusiveForwardList.hpp" />
-    <ClInclude Include="public\IntrusiveList.hpp" />
-    <ClInclude Include="public\IntrusivePriorityQueue.hpp" />
-    <ClInclude Include="public\IntrusiveSet.hpp" />
-    <ClInclude Include="public\MemoryRange.hpp" />
-    <ClInclude Include="public\Optional.hpp" />
-    <ClInclude Include="public\ReallyAssert.hpp" />
-    <ClInclude Include="public\ReferenceCountedSingleton.hpp" />
-    <ClInclude Include="public\ReverseRange.hpp" />
-    <ClInclude Include="public\SignalSlot.hpp" />
-    <ClInclude Include="public\StaticStorage.hpp" />
-    <ClInclude Include="public\Unit.hpp" />
-    <ClInclude Include="public\VariadicTemplates.hpp" />
-    <ClInclude Include="public\Variant.hpp" />
-    <ClInclude Include="public\VariantDetail.hpp" />
-    <ClInclude Include="public\WithStorage.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="private\dummy.cpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1C860AC0-083C-47CE-B70E-A1913937EF2B}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
-    
-    <ProjectName>util</ProjectName>
+    <ProjectGuid>{7CC06A04-6210-4632-A760-4EBAAB3474D4}</ProjectGuid>
+    <RootNamespace>interfaces_test_helper</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PropertySheet_Lib.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PropertySheet_Lib.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="test_helper\public\FlashStub.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test_helper\private\FlashStub.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

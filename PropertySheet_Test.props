@@ -10,6 +10,9 @@
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)external\gmock\include;$(SolutionDir)external\gmock\gtest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

@@ -34,6 +34,7 @@
     <ProjectGuid>{E0A3DAE3-401C-4AAA-8E1A-ECE5C0AAF712}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>DataModel</RootNamespace>
+    <ProjectName>dataModel</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

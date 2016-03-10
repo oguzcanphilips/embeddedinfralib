@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="private">
+      <UniqueIdentifier>{f98a1b50-8300-4e7e-8e55-1dd0293beb7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{653d3ccd-9759-4dac-abe5-961bed48961a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="test_helper\public\FlashStub.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test_helper\private\FlashStub.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
