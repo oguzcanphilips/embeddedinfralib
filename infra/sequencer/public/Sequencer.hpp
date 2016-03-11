@@ -35,6 +35,8 @@ namespace infra
     public:
         uint32_t currentStep = 0;
         uint32_t lastStep = 0;
+        Sequencer* nested = nullptr;
+        Sequencer* parent = nullptr;
 
         static const std::size_t MaxContext = 5;
         std::array<uint32_t, MaxContext> context;
@@ -44,11 +46,16 @@ namespace infra
         infra::Optional<uint8_t> skipLevel;
         bool again = false;
         bool inHold = false;
-
-        Sequencer* DoEvaluate();
     };
 
     struct Hold {};
+    struct HoldWhile
+    {
+        HoldWhile(infra::Function<bool(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> condition);
+
+        infra::Function<bool(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> condition;
+    };
+
     struct If
     {
         If(infra::Function<bool(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> condition);
@@ -96,6 +103,32 @@ namespace infra
     };
 
     struct EndForEach {};
+
+    struct NestType
+    {
+        NestType(infra::Function<Sequencer&(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> function);
+
+        infra::Function<Sequencer&(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> function;
+    };
+
+    template<class Function>
+    NestType Nest(Function&& function, typename std::enable_if<infra::CanCall<Function()>::value>::type* = 0)
+    {
+        return NestType(std::forward<Function>(function));
+    }
+
+    struct NestTypeInForEach
+    {
+        NestTypeInForEach(infra::Function<Sequencer&(uint32_t), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> function);
+
+        infra::Function<Sequencer&(uint32_t), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> function;
+    };
+
+    template<class Function>
+    NestTypeInForEach Nest(Function&& function, typename std::enable_if<infra::CanCall<Function(uint32_t)>::value>::type* = 0)
+    {
+        return NestTypeInForEach(std::forward<Function>(function));
+    }
 
     struct EmptyContext
     {
@@ -173,14 +206,16 @@ namespace infra
         explicit SequenceObjectBase(Sequencer& sequencer);
 
         template<class OtherContext>
-            SequenceObjectBase(const SequenceObjectBase<OtherContext>& other);
+        SequenceObjectBase(const SequenceObjectBase<OtherContext>& other);
 
+        SequenceObject<Context> operator,(HoldWhile holdWhile);
         SequenceObject<IfContext<Context>> operator,(If&& ifStatement);
         SequenceObject<WhileContext<Context>> operator,(While&& whileStatement);
         SequenceObject<DoWhileContext<Context>> operator,(DoWhile);
         SequenceObject<RepeatInfinitelyContext<Context>> operator,(RepeatInfinitely);
         SequenceObject<ForEachContext<Context>> operator,(ForEach&& forEachStatement);
         SequenceObject<Context> operator,(Hold);
+        SequenceObject<Context> operator,(NestType nest);
 
     public:
         Sequencer& sequencer;
@@ -196,7 +231,7 @@ namespace infra
         explicit SequenceObjectBaseWithInvoke(Sequencer& sequencer);
 
         template<class OtherContext>
-            SequenceObjectBaseWithInvoke(const SequenceObjectBase<OtherContext>& other);
+        SequenceObjectBaseWithInvoke(const SequenceObjectBase<OtherContext>& other);
 
         using SequenceObjectBase<Context>::operator,;
         SequenceObject<Context> operator,(infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> invoke);
@@ -269,6 +304,7 @@ namespace infra
 
         using SequenceObjectBase<ForEachContext<Context>>::operator,;
         SequenceObject<ForEachContext<Context>> operator,(infra::Function<void(uint32_t), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> invoke);
+        SequenceObject<ForEachContext<Context>> operator,(NestTypeInForEach nest);
         SequenceObject<Context> operator,(EndForEach);
     };
 
@@ -314,6 +350,21 @@ namespace infra
         , context(other.context)
     {
         static_assert(Context::sequenceContextPointer <= Sequencer::MaxContext, "Not enough context space available in sequencer");
+    }
+
+    template<class Context>
+    SequenceObject<Context> SequenceObjectBase<Context>::operator,(HoldWhile holdWhile)
+    {
+        if (sequencer.currentStep == currentStep)
+        {
+            if (!holdWhile.condition())
+                ++sequencer.currentStep;
+        }
+
+        ++currentStep;
+        sequencer.lastStep = currentStep;
+
+        return *this;
     }
 
     template<class Context>
@@ -439,6 +490,47 @@ namespace infra
         }
 
         ++currentStep;
+        ++currentStep;
+        sequencer.lastStep = currentStep;
+
+        return *this;
+    }
+
+    template<class Context>
+    SequenceObject<Context> SequenceObjectBase<Context>::operator,(NestType nest)
+    {
+        if (sequencer.currentStep == currentStep)
+        {
+            if (!sequencer.Skip())
+            {
+                sequencer.nested = &nest.function();
+                sequencer.nested->parent = &sequencer;
+            }
+
+            ++sequencer.currentStep;
+        }
+
+        ++currentStep;
+
+        if (sequencer.currentStep == currentStep)
+        {
+            if (!sequencer.Skip())
+            {
+                assert(sequencer.nested);
+                sequencer.nested->Evaluate();
+                if (sequencer.nested->Finished())
+                {
+                    sequencer.nested->parent = nullptr;
+                    sequencer.nested = nullptr;
+                    ++sequencer.currentStep;
+                }
+                else
+                    sequencer.nested->parent->Hold();
+            }
+            else
+                ++sequencer.currentStep;
+        }
+
         ++currentStep;
         sequencer.lastStep = currentStep;
 
@@ -642,6 +734,45 @@ namespace infra
                 invoke(this->sequencer.context[Context::sequenceContextPointer]);
 
             ++this->sequencer.currentStep;
+        }
+
+        ++this->currentStep;
+        this->sequencer.lastStep = this->currentStep;
+
+        return *this;
+    }
+
+    template<class Context>
+    SequenceObject<ForEachContext<Context>> SequenceObject<ForEachContext<Context>>::operator,(NestTypeInForEach nest)
+    {
+        if (this->sequencer.currentStep == this->currentStep)
+        {
+            if (!this->sequencer.Skip())
+            {
+                this->sequencer.nested = &nest.function(this->sequencer.context[Context::sequenceContextPointer]);
+                this->sequencer.nested->parent = &this->sequencer;
+            }
+
+            ++this->sequencer.currentStep;
+        }
+
+        ++this->currentStep;
+
+        if (this->sequencer.currentStep == this->currentStep)
+        {
+            if (!this->sequencer.Skip())
+            {
+                assert(this->sequencer.nested);
+                this->sequencer.nested->Evaluate();
+                if (this->sequencer.nested->Finished())
+                {
+                    this->sequencer.nested->parent = nullptr;
+                    this->sequencer.nested = nullptr;
+                    ++this->sequencer.currentStep;
+                }
+            }
+            else
+                ++this->sequencer.currentStep;
         }
 
         ++this->currentStep;

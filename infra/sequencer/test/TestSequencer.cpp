@@ -94,6 +94,65 @@ TEST_F(TestSequencer, ReleaseContinuesHeldExecution)
     EXPECT_TRUE(sequencer.Finished());
 }
 
+TEST_F(TestSequencer, HoldWhileOnSuccessfulConditionHoldsExecution)
+{
+    EXPECT_CALL(*this, a());
+    EXPECT_CALL(*this, condition()).WillOnce(testing::Return(true));
+
+    sequencer.Load([this]() {
+        sequencer.Sequence(),
+            [this]() { a(); },
+            HoldWhile([this]() { return condition(); }),
+            [this]() { b(); };
+    });
+
+    EXPECT_FALSE(sequencer.Finished());
+}
+
+TEST_F(TestSequencer, HoldWhileOnUnsuccessfulConditionDoesNotHoldExecution)
+{
+    EXPECT_CALL(*this, a());
+    EXPECT_CALL(*this, condition()).WillOnce(testing::Return(false));
+    EXPECT_CALL(*this, b());
+
+    sequencer.Load([this]() {
+        sequencer.Sequence(),
+            [this]() { a(); },
+            HoldWhile([this]() { return condition(); }),
+            [this]() { b(); };
+    });
+
+    EXPECT_TRUE(sequencer.Finished());
+}
+
+TEST_F(TestSequencer, HoldWhileCancelsHoldWhenConditionIsNotSuccessful)
+{
+    EXPECT_CALL(*this, a());
+    EXPECT_CALL(*this, condition()).Times(2).WillOnce(testing::Return(true)).WillOnce(testing::Return(false));
+    EXPECT_CALL(*this, b());
+
+    sequencer.Load([this]() {
+        sequencer.Sequence(),
+            [this]() { a(); },
+            HoldWhile([this]() { return condition(); }),
+            [this]() { b(); };
+    });
+
+    sequencer.Evaluate();
+    EXPECT_TRUE(sequencer.Finished());
+}
+
+TEST_F(TestSequencer, HoldWhileCanBeHeld)
+{
+    sequencer.Load([this]() {
+        sequencer.Sequence(),
+            Hold(),
+            HoldWhile([this]() { return condition(); });
+    });
+
+    EXPECT_FALSE(sequencer.Finished());
+}
+
 TEST_F(TestSequencer, IfOnUnsuccessfulConditionDoesNotExecuteStatement)
 {
     EXPECT_CALL(*this, condition()).WillOnce(testing::Return(false));
@@ -102,7 +161,7 @@ TEST_F(TestSequencer, IfOnUnsuccessfulConditionDoesNotExecuteStatement)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             If([this] { return condition(); }),
-                [this]() { a(); },
+            [this]() { a(); },
             EndIf(),
             [this]() { b(); };
     });
@@ -119,7 +178,7 @@ TEST_F(TestSequencer, IfOnSuccessfulConditionExecutesStatement)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             If([this] { return condition(); }),
-                [this]() { a(); },
+            [this]() { a(); },
             EndIf(),
             [this]() { b(); };
     });
@@ -135,9 +194,9 @@ TEST_F(TestSequencer, NestedIfDoesNotReleaseIf)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             If([this] { return condition(); }),
-                If([this] { return condition(); }),
-                EndIf(),
-                [this]() { a(); },
+            If([this] { return condition(); }),
+            EndIf(),
+            [this]() { a(); },
             EndIf(),
             [this]() { b(); };
     });
@@ -153,9 +212,9 @@ TEST_F(TestSequencer, IfElseOnUnsuccessfulConditionExecutesElseStatement)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             If([this] { return condition(); }),
-                [this]() { a(); },
+            [this]() { a(); },
             Else(),
-                [this]() { b(); },
+            [this]() { b(); },
             EndIf();
     });
 
@@ -170,9 +229,9 @@ TEST_F(TestSequencer, IfElseOnSuccessfulConditionExecutesIfStatement)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             If([this] { return condition(); }),
-                [this]() { a(); },
+            [this]() { a(); },
             Else(),
-                [this]() { b(); },
+            [this]() { b(); },
             EndIf();
     });
 
@@ -187,11 +246,11 @@ TEST_F(TestSequencer, IfElseIfElseOnSuccessfulConditionExecutesIfStatement)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             If([this] { return condition(); }),
-                [this]() { a(); },
+            [this]() { a(); },
             ElseIf([this] { return condition(); }),
-                [this]() { b(); },
+            [this]() { b(); },
             Else(),
-                [this]() { c(); },
+            [this]() { c(); },
             EndIf();
     });
 
@@ -206,11 +265,11 @@ TEST_F(TestSequencer, IfElseIfElseOnSecondConditionExecutesElseIfStatement)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             If([this] { return condition(); }),
-                [this]() { a(); },
+            [this]() { a(); },
             ElseIf([this] { return condition(); }),
-                [this]() { b(); },
+            [this]() { b(); },
             Else(),
-                [this]() { c(); },
+            [this]() { c(); },
             EndIf();
     });
 
@@ -225,11 +284,11 @@ TEST_F(TestSequencer, IfElseIfElseOnUnsuccessfulConditionExecutesElseStatement)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             If([this] { return condition(); }),
-                [this]() { a(); },
+            [this]() { a(); },
             ElseIf([this] { return condition(); }),
-                [this]() { b(); },
+            [this]() { b(); },
             Else(),
-                [this]() { c(); },
+            [this]() { c(); },
             EndIf();
     });
 
@@ -244,14 +303,14 @@ TEST_F(TestSequencer, NestedIfElseDoesNotReleaseIf)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             If([this] { return condition(); }),
-                If([this] { return condition(); }),
-                    [this]() { a(); },
-                Else(),
-                    [this]() { a(); },
-                EndIf(),
-                [this]() { a(); },
+            If([this] { return condition(); }),
+            [this]() { a(); },
             Else(),
-                [this]() { b(); },
+            [this]() { a(); },
+            EndIf(),
+            [this]() { a(); },
+            Else(),
+            [this]() { b(); },
             EndIf();
     });
 
@@ -278,7 +337,7 @@ TEST_F(TestSequencer, HoldIsSkippedInIf)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             If([this] { return condition(); }),
-                Hold(),
+            Hold(),
             EndIf(),
             [this]() { a(); };
     });
@@ -294,7 +353,7 @@ TEST_F(TestSequencer, WhileWillNotExecuteWhenConditionIsFalse)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             While([this] { return condition(); }),
-                [this]() { a(); },
+            [this]() { a(); },
             EndWhile();
     });
 
@@ -311,7 +370,7 @@ TEST_F(TestSequencer, WhileWillExecuteOnceWhenConditionIsTrueOnce)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             While([this] { return condition(); }),
-                [this]() { a(); },
+            [this]() { a(); },
             EndWhile();
     });
 
@@ -329,7 +388,7 @@ TEST_F(TestSequencer, WhileWillExecuteTwiceWhenConditionIsTrueTwice)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             While([this] { return condition(); }),
-                [this]() { a(); },
+            [this]() { a(); },
             EndWhile();
     });
 
@@ -344,10 +403,10 @@ TEST_F(TestSequencer, NestedWhileDoesNotReleaseWhile)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             While([this] { return condition(); }),
-                While([this] { return condition(); }),
-                    [this]() { a(); },
-                EndWhile(),
-                [this]() { a(); },
+            While([this] { return condition(); }),
+            [this]() { a(); },
+            EndWhile(),
+            [this]() { a(); },
             EndWhile();
     });
 
@@ -363,7 +422,7 @@ TEST_F(TestSequencer, DoWhileWillExecuteOnceWhenConditionIsFalse)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             DoWhile(),
-                [this]() { a(); },
+            [this]() { a(); },
             EndDoWhile([this] { return condition(); });
     });
 
@@ -381,7 +440,7 @@ TEST_F(TestSequencer, DoWhileWillExecuteTwiceWhenConditionIsTrueOnce)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             DoWhile(),
-                [this]() { a(); },
+            [this]() { a(); },
             EndDoWhile([this] { return condition(); });
     });
 
@@ -396,15 +455,14 @@ TEST_F(TestSequencer, DoWhileWillCanBeSkipped)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             If([this]() { return condition(); }),
-                DoWhile(),
-                    [this]() { a(); },
-                EndDoWhile([this] { return condition(); }),
+            DoWhile(),
+            [this]() { a(); },
+            EndDoWhile([this] { return condition(); }),
             EndIf();
     });
 
     EXPECT_TRUE(sequencer.Finished());
 }
-
 
 TEST_F(TestSequencer, RepeatInfinitelyRepeats10Times)
 {
@@ -414,8 +472,8 @@ TEST_F(TestSequencer, RepeatInfinitelyRepeats10Times)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             RepeatInfinitely(),
-                Hold(), 
-                [this]() { a(); },
+            Hold(),
+            [this]() { a(); },
             EndRepeatInfinitely();
     });
 
@@ -432,10 +490,10 @@ TEST_F(TestSequencer, RepeatInfinitelyCanBeSkipped)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             If([this]() { return condition(); }),
-                RepeatInfinitely(),
-                    Hold(), 
-                    [this]() { a(); },
-                EndRepeatInfinitely(),
+            RepeatInfinitely(),
+            Hold(),
+            [this]() { a(); },
+            EndRepeatInfinitely(),
             EndIf();
     });
 
@@ -451,7 +509,7 @@ TEST_F(TestSequencer, ForEachDoesntIterate)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             ForEach(0, 0),
-                [this](uint32_t index) { p1(index); },
+            [this](uint32_t index) { p1(index); },
             EndForEach(),
             [this]() { a(); };
     });
@@ -467,7 +525,7 @@ TEST_F(TestSequencer, ForEachIteratesOnce)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             ForEach(0, 1),
-                [this](uint32_t index) { p1(index); },
+            [this](uint32_t index) { p1(index); },
             EndForEach();
     });
 
@@ -482,7 +540,7 @@ TEST_F(TestSequencer, ForEachIteratesTwice)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             ForEach(0, 2),
-                [this](uint32_t index) { p1(index); },
+            [this](uint32_t index) { p1(index); },
             EndForEach();
     });
 
@@ -497,9 +555,9 @@ TEST_F(TestSequencer, ForEachCanBeSkipped)
     sequencer.Load([this]() {
         sequencer.Sequence(),
             If([this]() { return condition(); }),
-                ForEach(0, 1),
-                    [this](uint32_t index) { p1(index); },
-                EndForEach(),
+            ForEach(0, 1),
+            [this](uint32_t index) { p1(index); },
+            EndForEach(),
             EndIf();
     });
 
@@ -512,7 +570,7 @@ TEST_F(TestSequencer, ForEachCanBeHeld)
         sequencer.Sequence(),
             Hold(),
             ForEach(0, 1),
-                [this](uint32_t index) { p1(index); },
+            [this](uint32_t index) { p1(index); },
             EndForEach();
     });
 
@@ -537,3 +595,102 @@ TEST_F(TestSequencer, LoadNewSequencer)
     EXPECT_TRUE(sequencer.Finished());
 }
 
+TEST_F(TestSequencer, NestSequencerHoldsSequencer)
+{
+    Sequencer nestedSequencer;
+    sequencer.Load([this, &nestedSequencer]()
+    {
+        sequencer.Sequence(),
+            Nest(
+            [this, &nestedSequencer]() -> Sequencer&
+        {
+            nestedSequencer.Load([this, &nestedSequencer]()
+            {
+                nestedSequencer.Sequence(),
+                    Hold();
+            });
+            return nestedSequencer;
+        }
+        ),
+            [this]() { a(); };
+    });
+    EXPECT_FALSE(sequencer.Finished());
+}
+
+TEST_F(TestSequencer, AfterReleaseOfSequencerTheOuterSequencerContinues)
+{
+    EXPECT_CALL(*this, a());
+
+    Sequencer nestedSequencer;
+    sequencer.Load([this, &nestedSequencer]()
+    {
+        sequencer.Sequence(),
+            Nest(
+            [this, &nestedSequencer]() -> Sequencer&
+        {
+            nestedSequencer.Load([this, &nestedSequencer]()
+            {
+                nestedSequencer.Sequence(),
+                    Hold();
+            });
+            return nestedSequencer;
+        }
+        ),
+            [this]() { a(); };
+    });
+
+    nestedSequencer.Continue();
+    EXPECT_TRUE(sequencer.Finished());
+}
+
+TEST_F(TestSequencer, NestSequencerCanBeSkipped)
+{
+    Sequencer nestedSequencer;
+    sequencer.Load([this, &nestedSequencer]()
+    {
+        sequencer.Sequence(),
+            If([]() { return false; }),
+            Nest(
+            [this, &nestedSequencer]() -> Sequencer&
+        {
+            nestedSequencer.Load([this, &nestedSequencer]()
+            {
+                nestedSequencer.Sequence(),
+                    Hold();
+            });
+            return nestedSequencer;
+        }
+        ),
+            EndIf();
+    });
+
+    EXPECT_TRUE(sequencer.Finished());
+}
+
+TEST_F(TestSequencer, NestSequencerInForEach)
+{
+    EXPECT_CALL(*this, p1(0));
+    EXPECT_CALL(*this, p1(1));
+    EXPECT_CALL(*this, p1(2));
+    EXPECT_CALL(*this, p1(3));
+
+    Sequencer nestedSequencer;
+    sequencer.Load([this, &nestedSequencer]()
+    {
+        sequencer.Sequence(),
+            ForEach(0, 4),
+            Nest(
+            [this, &nestedSequencer](uint32_t value)->Sequencer&
+        {
+            nestedSequencer.Load([this, &nestedSequencer, value]()
+            {
+                nestedSequencer.Sequence(),
+                    [this, value]() { p1(value); };
+            });
+            return nestedSequencer;
+        }
+        ),
+            EndForEach();
+    });
+    EXPECT_TRUE(sequencer.Finished());
+}
