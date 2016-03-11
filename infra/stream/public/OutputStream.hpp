@@ -2,6 +2,7 @@
 #define INFRA_OUTPUT_STREAM_HPP
 
 #include "infra/stream/public/StreamManipulators.hpp"
+#include "infra/util/public/BoundedString.hpp"
 #include "infra/util/public/ByteRange.hpp"
 #include "infra/util/public/Optional.hpp"
 #include <cstdlib>
@@ -61,12 +62,15 @@ namespace infra
         TextOutputStream operator<<(Hex);
         TextOutputStream operator<<(Width width);
         DataOutputStream operator<<(Data);
+        TextOutputStream& operator<<(Endl);
 
         TextOutputStream& operator<<(const char* zeroTerminatedString);
+        TextOutputStream& operator<<(const BoundedString& string);
         TextOutputStream& operator<<(char c);
         TextOutputStream& operator<<(uint8_t v);
         TextOutputStream& operator<<(int32_t v);
         TextOutputStream& operator<<(uint32_t v);
+        TextOutputStream& operator<<(float v);
 
     private:
         void OutputAsDecimal(uint32_t v);
@@ -74,7 +78,7 @@ namespace infra
 
     private:
         bool decimal = true;
-        infra::Optional<std::size_t> width;
+        infra::Optional<Width> width;
     };
 
     ////    Implementation    ////

@@ -1,5 +1,6 @@
 #include "DataModelDebugger.hpp"
-#include "Utils.hpp"
+#include "infra/stream/public/StringInputStream.hpp"
+#include "infra/stream/public/StringOutputStream.hpp"
 
 #define BACKSPACE 8
 
@@ -17,6 +18,25 @@ static bool IsEqualCaseInsensitive(const char* a, const char* b)
 }
 namespace service
 {
+    DataModelDebugger::DebugOutputStream::DebugOutputStream(DataModelDebugger* parent) 
+        : infra::TextOutputStream(static_cast<infra::StreamWriter&>(*this))
+        , parent(parent)
+    {}
+    void DataModelDebugger::DebugOutputStream::Insert(infra::ConstByteRange range)
+    {
+        for(uint8_t element : range)
+            Insert(element);
+    }
+    void DataModelDebugger::DebugOutputStream::Insert(uint8_t element)
+    {
+        parent->OutputSignal(element);
+    }
+    void DataModelDebugger::DebugOutputStream::Forward(std::size_t amount)
+    {
+        while (amount--)
+            Insert(' ');
+    }
+
     DataModelDebugger::DebugFieldBase::DebugFieldBase(DataModelContentFieldId id, const char* name, DataModelDebugger& debugger)
         : mId(id)
         , mName(name)
@@ -41,18 +61,18 @@ namespace service
     {
         if (mInputIndex == 0 && c == '?')
         {
-            output << util::Endl
-                << "a #      - attach to field '#'" << util::Endl
-                << "d #      - detach field '#'" << util::Endl
-                << "d        - detach all fields" << util::Endl
-                << "p #      - print field '#'" << util::Endl
-                << "p filter - print fields with filter as part of 'name' " << util::Endl
-                << "p        - print all fields" << util::Endl
-                << "w # m    - write: field '#' = 'm'" << util::Endl
-                << "l #      - lock field '#'" << util::Endl
-                << "u #      - unlock field '#'" << util::Endl
-                << util::Endl
-                << "# is name or id of the selected field" << util::Endl;
+            output << infra::endl
+                << "a #      - attach to field '#'" << infra::endl
+                << "d #      - detach field '#'" << infra::endl
+                << "d        - detach all fields" << infra::endl
+                << "p #      - print field '#'" << infra::endl
+                << "p filter - print fields with filter as part of 'name' " << infra::endl
+                << "p        - print all fields" << infra::endl
+                << "w # m    - write: field '#' = 'm'" << infra::endl
+                << "l #      - lock field '#'" << infra::endl
+                << "u #      - unlock field '#'" << infra::endl
+                << infra::endl
+                << "# is name or id of the selected field" << infra::endl;
         }
         if (c == BACKSPACE)
         {
@@ -67,61 +87,64 @@ namespace service
             case 'p':
             case 'P':
             {
-                        bool showInfo = mInput[0] == 'P';
-                        Print(mInput + 1, showInfo);
+                bool showInfo = mInput[0] == 'P';
+                Print(mInput + 1, showInfo);
             }
                 break;
             case 'a':
             {
-                        DebugFieldBase* res = GetField(mInput + 1);
-                        if (res)
-                            res->Attach();
+                DebugFieldBase* res = GetField(mInput + 1);
+                if (res)
+                    res->Attach();
             }
                 break;
             case 'd':
             {
-                        if (mInput[1] == 0)
-                        {
-                            for (DebugFieldBase* it = mDebugFieldList; it; it = it->next)
-                                it->Detach();
-                        }
-                        else
-                        {
-                            DebugFieldBase* res = GetField(mInput + 1);
-                            if (res)
-                                res->Detach();
-                        }
+                if (mInput[1] == 0)
+                {
+                    for (DebugFieldBase* it = mDebugFieldList; it; it = it->next)
+                        it->Detach();
+                }
+                else
+                {
+                    DebugFieldBase* res = GetField(mInput + 1);
+                    if (res)
+                        res->Detach();
+                }
             }
                 break;
             case 'l':
             {
-                        DebugFieldBase* res = GetField(mInput + 1);
-                        if (res)
-                            res->Lock();
+                DebugFieldBase* res = GetField(mInput + 1);
+                if (res)
+                    res->Lock();
             }
                 break;
             case 'u':
             {
-                        DebugFieldBase* res = GetField(mInput + 1);
-                        if (res)
-                            res->Unlock();
+                DebugFieldBase* res = GetField(mInput + 1);
+                if (res)
+                    res->Unlock();
             }
                 break;
             case 'w':
             {
-                        mInput[0] = ' ';
+                mInput[0] = ' ';
 
-                        DebugFieldBase* res = GetField(mInput);
-                        if (res)
-                        {
-                            const char* value = mInput;
+                DebugFieldBase* res = GetField(mInput);
+                if (res)
+                {
+                    const char* value = mInput;
 
-                            while (*value == ' ') value++;
-                            while (*value != ' ') value++;
-                            while (*value == ' ') value++;
+                    while (*value == ' ') value++;
+                    while (*value != ' ') value++;
+                    while (*value == ' ') value++;
+                    infra::StringInputStream input(value, infra::softFail);
+                    res->Set(input);
+                    if (input.HasFailed())
+                        output << "Error: '" << mInput << "'" << infra::endl;
 
-                            res->Set(value);
-                        }
+                }
             }
                 break;
             default:
@@ -164,9 +187,9 @@ namespace service
         }
 
         int32_t idLocal = -1;
-        util::InputStreamString idStr(nameLocal);
+        infra::StringInputStream idStr(nameLocal, infra::softFail);
         idStr >> idLocal;
-        if (!idStr.Fail())
+        if (!idStr.HasFailed())
         {
             DataModelDebugger::DebugFieldBase* res = GetField((DataModelContentFieldId)idLocal);
             if (res)
@@ -214,14 +237,14 @@ namespace service
 
     void DataModelDebugger::Print(DebugFieldBase* field, bool showInfo)
     {
-        util::OutputStreamBuffered<32> txt;
+        infra::StringOutputStream::WithStorage<32> txt;
         if (showInfo)
             txt << (field->IsLocked() ? "L" : " ") << (field->IsSet() ? "S " : "  ");
 
         txt << static_cast<int32_t>(field->Id());
-        uint32_t len = txt.StrLen();
+        uint32_t len = txt.Storage().size();
 
-        output << txt;
+        output << txt.Storage();
         for (uint32_t i = len; i < NumberFieldSize; ++i)
             output << " ";
 
@@ -234,41 +257,47 @@ namespace service
 
         output << " : ";
         field->Get(output);
-        output << util::Endl;
+        output << infra::endl;
     }
 
     void DataModelDebugger::PrintModel(bool showInfo)
     {
-        output << "--------------------" << util::Endl;
+        output << "--------------------" << infra::endl;
         if (callback)
             callback->PrintVersion(output);
 
         for (DebugFieldBase* it = mDebugFieldList; it; it = it->next)
             Print(it, showInfo);
 
-        output << "---End---" << util::Endl;
+        output << "---End---" << infra::endl;
     }
 
-    util::OutputStream& DataModelDebugger::Output()
+    infra::TextOutputStream& DataModelDebugger::Output()
     {
         return output;
     }
 
-    template<> void DataModelDebugger::DebugField<bool>::Get(util::OutputStream& output)    { output << (mField ? "True" : "False"); }
-    template<> void DataModelDebugger::DebugField<uint8_t>::Get(util::OutputStream& output) { output << mField; }
-    template<> void DataModelDebugger::DebugField<uint16_t>::Get(util::OutputStream& output){ output << mField; }
-    template<> void DataModelDebugger::DebugField<uint32_t>::Get(util::OutputStream& output){ output << mField; }
-    template<> void DataModelDebugger::DebugField<int8_t>::Get(util::OutputStream& output)  { output << mField; }
-    template<> void DataModelDebugger::DebugField<int16_t>::Get(util::OutputStream& output) { output << mField; }
-    template<> void DataModelDebugger::DebugField<int32_t>::Get(util::OutputStream& output) { output << mField; }
-    template<> void DataModelDebugger::DebugField<float>::Get(util::OutputStream& output) { output << mField; }
+    template<> void DataModelDebugger::DebugField<bool>::Get(infra::TextOutputStream& output)    { output << (mField ? "True" : "False"); }
+    template<> void DataModelDebugger::DebugField<uint8_t>::Get(infra::TextOutputStream& output) { output << mField; }
+    template<> void DataModelDebugger::DebugField<uint16_t>::Get(infra::TextOutputStream& output){ output << mField; }
+    template<> void DataModelDebugger::DebugField<uint32_t>::Get(infra::TextOutputStream& output){ output << mField; }
+    template<> void DataModelDebugger::DebugField<int8_t>::Get(infra::TextOutputStream& output)  { output << mField; }
+    template<> void DataModelDebugger::DebugField<int16_t>::Get(infra::TextOutputStream& output) { output << mField; }
+    template<> void DataModelDebugger::DebugField<int32_t>::Get(infra::TextOutputStream& output) { output << mField; }
+    template<> void DataModelDebugger::DebugField<float>::Get(infra::TextOutputStream& output)   { output << mField; }
 
-    template<> void DataModelDebugger::DebugField<bool>::Set(const char* buffer)    { mField = (IsEqualCaseInsensitive("True", buffer) || buffer[0] == '1') ? true : false; }
-    template<> void DataModelDebugger::DebugField<uint8_t>::Set(const char* buffer) { uint8_t v = 0;  util::InputStreamString is(buffer); is >> v; mField = v; }
-    template<> void DataModelDebugger::DebugField<uint16_t>::Set(const char* buffer){ uint16_t v = 0; util::InputStreamString is(buffer); is >> v; mField = v; }
-    template<> void DataModelDebugger::DebugField<uint32_t>::Set(const char* buffer){ uint32_t v = 0; util::InputStreamString is(buffer); is >> v; mField = v; }
-    template<> void DataModelDebugger::DebugField<int8_t>::Set(const char* buffer)  { int8_t v = 0;   util::InputStreamString is(buffer); is >> v; mField = v; }
-    template<> void DataModelDebugger::DebugField<int16_t>::Set(const char* buffer) { int16_t v = 0;  util::InputStreamString is(buffer); is >> v; mField = v; }
-    template<> void DataModelDebugger::DebugField<int32_t>::Set(const char* buffer) { int32_t v = 0;  util::InputStreamString is(buffer); is >> v; mField = v; }
-    template<> void DataModelDebugger::DebugField<float>::Set(const char* buffer)   { float v = 0;  util::InputStreamString is(buffer); is >> v; mField = v; }
+    template<> void DataModelDebugger::DebugField<bool>::Set(infra::TextInputStream& input)    
+    { 
+        infra::BoundedString::WithStorage<1> v; 
+        input >> v; 
+        char c = v.Storage()[0];
+        mField = (c == 't' || c == 'T' || c == '1'); 
+    }
+    template<> void DataModelDebugger::DebugField<uint8_t>::Set(infra::TextInputStream& input) { uint8_t v = 0;  input >> v; mField = v; }
+    template<> void DataModelDebugger::DebugField<uint16_t>::Set(infra::TextInputStream& input){ uint16_t v = 0; input >> v; mField = v; }
+    template<> void DataModelDebugger::DebugField<uint32_t>::Set(infra::TextInputStream& input){ uint32_t v = 0; input >> v; mField = v; }
+    template<> void DataModelDebugger::DebugField<int8_t>::Set(infra::TextInputStream& input)  { int8_t v = 0;   input >> v; mField = v; }
+    template<> void DataModelDebugger::DebugField<int16_t>::Set(infra::TextInputStream& input) { int16_t v = 0;  input >> v; mField = v; }
+    template<> void DataModelDebugger::DebugField<int32_t>::Set(infra::TextInputStream& input) { int32_t v = 0;  input >> v; mField = v; }
+    template<> void DataModelDebugger::DebugField<float>::Set(infra::TextInputStream& input)   { float v = 0;    input >> v; mField = v; }
 }

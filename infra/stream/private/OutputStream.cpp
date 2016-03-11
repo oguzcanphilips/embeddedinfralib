@@ -75,6 +75,12 @@ namespace infra
 
         return *this;
     }
+    TextOutputStream& TextOutputStream::operator<<(const BoundedString& string)
+    {
+        Writer().Insert(ReinterpretCastByteRange(MakeRange(string.begin(), string.end())));
+
+        return *this;
+    }
 
     DataOutputStream TextOutputStream::operator<<(Data)
     {
@@ -91,14 +97,19 @@ namespace infra
     TextOutputStream TextOutputStream::operator<<(Width width)
     {
         TextOutputStream result(*this);
-        result.width = width.width;
+        result.width = width;
         return result;
+    }
+
+    TextOutputStream& TextOutputStream::operator<<(Endl)
+    {
+        *this << "\r\n";
+        return *this;
     }
 
     TextOutputStream& TextOutputStream::operator<<(char c)
     {
         Writer().Insert(c);
-
         return *this;
     }
 
@@ -134,6 +145,24 @@ namespace infra
         return *this;
     }
 
+    TextOutputStream& TextOutputStream::operator<<(float v)
+    {
+        float vv = 0;
+        if (v<0)
+        {
+            *this << "-";
+            vv = -v;
+        }
+        else
+            vv = v;
+
+        *this << static_cast<uint32_t>(vv);
+        vv -= static_cast<uint32_t>(vv);
+        *this << ".";
+        *this << infra::Width(3,'0') << static_cast<uint32_t>(vv * 1000);
+        return *this;
+    }
+
     void TextOutputStream::OutputAsDecimal(uint32_t v)
     {
         uint32_t nofDigits = 1;
@@ -146,8 +175,8 @@ namespace infra
         }
 
         if (width)
-        for (std::size_t i = nofDigits; i < *width; ++i)
-            Writer().Insert('0');
+          for (std::size_t i = nofDigits; i < width->width; ++i)
+                Writer().Insert(width->padding);
 
         while (mask)
         {
@@ -170,8 +199,8 @@ namespace infra
         }
 
         if (width)
-        for (std::size_t i = nofDigits; i < *width; ++i)
-            Writer().Insert('0');
+        for (std::size_t i = nofDigits; i < width->width; ++i)
+            Writer().Insert(width->padding);
 
         while (mask)
         {

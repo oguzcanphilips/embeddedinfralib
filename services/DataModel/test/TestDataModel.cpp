@@ -423,7 +423,7 @@ TEST(TestDataModel, DebuggerObserve)
     ASSERT_EQ(expected, debugger.output);
     debugger.output = "";
 
-    debugger.ProcessInput("dX1X\n");
+    debugger.ProcessInput("d 1 \n");
     wr = 321;
     ASSERT_EQ("", debugger.output);
 }

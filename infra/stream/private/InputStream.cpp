@@ -106,8 +106,16 @@ namespace infra
     }
     TextInputStream& TextInputStream::operator>>(MemoryRange<char> text)
     {
+        Reader().Extract(ReinterpretCastByteRange(text));
         return *this;
     }
+    
+    TextInputStream& TextInputStream::operator>>(BoundedString& v)
+    {
+        *this >> MemoryRange<char>(v.begin(), v.end());
+        return *this;
+    }
+
     TextInputStream& TextInputStream::operator>>(int8_t& v)
     {
         int32_t v32;
@@ -146,7 +154,36 @@ namespace infra
         Read(v);
         return *this;
     }
-    TextInputStream& TextInputStream::operator >> (const char* literal)
+
+
+    TextInputStream& TextInputStream::operator>>(float& v)
+    {
+        int32_t integer = 0;
+        operator>>(integer);
+        uint32_t frac = 0;
+        int32_t div = (integer < 0) ? -1 : 1;
+        uint8_t c;
+        infra::StreamReader& reader = Reader();
+        reader.Peek(c);
+        if (c == '.')
+        {
+            reader.Forward(1);
+            reader.Peek(c);
+            while (c >= '0' && c <= '9')
+            {
+                div *= 10;
+                frac = frac * 10 + (c - '0');
+                reader.Forward(1);
+                reader.Peek(c);
+            }
+        }
+        v = (float)frac;
+        v /= div;
+        v += integer;
+        return *this;
+    }
+
+    TextInputStream& TextInputStream::operator>>(const char* literal)
     {
         while (*literal)
         {

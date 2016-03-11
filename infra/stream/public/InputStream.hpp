@@ -2,6 +2,7 @@
 #define INFRA_INPUT_STREAM_HPP
 
 #include "infra/stream/public/StreamManipulators.hpp"
+#include "infra/util/public/BoundedString.hpp"
 #include "infra/util/public/ByteRange.hpp"
 #include "infra/util/public/Optional.hpp"
 #include <cstdlib>
@@ -72,6 +73,8 @@ namespace infra
         TextInputStream& operator>>(uint8_t& v);
         TextInputStream& operator>>(uint16_t& v);
         TextInputStream& operator>>(uint32_t& v);
+        TextInputStream& operator>>(float& v);
+        TextInputStream& operator>>(BoundedString& v);
         TextInputStream& operator>>(const char* literal);
 
     private:
