@@ -35,7 +35,6 @@ namespace infra
     public:
         uint32_t currentStep = 0;
         uint32_t lastStep = 0;
-        Sequencer* nested = nullptr;
         Sequencer* parent = nullptr;
 
         static const std::size_t MaxContext = 5;
@@ -499,12 +498,13 @@ namespace infra
     template<class Context>
     SequenceObject<Context> SequenceObjectBase<Context>::operator,(NestType nest)
     {
+        Sequencer* nested = nullptr;
         if (sequencer.currentStep == currentStep)
         {
             if (!sequencer.Skip())
             {
-                sequencer.nested = &nest.function();
-                sequencer.nested->parent = &sequencer;
+                nested = &nest.function();
+                nested->parent = &sequencer;
             }
 
             ++sequencer.currentStep;
@@ -516,16 +516,15 @@ namespace infra
         {
             if (!sequencer.Skip())
             {
-                assert(sequencer.nested);
-                sequencer.nested->Evaluate();
-                if (sequencer.nested->Finished())
+                assert(nested);
+                nested->Evaluate();
+                if (nested->Finished())
                 {
-                    sequencer.nested->parent = nullptr;
-                    sequencer.nested = nullptr;
+                    nested->parent = nullptr;
                     ++sequencer.currentStep;
                 }
                 else
-                    sequencer.nested->parent->Hold();
+                    sequencer.Hold();
             }
             else
                 ++sequencer.currentStep;
@@ -745,12 +744,13 @@ namespace infra
     template<class Context>
     SequenceObject<ForEachContext<Context>> SequenceObject<ForEachContext<Context>>::operator,(NestTypeInForEach nest)
     {
+        Sequencer* nested = nullptr;
         if (this->sequencer.currentStep == this->currentStep)
         {
             if (!this->sequencer.Skip())
             {
-                this->sequencer.nested = &nest.function(this->sequencer.context[Context::sequenceContextPointer]);
-                this->sequencer.nested->parent = &this->sequencer;
+                nested = &nest.function(this->sequencer.context[Context::sequenceContextPointer]);
+                nested->parent = &this->sequencer;
             }
 
             ++this->sequencer.currentStep;
@@ -762,14 +762,15 @@ namespace infra
         {
             if (!this->sequencer.Skip())
             {
-                assert(this->sequencer.nested);
-                this->sequencer.nested->Evaluate();
-                if (this->sequencer.nested->Finished())
+                assert(nested);
+                nested->Evaluate();
+                if (nested->Finished())
                 {
-                    this->sequencer.nested->parent = nullptr;
-                    this->sequencer.nested = nullptr;
+                    nested->parent = nullptr;
                     ++this->sequencer.currentStep;
                 }
+                else
+                    this->sequencer.Hold();
             }
             else
                 ++this->sequencer.currentStep;

@@ -8,4 +8,9 @@ namespace services
     {
 
     }
+
+    void Initialize(infra::Function<void()> onDone)
+    {
+
+    }
 }
