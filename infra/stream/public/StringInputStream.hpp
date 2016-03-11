@@ -12,8 +12,8 @@ namespace infra
         , public TextInputStream
     {
     public:
-        explicit StringInputStream(BoundedString& string);
-        StringInputStream(BoundedString& string, SoftFail);
+        explicit StringInputStream(const BoundedConstString& string);
+        StringInputStream(const BoundedConstString& string, SoftFail);
     private:
         void Extract(ByteRange range) override;
         void Extract(uint8_t& element) override;
@@ -21,7 +21,8 @@ namespace infra
         void Forward(std::size_t amount) override;
         bool Empty() const override;
     private:
-        BoundedString& string;
+        uint32_t offset = 0;
+        const BoundedConstString& string;
     };
 }
 

@@ -29,9 +29,6 @@
     <ClInclude Include="public\DataModelDebuggerContent.hpp">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="public\Utils.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\DataModel.cpp">
@@ -41,9 +38,6 @@
       <Filter>private</Filter>
     </ClCompile>
     <ClCompile Include="private\DataModelString.cpp">
-      <Filter>private</Filter>
-    </ClCompile>
-    <ClCompile Include="private\Utils.cpp">
       <Filter>private</Filter>
     </ClCompile>
   </ItemGroup>

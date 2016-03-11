@@ -3,7 +3,8 @@
 
 #include "DataModel.hpp"
 #include "infra\util\public\InterfaceConnector.hpp"
-#include "Utils.hpp"
+#include "infra\stream\public\InputStream.hpp"
+#include "infra\stream\public\OutputStream.hpp"
 
 namespace service
 {
@@ -11,15 +12,20 @@ namespace service
 
     class DataModelDebugger : public infra::InterfaceConnector<DataModelDebugger>
     {
-        class DebugOutputStream : public util::OutputStream
+        class DebugOutputStream 
+            : private infra::StreamWriter
+            , public infra::TextOutputStream
         {
         public:
-            DebugOutputStream(DataModelDebugger* parent) : parent(parent){}
-        protected:
-            void ProcessOutput(char c){ parent->OutputSignal(c); }
+            DebugOutputStream(DataModelDebugger* parent);
         private:
+            void Insert(infra::ConstByteRange range) override;
+            void Insert(uint8_t element) override;
+            void Forward(std::size_t amount) override;
+            
             DataModelDebugger* parent;
         };
+
     public:
         friend class DebugFieldBase;
         class DebugFieldBase
@@ -28,8 +34,8 @@ namespace service
             const char* mName;
         public:
             DebugFieldBase* next;
-            virtual void Get(util::OutputStream& output) = 0;
-            virtual void Set(const char* buffer) = 0;
+            virtual void Get(infra::TextOutputStream& output) = 0;
+            virtual void Set(infra::TextInputStream& input) = 0;
 
             DebugFieldBase(DataModelContentFieldId id, const char* name, DataModelDebugger& debugger);
             DataModelContentFieldId Id(){ return mId; }
@@ -55,11 +61,11 @@ namespace service
                 , mField(id)
                 , mUpdateSlot(Self(), &DebugField::Update)
             {}
-            void Get(util::OutputStream& output);
+            void Get(infra::TextOutputStream& output);
             //{
             //    if(len>=2) {buffer[0] = '?';buffer[1] = 0;}
             //}
-            void Set(const char* buffer);
+            void Set(infra::TextInputStream& input);
             //{}
             bool IsLocked() const override
             {
@@ -87,14 +93,14 @@ namespace service
         DataModelDebugger();
 
         virtual void ProcessInput(char c);
-        util::OutputStream& Output();
+        infra::TextOutputStream& Output();
 
         infra::Signal<DebugOutputStream, char> OutputSignal;
 
         class Callback
         {
         public:
-            virtual void PrintVersion(util::OutputStream& outputStream) = 0;
+            virtual void PrintVersion(infra::TextOutputStream& outputStream) = 0;
         };
         void SetCallback(Callback& callback);
 

@@ -5,16 +5,18 @@
 
 namespace infra
 {
+    const struct SoftFail {} softFail;
+
     const struct Text {} text;
     const struct Hex {} hex;
     const struct Data {} data;
-    const struct SoftFail {} softFail;
-
+    const struct Endl {} endl;
     struct Width
     {
-        explicit Width(std::size_t width);
+        explicit Width(std::size_t width, char padding = ' ');
 
         std::size_t width;
+        char padding;
     };
 
     struct ForwardStream
@@ -26,8 +28,9 @@ namespace infra
 
     ////    Implementation    ////
 
-    inline Width::Width(std::size_t width)
+    inline Width::Width(std::size_t width, char padding)
         : width(width)
+        , padding(padding)
     {}
 
     inline ForwardStream::ForwardStream(std::size_t amount)

@@ -17,15 +17,16 @@
     <ClInclude Include="public\DataModelDebugger.hpp" />
     <ClInclude Include="public\DataModelDebuggerContent.hpp" />
     <ClInclude Include="public\DataModelString.hpp" />
-    <ClInclude Include="public\Utils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\DataModel.cpp" />
     <ClCompile Include="private\DataModelDebugger.cpp" />
     <ClCompile Include="private\DataModelString.cpp" />
-    <ClCompile Include="private\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\infra\stream\stream.vcxproj">
+      <Project>{1532c322-a152-486b-8842-ca07f2f43057}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\infra\util\util.vcxproj">
       <Project>{1c860ac0-083c-47ce-b70e-a1913937ef2b}</Project>
     </ProjectReference>
