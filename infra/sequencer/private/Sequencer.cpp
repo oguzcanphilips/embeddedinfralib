@@ -23,6 +23,13 @@ namespace infra
             again = false;
             sequence();
         }
+
+        /*if (Finished() && parent)
+        infra::EventDispatcher::Instance().Schedule([this]()
+        {
+        if (parent)
+        parent->Evaluate();
+        });*/
     }
 
     void Sequencer::Continue()
@@ -33,6 +40,8 @@ namespace infra
             ++currentStep;
             Evaluate();
         }
+        if (Finished() && parent)
+            parent->Continue();
     }
 
     bool Sequencer::Finished() const
@@ -68,6 +77,10 @@ namespace infra
         again = true;
     }
 
+    HoldWhile::HoldWhile(infra::Function<bool(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> condition)
+        : condition(condition)
+    {}
+
     If::If(infra::Function<bool(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> condition)
         : condition(condition)
     {}
@@ -87,5 +100,13 @@ namespace infra
     ForEach::ForEach(uint32_t begin, uint32_t end)
         : begin(begin)
         , end(end)
+    {}
+
+    NestType::NestType(infra::Function<Sequencer&(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> function)
+        : function(function)
+    {}
+
+    NestTypeInForEach::NestTypeInForEach(infra::Function<Sequencer&(uint32_t), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> function)
+        : function(function)
     {}
 }
