@@ -79,7 +79,7 @@ TEST(StringOuputStreamTest, StreamInt8WithLeadingZeroes)
 {
     infra::StringOutputStream::WithStorage<10> stream;
 
-    stream << infra::Width(5) << int8_t(127);
+    stream << infra::Width(5,'0') << int8_t(127);
 
     EXPECT_EQ("00127", stream.Storage());
 }
@@ -122,7 +122,7 @@ TEST(StringOuputStreamTest, StreamHexWithLeadingZeroes)
 {
     infra::StringOutputStream::WithStorage<10> stream;
 
-    stream << infra::hex << infra::Width(4) << uint8_t(0x1A);
+    stream << infra::hex << infra::Width(4,'0') << uint8_t(0x1A);
     EXPECT_EQ("001a", stream.Storage());
 }
 
