@@ -18,6 +18,12 @@
     <ClCompile Include="test\Generated\TestFSM.cpp">
       <Filter>Generated</Filter>
     </ClCompile>
+    <ClCompile Include="test\Main.cpp" />
+    <ClCompile Include="test\TestCheckerFSM_.c" />
+    <ClCompile Include="test\TestCheckerFSM_CImpl.c" />
+    <ClCompile Include="test\TestFiniteStateMachine.cpp" />
+    <ClCompile Include="test\TestFSM_.c" />
+    <ClCompile Include="test\TestFSM_CImpl.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="test\Generated\TestCheckerFSM.h">
@@ -32,5 +38,9 @@
     <ClInclude Include="test\Generated\TestFSM.hpp">
       <Filter>Generated</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="test\TestCheckerFSM.fsm" />
+    <None Include="test\TestFSM.fsm" />
   </ItemGroup>
 </Project>

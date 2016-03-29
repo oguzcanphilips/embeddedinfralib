@@ -92,7 +92,7 @@
       </Outputs>
     </CustomBuildStep>
     <PreBuildEvent>
-      <Command>..\FSM\bin\$(Configuration)\FSM.exe . Generated</Command>
+      <Command>..\..\$(Configuration)\FSM.exe . Generated</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
