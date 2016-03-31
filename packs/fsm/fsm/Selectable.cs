@@ -18,6 +18,13 @@ namespace FSM
         {
         }
 
+        public virtual void Down()
+        {
+        }
+        public virtual void Up()
+        {
+        }
+
         public abstract Point Center
         {
             get;

@@ -58,9 +58,8 @@ namespace FSM
                 {
                     ev.Draw(bufferGrph);
                 }
-                if (mCreateEvent && mNewEventFrom != null) bufferGrph.DrawLine(new Pen(Color.Blue, 1),
-                    mNewEventFrom.FindConnector(mNewEventTo),
-                    mNewEventTo);
+                if (mCreateEvent && mNewEventFrom != null) 
+                    bufferGrph.DrawLine(new Pen(Color.Blue, 1), mNewEventFrom.FindConnector(mNewEventTo), mNewEventTo);
             }
             e.Graphics.Clear(Color.Gray);
             Point origin = ApplyScrollOffset(Point.Empty);
@@ -398,13 +397,23 @@ namespace FSM
 
         private void FSM_MouseWheel(object sender, MouseEventArgs e)
         {
-            int zoom = mZoom.Value;
-            if (e.Delta > 0) zoom += 10;
-            if (e.Delta < 0) zoom -= 10;
-            if (zoom < mZoom.Minimum) zoom = mZoom.Minimum;
-            if (zoom > mZoom.Maximum) zoom = mZoom.Maximum;
-            mZoom.Value = zoom;
+            if (mSelectedItem == null || !mSelectedItem.Selected)
+            {
+                int zoom = mZoom.Value;
+                if (e.Delta > 0) zoom += 10;
+                if (e.Delta < 0) zoom -= 10;
+                if (zoom < mZoom.Minimum) zoom = mZoom.Minimum;
+                if (zoom > mZoom.Maximum) zoom = mZoom.Maximum;
+                mZoom.Value = zoom;
+            }
+            else
+            {
+                if (e.Delta > 0) mSelectedItem.Up();
+                if (e.Delta < 0) mSelectedItem.Down();
+                mPanel.Invalidate();
+            }
         }
+
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             base.OnClosing(e);
@@ -463,6 +472,15 @@ namespace FSM
         private void useAssertOnNestedEvents_CheckedChanged(object sender, EventArgs e)
         {
             mConfig.UseAssert = useAssertOnNestedEvents.Checked;
+        }
+
+        private void mPanel_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (mSelectedItem != null && mSelectedItem.Selected)
+            {
+                mSelectedItem.Up();
+                mPanel.Invalidate();
+            }
         }
     }
 }

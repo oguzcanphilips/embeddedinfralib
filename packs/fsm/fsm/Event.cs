@@ -19,6 +19,7 @@ namespace FSM
         static private Pen mPen = new Pen(Color.LightSlateGray, 1);
         static private Pen mPenSelArrow = new Pen(Color.Red, 2);
         static private Pen mPenSel = new Pen(Color.Red, 2);
+        
         private static bool mInitializePens = true;
 
         [NonSerializedAttribute] private State mFrom = null;
@@ -26,7 +27,7 @@ namespace FSM
 
         private ActionsList mActions = new ActionsList();
         private Point mVia = Point.Empty;
-
+        private int drawMode = 0;
         private string mNameFrom = "";
         private string mNameTo = "";
         private Guard mGuard = new Guard();
@@ -137,7 +138,30 @@ namespace FSM
                 mVia = value;
             }
         }
-       
+        public override void Down()
+        {
+            if (drawMode == 0)
+            {
+                drawMode = 2;
+            }
+            else
+            {
+                drawMode--;
+            }
+        }
+
+        public override void Up()
+        {
+            if (drawMode == 2)
+            {
+                drawMode = 0;
+            }
+            else
+            {
+                drawMode++;
+            }
+        }
+
         public void Draw(Graphics g)
         {
             if (mFrom == null || mTo == null) return;
@@ -149,7 +173,7 @@ namespace FSM
                 mPenSelArrow.CustomEndCap = new AdjustableArrowCap(6, 6);
                 mInitializePens = false;
             }
-            
+
             Point from;
             Point to;
             Point via;
@@ -163,10 +187,21 @@ namespace FSM
             {
                 from = mFrom.FindConnector(mVia);
                 to = mTo.FindConnector(mVia, from);
-                via = mVia;                
+                via = mVia;
             }
-            Point[] curvePoints = {from, via, to};
-            g.DrawCurve(Selected ? mPenSelArrow : mPenArrow, curvePoints, 1.0f);
+            if (drawMode>0)
+            {
+                int i = 0;
+                Point fv = (drawMode & 0x01) == 0 ? new Point(from.X, via.Y) : new Point(via.X, from.Y);
+                Point vt = (drawMode & 0x01) == 0 ? new Point(to.X, via.Y) : new Point(via.X, to.Y);
+                Point[] curvePoints = { from, fv, via, vt, to};
+                g.DrawCurve(Selected ? mPenSelArrow : mPenArrow, curvePoints, 0.0f);
+            }
+            else
+            {
+                Point[] curvePoints = { from, via, to };
+                g.DrawCurve(Selected ? mPenSelArrow : mPenArrow, curvePoints, 1.0f);
+            }
             g.DrawRectangle(Selected ? mPenSel : mPen, via.X - 3, via.Y - 3, 6, 6);
             string def = EventDefinition();
             uint nameH = (uint)g.MeasureString(def, mFont).Height;

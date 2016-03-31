@@ -5,3 +5,4 @@ Debug/
 Release/
 scripts/__pycache__/
 *.vcxproj.user
+packs/fsm/test/Generated/*.*

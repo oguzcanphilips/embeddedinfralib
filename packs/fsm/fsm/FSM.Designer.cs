@@ -45,10 +45,10 @@
             this.mZoom = new System.Windows.Forms.HScrollBar();
             this.mCenterButton = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
-            this.mPanel = new DoubleBufferPanel();
             this.mFeedback = new System.Windows.Forms.TextBox();
             this.mCheckerButton = new System.Windows.Forms.Button();
             this.useAssertOnNestedEvents = new System.Windows.Forms.CheckBox();
+            this.mPanel = new DoubleBufferPanel();
             this.SuspendLayout();
             // 
             // mNewStateButton
@@ -205,22 +205,6 @@
             this.label3.TabIndex = 17;
             this.label3.Text = "Zoom:";
             // 
-            // mPanel
-            // 
-            this.mPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.mPanel.BackColor = System.Drawing.SystemColors.Window;
-            this.mPanel.Location = new System.Drawing.Point(115, 12);
-            this.mPanel.Name = "mPanel";
-            this.mPanel.Size = new System.Drawing.Size(476, 428);
-            this.mPanel.TabIndex = 0;
-            this.mPanel.SizeChanged += new System.EventHandler(this.mPanel_SizeChanged);
-            this.mPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.mPanel_Paint);
-            this.mPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mPanel_MouseDown);
-            this.mPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mPanel_MouseMove);
-            this.mPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.mPanel_MouseUp);
-            // 
             // mFeedback
             // 
             this.mFeedback.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -253,6 +237,23 @@
             this.useAssertOnNestedEvents.Text = "Use assert";
             this.useAssertOnNestedEvents.UseVisualStyleBackColor = true;
             this.useAssertOnNestedEvents.CheckedChanged += new System.EventHandler(this.useAssertOnNestedEvents_CheckedChanged);
+            // 
+            // mPanel
+            // 
+            this.mPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.mPanel.BackColor = System.Drawing.SystemColors.Window;
+            this.mPanel.Location = new System.Drawing.Point(115, 12);
+            this.mPanel.Name = "mPanel";
+            this.mPanel.Size = new System.Drawing.Size(476, 428);
+            this.mPanel.TabIndex = 0;
+            this.mPanel.SizeChanged += new System.EventHandler(this.mPanel_SizeChanged);
+            this.mPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.mPanel_Paint);
+            this.mPanel.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.mPanel_MouseDoubleClick);
+            this.mPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mPanel_MouseDown);
+            this.mPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mPanel_MouseMove);
+            this.mPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.mPanel_MouseUp);
             // 
             // FSM
             // 
