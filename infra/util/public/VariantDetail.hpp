@@ -19,6 +19,9 @@ namespace infra
     template<class... T>
     class Variant;
 
+    template<class Base, class... T>
+    class PolymorphicVariant;
+
     namespace detail
     {
 
@@ -96,6 +99,32 @@ namespace infra
 
         template<class... Args>
         struct ConstructAtIndexHelper;
+
+        template<class Base, class... T>
+        struct ConstructPolymorphicVisitor
+            : StaticVisitor<void>
+        {
+            ConstructPolymorphicVisitor(PolymorphicVariant<Base, T...>& aVariant);
+
+            template<class T2>
+                void operator()(const T2& v);
+
+        private:
+            PolymorphicVariant<Base, T...>& variant;
+        };
+
+        template<class Base, class... T>
+        struct CopyPolymorphicVisitor
+            : StaticVisitor<void>
+        {
+            CopyPolymorphicVisitor(PolymorphicVariant<Base, T...>& aVariant);
+
+            template<class T2>
+                void operator()(const T2& v);
+
+        private:
+            PolymorphicVariant<Base, T...>& variant;
+        };
 
         ////    Implementation    ////
 
@@ -509,7 +538,7 @@ namespace infra
         template<class T2>
         void ConstructVisitor<T...>::operator()(const T2& v)
         {
-            variant.template Construct<T2>(v);
+            variant.template ConstructInEmptyVariant<T2>(v);
         }
 
         template<class... T>
@@ -571,6 +600,29 @@ namespace infra
             }
         };
 
+        template<class Base, class... T>
+        ConstructPolymorphicVisitor<Base, T...>::ConstructPolymorphicVisitor(PolymorphicVariant<Base, T...>& aVariant)
+            : variant(aVariant)
+        {}
+
+        template<class Base, class... T>
+        template<class T2>
+        void ConstructPolymorphicVisitor<Base, T...>::operator()(const T2& v)
+        {
+            variant.template ConstructInEmptyVariant<T2>(v);
+        }
+
+        template<class Base, class... T>
+        CopyPolymorphicVisitor<Base, T...>::CopyPolymorphicVisitor(PolymorphicVariant<Base, T...>& aVariant)
+            : variant(aVariant)
+        {}
+
+        template<class Base, class... T>
+        template<class T2>
+        void CopyPolymorphicVisitor<Base, T...>::operator()(const T2& v)
+        {
+            variant = v;
+        }
     }
 }
 

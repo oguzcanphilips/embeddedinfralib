@@ -5,7 +5,7 @@
 
 TEST(BoundedDequeTest, TestConstructedEmpty)
 {
-    infra::BoundedDeque<int, 5> deque;
+    infra::BoundedDeque<int>::WithMaxSize<5> deque;
 
     EXPECT_TRUE(deque.empty());
     EXPECT_FALSE(deque.full());
@@ -15,7 +15,7 @@ TEST(BoundedDequeTest, TestConstructedEmpty)
 
 TEST(BoundedDequeTest, TestConstructionWith2Elements)
 {
-    infra::BoundedDeque<int, 5> deque(std::size_t(2), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(std::size_t(2), 4);
 
     EXPECT_FALSE(deque.empty());
     EXPECT_FALSE(deque.full());
@@ -28,7 +28,7 @@ TEST(BoundedDequeTest, TestConstructionWith2Elements)
 TEST(BoundedDequeTest, TestConstructionWithRange)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
 
     EXPECT_EQ(3, deque.size());
 
@@ -39,7 +39,7 @@ TEST(BoundedDequeTest, TestConstructionWithRange)
 
 TEST(BoundedDequeTest, TestConstructionWithInitalizerList)
 {
-    infra::BoundedDeque<int, 5> deque({ 0, 1, 2 });
+    infra::BoundedDeque<int>::WithMaxSize<5> deque({ 0, 1, 2 });
 
     EXPECT_EQ(3, deque.size());
 
@@ -50,8 +50,8 @@ TEST(BoundedDequeTest, TestConstructionWithInitalizerList)
 
 TEST(BoundedDequeTest, TestCopyConstruction)
 {
-    infra::BoundedDeque<int, 5> original(std::size_t(2), 4);
-    infra::BoundedDeque<int, 5> copy(original);
+    infra::BoundedDeque<int>::WithMaxSize<5> original(std::size_t(2), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> copy(original);
 
     EXPECT_EQ(2, copy.size());
     EXPECT_EQ(4, copy[0]);
@@ -60,10 +60,10 @@ TEST(BoundedDequeTest, TestCopyConstruction)
 
 TEST(BoundedDequeTest, TestCopyConstructionWrapped)
 {
-    infra::BoundedDeque<int, 5> original(std::size_t(1), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> original(std::size_t(1), 4);
     original.push_front(3);
 
-    infra::BoundedDeque<int, 5> copy(original);
+    infra::BoundedDeque<int>::WithMaxSize<5> copy(original);
 
     EXPECT_EQ(2, copy.size());
     EXPECT_EQ(3, copy[0]);
@@ -72,9 +72,9 @@ TEST(BoundedDequeTest, TestCopyConstructionWrapped)
 
 TEST(BoundedDequeTest, TestMoveConstruction)
 {
-    infra::BoundedDeque<infra::MoveConstructible, 5> original;
+    infra::BoundedDeque<infra::MoveConstructible>::WithMaxSize<5> original;
     original.emplace_back(2);
-    infra::BoundedDeque<infra::MoveConstructible, 5> copy(std::move(original));
+    infra::BoundedDeque<infra::MoveConstructible>::WithMaxSize<5> copy(std::move(original));
 
     EXPECT_EQ(1, copy.size());
     EXPECT_EQ(2, copy[0].x);
@@ -82,10 +82,10 @@ TEST(BoundedDequeTest, TestMoveConstruction)
 
 TEST(BoundedDequeTest, TestMoveConstructionWrapped)
 {
-    infra::BoundedDeque<infra::MoveConstructible, 5> original;
+    infra::BoundedDeque<infra::MoveConstructible>::WithMaxSize<5> original;
     original.emplace_back(2);
     original.emplace_front(1);
-    infra::BoundedDeque<infra::MoveConstructible, 5> copy(std::move(original));
+    infra::BoundedDeque<infra::MoveConstructible>::WithMaxSize<5> copy(std::move(original));
 
     EXPECT_EQ(2, copy.size());
     EXPECT_EQ(1, copy[0].x);
@@ -94,8 +94,8 @@ TEST(BoundedDequeTest, TestMoveConstructionWrapped)
 
 TEST(BoundedDequeTest, TestAssignment)
 {
-    infra::BoundedDeque<int, 5> original(std::size_t(2), 4);
-    infra::BoundedDeque<int, 5> copy;
+    infra::BoundedDeque<int>::WithMaxSize<5> original(std::size_t(2), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> copy;
     copy = original;
 
     EXPECT_EQ(2, copy.size());
@@ -104,9 +104,9 @@ TEST(BoundedDequeTest, TestAssignment)
 
 TEST(BoundedDequeTest, TestAssignmentWrapped)
 {
-    infra::BoundedDeque<int, 5> original(std::size_t(1), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> original(std::size_t(1), 4);
     original.push_front(3);
-    infra::BoundedDeque<int, 5> copy;
+    infra::BoundedDeque<int>::WithMaxSize<5> copy;
     copy = original;
 
     EXPECT_EQ(2, copy.size());
@@ -116,16 +116,17 @@ TEST(BoundedDequeTest, TestAssignmentWrapped)
 
 TEST(BoundedDequeTest, TestAssignmentInitializerList)
 {
-    infra::BoundedDeque<int, 5> deque = { 1, 2 };
+    infra::BoundedDeque<int>::WithMaxSize<5> deque({ 1, 2, 3 });
 
-    EXPECT_EQ(2, deque.size());
+    EXPECT_EQ(3, deque.size());
     EXPECT_EQ(1, deque[0]);
     EXPECT_EQ(2, deque[1]);
 }
 
 TEST(BoundedDequeTest, TestAssignmentInitializerListWrapped)
 {
-    infra::BoundedDeque<int, 5> deque(std::size_t(1), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> dequeStorage(std::size_t(1), 4);
+    infra::BoundedDeque<int>& deque = dequeStorage;
     deque.push_front(3);
     deque = { 1, 2 };
 
@@ -136,9 +137,9 @@ TEST(BoundedDequeTest, TestAssignmentInitializerListWrapped)
 
 TEST(BoundedDequeTest, TestMove)
 {
-    infra::BoundedDeque<infra::MoveConstructible, 5> original;
+    infra::BoundedDeque<infra::MoveConstructible>::WithMaxSize<5> original;
     original.emplace_back(2);
-    infra::BoundedDeque<infra::MoveConstructible, 5> copy;
+    infra::BoundedDeque<infra::MoveConstructible>::WithMaxSize<5> copy;
     copy = std::move(original);
 
     EXPECT_EQ(1, copy.size());
@@ -147,10 +148,10 @@ TEST(BoundedDequeTest, TestMove)
 
 TEST(BoundedDequeTest, TestMoveWrapped)
 {
-    infra::BoundedDeque<infra::MoveConstructible, 5> original;
+    infra::BoundedDeque<infra::MoveConstructible>::WithMaxSize<5> original;
     original.emplace_back(2);
     original.emplace_front(1);
-    infra::BoundedDeque<infra::MoveConstructible, 5> copy;
+    infra::BoundedDeque<infra::MoveConstructible>::WithMaxSize<5> copy;
     copy = std::move(original);
 
     EXPECT_EQ(2, copy.size());
@@ -161,7 +162,7 @@ TEST(BoundedDequeTest, TestMoveWrapped)
 TEST(BoundedDequeTest, TestBeginAndEnd)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
 
     EXPECT_EQ(deque.end(), deque.begin() + 3);
     EXPECT_EQ(deque.cbegin(), deque.begin());
@@ -177,7 +178,7 @@ TEST(BoundedDequeTest, TestBeginAndEnd)
 TEST(BoundedDequeTest, TestBeginAndEndWrapped)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
     deque.push_front(-1);
 
     EXPECT_EQ(deque.end(), deque.begin() + 4);
@@ -193,7 +194,7 @@ TEST(BoundedDequeTest, TestBeginAndEndWrapped)
 
 TEST(BoundedDequeTest, TestResizeBigger)
 {
-    infra::BoundedDeque<int, 5> deque(std::size_t(2), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(std::size_t(2), 4);
     deque.resize(3, 5);
 
     EXPECT_EQ(3, deque.size());
@@ -203,7 +204,7 @@ TEST(BoundedDequeTest, TestResizeBigger)
 
 TEST(BoundedDequeTest, TestResizeSmaller)
 {
-    infra::BoundedDeque<int, 5> deque(std::size_t(2), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(std::size_t(2), 4);
     deque.resize(1, 5);
 
     EXPECT_EQ(1, deque.size());
@@ -212,14 +213,14 @@ TEST(BoundedDequeTest, TestResizeSmaller)
 
 TEST(BoundedDequeTest, TestFull)
 {
-    infra::BoundedDeque<int, 5> deque(std::size_t(5), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(std::size_t(5), 4);
 
     EXPECT_TRUE(deque.full());
 }
 
 TEST(BoundedDequeTest, TestFullWrapped)
 {
-    infra::BoundedDeque<int, 5> deque(std::size_t(5), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(std::size_t(5), 4);
     deque.pop_front();
     deque.push_back(1);
 
@@ -229,7 +230,7 @@ TEST(BoundedDequeTest, TestFullWrapped)
 TEST(BoundedDequeTest, TestFront)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
 
     EXPECT_EQ(0, deque.front());
 }
@@ -237,7 +238,7 @@ TEST(BoundedDequeTest, TestFront)
 TEST(BoundedDequeTest, TestFrontWrapped)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
     deque.push_front(-1);
 
     EXPECT_EQ(-1, deque.front());
@@ -246,7 +247,7 @@ TEST(BoundedDequeTest, TestFrontWrapped)
 TEST(BoundedDequeTest, TestBack)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
 
     EXPECT_EQ(2, deque.back());
 }
@@ -254,7 +255,7 @@ TEST(BoundedDequeTest, TestBack)
 TEST(BoundedDequeTest, TestBackWrapped)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 3> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<3> deque(range, range + 3);
     deque.pop_front();
     deque.push_back(5);
 
@@ -264,7 +265,7 @@ TEST(BoundedDequeTest, TestBackWrapped)
 TEST(BoundedDequeTest, TestAssignRange)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
 
     int otherRange[2] = { 4, 5 };
     deque.assign(otherRange, otherRange + 2);
@@ -277,7 +278,7 @@ TEST(BoundedDequeTest, TestAssignRange)
 TEST(BoundedDequeTest, TestAssignN)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
 
     deque.assign(std::size_t(2), 4);
 
@@ -288,7 +289,7 @@ TEST(BoundedDequeTest, TestAssignN)
 
 TEST(BoundedDequeTest, TestAssignInitializerList)
 {
-    infra::BoundedDeque<int, 5> deque({ 0, 1, 2 });
+    infra::BoundedDeque<int>::WithMaxSize<5> deque({ 0, 1, 2 });
     deque.push_front(-1);
     deque.assign({ 4, 5, 6 });
 
@@ -300,7 +301,7 @@ TEST(BoundedDequeTest, TestAssignInitializerList)
 
 TEST(BoundedDequeTest, TestPushFront)
 {
-    infra::BoundedDeque<int, 5> deque(std::size_t(2), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(std::size_t(2), 4);
     deque.push_front(1);
 
     EXPECT_EQ(3, deque.size());
@@ -309,7 +310,7 @@ TEST(BoundedDequeTest, TestPushFront)
 
 TEST(BoundedDequeTest, TestPopFront)
 {
-    infra::BoundedDeque<int, 5> deque(std::size_t(2), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(std::size_t(2), 4);
     deque.pop_front();
 
     EXPECT_EQ(1, deque.size());
@@ -318,7 +319,7 @@ TEST(BoundedDequeTest, TestPopFront)
 
 TEST(BoundedDequeTest, TestPopWrapped)
 {
-    infra::BoundedDeque<int, 5> deque(std::size_t(2), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(std::size_t(2), 4);
     deque.push_front(1);
     deque.push_front(0);
 
@@ -330,11 +331,11 @@ TEST(BoundedDequeTest, TestPopWrapped)
 
 TEST(BoundedDequeTest, TestPushBack)
 {
-    infra::BoundedDeque<int, 5> deque;
+    infra::BoundedDeque<int>::WithMaxSize<5> deque;
     deque.push_back(2);
     deque.push_back(3);
 
-    infra::BoundedDeque<int, 5> expectedDeque;
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque;
     expectedDeque.push_back(2);
     expectedDeque.push_back(3);
 
@@ -343,7 +344,7 @@ TEST(BoundedDequeTest, TestPushBack)
 
 TEST(BoundedDequeTest, TestPushBackWrapped)
 {
-    infra::BoundedDeque<int, 5> deque;
+    infra::BoundedDeque<int>::WithMaxSize<5> deque;
     for (auto i = 0; i < 5; ++i)
         deque.push_back(1);
 
@@ -362,7 +363,7 @@ TEST(BoundedDequeTest, TestPushBackWrapped)
 
 TEST(BoundedDequeTest, TestPopBack)
 {
-    infra::BoundedDeque<int, 5> deque(std::size_t(2), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(std::size_t(2), 4);
     deque.pop_back();
 
     EXPECT_EQ(1, deque.size());
@@ -371,7 +372,7 @@ TEST(BoundedDequeTest, TestPopBack)
 
 TEST(BoundedDequeTest, TestPopBackWrapped)
 {
-    infra::BoundedDeque<int, 5> deque(std::size_t(1), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(std::size_t(1), 4);
     deque.push_front(1);
 
     deque.pop_back();
@@ -383,42 +384,42 @@ TEST(BoundedDequeTest, TestPopBackWrapped)
 TEST(BoundedDequeTest, TestInsertOneInTheMiddle)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
 
     EXPECT_EQ(5, *deque.insert(deque.begin() + 1, 5));
 
     int expectedRange[4] = { 0, 5, 1, 2 };
-    infra::BoundedDeque<int, 5> expectedDeque(expectedRange, expectedRange + 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque(expectedRange, expectedRange + 4);
     EXPECT_EQ(expectedDeque, deque);
 }
 
 TEST(BoundedDequeTest, TestInsertOneAtTheEnd)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
 
     EXPECT_EQ(5, *deque.insert(deque.end(), 5));
 
     int expectedRange[4] = { 0, 1, 2, 5 };
-    infra::BoundedDeque<int, 5> expectedDeque(expectedRange, expectedRange + 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque(expectedRange, expectedRange + 4);
     EXPECT_EQ(expectedDeque, deque);
 }
 
 TEST(BoundedDequeTest, TestInsertManyInTheMiddle)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
 
     EXPECT_EQ(5, *deque.insert(deque.begin() + 2, std::size_t(2), 5));
 
     int expectedRange[5] = { 0, 1, 5, 5, 2 };
-    infra::BoundedDeque<int, 5> expectedDeque(expectedRange, expectedRange + 5);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque(expectedRange, expectedRange + 5);
     EXPECT_EQ(expectedDeque, deque);
 }
 
 TEST(BoundedDequeTest, TestInsertManyInTheMiddleWrapped)
 {
-    infra::BoundedDeque<int, 5> deque;
+    infra::BoundedDeque<int>::WithMaxSize<5> deque;
     deque.push_front(1);
     deque.push_front(0);
     deque.push_back(2);
@@ -426,45 +427,45 @@ TEST(BoundedDequeTest, TestInsertManyInTheMiddleWrapped)
     EXPECT_EQ(5, *deque.insert(deque.begin() + 1, std::size_t(2), 5));
 
     int expectedRange[5] = { 0, 5, 5, 1, 2 };
-    infra::BoundedDeque<int, 5> expectedDeque(expectedRange, expectedRange + 5);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque(expectedRange, expectedRange + 5);
     EXPECT_EQ(expectedDeque, deque);
 }
 
 TEST(BoundedDequeTest, TestInsertManyAtTheFront)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
 
     EXPECT_EQ(5, *deque.insert(deque.begin(), std::size_t(2), 5));
 
     int expectedRange[5] = { 5, 5, 0, 1, 2 };
-    infra::BoundedDeque<int, 5> expectedDeque(expectedRange, expectedRange + 5);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque(expectedRange, expectedRange + 5);
     EXPECT_EQ(expectedDeque, deque);
 }
 
 TEST(BoundedDequeTest, TestInsertRange)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
 
     int insertRange[2] = { 5, 6 };
     EXPECT_EQ(5, *deque.insert(deque.begin() + 2, insertRange, insertRange + 2));
 
     int expectedRange[5] = { 0, 1, 5, 6, 2 };
-    infra::BoundedDeque<int, 5> expectedDeque(expectedRange, expectedRange + 5);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque(expectedRange, expectedRange + 5);
     EXPECT_EQ(expectedDeque, deque);
 }
 
 TEST(BoundedDequeTest, TestInsertMove)
 {
-    infra::BoundedDeque<infra::MoveConstructible, 5> deque;
+    infra::BoundedDeque<infra::MoveConstructible>::WithMaxSize<5> deque;
     deque.emplace_back(0);
     deque.emplace_back(1);
     deque.emplace_back(2);
 
     EXPECT_EQ(5, deque.insert(deque.begin() + 1, infra::MoveConstructible(5))->x);
 
-    infra::BoundedDeque<infra::MoveConstructible, 5> expectedDeque;
+    infra::BoundedDeque<infra::MoveConstructible>::WithMaxSize<5> expectedDeque;
     expectedDeque.emplace_back(0);
     expectedDeque.emplace_back(5);
     expectedDeque.emplace_back(1);
@@ -475,38 +476,38 @@ TEST(BoundedDequeTest, TestInsertMove)
 TEST(BoundedDequeTest, TestEraseOne)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
 
     deque.erase(deque.begin() + 1);
 
     int expectedRange[5] = { 0, 2 };
-    infra::BoundedDeque<int, 5> expectedDeque(expectedRange, expectedRange + 2);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque(expectedRange, expectedRange + 2);
     EXPECT_EQ(expectedDeque, deque);
 }
 
 TEST(BoundedDequeTest, TestEraseRange)
 {
     int range[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque(range, range + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(range, range + 3);
 
     deque.erase(deque.begin() + 1, deque.begin() + 3);
 
     int expectedRange[5] = { 0 };
-    infra::BoundedDeque<int, 5> expectedDeque(expectedRange, expectedRange + 1);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque(expectedRange, expectedRange + 1);
     EXPECT_EQ(expectedDeque, deque);
 }
 
 TEST(BoundedDequeTest, TestSwap)
 {
     int range1[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque1(range1, range1 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque1(range1, range1 + 3);
     int range2[3] = { 3, 4, 5 };
-    infra::BoundedDeque<int, 5> deque2(range2, range2 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque2(range2, range2 + 3);
 
     swap(deque1, deque2);
 
-    infra::BoundedDeque<int, 5> expectedDeque1(range2, range2 + 3);
-    infra::BoundedDeque<int, 5> expectedDeque2(range1, range1 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque1(range2, range2 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque2(range1, range1 + 3);
     EXPECT_EQ(expectedDeque1, deque1);
     EXPECT_EQ(expectedDeque2, deque2);
 }
@@ -515,16 +516,16 @@ TEST(BoundedDequeTest, TestSwapWrapped)
 {
     int range1[3] = { 0, 1, 2 };
     int range2[3] = { 3, 4, 5 };
-    infra::BoundedDeque<int, 5> deque1(range1, range1 + 3);
-    infra::BoundedDeque<int, 5> deque2;
+    infra::BoundedDeque<int>::WithMaxSize<5> deque1(range1, range1 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque2;
     deque2.push_front(range2[0]);
     deque2.push_back(range2[1]);
     deque2.push_back(range2[2]);
 
     swap(deque1, deque2);
 
-    infra::BoundedDeque<int, 5> expectedDeque1(range2, range2 + 3);
-    infra::BoundedDeque<int, 5> expectedDeque2(range1, range1 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque1(range2, range2 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque2(range1, range1 + 3);
     EXPECT_EQ(expectedDeque1, deque1);
     EXPECT_EQ(expectedDeque2, deque2);
 }
@@ -532,14 +533,14 @@ TEST(BoundedDequeTest, TestSwapWrapped)
 TEST(BoundedDequeTest, TestSwapDifferentSizes)
 {
     int range1[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque1(range1, range1 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque1(range1, range1 + 3);
     int range2[2] = { 3, 4 };
-    infra::BoundedDeque<int, 5> deque2(range2, range2 + 2);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque2(range2, range2 + 2);
 
     swap(deque1, deque2);
 
-    infra::BoundedDeque<int, 5> expectedDeque1(range2, range2 + 2);
-    infra::BoundedDeque<int, 5> expectedDeque2(range1, range1 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque1(range2, range2 + 2);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque2(range1, range1 + 3);
     EXPECT_EQ(expectedDeque1, deque1);
     EXPECT_EQ(expectedDeque2, deque2);
 }
@@ -547,38 +548,38 @@ TEST(BoundedDequeTest, TestSwapDifferentSizes)
 TEST(BoundedDequeTest, TestSwapDifferentSizesWrapped)
 {
     int range1[2] = { 0, 1 };
-    infra::BoundedDeque<int, 5> deque1(range1, range1 + 2);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque1(range1, range1 + 2);
     int range2[3] = { 2, 3, 4 };
-    infra::BoundedDeque<int, 5> deque2;
+    infra::BoundedDeque<int>::WithMaxSize<5> deque2;
     deque2.push_front(range2[1]);
     deque2.push_front(range2[0]);
     deque2.push_back(range2[2]);
 
     swap(deque1, deque2);
 
-    infra::BoundedDeque<int, 5> expectedDeque1(range2, range2 + 3);
-    infra::BoundedDeque<int, 5> expectedDeque2(range1, range1 + 2);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque1(range2, range2 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque2(range1, range1 + 2);
     EXPECT_EQ(expectedDeque1, deque1);
     EXPECT_EQ(expectedDeque2, deque2);
 }
 
 TEST(BoundedDequeTest, TestClear)
 {
-    infra::BoundedDeque<int, 5> deque(std::size_t(2), 4);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque(std::size_t(2), 4);
     deque.clear();
 
-    infra::BoundedDeque<int, 5> expectedDeque;
+    infra::BoundedDeque<int>::WithMaxSize<5> expectedDeque;
     EXPECT_EQ(expectedDeque, deque);
 }
 
 TEST(BoundedDequeTest, TestEmplace)
 {
-    infra::BoundedDeque<infra::MoveConstructible, 5> deque;
+    infra::BoundedDeque<infra::MoveConstructible>::WithMaxSize<5> deque;
     deque.emplace_back(2);
     deque.emplace_back(3);
     deque.emplace(deque.begin() + 1, 4);
 
-    infra::BoundedDeque<infra::MoveConstructible, 5> expectedDeque;
+    infra::BoundedDeque<infra::MoveConstructible>::WithMaxSize<5> expectedDeque;
     expectedDeque.emplace_back(2);
     expectedDeque.emplace_back(4);
     expectedDeque.emplace_back(3);
@@ -588,7 +589,7 @@ TEST(BoundedDequeTest, TestEmplace)
 
 TEST(BoundedDequeTest, TestEmplaceWrapped)
 {
-    infra::BoundedDeque<infra::MoveConstructible, 5> deque;
+    infra::BoundedDeque<infra::MoveConstructible>::WithMaxSize<5> deque;
     for (auto i = 0; i < 5; ++i)
         deque.emplace_back(1);
     deque.pop_front();
@@ -609,11 +610,11 @@ TEST(BoundedDequeTest, TestEmplaceWrapped)
 TEST(BoundedDequeTest, TestEquals)
 {
     int range1[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque1(range1, range1 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque1(range1, range1 + 3);
     int range2[3] = { 3, 4, 5 };
-    infra::BoundedDeque<int, 5> deque2(range2, range2 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque2(range2, range2 + 3);
     int range3[2] = { 0, 1 };
-    infra::BoundedDeque<int, 5> deque3(range3, range3 + 2);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque3(range3, range3 + 2);
 
     EXPECT_TRUE(deque1 == deque1);
     EXPECT_FALSE(deque1 == deque2);
@@ -624,8 +625,8 @@ TEST(BoundedDequeTest, TestEquals)
 TEST(BoundedDequeTest, TestEqualsWrapped)
 {
     int range1[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque1(range1, range1 + 3);
-    infra::BoundedDeque<int, 5> deque2;
+    infra::BoundedDeque<int>::WithMaxSize<5> deque1(range1, range1 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque2;
     deque2.push_front(range1[0]);
     deque2.push_back(range1[1]);
     deque2.push_back(range1[2]);
@@ -636,7 +637,7 @@ TEST(BoundedDequeTest, TestEqualsWrapped)
 TEST(BoundedDequeTest, TestUnequals)
 {
     int range1[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque1(range1, range1 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque1(range1, range1 + 3);
 
     EXPECT_FALSE(deque1 != deque1);
 }
@@ -644,11 +645,11 @@ TEST(BoundedDequeTest, TestUnequals)
 TEST(BoundedDequeTest, TestLessThan)
 {
     int range1[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque1(range1, range1 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque1(range1, range1 + 3);
     int range2[3] = { 0, 4, 5 };
-    infra::BoundedDeque<int, 5> deque2(range2, range2 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque2(range2, range2 + 3);
     int range3[2] = { 0, 1 };
-    infra::BoundedDeque<int, 5> deque3(range3, range3 + 2);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque3(range3, range3 + 2);
 
     EXPECT_TRUE(deque1 < deque2);
     EXPECT_FALSE(deque1 < deque3);
@@ -658,14 +659,14 @@ TEST(BoundedDequeTest, TestLessThan)
 TEST(BoundedDequeTest, TestLessThanWrapped)
 {
     int range1[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque1(range1, range1 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque1(range1, range1 + 3);
     int range2[3] = { 0, 4, 5 };
-    infra::BoundedDeque<int, 5> deque2;
+    infra::BoundedDeque<int>::WithMaxSize<5> deque2;
     deque2.push_front(0);
     deque2.push_back(4);
     deque2.push_back(5);
     int range3[2] = { 0, 1 };
-    infra::BoundedDeque<int, 5> deque3(range3, range3 + 2);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque3(range3, range3 + 2);
 
     EXPECT_TRUE(deque1 < deque2);
     EXPECT_FALSE(deque1 < deque3);
@@ -675,7 +676,7 @@ TEST(BoundedDequeTest, TestLessThanWrapped)
 TEST(BoundedDequeTest, TestGreaterThan)
 {
     int range1[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque1(range1, range1 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque1(range1, range1 + 3);
 
     EXPECT_FALSE(deque1 > deque1);
 }
@@ -683,7 +684,7 @@ TEST(BoundedDequeTest, TestGreaterThan)
 TEST(BoundedDequeTest, TestLessThanOrEqual)
 {
     int range1[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque1(range1, range1 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque1(range1, range1 + 3);
 
     EXPECT_TRUE(deque1 <= deque1);
 }
@@ -691,7 +692,7 @@ TEST(BoundedDequeTest, TestLessThanOrEqual)
 TEST(BoundedDequeTest, TestGreaterThanOrEqual)
 {
     int range1[3] = { 0, 1, 2 };
-    infra::BoundedDeque<int, 5> deque1(range1, range1 + 3);
+    infra::BoundedDeque<int>::WithMaxSize<5> deque1(range1, range1 + 3);
 
     EXPECT_TRUE(deque1 >= deque1);
 }

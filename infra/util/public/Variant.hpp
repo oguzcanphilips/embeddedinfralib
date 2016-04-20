@@ -1,11 +1,13 @@
 #ifndef INFRA_VARIANT_HPP
 #define INFRA_VARIANT_HPP
 
-#include "infra/util/public/Optional.hpp"
 #include "infra/util/public/VariantDetail.hpp"
+#include <type_traits>
 
 namespace infra
 {
+    template<class T>
+    struct InPlaceType {};
 
     struct AtIndex {};
     const AtIndex atIndex;
@@ -21,7 +23,9 @@ namespace infra
         template<class... T2>
             Variant(const Variant<T2...>& other);
         template<class U>
-            Variant(InPlace, const U& v);
+            Variant(const U& v);
+        template<class U, class... Args>
+            Variant(InPlaceType<U>, Args&&... args);
         template<class... Args>
             Variant(AtIndex, std::size_t index, Args&&... args);
 
@@ -34,10 +38,7 @@ namespace infra
         ~Variant();
 
         template<class U, class... Args>
-            void Construct(Args&&... args);
-
-        template<class... Args>
-            void ConstructAtIndex(std::size_t index, Args&&... args);
+            void Emplace(Args&&... args);
 
         template<class U>
             const U& Get() const;
@@ -50,6 +51,8 @@ namespace infra
             typename TypeAtIndex<Index, T...>::Type& GetAtIndex();
 
         std::size_t Which() const;
+        template<class U>
+            bool Is() const;
 
         bool operator==(const Variant& other) const;
         bool operator!=(const Variant& other) const;
@@ -57,6 +60,19 @@ namespace infra
         bool operator>(const Variant& other) const;
         bool operator<=(const Variant& other) const;
         bool operator>=(const Variant& other) const;
+
+        template<class U>
+            typename std::enable_if<ExistsInTypeList<U, T...>::value, bool>::type operator==(const U& other) const;
+        template<class U>
+            typename std::enable_if<ExistsInTypeList<U, T...>::value, bool>::type operator!=(const U& other) const;
+        template<class U>
+            typename std::enable_if<ExistsInTypeList<U, T...>::value, bool>::type operator<(const U& other) const;
+        template<class U>
+            typename std::enable_if<ExistsInTypeList<U, T...>::value, bool>::type operator>(const U& other) const;
+        template<class U>
+            typename std::enable_if<ExistsInTypeList<U, T...>::value, bool>::type operator<=(const U& other) const;
+        template<class U>
+            typename std::enable_if<ExistsInTypeList<U, T...>::value, bool>::type operator>=(const U& other) const;
 
         template<class U, class... Args>
             void ConstructInEmptyVariant(Args&&... args);
@@ -68,7 +84,7 @@ namespace infra
         void Destruct();
 
     private:
-        std::size_t dataIndex;
+        std::size_t dataIndex = 0;
         typename std::aligned_storage<MaxSizeOfTypes<T...>::value, MaxAlignmentOfTypes<T...>::value>::type data;
 
         template<class... T2>
@@ -89,14 +105,12 @@ namespace infra
 
     template<class... T>
     Variant<T...>::Variant()
-        : dataIndex(0)
     {
         ConstructInEmptyVariant<typename Front<T...>::Type>();
     }
 
     template<class... T>
     Variant<T...>::Variant(const Variant& other)
-        : dataIndex(0)
     {
         detail::ConstructVisitor<T...> visitor(*this);
         ApplyVisitor(visitor, other);
@@ -105,7 +119,6 @@ namespace infra
     template<class... T>
     template<class... T2>
     Variant<T...>::Variant(const Variant<T2...>& other)
-        : dataIndex(0)
     {
         detail::ConstructVisitor<T...> visitor(*this);
         ApplyVisitor(visitor, other);
@@ -113,16 +126,21 @@ namespace infra
 
     template<class... T>
     template<class U>
-    Variant<T...>::Variant(InPlace, const U& v)
-        : dataIndex(0)
+    Variant<T...>::Variant(const U& v)
     {
         ConstructInEmptyVariant<U>(v);
     }
 
     template<class... T>
+    template<class U, class... Args>
+    Variant<T...>::Variant(InPlaceType<U>, Args&&... args)
+    {
+        ConstructInEmptyVariant<U>(std::forward<Args>(args)...);
+    }
+
+    template<class... T>
     template<class... Args>
     Variant<T...>::Variant(AtIndex, std::size_t index, Args&&... args)
-        : dataIndex(0)
     {
         ConstructByIndexInEmptyVariant(index, std::forward<Args>(args)...);
     }
@@ -161,18 +179,10 @@ namespace infra
 
     template<class... T>
     template<class U, class... Args>
-    void Variant<T...>::Construct(Args&&... args)
+    void Variant<T...>::Emplace(Args&&... args)
     {
         Destruct();
         ConstructInEmptyVariant<U>(std::forward<Args>(args)...);
-    }
-
-    template<class... T>
-    template<class... Args>
-    void Variant<T...>::ConstructAtIndex(std::size_t index, Args&&... args)
-    {
-        Destruct();
-        ConstructByIndexInEmptyVariant(index, std::forward<Args>(args)...);
     }
 
     template<class... T>
@@ -218,6 +228,13 @@ namespace infra
     }
 
     template<class... T>
+    template<class U>
+    bool Variant<T...>::Is() const
+    {
+        return Which() == IndexInTypeList<U, T...>::value;
+    }
+
+    template<class... T>
     bool Variant<T...>::operator==(const Variant& other) const
     {
         if (Which() != other.Which())
@@ -257,6 +274,57 @@ namespace infra
 
     template<class... T>
     bool Variant<T...>::operator>=(const Variant& other) const
+    {
+        return !(*this < other);
+    }
+
+    template<class... T>
+    template<class U>
+    typename std::enable_if<ExistsInTypeList<U, T...>::value, bool>::type Variant<T...>::operator==(const U& other) const
+    {
+        if (Which() != IndexInTypeList<U, T...>::value)
+            return false;
+
+        return GetAtIndex<IndexInTypeList<U, T...>::value>() == other;
+    }
+
+    template<class... T>
+    template<class U>
+    typename std::enable_if<ExistsInTypeList<U, T...>::value, bool>::type Variant<T...>::operator!=(const U& other) const
+    {
+        return !(*this == other);
+    }
+
+    template<class... T>
+    template<class U>
+    typename std::enable_if<ExistsInTypeList<U, T...>::value, bool>::type Variant<T...>::operator<(const U& other) const
+    {
+        if (Which() != IndexInTypeList<U, T...>::value)
+            return Which() < IndexInTypeList<U, T...>::value;
+
+        return GetAtIndex<IndexInTypeList<U, T...>::value>() < other;
+    }
+
+    template<class... T>
+    template<class U>
+    typename std::enable_if<ExistsInTypeList<U, T...>::value, bool>::type Variant<T...>::operator>(const U& other) const
+    {
+        if (Which() != IndexInTypeList<U, T...>::value)
+            return Which() > IndexInTypeList<U, T...>::value;
+
+        return other < GetAtIndex<IndexInTypeList<U, T...>::value>();
+    }
+
+    template<class... T>
+    template<class U>
+    typename std::enable_if<ExistsInTypeList<U, T...>::value, bool>::type Variant<T...>::operator<=(const U& other) const
+    {
+        return !(*this > other);
+    }
+
+    template<class... T>
+    template<class U>
+    typename std::enable_if<ExistsInTypeList<U, T...>::value, bool>::type Variant<T...>::operator>=(const U& other) const
     {
         return !(*this < other);
     }

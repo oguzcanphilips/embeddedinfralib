@@ -17,6 +17,9 @@ namespace infra
     };
 
     template<class U, class... List>
+    struct ExistsInTypeList;
+
+    template<class U, class... List>
     struct IndexInTypeList;
 
     template<std::size_t Index, class... List>
@@ -64,6 +67,20 @@ namespace infra
     struct CanCall;
 
     ////    Implementation   ////
+
+    template<class U, class Front, class... Tail>
+    struct ExistsInTypeList<U, Front, Tail...>
+        : std::integral_constant<bool, ExistsInTypeList<U, Tail...>::value>
+    {};
+
+    template<class U, class... Tail>
+    struct ExistsInTypeList<U, U, Tail...>
+        : std::integral_constant<bool, true>
+    {};
+    template<class U>
+    struct ExistsInTypeList<U>
+        : std::integral_constant<bool, false>
+    {};
 
     template<class U, class Front, class... Tail>
     struct IndexInTypeList<U, Front, Tail...>

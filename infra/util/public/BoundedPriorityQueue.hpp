@@ -18,10 +18,10 @@ namespace infra
         typedef T& reference;
         typedef const T& const_reference;
         typedef std::size_t size_type;
-        typedef typename BoundedVector<T, Max>::iterator iterator;
-        typedef typename BoundedVector<T, Max>::const_iterator const_iterator;
-        typedef typename BoundedVector<T, Max>::reverse_iterator reverse_iterator;
-        typedef typename BoundedVector<T, Max>::const_reverse_iterator const_reverse_iterator;
+        typedef typename BoundedVector<T>::template WithMaxSize<Max>::iterator iterator;
+        typedef typename BoundedVector<T>::template WithMaxSize<Max>::const_iterator const_iterator;
+        typedef typename BoundedVector<T>::template WithMaxSize<Max>::reverse_iterator reverse_iterator;
+        typedef typename BoundedVector<T>::template WithMaxSize<Max>::const_reverse_iterator const_reverse_iterator;
 
     public:
         explicit BoundedPriorityQueue(const Compare& comp = Compare());
@@ -68,7 +68,7 @@ namespace infra
         void swap(BoundedPriorityQueue& x);
 
     private:
-        BoundedVector<value_type, Max> values;
+        BoundedVector<value_type>::WithMaxSize<Max> values;
         Compare compare;
     };
 

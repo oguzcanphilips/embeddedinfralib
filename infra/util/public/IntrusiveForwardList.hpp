@@ -292,10 +292,12 @@ namespace infra
                 break;
 
         if (index != end())
+        {
             if (index != begin())
                 erase_after(*previous);
             else
                 pop_front();
+        }
     }
 
     template<class T>

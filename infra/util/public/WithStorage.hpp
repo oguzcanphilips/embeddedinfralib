@@ -18,7 +18,16 @@ namespace infra
         template<class T, class... Args>
             WithStorage(std::initializer_list<T> initializerList, Args&&... args);
 
-        using Base::operator=;
+        WithStorage(const WithStorage& other);
+        WithStorage(WithStorage&& other);
+
+        WithStorage& operator=(const WithStorage& other);
+        WithStorage& operator=(WithStorage&& other);
+        WithStorage& operator=(const Base& other);
+        WithStorage& operator=(Base&& other);
+
+        template<class T>
+            WithStorage& operator=(T&& value);
 
         const StorageType& Storage() const;
         StorageType& Storage();
@@ -47,6 +56,52 @@ namespace infra
     WithStorage<Base, StorageType>::WithStorage(std::initializer_list<T> initializerList, Args&&... args)
         : Base(storage, initializerList, std::forward<Args>(args)...)
     {}
+
+    template<class Base, class StorageType>
+    WithStorage<Base, StorageType>::WithStorage(const WithStorage& other)
+        : Base(storage, other)
+    {}
+
+    template<class Base, class StorageType>
+    WithStorage<Base, StorageType>::WithStorage(WithStorage&& other)
+        : Base(storage, std::move(other))
+    {}
+
+    template<class Base, class StorageType>
+    WithStorage<Base, StorageType>& WithStorage<Base, StorageType>::operator=(const WithStorage& other)
+    {
+        this->AssignFromStorage(other);
+        return *this;
+    }
+
+    template<class Base, class StorageType>
+    WithStorage<Base, StorageType>& WithStorage<Base, StorageType>::operator=(WithStorage&& other)
+    {
+        this->AssignFromStorage(std::move(other));
+        return *this;
+    }
+
+    template<class Base, class StorageType>
+    WithStorage<Base, StorageType>& WithStorage<Base, StorageType>::operator=(const Base& other)
+    {
+        this->AssignFromStorage(other);
+        return *this;
+    }
+
+    template<class Base, class StorageType>
+    WithStorage<Base, StorageType>& WithStorage<Base, StorageType>::operator=(Base&& other)
+    {
+        this->AssignFromStorage(std::move(other));
+        return *this;
+    }
+
+    template<class Base, class StorageType>
+    template<class T>
+    WithStorage<Base, StorageType>& WithStorage<Base, StorageType>::operator=(T&& value)
+    {
+        static_cast<Base&>(*this) = std::forward<T>(value);
+        return *this;
+    }
 
     template<class Base, class StorageType>
     const StorageType& WithStorage<Base, StorageType>::Storage() const
