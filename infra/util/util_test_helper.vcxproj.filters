@@ -15,5 +15,8 @@
     <ClInclude Include="test_helper\public\MoveConstructible.hpp">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="test_helper\public\BoundedStringMatcher.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
