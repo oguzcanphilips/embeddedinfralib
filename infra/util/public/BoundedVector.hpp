@@ -3,18 +3,23 @@
 
 //  BoundedVector is similar to std::vector, except that it can contain a maximum number of elements
 
+#include "infra/util/public/MemoryRange.hpp"
 #include "infra/util/public/ReallyAssert.hpp"
 #include "infra/util/public/StaticStorage.hpp"
+#include "infra/util/public/WithStorage.hpp"
 #include <algorithm>
+#include <array>
 #include <iterator>
 
 namespace infra
 {
-
-    template<class T, std::size_t Max>
+    template<class T>
     class BoundedVector
     {
     public:
+        template<std::size_t Max>
+            using WithMaxSize = infra::WithStorage<BoundedVector<T>, std::array<StaticStorage<T>, Max>>;
+
         typedef T value_type;
         typedef T& reference;
         typedef const T& const_reference;
@@ -29,15 +34,19 @@ namespace infra
 
     public:
         BoundedVector();
-        explicit BoundedVector(size_type n, const value_type& value = value_type());
+        explicit BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage);
+        BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, size_type n, const value_type& value = value_type());
         template<class InputIterator>
-            BoundedVector(InputIterator first, InputIterator last);
-        BoundedVector(std::initializer_list<T> initializerList);
-        BoundedVector(const BoundedVector& other);
-        BoundedVector(BoundedVector&& other);
+            BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, InputIterator first, InputIterator last);
+        BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, std::initializer_list<T> initializerList);
+        BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, const BoundedVector& other);
+        BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, BoundedVector&& other);
+        ~BoundedVector();
+
         BoundedVector& operator=(const BoundedVector& other);
         BoundedVector& operator=(BoundedVector&& other);
-        ~BoundedVector();
+        void AssignFromStorage(const BoundedVector& other);
+        void AssignFromStorage(BoundedVector&& other);
 
     public:
         iterator begin();
@@ -110,259 +119,266 @@ namespace infra
         void move_up(const_iterator position, size_type n);
 
     private:
-        StaticStorageArray<T, Max> mData;
-        size_type mSize;
+        infra::MemoryRange<infra::StaticStorage<T>> storage;
+        size_type numAllocated = 0;
     };
 
-    template<class T, std::size_t Max>
-        void swap(BoundedVector<T, Max>& x, BoundedVector<T, Max>& y);
+    template<class T>
+        void swap(BoundedVector<T>& x, BoundedVector<T>& y);
 
     //// Implementation ////
 
-    template<class T, std::size_t Max>
-    BoundedVector<T, Max>::BoundedVector()
-        : mSize(0)
+    template<class T>
+    BoundedVector<T>::BoundedVector()
     {}
 
-    template<class T, std::size_t Max>
-    BoundedVector<T, Max>::BoundedVector(size_type n, const value_type& value)
-        : mSize(0)
+    template<class T>
+    BoundedVector<T>::BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage)
+        : storage(storage)
+    {}
+
+    template<class T>
+    BoundedVector<T>::BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, size_type n, const value_type& value)
+        : storage(storage)
     {
         resize(n, value);
     }
 
-    template<class T, std::size_t Max>
+    template<class T>
     template<class InputIterator>
-    BoundedVector<T, Max>::BoundedVector(InputIterator first, InputIterator last)
-        : mSize(0)
+    BoundedVector<T>::BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, InputIterator first, InputIterator last)
+        : storage(storage)
     {
         assign(first, last);
     }
 
-    template<class T, std::size_t Max>
-    BoundedVector<T, Max>::BoundedVector(std::initializer_list<T> initializerList)
-        : mSize(0)
+    template<class T>
+    BoundedVector<T>::BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, std::initializer_list<T> initializerList)
+        : storage(storage)
     {
         assign(initializerList.begin(), initializerList.end());
     }
 
-    template<class T, std::size_t Max>
-    BoundedVector<T, Max>::BoundedVector(const BoundedVector& other)
-        : mSize(0)
+    template<class T>
+    BoundedVector<T>::BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, const BoundedVector& other)
+        : storage(storage)
     {
         assign(other.begin(), other.end());
     }
 
-    template<class T, std::size_t Max>
-    BoundedVector<T, Max>::BoundedVector(BoundedVector&& other)
-        : mSize(other.mSize)
+    template<class T>
+    BoundedVector<T>::BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, BoundedVector&& other)
+        : storage(storage)
+        , numAllocated(other.numAllocated)
     {
         for (size_type i = 0; i != size(); ++i)
-        {
-            mData.Construct(i, std::move(other[i]));
-        }
+            storage[i].Construct(std::move(other[i]));
     }
 
-    template<class T, std::size_t Max>
-    BoundedVector<T, Max>& BoundedVector<T, Max>::operator=(const BoundedVector& other)
+    template<class T>
+    BoundedVector<T>& BoundedVector<T>::operator=(const BoundedVector& other)
     {
         if (this != &other)
-        {
             assign(other.begin(), other.end());
-        }
 
         return *this;
     }
 
-    template<class T, std::size_t Max>
-    BoundedVector<T, Max>& BoundedVector<T, Max>::operator=(BoundedVector<T, Max>&& other)
+    template<class T>
+    BoundedVector<T>& BoundedVector<T>::operator=(BoundedVector<T>&& other)
     {
         clear();
 
-        mSize = other.size();
+        numAllocated = other.size();
 
         for (size_type i = 0; i != size(); ++i)
-        {
-            mData.Construct(i, std::move(other[i]));
-        }
+            storage[i].Construct(std::move(other[i]));
 
         return *this;
     }
 
-    template<class T, std::size_t Max>
-    BoundedVector<T, Max>::~BoundedVector()
+    template<class T>
+    void BoundedVector<T>::AssignFromStorage(const BoundedVector& other)
+    {
+        *this = other;
+    }
+
+    template<class T>
+    void BoundedVector<T>::AssignFromStorage(BoundedVector&& other)
+    {
+        *this = std::move(other);
+    }
+
+    template<class T>
+    BoundedVector<T>::~BoundedVector()
     {
         clear();
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::iterator BoundedVector<T, Max>::begin()
+    template<class T>
+    typename BoundedVector<T>::iterator BoundedVector<T>::begin()
     {
-        return &mData[0];
+        return &*storage[0];
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::const_iterator BoundedVector<T, Max>::begin() const
+    template<class T>
+    typename BoundedVector<T>::const_iterator BoundedVector<T>::begin() const
     {
-        return &mData[0];
+        return &*storage[0];
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::iterator BoundedVector<T, Max>::end()
-    {
-        return begin() + size();
-    }
-
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::const_iterator BoundedVector<T, Max>::end() const
+    template<class T>
+    typename BoundedVector<T>::iterator BoundedVector<T>::end()
     {
         return begin() + size();
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::reverse_iterator BoundedVector<T, Max>::rbegin()
+    template<class T>
+    typename BoundedVector<T>::const_iterator BoundedVector<T>::end() const
+    {
+        return begin() + size();
+    }
+
+    template<class T>
+    typename BoundedVector<T>::reverse_iterator BoundedVector<T>::rbegin()
     {
         return reverse_iterator(end());
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::const_reverse_iterator BoundedVector<T, Max>::rbegin() const
+    template<class T>
+    typename BoundedVector<T>::const_reverse_iterator BoundedVector<T>::rbegin() const
     {
         return const_reverse_iterator(end());
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::reverse_iterator BoundedVector<T, Max>::rend()
+    template<class T>
+    typename BoundedVector<T>::reverse_iterator BoundedVector<T>::rend()
     {
         return reverse_iterator(begin());
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::const_reverse_iterator BoundedVector<T, Max>::rend() const
+    template<class T>
+    typename BoundedVector<T>::const_reverse_iterator BoundedVector<T>::rend() const
     {
         return const_reverse_iterator(begin());
     }
 
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::const_iterator BoundedVector<T, Max>::cbegin() const
+    template<class T>
+    typename BoundedVector<T>::const_iterator BoundedVector<T>::cbegin() const
     {
         return begin();
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::const_iterator BoundedVector<T, Max>::cend() const
+    template<class T>
+    typename BoundedVector<T>::const_iterator BoundedVector<T>::cend() const
     {
         return end();
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::const_reverse_iterator BoundedVector<T, Max>::crbegin() const
+    template<class T>
+    typename BoundedVector<T>::const_reverse_iterator BoundedVector<T>::crbegin() const
     {
         return rbegin();
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::const_reverse_iterator BoundedVector<T, Max>::crend() const
+    template<class T>
+    typename BoundedVector<T>::const_reverse_iterator BoundedVector<T>::crend() const
     {
         return rend();
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::size_type BoundedVector<T, Max>::size() const
+    template<class T>
+    typename BoundedVector<T>::size_type BoundedVector<T>::size() const
     {
-        return mSize;
+        return numAllocated;
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::size_type BoundedVector<T, Max>::max_size() const
+    template<class T>
+    typename BoundedVector<T>::size_type BoundedVector<T>::max_size() const
     {
-        return Max;
+        return storage.size();
     }
 
-    template<class T, std::size_t Max>
-    void BoundedVector<T, Max>::resize(size_type n, const value_type& value)
+    template<class T>
+    void BoundedVector<T>::resize(size_type n, const value_type& value)
     {
         while (n < size())
-        {
             pop_back();
-        }
 
         while (n > size())
-        {
             push_back(value);
-        }
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedVector<T, Max>::empty() const
+    template<class T>
+    bool BoundedVector<T>::empty() const
     {
-        return mSize == 0;
+        return numAllocated == 0;
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedVector<T, Max>::full() const
+    template<class T>
+    bool BoundedVector<T>::full() const
     {
-        return mSize == Max;
+        return numAllocated == max_size();
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::value_type& BoundedVector<T, Max>::operator[](size_type position)
-    {
-        really_assert(position >= 0 && position < size());
-        return mData[position];
-    }
-
-    template<class T, std::size_t Max>
-    const typename BoundedVector<T, Max>::value_type& BoundedVector<T, Max>::operator[](size_type position) const
+    template<class T>
+    typename BoundedVector<T>::value_type& BoundedVector<T>::operator[](size_type position)
     {
         really_assert(position >= 0 && position < size());
-        return mData[position];
+        return *storage[position];
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::value_type& BoundedVector<T, Max>::front()
+    template<class T>
+    const typename BoundedVector<T>::value_type& BoundedVector<T>::operator[](size_type position) const
+    {
+        really_assert(position >= 0 && position < size());
+        return *storage[position];
+    }
+
+    template<class T>
+    typename BoundedVector<T>::value_type& BoundedVector<T>::front()
     {
         really_assert(!empty());
-        return mData[0];
+        return *storage[0];
     }
 
-    template<class T, std::size_t Max>
-    const typename BoundedVector<T, Max>::value_type& BoundedVector<T, Max>::front() const
+    template<class T>
+    const typename BoundedVector<T>::value_type& BoundedVector<T>::front() const
     {
         really_assert(!empty());
-        return mData[0];
+        return *storage[0];
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::value_type& BoundedVector<T, Max>::back()
+    template<class T>
+    typename BoundedVector<T>::value_type& BoundedVector<T>::back()
     {
         really_assert(!empty());
-        return mData[size() - 1];
+        return *storage[size() - 1];
     }
 
-    template<class T, std::size_t Max>
-    const typename BoundedVector<T, Max>::value_type& BoundedVector<T, Max>::back() const
+    template<class T>
+    const typename BoundedVector<T>::value_type& BoundedVector<T>::back() const
     {
         really_assert(!empty());
-        return mData[size() - 1];
+        return *storage[size() - 1];
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::value_type* BoundedVector<T, Max>::data()
+    template<class T>
+    typename BoundedVector<T>::value_type* BoundedVector<T>::data()
     {
         return begin();
     }
 
-    template<class T, std::size_t Max>
-    const typename BoundedVector<T, Max>::value_type* BoundedVector<T, Max>::data() const
+    template<class T>
+    const typename BoundedVector<T>::value_type* BoundedVector<T>::data() const
     {
         return begin();
     }
 
-    template<class T, std::size_t Max>
+    template<class T>
     template<class InputIterator>
-    void BoundedVector<T, Max>::assign(InputIterator first, InputIterator last)
+    void BoundedVector<T>::assign(InputIterator first, InputIterator last)
     {
         clear();
 
@@ -373,50 +389,48 @@ namespace infra
         }
     }
 
-    template<class T, std::size_t Max>
-    void BoundedVector<T, Max>::assign(size_type n, const value_type& value)
+    template<class T>
+    void BoundedVector<T>::assign(size_type n, const value_type& value)
     {
         clear();
 
         for (size_type i = 0; i != n; ++i)
-        {
             push_back(value);
-        }
     }
 
-    template<class T, std::size_t Max>
-    void BoundedVector<T, Max>::push_back(const value_type& value)
+    template<class T>
+    void BoundedVector<T>::push_back(const value_type& value)
     {
         really_assert(!full());
-        mData.Construct(mSize, value);
-        ++mSize;
+        storage[numAllocated].Construct(value);
+        ++numAllocated;
     }
 
-    template<class T, std::size_t Max>
-    void BoundedVector<T, Max>::push_back(value_type&& value)
+    template<class T>
+    void BoundedVector<T>::push_back(value_type&& value)
     {
         really_assert(!full());
-        mData.Construct(mSize, std::move(value));
-        ++mSize;
+        storage[numAllocated].Construct(std::move(value));
+        ++numAllocated;
     }
 
-    template<class T, std::size_t Max>
-    void BoundedVector<T, Max>::pop_back()
+    template<class T>
+    void BoundedVector<T>::pop_back()
     {
         really_assert(!empty());
-        mData.Destruct(mSize - 1);
-        --mSize;
+        storage[numAllocated - 1].Destruct();
+        --numAllocated;
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::iterator BoundedVector<T, Max>::insert(iterator position, const value_type& value)
+    template<class T>
+    typename BoundedVector<T>::iterator BoundedVector<T>::insert(iterator position, const value_type& value)
     {
         insert(position, size_type(1), value);
         return position;
     }
 
-    template<class T, std::size_t Max>
-    void BoundedVector<T, Max>::insert(iterator position, size_type n, const value_type& value)
+    template<class T>
+    void BoundedVector<T>::insert(iterator position, size_type n, const value_type& value)
     {
         really_assert(size() + n <= max_size());
         move_up(position, n);
@@ -428,9 +442,9 @@ namespace infra
         }
     }
 
-    template<class T, std::size_t Max>
+    template<class T>
     template<class RandomAccessIterator>
-    void BoundedVector<T, Max>::insert(iterator position, RandomAccessIterator first, RandomAccessIterator last)
+    void BoundedVector<T>::insert(iterator position, RandomAccessIterator first, RandomAccessIterator last)
     {
         size_type n = last - first;
         really_assert(size() + n <= max_size());
@@ -445,15 +459,15 @@ namespace infra
         }
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::iterator BoundedVector<T, Max>::erase(iterator position)
+    template<class T>
+    typename BoundedVector<T>::iterator BoundedVector<T>::erase(iterator position)
     {
         erase(position, position + 1);
         return position;
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedVector<T, Max>::iterator BoundedVector<T, Max>::erase(iterator first, iterator last)
+    template<class T>
+    typename BoundedVector<T>::iterator BoundedVector<T>::erase(iterator first, iterator last)
     {
         iterator result = first;
 
@@ -466,127 +480,126 @@ namespace infra
 
         while (first != last)
         {
-            mData.Destruct(first - begin());
+            storage[first - begin()].Destruct();
             ++first;
-            --mSize;
+            --numAllocated;
         }
 
         return result;
     }
 
-    template<class T, std::size_t Max>
-    void BoundedVector<T, Max>::swap(BoundedVector& other)
+    template<class T>
+    void BoundedVector<T>::swap(BoundedVector& other)
     {
         using std::swap;
 
+        assert(size() <= other.max_size() && other.size() < max_size());
+
         for (size_type i = 0; i < size() && i < other.size(); ++i)
         {
-            swap(mData[i], other.mData[i]);
+            swap(*storage[i], *other.storage[i]);
         }
 
         for (size_type i = size(); i < other.size(); ++i)
         {
-            mData.Construct(i, std::move(other.mData[i]));
-            other.mData.Destruct(i);
+            storage[i].Construct(std::move(*other.storage[i]));
+            other.storage[i].Destruct();
         }
 
         for (size_type i = other.size(); i < size(); ++i)
         {
-            other.mData.Construct(i, std::move(mData[i]));
-            mData.Destruct(i);
+            other.storage[i].Construct(std::move(*storage[i]));
+            storage[i].Destruct();
         }
 
-        std::swap(mSize, other.mSize);
+        std::swap(numAllocated, other.numAllocated);
     }
 
-    template<class T, std::size_t Max>
-    void BoundedVector<T, Max>::clear()
+    template<class T>
+    void BoundedVector<T>::clear()
     {
         while (!empty())
-        {
             pop_back();
-        }
     }
 
-    template<class T, std::size_t Max>
+    template<class T>
     template<class... Args>
-    typename BoundedVector<T, Max>::iterator BoundedVector<T, Max>::emplace(const_iterator position, Args&&... args)
+    typename BoundedVector<T>::iterator BoundedVector<T>::emplace(const_iterator position, Args&&... args)
     {
         really_assert(size() != max_size());
         move_up(position, 1);
-        mData.Construct(position - begin(), std::forward<Args>(args)...);
+        storage[position - begin()].Construct(std::forward<Args>(args)...);
         return begin() + (position - begin());
     }
 
-    template<class T, std::size_t Max>
+    template<class T>
     template<class... Args>
-    void BoundedVector<T, Max>::emplace_back(Args&&... args)
+    void BoundedVector<T>::emplace_back(Args&&... args)
     {
         emplace(end(), std::forward<Args>(args)...);
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedVector<T, Max>::operator==(const BoundedVector<T, Max>& other) const
+    template<class T>
+    bool BoundedVector<T>::operator==(const BoundedVector<T>& other) const
     {
         return size() == other.size()
             && std::equal(begin(), end(), other.begin());
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedVector<T, Max>::operator!=(const BoundedVector<T, Max>& other) const
+    template<class T>
+    bool BoundedVector<T>::operator!=(const BoundedVector<T>& other) const
     {
         return !(*this == other);
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedVector<T, Max>::operator<(const BoundedVector<T, Max>& other) const
+    template<class T>
+    bool BoundedVector<T>::operator<(const BoundedVector<T>& other) const
     {
         return std::lexicographical_compare(begin(), end(), other.begin(), other.end());
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedVector<T, Max>::operator<=(const BoundedVector<T, Max>& other) const
+    template<class T>
+    bool BoundedVector<T>::operator<=(const BoundedVector<T>& other) const
     {
         return !(other < *this);
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedVector<T, Max>::operator>(const BoundedVector<T, Max>& other) const
+    template<class T>
+    bool BoundedVector<T>::operator>(const BoundedVector<T>& other) const
     {
         return other < *this;
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedVector<T, Max>::operator>=(const BoundedVector<T, Max>& other) const
+    template<class T>
+    bool BoundedVector<T>::operator>=(const BoundedVector<T>& other) const
     {
         return !(*this < other);
     }
 
-    template<class T, std::size_t Max>
-    void BoundedVector<T, Max>::move_up(const_iterator position, size_type n)
+    template<class T>
+    void BoundedVector<T>::move_up(const_iterator position, size_type n)
     {
         iterator copy_position = end();
         while (copy_position != position && copy_position + n != end())
         {
-            mData.Construct(copy_position - begin() + n - 1, std::move(*(copy_position - 1)));
+            storage[copy_position - begin() + n - 1].Construct(std::move(*(copy_position - 1)));
             --copy_position;
         }
 
         while (copy_position != position)
         {
-            mData[copy_position - begin() + n - 1] = std::move(*(copy_position - 1));
+            *storage[copy_position - begin() + n - 1] = std::move(*(copy_position - 1));
             --copy_position;
         }
 
-        mSize += n;
+        numAllocated += n;
     }
 
-    template<class T, std::size_t Max>
-    void swap(BoundedVector<T, Max>& x, BoundedVector<T, Max>& y)
+    template<class T>
+    void swap(BoundedVector<T>& x, BoundedVector<T>& y)
     {
         x.swap(y);
     }
-
 }
 
 #endif

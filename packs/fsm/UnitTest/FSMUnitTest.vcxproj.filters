@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Generated">
+      <UniqueIdentifier>{2c6e9cbf-fa04-4366-9494-11603993ee95}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Generated\TestFSM.c">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="Generated\TestFSM.cpp">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="TestFSM_.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestFSM_CImpl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestFiniteStateMachine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Generated\TestCheckerFSM.c">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="Generated\TestCheckerFSM.cpp">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="TestCheckerFSM_.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestCheckerFSM_CImpl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestFSM.sm" />
+    <None Include="TestCheckerFSM.sm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Generated\TestFSM.h">
+      <Filter>Generated</Filter>
+    </ClInclude>
+    <ClInclude Include="Generated\TestFSM.hpp">
+      <Filter>Generated</Filter>
+    </ClInclude>
+    <ClInclude Include="Generated\TestCheckerFSM.h">
+      <Filter>Generated</Filter>
+    </ClInclude>
+    <ClInclude Include="Generated\TestCheckerFSM.hpp">
+      <Filter>Generated</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -66,6 +66,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="test_helper\public\BoundedStringMatcher.hpp" />
     <ClInclude Include="test_helper\public\MockCallback.hpp" />
     <ClInclude Include="test_helper\public\MoveConstructible.hpp" />
   </ItemGroup>

@@ -127,7 +127,7 @@ namespace infra
     template<std::size_t ExtraSize, class Result, class... Args>
     bool operator!=(const AutoResetFunction<Result(Args...), ExtraSize>& f, std::nullptr_t)
     {
-        return !!f;
+        return !(f == nullptr);
     }
 
     template<std::size_t ExtraSize, class Result, class... Args>
@@ -139,7 +139,7 @@ namespace infra
     template<std::size_t ExtraSize, class Result, class... Args>
     bool operator!=(std::nullptr_t, const AutoResetFunction<Result(Args...), ExtraSize>& f)
     {
-        return !!f;
+        return !(f == nullptr);
     }
 }
 

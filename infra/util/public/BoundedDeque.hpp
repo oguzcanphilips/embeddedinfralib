@@ -3,9 +3,12 @@
 
 //  BoundedDeque is similar to std::deque, except that it can contain a maximum number of elements.
 
+#include "infra/util/public/MemoryRange.hpp"
 #include "infra/util/public/ReallyAssert.hpp"
 #include "infra/util/public/StaticStorage.hpp"
+#include "infra/util/public/WithStorage.hpp"
 #include <algorithm>
+#include <array>
 #include <iterator>
 
 namespace infra
@@ -16,33 +19,39 @@ namespace infra
             class BoundedDequeIterator;
     }
 
-    template<class T, std::size_t Max>
+    template<class T>
     class BoundedDeque
     {
     public:
+        template<std::size_t Max>
+            using WithMaxSize = infra::WithStorage<BoundedDeque<T>, std::array<StaticStorage<T>, Max>>;
+
         typedef T value_type;
         typedef T& reference;
         typedef const T& const_reference;
         typedef T* pointer;
         typedef const T* const_pointer;
-        typedef detail::BoundedDequeIterator<BoundedDeque<T, Max>, T> iterator;
-        typedef detail::BoundedDequeIterator<const BoundedDeque<T, Max>, const T> const_iterator;
+        typedef detail::BoundedDequeIterator<BoundedDeque<T>, T> iterator;
+        typedef detail::BoundedDequeIterator<const BoundedDeque<T>, const T> const_iterator;
         typedef std::reverse_iterator<iterator> reverse_iterator;
         typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
         typedef typename std::iterator_traits<iterator>::difference_type difference_type;
         typedef std::size_t size_type;
 
     public:
-        BoundedDeque();
-        explicit BoundedDeque(size_type n, const value_type& value = value_type());
+        BoundedDeque() = default;
+        explicit BoundedDeque(infra::MemoryRange<infra::StaticStorage<T>> storage);
+        BoundedDeque(infra::MemoryRange<infra::StaticStorage<T>> storage, size_type n, const value_type& value = value_type());
         template<class InputIterator>
-            BoundedDeque(InputIterator first, InputIterator last);
-        BoundedDeque(const BoundedDeque& other);
-        BoundedDeque(BoundedDeque&& other);
-        BoundedDeque(std::initializer_list<T> initializerList);
+            BoundedDeque(infra::MemoryRange<infra::StaticStorage<T>> storage, InputIterator first, InputIterator last);
+        BoundedDeque(infra::MemoryRange<infra::StaticStorage<T>> storage, const BoundedDeque& other);
+        BoundedDeque(infra::MemoryRange<infra::StaticStorage<T>> storage, BoundedDeque&& other);
+        BoundedDeque(infra::MemoryRange<infra::StaticStorage<T>> storage, std::initializer_list<T> initializerList);
         BoundedDeque& operator=(const BoundedDeque& other);
         BoundedDeque& operator=(BoundedDeque&& other);
-        BoundedDeque& operator= (std::initializer_list<T> initializerList);
+        BoundedDeque& operator=(std::initializer_list<T> initializerList);
+        void AssignFromStorage(const BoundedDeque& other);
+        void AssignFromStorage(BoundedDeque&& other);
         ~BoundedDeque();
 
     public:
@@ -123,13 +132,13 @@ namespace infra
         void move_up(size_type position, size_type n);
 
     private:
-        StaticStorageArray<T, Max> mData;
-        size_type mSize;
-        size_type mStart;
+        infra::MemoryRange<StaticStorage<T>> storage;
+        size_type numAllocated = 0;
+        size_type start = 0;
     };
 
-    template<class T, std::size_t Max>
-        void swap(BoundedDeque<T, Max>& x, BoundedDeque<T, Max>& y);
+    template<class T>
+        void swap(BoundedDeque<T>& x, BoundedDeque<T>& y);
 
     namespace detail
     {
@@ -187,56 +196,51 @@ namespace infra
 
     //// Implementation ////
 
-    template<class T, std::size_t Max>
-    BoundedDeque<T, Max>::BoundedDeque()
-        : mSize(0)
-        , mStart(0)
+    template<class T>
+    BoundedDeque<T>::BoundedDeque(infra::MemoryRange<infra::StaticStorage<T>> storage)
+        : storage(storage)
     {}
 
-    template<class T, std::size_t Max>
-    BoundedDeque<T, Max>::BoundedDeque(size_type n, const value_type& value)
-        : mSize(0)
-        , mStart(0)
+    template<class T>
+    BoundedDeque<T>::BoundedDeque(infra::MemoryRange<infra::StaticStorage<T>> storage, size_type n, const value_type& value)
+        : storage(storage)
     {
         resize(n, value);
     }
 
-    template<class T, std::size_t Max>
+    template<class T>
     template<class InputIterator>
-    BoundedDeque<T, Max>::BoundedDeque(InputIterator first, InputIterator last)
-        : mSize(0)
-        , mStart(0)
+    BoundedDeque<T>::BoundedDeque(infra::MemoryRange<infra::StaticStorage<T>> storage, InputIterator first, InputIterator last)
+        : storage(storage)
     {
         assign(first, last);
     }
 
-    template<class T, std::size_t Max>
-    BoundedDeque<T, Max>::BoundedDeque(const BoundedDeque& other)
-        : mSize(0)
-        , mStart(0)
+    template<class T>
+    BoundedDeque<T>::BoundedDeque(infra::MemoryRange<infra::StaticStorage<T>> storage, const BoundedDeque& other)
+        : storage(storage)
     {
         assign(other.begin(), other.end());
     }
 
-    template<class T, std::size_t Max>
-    BoundedDeque<T, Max>::BoundedDeque(BoundedDeque&& other)
-        : mSize(other.mSize)
-        , mStart(0)
+    template<class T>
+    BoundedDeque<T>::BoundedDeque(infra::MemoryRange<infra::StaticStorage<T>> storage, BoundedDeque&& other)
+        : storage(storage)
+        , numAllocated(other.numAllocated)
     {
         for (size_type i = 0; i != size(); ++i)
-            mData.Construct(i, std::move(other[i]));
+            storage[i].Construct(std::move(other[i]));
     }
 
-    template<class T, std::size_t Max>
-    BoundedDeque<T, Max>::BoundedDeque(std::initializer_list<T> initializerList)
-        : mSize(0)
-        , mStart(0)
+    template<class T>
+    BoundedDeque<T>::BoundedDeque(infra::MemoryRange<infra::StaticStorage<T>> storage, std::initializer_list<T> initializerList)
+        : storage(storage)
     {
         assign(initializerList.begin(), initializerList.end());
     }
 
-    template<class T, std::size_t Max>
-    BoundedDeque<T, Max>& BoundedDeque<T, Max>::operator=(const BoundedDeque& other)
+    template<class T>
+    BoundedDeque<T>& BoundedDeque<T>::operator=(const BoundedDeque& other)
     {
         if (this != &other)
             assign(other.begin(), other.end());
@@ -244,119 +248,131 @@ namespace infra
         return *this;
     }
 
-    template<class T, std::size_t Max>
-    BoundedDeque<T, Max>& BoundedDeque<T, Max>::operator=(BoundedDeque<T, Max>&& other)
+    template<class T>
+    BoundedDeque<T>& BoundedDeque<T>::operator=(BoundedDeque<T>&& other)
     {
         clear();
 
-        mSize = other.mSize;
+        numAllocated = other.numAllocated;
 
         for (size_type i = 0; i != size(); ++i)
-            mData.Construct(i, std::move(other[i]));
+            storage[i].Construct(std::move(other[i]));
 
         return *this;
     }
 
-    template<class T, std::size_t Max>
-    BoundedDeque<T, Max>& BoundedDeque<T, Max>::operator=(std::initializer_list<T> initializerList)
+    template<class T>
+    BoundedDeque<T>& BoundedDeque<T>::operator=(std::initializer_list<T> initializerList)
     {
         assign(initializerList.begin(), initializerList.end());
 
         return *this;
     }
 
-    template<class T, std::size_t Max>
-    BoundedDeque<T, Max>::~BoundedDeque()
+    template<class T>
+    void BoundedDeque<T>::AssignFromStorage(const BoundedDeque& other)
+    {
+        *this = other;
+    }
+
+    template<class T>
+    void BoundedDeque<T>::AssignFromStorage(BoundedDeque&& other)
+    {
+        *this = std::move(other);
+    }
+
+    template<class T>
+    BoundedDeque<T>::~BoundedDeque()
     {
         clear();
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::iterator BoundedDeque<T, Max>::begin()
+    template<class T>
+    typename BoundedDeque<T>::iterator BoundedDeque<T>::begin()
     {
         return iterator(this, 0);
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::const_iterator BoundedDeque<T, Max>::begin() const
+    template<class T>
+    typename BoundedDeque<T>::const_iterator BoundedDeque<T>::begin() const
     {
         return const_iterator(this, 0);
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::iterator BoundedDeque<T, Max>::end()
+    template<class T>
+    typename BoundedDeque<T>::iterator BoundedDeque<T>::end()
     {
-        return iterator(this, mSize);
+        return iterator(this, numAllocated);
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::const_iterator BoundedDeque<T, Max>::end() const
+    template<class T>
+    typename BoundedDeque<T>::const_iterator BoundedDeque<T>::end() const
     {
-        return const_iterator(this, mSize);
+        return const_iterator(this, numAllocated);
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::reverse_iterator BoundedDeque<T, Max>::rbegin()
+    template<class T>
+    typename BoundedDeque<T>::reverse_iterator BoundedDeque<T>::rbegin()
     {
         return reverse_iterator(end());
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::const_reverse_iterator BoundedDeque<T, Max>::rbegin() const
+    template<class T>
+    typename BoundedDeque<T>::const_reverse_iterator BoundedDeque<T>::rbegin() const
     {
         return const_reverse_iterator(end());
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::reverse_iterator BoundedDeque<T, Max>::rend()
+    template<class T>
+    typename BoundedDeque<T>::reverse_iterator BoundedDeque<T>::rend()
     {
         return reverse_iterator(begin());
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::const_reverse_iterator BoundedDeque<T, Max>::rend() const
+    template<class T>
+    typename BoundedDeque<T>::const_reverse_iterator BoundedDeque<T>::rend() const
     {
         return const_reverse_iterator(begin());
     }
     
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::const_iterator BoundedDeque<T, Max>::cbegin() const
+    template<class T>
+    typename BoundedDeque<T>::const_iterator BoundedDeque<T>::cbegin() const
     {
         return begin();
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::const_iterator BoundedDeque<T, Max>::cend() const
+    template<class T>
+    typename BoundedDeque<T>::const_iterator BoundedDeque<T>::cend() const
     {
         return end();
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::const_reverse_iterator BoundedDeque<T, Max>::crbegin() const
+    template<class T>
+    typename BoundedDeque<T>::const_reverse_iterator BoundedDeque<T>::crbegin() const
     {
         return rbegin();
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::const_reverse_iterator BoundedDeque<T, Max>::crend() const
+    template<class T>
+    typename BoundedDeque<T>::const_reverse_iterator BoundedDeque<T>::crend() const
     {
         return rend();
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::size_type BoundedDeque<T, Max>::size() const
+    template<class T>
+    typename BoundedDeque<T>::size_type BoundedDeque<T>::size() const
     {
-        return mSize;
+        return numAllocated;
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::size_type BoundedDeque<T, Max>::max_size() const
+    template<class T>
+    typename BoundedDeque<T>::size_type BoundedDeque<T>::max_size() const
     {
-        return Max;
+        return storage.size();
     }
 
-    template<class T, std::size_t Max>
-    void BoundedDeque<T, Max>::resize(size_type n, const value_type& value)
+    template<class T>
+    void BoundedDeque<T>::resize(size_type n, const value_type& value)
     {
         while (n < size())
             pop_back();
@@ -365,63 +381,63 @@ namespace infra
             push_back(value);
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedDeque<T, Max>::empty() const
+    template<class T>
+    bool BoundedDeque<T>::empty() const
     {
-        return mSize == 0;
+        return numAllocated == 0;
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedDeque<T, Max>::full() const
+    template<class T>
+    bool BoundedDeque<T>::full() const
     {
-        return mSize == Max;
+        return numAllocated == max_size();
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::value_type& BoundedDeque<T, Max>::operator[](size_type position)
-    {
-        really_assert(position >= 0 && position < size());
-        return mData[index(position)];
-    }
-
-    template<class T, std::size_t Max>
-    const typename BoundedDeque<T, Max>::value_type& BoundedDeque<T, Max>::operator[](size_type position) const
+    template<class T>
+    typename BoundedDeque<T>::value_type& BoundedDeque<T>::operator[](size_type position)
     {
         really_assert(position >= 0 && position < size());
-        return mData[index(position)];
+        return *storage[index(position)];
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::value_type& BoundedDeque<T, Max>::front()
+    template<class T>
+    const typename BoundedDeque<T>::value_type& BoundedDeque<T>::operator[](size_type position) const
+    {
+        really_assert(position >= 0 && position < size());
+        return *storage[index(position)];
+    }
+
+    template<class T>
+    typename BoundedDeque<T>::value_type& BoundedDeque<T>::front()
     {
         really_assert(!empty());
-        return mData[mStart];
+        return *storage[start];
     }
 
-    template<class T, std::size_t Max>
-    const typename BoundedDeque<T, Max>::value_type& BoundedDeque<T, Max>::front() const
+    template<class T>
+    const typename BoundedDeque<T>::value_type& BoundedDeque<T>::front() const
     {
         really_assert(!empty());
-        return mData[mStart];
+        return *storage[start];
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::value_type& BoundedDeque<T, Max>::back()
+    template<class T>
+    typename BoundedDeque<T>::value_type& BoundedDeque<T>::back()
     {
         really_assert(!empty());
-        return mData[index(mSize - 1)];
+        return *storage[index(numAllocated - 1)];
     }
 
-    template<class T, std::size_t Max>
-    const typename BoundedDeque<T, Max>::value_type& BoundedDeque<T, Max>::back() const
+    template<class T>
+    const typename BoundedDeque<T>::value_type& BoundedDeque<T>::back() const
     {
         really_assert(!empty());
-        return mData[index(mSize - 1)];
+        return *storage[index(numAllocated - 1)];
     }
 
-    template<class T, std::size_t Max>
+    template<class T>
     template<class InputIterator>
-    void BoundedDeque<T, Max>::assign(InputIterator first, const InputIterator& last)
+    void BoundedDeque<T>::assign(InputIterator first, const InputIterator& last)
     {
         clear();
 
@@ -429,8 +445,8 @@ namespace infra
             push_back(*first);
     }
 
-    template<class T, std::size_t Max>
-    void BoundedDeque<T, Max>::assign(size_type n, const value_type& value)
+    template<class T>
+    void BoundedDeque<T>::assign(size_type n, const value_type& value)
     {
         clear();
 
@@ -438,71 +454,71 @@ namespace infra
             push_back(value);
     }
 
-    template<class T, std::size_t Max>
-    void BoundedDeque<T, Max>::assign(std::initializer_list<T> initializerList)
+    template<class T>
+    void BoundedDeque<T>::assign(std::initializer_list<T> initializerList)
     {
         assign(initializerList.begin(), initializerList.end());
     }
 
-    template<class T, std::size_t Max>
-    void BoundedDeque<T, Max>::push_front(const value_type& value)
+    template<class T>
+    void BoundedDeque<T>::push_front(const value_type& value)
     {
         really_assert(!full());
-        mStart = index(Max - 1);
-        mData.Construct(mStart, value);
-        ++mSize;
+        start = index(max_size() - 1);
+        storage[start].Construct(value);
+        ++numAllocated;
     }
 
-    template<class T, std::size_t Max>
-    void BoundedDeque<T, Max>::push_front(value_type&& value)
+    template<class T>
+    void BoundedDeque<T>::push_front(value_type&& value)
     {
         really_assert(!full());
-        mStart = index(Max - 1);
-        mData.Construct(mStart, std::move(value));
-        ++mSize;
+        start = index(max_size() - 1);
+        storage[start].Construct(std::move(value));
+        ++numAllocated;
     }
 
-    template<class T, std::size_t Max>
-    void BoundedDeque<T, Max>::pop_front()
+    template<class T>
+    void BoundedDeque<T>::pop_front()
     {
         really_assert(!empty());
-        mData.Destruct(mStart);
-        mStart = index(1);
-        --mSize;
+        storage[start].Destruct();
+        start = index(1);
+        --numAllocated;
     }
 
-    template<class T, std::size_t Max>
-    void BoundedDeque<T, Max>::push_back(const value_type& value)
+    template<class T>
+    void BoundedDeque<T>::push_back(const value_type& value)
     {
         really_assert(!full());
-        mData.Construct(index(mSize), value);
-        ++mSize;
+        storage[index(numAllocated)].Construct(value);
+        ++numAllocated;
     }
 
-    template<class T, std::size_t Max>
-    void BoundedDeque<T, Max>::push_back(value_type&& value)
+    template<class T>
+    void BoundedDeque<T>::push_back(value_type&& value)
     {
         really_assert(!full());
-        mData.Construct(index(mSize), std::move(value));
-        ++mSize;
+        storage[index(numAllocated)].Construct(std::move(value));
+        ++numAllocated;
     }
 
-    template<class T, std::size_t Max>
-    void BoundedDeque<T, Max>::pop_back()
+    template<class T>
+    void BoundedDeque<T>::pop_back()
     {
         really_assert(!empty());
-        mData.Destruct(index(mSize - 1));
-        --mSize;
+        storage[index(numAllocated - 1)].Destruct();
+        --numAllocated;
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::iterator BoundedDeque<T, Max>::insert(const const_iterator& position, const value_type& value)
+    template<class T>
+    typename BoundedDeque<T>::iterator BoundedDeque<T>::insert(const const_iterator& position, const value_type& value)
     {
         return insert(position, size_type(1), value);
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::iterator BoundedDeque<T, Max>::insert(const const_iterator& position, size_type n, const value_type& value)
+    template<class T>
+    typename BoundedDeque<T>::iterator BoundedDeque<T>::insert(const const_iterator& position, size_type n, const value_type& value)
     {
         really_assert(size() + n <= max_size());
         size_type element_index = position - begin();
@@ -510,14 +526,14 @@ namespace infra
 
         iterator pos(this, position - cbegin());
         for (size_type i = 0, e = element_index; i != n; ++i, ++e)
-            mData[index(e)] = value;
+            *storage[index(e)] = value;
 
         return iterator(this, element_index);
     }
 
-    template<class T, std::size_t Max>
+    template<class T>
     template<class RandomAccessIterator>
-    typename BoundedDeque<T, Max>::iterator BoundedDeque<T, Max>::insert(const const_iterator& position, RandomAccessIterator first, const RandomAccessIterator& last)
+    typename BoundedDeque<T>::iterator BoundedDeque<T>::insert(const const_iterator& position, RandomAccessIterator first, const RandomAccessIterator& last)
     {
         size_type n = last - first;
         really_assert(size() + n <= max_size());
@@ -525,172 +541,174 @@ namespace infra
         move_up(element_index, n);
 
         for (; first != last; ++element_index, ++first)
-            mData[index(element_index)] = *first;
+            *storage[index(element_index)] = *first;
 
         return iterator(this, position - begin());
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::iterator BoundedDeque<T, Max>::insert(const const_iterator& position, T&& val)
+    template<class T>
+    typename BoundedDeque<T>::iterator BoundedDeque<T>::insert(const const_iterator& position, T&& val)
     {
         return emplace(position, std::move(val));
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::iterator BoundedDeque<T, Max>::insert(const const_iterator& position, std::initializer_list<T> initializerList)
+    template<class T>
+    typename BoundedDeque<T>::iterator BoundedDeque<T>::insert(const const_iterator& position, std::initializer_list<T> initializerList)
     {
         return insert(position, initializerList.begin(), initializerList.end());
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::iterator BoundedDeque<T, Max>::erase(const const_iterator& position)
+    template<class T>
+    typename BoundedDeque<T>::iterator BoundedDeque<T>::erase(const const_iterator& position)
     {
         return erase(position, position + 1);
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::iterator BoundedDeque<T, Max>::erase(const const_iterator& first, const const_iterator& last)
+    template<class T>
+    typename BoundedDeque<T>::iterator BoundedDeque<T>::erase(const const_iterator& first, const const_iterator& last)
     {
         size_type first_index = first - begin();
         size_type last_index = last - begin();
 
-        for (; last_index != mSize; ++first_index, ++last_index)
-            mData[index(first_index)] = std::move(mData[index(last_index)]);
+        for (; last_index != numAllocated; ++first_index, ++last_index)
+            *storage[index(first_index)] = std::move(*storage[index(last_index)]);
 
-        for (; first_index != last_index; ++first_index, --mSize)
-            mData.Destruct(index(first_index));
+        for (; first_index != last_index; ++first_index, --numAllocated)
+            storage[index(first_index)].Destruct();
 
         return iterator(this, first - begin());
     }
 
-    template<class T, std::size_t Max>
-    void BoundedDeque<T, Max>::swap(BoundedDeque& other)
+    template<class T>
+    void BoundedDeque<T>::swap(BoundedDeque& other)
     {
         using std::swap;
 
         for (size_type i = 0; i < size() && i < other.size(); ++i)
-            swap(mData[index(i)], other.mData[other.index(i)]);
+            swap(*storage[index(i)], *other.storage[other.index(i)]);
 
         for (size_type i = size(); i < other.size(); ++i)
         {
-            mData.Construct(index(i), std::move(other.mData[other.index(i)]));
-            other.mData.Destruct(other.index(i));
+            storage[index(i)].Construct(std::move(*other.storage[other.index(i)]));
+            other.storage[other.index(i)].Destruct();
         }
 
         for (size_type i = other.size(); i < size(); ++i)
         {
-            other.mData.Construct(other.index(i), std::move(mData[index(i)]));
-            mData.Destruct(index(i));
+            other.storage[other.index(i)].Construct(std::move(*storage[index(i)]));
+            storage[index(i)].Destruct();
         }
 
-        std::swap(mSize, other.mSize);
+        std::swap(numAllocated, other.numAllocated);
     }
 
-    template<class T, std::size_t Max>
-    void BoundedDeque<T, Max>::clear()
+    template<class T>
+    void BoundedDeque<T>::clear()
     {
         if (std::is_trivially_destructible<T>::value)
-            mSize = 0;
+            numAllocated = 0;
         else
             while (!empty())
                 pop_back();
+
+        start = 0;
     }
 
-    template<class T, std::size_t Max>
+    template<class T>
     template<class... Args>
-    typename BoundedDeque<T, Max>::iterator BoundedDeque<T, Max>::emplace(const const_iterator& position, Args&&... args)
+    typename BoundedDeque<T>::iterator BoundedDeque<T>::emplace(const const_iterator& position, Args&&... args)
     {
         really_assert(size() != max_size());
         size_type element_index = position - begin();
         move_up(element_index, 1);
-        mData.Construct(index(element_index), std::forward<Args>(args)...);
+        storage[index(element_index)].Construct(std::forward<Args>(args)...);
         
         return iterator(this, element_index);
     }
 
-    template<class T, std::size_t Max>
+    template<class T>
     template<class... Args>
-    void BoundedDeque<T, Max>::emplace_front(Args&&... args)
+    void BoundedDeque<T>::emplace_front(Args&&... args)
     {
         really_assert(size() != max_size());
-        if (mStart != 0)
-            --mStart;
+        if (start != 0)
+            --start;
         else
-            mStart = Max - 1;
-        mData.Construct(index(0), std::forward<Args>(args)...);
-        ++mSize;
+            start = max_size() - 1;
+        storage[index(0)].Construct(std::forward<Args>(args)...);
+        ++numAllocated;
     }
 
-    template<class T, std::size_t Max>
+    template<class T>
     template<class... Args>
-    void BoundedDeque<T, Max>::emplace_back(Args&&... args)
+    void BoundedDeque<T>::emplace_back(Args&&... args)
     {
         emplace(end(), std::forward<Args>(args)...);
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedDeque<T, Max>::operator==(const BoundedDeque<T, Max>& other) const
+    template<class T>
+    bool BoundedDeque<T>::operator==(const BoundedDeque<T>& other) const
     {
         return size() == other.size() && std::equal(begin(), end(), other.begin());
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedDeque<T, Max>::operator!=(const BoundedDeque<T, Max>& other) const
+    template<class T>
+    bool BoundedDeque<T>::operator!=(const BoundedDeque<T>& other) const
     {
         return !(*this == other);
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedDeque<T, Max>::operator<(const BoundedDeque<T, Max>& other) const
+    template<class T>
+    bool BoundedDeque<T>::operator<(const BoundedDeque<T>& other) const
     {
         return std::lexicographical_compare(begin(), end(), other.begin(), other.end());
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedDeque<T, Max>::operator<=(const BoundedDeque<T, Max>& other) const
+    template<class T>
+    bool BoundedDeque<T>::operator<=(const BoundedDeque<T>& other) const
     {
         return !(other < *this);
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedDeque<T, Max>::operator>(const BoundedDeque<T, Max>& other) const
+    template<class T>
+    bool BoundedDeque<T>::operator>(const BoundedDeque<T>& other) const
     {
         return other < *this;
     }
 
-    template<class T, std::size_t Max>
-    bool BoundedDeque<T, Max>::operator>=(const BoundedDeque<T, Max>& other) const
+    template<class T>
+    bool BoundedDeque<T>::operator>=(const BoundedDeque<T>& other) const
     {
         return !(*this < other);
     }
 
-    template<class T, std::size_t Max>
-    typename BoundedDeque<T, Max>::size_type BoundedDeque<T, Max>::index(size_type elementIndex) const
+    template<class T>
+    typename BoundedDeque<T>::size_type BoundedDeque<T>::index(size_type elementIndex) const
     {
-        size_type index = mStart + elementIndex;
-        if (index < Max)
+        size_type index = start + elementIndex;
+        if (index < max_size())
             return index;
         else
-            return index - Max;
+            return index - max_size();
     }
 
-    template<class T, std::size_t Max>
-    void BoundedDeque<T, Max>::move_up(size_type position, size_type n)
+    template<class T>
+    void BoundedDeque<T>::move_up(size_type position, size_type n)
     {
-        size_type number_of_copies = mSize - position;
-        size_type copy_position = mSize - 1 + n;
+        size_type number_of_copies = numAllocated - position;
+        size_type copy_position = numAllocated - 1 + n;
 
-        for (; number_of_copies != 0 && copy_position >= mSize; --number_of_copies, --copy_position)
-            mData.Construct(index(copy_position), std::move(mData[index(copy_position - n)]));
+        for (; number_of_copies != 0 && copy_position >= numAllocated; --number_of_copies, --copy_position)
+            storage[index(copy_position)].Construct(std::move(*storage[index(copy_position - n)]));
 
         for (; number_of_copies != 0; --number_of_copies, --copy_position)
-            mData[index(copy_position)] = std::move(mData[index(copy_position - n)]);
+            *storage[index(copy_position)] = std::move(*storage[index(copy_position - n)]);
 
-        mSize += n;
+        numAllocated += n;
     }
 
-    template<class T, std::size_t Max>
-    void swap(BoundedDeque<T, Max>& x, BoundedDeque<T, Max>& y)
+    template<class T>
+    void swap(BoundedDeque<T>& x, BoundedDeque<T>& y)
     {
         x.swap(y);
     }
