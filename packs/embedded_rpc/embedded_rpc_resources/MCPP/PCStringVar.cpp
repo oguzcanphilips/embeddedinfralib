@@ -2,45 +2,39 @@
 #include <string>
 
 using namespace System::Runtime::InteropServices;
-
-PCStringVar::PCStringVar()
+namespace erpc
 {
-    text = "";
-}
-
-void PCStringVar::Write(PacketCommunication^ packetComm)
-{
-    char* str = (char*)(void*)Marshal::StringToHGlobalAnsi(text);
-    std::string text = str;
-    Marshal::FreeHGlobal((System::IntPtr)str); 
-
-    uint8_t* data = (uint8_t*)text.c_str();
-    while(*data)
+    PCStringVar::PCStringVar()
     {
-        packetComm->Write(*data);
-        data++;
+        text = "";
     }
-	
-    packetComm->Write((uint8_t)0);
-}
 
-bool PCStringVar::Read(PacketCommunication^ packetComm)
-{
-    text = gcnew String("");
-
-    uint8_t c;
-
-    while(packetComm->Read(c))
+    void PCStringVar::Write(PacketCommunication^ packetComm)
     {
-        if(c==0)
-        {
-            return true;
-        }
-        else
-        {
-            char input = (char)c;
-            text += gcnew String(&input);
-        }
+        char* str = (char*)(void*)Marshal::StringToHGlobalAnsi(text);
+        std::string text = str;
+        Marshal::FreeHGlobal((System::IntPtr)str);
+        packetComm->Write(reinterpret_cast<const uint8_t*>(text.c_str()), text.length() + 1);
     }
-    return false;
+
+    bool PCStringVar::Read(PacketCommunication^ packetComm)
+    {
+        text = gcnew String("");
+
+        uint8_t c;
+
+        while (packetComm->Read(c))
+        {
+            if (c == 0)
+            {
+                return true;
+            }
+            else
+            {
+                char input = (char)c;
+                text += gcnew String(&input);
+            }
+        }
+        return false;
+    }
 }

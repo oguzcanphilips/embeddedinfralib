@@ -75,7 +75,8 @@ namespace InterfaceCodeGen
                 file.WriteLine();
                 file.WriteLine("#include \"PacketCommunication.hpp\"");
                 AddIncludes(file, i.GetDependencies(), "#include \"{0}.hpp\"");
-
+                file.WriteLine("namespace erpc");
+                file.WriteLine("{");
                 file.WriteLine("public interface class " + name);
                 file.WriteLine("{");
                 file.WriteLine("public:");
@@ -111,6 +112,7 @@ namespace InterfaceCodeGen
                     file.WriteLine(");");
                 }
                 file.WriteLine("};");
+                file.WriteLine("}");
             }
         }
 
@@ -128,6 +130,8 @@ namespace InterfaceCodeGen
                     file.WriteLine("#include \"" + i.Name + "EventsSkeleton.hpp\"");
                 }
                 file.WriteLine();
+                file.WriteLine("namespace erpc");
+                file.WriteLine("{");
                 file.Write("public ref class " + name + " : public I" + i.Name);
                 if (i.HasEvents) file.Write(", public I" + i.Name + "Events");
                 if (i.HasReturnValues) file.Write(", public PacketCommunication::Callback");
@@ -193,6 +197,7 @@ namespace InterfaceCodeGen
                     file.WriteLine("  " + i.Name + "EventsSkeleton^ mEventsSkeleton;");
                 }
                 file.WriteLine("};");
+                file.WriteLine("}");
             }
         }
 
@@ -203,6 +208,8 @@ namespace InterfaceCodeGen
             {
                 file.WriteLine("#include \"" + name + ".hpp\"");
                 file.WriteLine();
+                file.WriteLine("namespace erpc");
+                file.WriteLine("{");
                 file.Write(name + "::" + name + "(PacketCommunication^ packetComm");
                 file.WriteLine(")");
                 file.Write(": ");
@@ -329,6 +336,7 @@ namespace InterfaceCodeGen
                     }
                     file.WriteLine("}");
                 }
+                file.WriteLine("}");
             }
         }
 
@@ -346,6 +354,8 @@ namespace InterfaceCodeGen
                     file.WriteLine("#include \"" + i.Name + "EventsProxy.hpp\"");
                 }
                 file.WriteLine();
+                file.WriteLine("namespace erpc");
+                file.WriteLine("{");
                 file.WriteLine("public ref class " + name + " : public PacketCommunication::Callback");
                 file.WriteLine("{");
                 file.WriteLine("public:");
@@ -365,6 +375,7 @@ namespace InterfaceCodeGen
                     file.WriteLine("  " + i.Name + "EventsProxy^ mEventsProxy;");
                 }
                 file.WriteLine("};");
+                file.WriteLine("}");
             }
         }
 
@@ -375,6 +386,8 @@ namespace InterfaceCodeGen
             {
                 file.WriteLine("#include \"" + name + ".hpp\"");
                 file.WriteLine();
+                file.WriteLine("namespace erpc");
+                file.WriteLine("{");
                 file.WriteLine(name + "::" + name + "(PacketCommunication^ packetComm)");
                 file.WriteLine(": Callback(" + (i.Id + 128) + ") // Interface Id");
                 file.WriteLine(", mPacketComm(packetComm)");
@@ -489,6 +502,7 @@ namespace InterfaceCodeGen
                     file.WriteLine("  }");
                 }
                 file.WriteLine("}");
+                file.WriteLine("}");
             }
         }
 
@@ -512,6 +526,8 @@ namespace InterfaceCodeGen
                     file.WriteLine("#include \"" + import + ".hpp\"");
                 }
                 file.WriteLine();
+                file.WriteLine("namespace erpc");
+                file.WriteLine("{");
                 file.WriteLine("public ref class " + d.Name + ": public Serialize");
                 file.WriteLine("{");
                 file.WriteLine("public:");
@@ -533,6 +549,7 @@ namespace InterfaceCodeGen
                     }
                 }
                 file.WriteLine("};");
+                file.WriteLine("}");
                 file.WriteLine("#endif");
             }
         }
@@ -543,6 +560,8 @@ namespace InterfaceCodeGen
             {
                 file.WriteLine("#include \"" + d.Name + ".hpp\"");
                 file.WriteLine();
+                file.WriteLine("namespace erpc");
+                file.WriteLine("{");
                 bool useComma = false;
                 file.WriteLine(d.Name + "::" + d.Name + "()");
                 foreach (DataField p in d.Fields)
@@ -608,6 +627,7 @@ namespace InterfaceCodeGen
                 }
                 file.WriteLine("  return true;");
                 file.WriteLine("}");
+                file.WriteLine("}");
             }
         }
 
@@ -621,6 +641,8 @@ namespace InterfaceCodeGen
                 file.WriteLine();
                 file.WriteLine("#include \"PacketCommunication.hpp\"");
                 file.WriteLine();
+                file.WriteLine("namespace erpc");
+                file.WriteLine("{");
                 file.WriteLine("public ref class " + en.Name + " : public Serialize");
                 file.WriteLine("{");
                 file.WriteLine("public:");
@@ -653,6 +675,7 @@ namespace InterfaceCodeGen
                 file.WriteLine("      return true;");
                 file.WriteLine("  }");
                 file.WriteLine("};");
+                file.WriteLine("}");
                 file.WriteLine("#endif");
             }
         }

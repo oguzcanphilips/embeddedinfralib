@@ -2,43 +2,37 @@
 #include <string>
 
 using namespace System::Runtime::InteropServices;
-
-PCString::PCString()
+namespace erpc
 {
-    text = "";
-}
-
-void PCString::Write(PacketCommunication^ packetComm)
-{
-    char* str = (char*)(void*)Marshal::StringToHGlobalAnsi(text);
-    std::string text = str;
-    Marshal::FreeHGlobal((System::IntPtr)str); 
-
-    uint8_t* data = (uint8_t*)text.c_str();
-    while(*data)
+    PCString::PCString()
     {
-        packetComm->Write(*data);
-        data++;
+        text = "";
     }
-	
-    packetComm->Write((uint8_t)0);
-}
 
-bool PCString::Read(PacketCommunication^ packetComm)
-{
-    char input[PCSTRING_LEN];
-    uint8_t i = 0;
-    uint8_t c;
-
-    while(packetComm->Read(c))
+    void PCString::Write(PacketCommunication^ packetComm)
     {
-        input[i++] = (char)c;
-        if(c==0)
+        char* str = (char*)(void*)Marshal::StringToHGlobalAnsi(text);
+        std::string text = str;
+        Marshal::FreeHGlobal((System::IntPtr)str);
+        packetComm->Write(reinterpret_cast<const uint8_t*>(text.c_str()), text.length()+1);
+    }
+
+    bool PCString::Read(PacketCommunication^ packetComm)
+    {
+        char input[PCSTRING_LEN];
+        uint8_t i = 0;
+        uint8_t c;
+
+        while (packetComm->Read(c))
         {
-            text = gcnew String(input);
-            return true;
+            input[i++] = (char)c;
+            if (c == 0)
+            {
+                text = gcnew String(input);
+                return true;
+            }
+            if (i == PCSTRING_LEN) return false;
         }
-        if(i==PCSTRING_LEN) return false;
+        return false;
     }
-    return false;
 }

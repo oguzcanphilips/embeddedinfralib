@@ -4,15 +4,16 @@
 #include "PacketCommunication.hpp"
 
 using namespace System;
-
-public ref class PCStringVar : public Serialize
+namespace erpc
 {
-public:
-    String^ text;
+    public ref class PCStringVar : public Serialize
+    {
+    public:
+        String^ text;
 
-    PCStringVar();
-    virtual void Write(PacketCommunication^ packetComm);
-    virtual bool Read(PacketCommunication^ packetComm);
-};
-
+        PCStringVar();
+        virtual void Write(PacketCommunication^ packetComm);
+        virtual bool Read(PacketCommunication^ packetComm);
+    };
+}
 #endif
