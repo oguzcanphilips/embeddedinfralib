@@ -1,0 +1,9 @@
+interface PWM
+  # Events
+  EVENT PwmUpdate(uint8_t channel, uint16_t value)
+
+  # Functions
+  void SetPwm(uint8_t channel, uint16_t value) = 100 # second
+  uint16_t GetPwm(uint8_t channel)
+  void ResetPwm()
+end

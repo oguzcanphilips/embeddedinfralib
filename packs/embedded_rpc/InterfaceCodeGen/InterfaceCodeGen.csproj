@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4B864BE1-739C-4B35-9217-AB515F54E6DD}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>InterfaceCodeGen</RootNamespace>
+    <AssemblyName>InterfaceCodeGen</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DataField.cs" />
+    <Compile Include="ParserC.cs" />
+    <Compile Include="HeaderFile.cs" />
+    <Compile Include="Enum.cs" />
+    <Compile Include="OutputFile.cs" />
+    <Compile Include="ParserMCPP.cs" />
+    <Compile Include="DataType.cs" />
+    <Compile Include="ParserCPP.cs" />
+    <Compile Include="Function.cs" />
+    <Compile Include="Input.cs" />
+    <Compile Include="Interface.cs" />
+    <Compile Include="Param.cs" />
+    <Compile Include="Parser.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\CPP\CyclicBuffer.cpp" />
+    <Content Include="Resources\CPP\CyclicBuffer.hpp" />
+    <Content Include="Resources\CPP\PacketCommunication.cpp" />
+    <Content Include="Resources\CPP\PacketCommunication.h" />
+    <Content Include="Resources\CPP\PacketCommunicationBufferedReceive.cpp" />
+    <Content Include="Resources\CPP\PacketCommunicationBufferedReceive.hpp" />
+    <Content Include="Resources\CPP\PacketCommunicationReport.cpp" />
+    <Content Include="Resources\CPP\PacketCommunicationReport.h" />
+    <Content Include="Resources\CPP\PacketCommunicationReportBuffered.cpp" />
+    <Content Include="Resources\CPP\PacketCommunicationReportBuffered.hpp" />
+    <Content Include="Resources\CPP\PacketCommunicationSLIP.cpp" />
+    <Content Include="Resources\CPP\PacketCommunicationSLIP.h" />
+    <Content Include="Resources\CPP\PacketCommunicationSLIPBuffered.cpp" />
+    <Content Include="Resources\CPP\PacketCommunicationSLIPBuffered.hpp" />
+    <Content Include="Resources\CPP\PacketReantrant.h" />
+    <Content Include="Resources\CPP\PCString.cpp" />
+    <Content Include="Resources\CPP\PCString.h" />
+    <Content Include="Resources\CPP\PCStringVar.cpp" />
+    <Content Include="Resources\CPP\PCStringVar.h" />
+    <Content Include="Resources\CPP\SignalSlot.h" />
+    <Content Include="Resources\CRC.c" />
+    <Content Include="Resources\CRC.cpp" />
+    <Content Include="Resources\CRC.h" />
+    <Content Include="Resources\C\PacketCommunication.c" />
+    <Content Include="Resources\C\PacketCommunication.h" />
+    <Content Include="Resources\C\PacketCommunicationReport.c" />
+    <Content Include="Resources\C\PacketCommunicationReport.h" />
+    <Content Include="Resources\C\PacketCommunicationSLIP.c" />
+    <Content Include="Resources\C\PacketCommunicationSLIP.h" />
+    <Content Include="Resources\C\PCString.c" />
+    <Content Include="Resources\C\PCString.h" />
+    <Content Include="Resources\MCPP\PacketCommunicationUART.cpp" />
+    <Content Include="Resources\MCPP\PacketCommunicationUART.h" />
+    <Content Include="Resources\MCPP\PacketCommunication.cpp" />
+    <Content Include="Resources\MCPP\PacketCommunication.h" />
+    <Content Include="Resources\MCPP\PacketCommunicationReport.cpp" />
+    <Content Include="Resources\MCPP\PacketCommunicationReport.h" />
+    <Content Include="Resources\MCPP\PacketCommunicationSLIP.cpp" />
+    <Content Include="Resources\MCPP\PacketCommunicationSLIP.h" />
+    <Content Include="Resources\MCPP\PCString.cpp" />
+    <Content Include="Resources\MCPP\PCString.h" />
+    <Content Include="Resources\MCPP\PCStringVar.cpp" />
+    <Content Include="Resources\MCPP\PCStringVar.h" />
+    <Content Include="Resources\PacketCommunicationConfig.h" />
+    <Content Include="Resources\PacketCommunicationDefines.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="interface.int" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

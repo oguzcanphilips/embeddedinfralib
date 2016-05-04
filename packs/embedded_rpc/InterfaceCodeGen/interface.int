@@ -1,0 +1,37 @@
+import Array
+import PCString
+
+interface PWM
+  # Events
+  EVENT PwmUpdate(uint8_t channel, uint16_t value)
+
+  # Functions
+  void SetPwm(uint8_t channel, uint16_t value) # second
+  uint16_t GetPwm(uint8_t channel)
+  void ResetPwm()
+end
+
+interface Foo
+  void DoThis(Array array)
+  PCString UpperCase(PCString str)
+end
+
+
+enum Scope
+ Small
+ Normal = 15
+ Big
+end
+
+data KeyId
+  uint32_t id
+  uint16_t key[10]
+  Scope scope
+end
+
+c_alias Scope Scope_t
+
+interface Bar
+    KeyId GetKeyId()
+    void SetKeyId(KeyId kid)
+end

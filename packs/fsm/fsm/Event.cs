@@ -191,7 +191,6 @@ namespace FSM
             }
             if (drawMode>0)
             {
-                int i = 0;
                 Point fv = (drawMode & 0x01) == 0 ? new Point(from.X, via.Y) : new Point(via.X, from.Y);
                 Point vt = (drawMode & 0x01) == 0 ? new Point(to.X, via.Y) : new Point(via.X, to.Y);
                 Point[] curvePoints = { from, fv, via, vt, to};

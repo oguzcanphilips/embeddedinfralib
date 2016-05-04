@@ -101,9 +101,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="test\Generated\TestCheckerFSM.c" />
+    <ClCompile Include="test\Generated\TestCheckerFSM.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="test\Generated\TestCheckerFSM.cpp" />
-    <ClCompile Include="test\Generated\TestFSM.c" />
+    <ClCompile Include="test\Generated\TestFSM.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="test\Generated\TestFSM.cpp" />
     <ClCompile Include="test\Main.cpp" />
     <ClCompile Include="test\TestCheckerFSM_.c" />

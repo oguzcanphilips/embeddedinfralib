@@ -1,0 +1,37 @@
+import Array
+import PCString
+
+include interfacePwm.int
+
+interface Test
+  void DoThis(Array array)
+  uint16_t DoubleOutput(uint16_t i)
+
+  bool IO_In(uint16_t<In> value)
+  bool IO_Out(uint16_t<Out> value)
+  void IO_InOut(uint16_t<InOut> value)
+end
+
+interface Foo
+  void DoThis(Array array)
+  uint32_t DoThat(uint32_t i)
+  PCString UpperCase(PCString str)
+end
+
+enum Scope
+    Low
+    Med = 111
+    High
+end
+
+data KeyId
+  uint32_t id
+  uint16_t key[10]
+  Scope scope
+end
+
+interface Bar
+    KeyId GetKeyId()
+    void SetKeyId(KeyId kid)
+    void SetGetKeyId(KeyId<InOut> kid)
+end

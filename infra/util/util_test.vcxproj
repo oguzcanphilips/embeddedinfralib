@@ -81,8 +81,14 @@
   <ItemGroup>
     <ClCompile Include="test\Main.cpp" />
     <ClCompile Include="test\TestAutoResetFunction.cpp" />
-    <ClCompile Include="test\TestBoundedDeque.cpp" />
-    <ClCompile Include="test\TestBoundedPriorityQueue.cpp" />
+    <ClCompile Include="test\TestBoundedDeque.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="test\TestBoundedPriorityQueue.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="test\TestBoundedString.cpp" />
     <ClCompile Include="test\TestBoundedVector.cpp" />
     <ClCompile Include="test\TestCompare.cpp" />
@@ -107,7 +113,6 @@
     <ProjectReference Include="..\..\external\gmock\msvc\2013\gmock.vcxproj">
       <Project>{e53a840f-3ef4-44e5-b796-4711b709fae8}</Project>
     </ProjectReference>
-
     <ProjectReference Include="util.vcxproj">
       <Project>{1c860ac0-083c-47ce-b70e-a1913937ef2b}</Project>
     </ProjectReference>
