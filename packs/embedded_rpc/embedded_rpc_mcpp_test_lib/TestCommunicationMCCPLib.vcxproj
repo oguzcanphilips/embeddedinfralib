@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}</ProjectGuid>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <Keyword>ManagedCProj</Keyword>
+    <RootNamespace>TestCommunicationMCCPLib</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CLRSupport>true</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CLRSupport>true</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\InterfaceCodeGen\Resources\MCPP;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>cd $(ProjectDir) 
+$(ProjectDir)..\InterfaceCodeGen\bin\$(Configuration)/InterfaceCodeGen interface.int</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\InterfaceCodeGen\Resources\MCPP;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>cd $(ProjectDir) 
+$(ProjectDir)..\InterfaceCodeGen\bin\$(Configuration)/InterfaceCodeGen interface.int</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\InterfaceCodeGen\Resources\CRC.h" />
+    <ClInclude Include="..\InterfaceCodeGen\Resources\MCPP\PacketCommunication.h" />
+    <ClInclude Include="..\InterfaceCodeGen\Resources\MCPP\PacketCommunicationReport.h" />
+    <ClInclude Include="..\InterfaceCodeGen\Resources\MCPP\PacketCommunicationSLIP.h" />
+    <ClInclude Include="..\InterfaceCodeGen\Resources\MCPP\PCString.h" />
+    <ClInclude Include="MCPP\BarProxy.h" />
+    <ClInclude Include="MCPP\BarSkeleton.h" />
+    <ClInclude Include="MCPP\FooProxy.h" />
+    <ClInclude Include="MCPP\FooSkeleton.h" />
+    <ClInclude Include="MCPP\IBar.h" />
+    <ClInclude Include="MCPP\IFoo.h" />
+    <ClInclude Include="MCPP\IPWM.h" />
+    <ClInclude Include="MCPP\IPWMEvents.h" />
+    <ClInclude Include="MCPP\KeyId.h" />
+    <ClInclude Include="MCPP\Keys.h" />
+    <ClInclude Include="MCPP\PWMEventsProxy.h" />
+    <ClInclude Include="MCPP\PWMEventsSkeleton.h" />
+    <ClInclude Include="MCPP\PWMProxy.h" />
+    <ClInclude Include="MCPP\PWMSkeleton.h" />
+    <ClInclude Include="MCPP\RCArray.h" />
+    <ClInclude Include="MCPP\Scope.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\InterfaceCodeGen\Resources\CRC.c">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="..\InterfaceCodeGen\Resources\MCPP\PacketCommunication.cpp" />
+    <ClCompile Include="..\InterfaceCodeGen\Resources\MCPP\PacketCommunicationReport.cpp" />
+    <ClCompile Include="..\InterfaceCodeGen\Resources\MCPP\PacketCommunicationSLIP.cpp" />
+    <ClCompile Include="..\InterfaceCodeGen\Resources\MCPP\PCString.cpp" />
+    <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="MCPP\BarProxy.cpp" />
+    <ClCompile Include="MCPP\BarSkeleton.cpp" />
+    <ClCompile Include="MCPP\FooProxy.cpp" />
+    <ClCompile Include="MCPP\FooSkeleton.cpp" />
+    <ClCompile Include="MCPP\KeyId.cpp" />
+    <ClCompile Include="MCPP\Keys.cpp" />
+    <ClCompile Include="MCPP\PWMEventsProxy.cpp" />
+    <ClCompile Include="MCPP\PWMEventsSkeleton.cpp" />
+    <ClCompile Include="MCPP\PWMProxy.cpp" />
+    <ClCompile Include="MCPP\PWMSkeleton.cpp" />
+    <ClCompile Include="MCPP\RCArray.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.ico" />
+    <None Include="interface.int" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

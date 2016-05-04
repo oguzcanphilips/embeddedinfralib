@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{01F65C01-42DC-4010-BA27-889772847246}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>embedded_rpc_c_test</RootNamespace>
+    <ProjectName>embedded_rpc_c_test</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PropertySheet_Test.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PropertySheet_Test.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)\embedded_rpc_c_test;$(ProjectDir)\embedded_rpc_resources\;$(ProjectDir)\embedded_rpc_resources\C;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(ProjectDir)embedded_rpc_c_test &amp;&amp; $(OutputPath)InterfaceCodeGen.exe interface.int Generated</Command>
+      <Message>Build: InterfaceCodeGen interface.int</Message>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)\embedded_rpc_c_test;$(ProjectDir)\embedded_rpc_resources\;$(ProjectDir)\embedded_rpc_resources\C;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(ProjectDir)embedded_rpc_c_test &amp;&amp; $(OutputPath)InterfaceCodeGen.exe interface.int Generated</Command>
+      <Message>Build: InterfaceCodeGen interface.int</Message>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\external\gmock\msvc\2013\gmock.vcxproj">
+      <Project>{e53a840f-3ef4-44e5-b796-4711b709fae8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\infra\threading\threading.vcxproj">
+      <Project>{71035780-e59f-4532-b1ec-154dc43f5a64}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="embedded_rpc_c_test\Array.c" />
+    <ClCompile Include="embedded_rpc_c_test\Bar.c" />
+    <ClCompile Include="embedded_rpc_c_test\BarProxyRename.c" />
+    <ClCompile Include="embedded_rpc_c_test\Foo.c" />
+    <ClCompile Include="embedded_rpc_c_test\FooEventsSkeletonRename.c" />
+    <ClCompile Include="embedded_rpc_c_test\FooProxyRename.c" />
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\BarProxy.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\BarSkeleton.c" />
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\FooEventsProxy.c" />
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\FooEventsSkeleton.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\FooProxy.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\FooSkeleton.c" />
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\KeyId.c" />
+    <ClCompile Include="embedded_rpc_c_test\Main.cpp" />
+    <ClCompile Include="embedded_rpc_c_test\Report.c" />
+    <ClCompile Include="embedded_rpc_c_test\Serial.c" />
+    <ClCompile Include="embedded_rpc_c_test\Serial2.c" />
+    <ClCompile Include="embedded_rpc_c_test\TestCommunicationC.cpp" />
+    <ClCompile Include="embedded_rpc_resources\CRC.c" />
+    <ClCompile Include="embedded_rpc_resources\C\PacketCommunication.c" />
+    <ClCompile Include="embedded_rpc_resources\C\PacketCommunicationReport.c" />
+    <ClCompile Include="embedded_rpc_resources\C\PacketCommunicationSLIP.c" />
+    <ClCompile Include="embedded_rpc_resources\C\PCString.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="embedded_rpc_c_test\Array.h" />
+    <ClInclude Include="embedded_rpc_c_test\BarProxyRename.h" />
+    <ClInclude Include="embedded_rpc_c_test\FooEventsSkeletonRename.h" />
+    <ClInclude Include="embedded_rpc_c_test\FooProxyRename.h" />
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\Bar.h" />
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\BarSkeleton.h" />
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\Foo.h" />
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\FooEvents.h" />
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\FooEventsSkeleton.h" />
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\FooSkeleton.h" />
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\KeyId.h" />
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\Scope.h" />
+    <ClInclude Include="embedded_rpc_c_test\LocalPacketCommunication.h" />
+    <ClInclude Include="embedded_rpc_c_test\LocalPacketCommunicationMT.h" />
+    <ClInclude Include="embedded_rpc_c_test\Report.h" />
+    <ClInclude Include="embedded_rpc_c_test\Serial.h" />
+    <ClInclude Include="embedded_rpc_c_test\Serial2.h" />
+    <ClInclude Include="embedded_rpc_resources\CRC.h" />
+    <ClInclude Include="embedded_rpc_resources\C\PacketCommunication.h" />
+    <ClInclude Include="embedded_rpc_resources\C\PacketCommunicationReport.h" />
+    <ClInclude Include="embedded_rpc_resources\C\PacketCommunicationSLIP.h" />
+    <ClInclude Include="embedded_rpc_resources\C\PCString.h" />
+    <ClInclude Include="embedded_rpc_resources\PacketCommunicationConfig.h" />
+    <ClInclude Include="embedded_rpc_resources\PacketCommunicationDefines.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="embedded_rpc_c_test\interface.int" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

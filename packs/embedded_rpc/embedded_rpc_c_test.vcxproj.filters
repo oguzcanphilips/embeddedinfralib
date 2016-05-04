@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Generated">
+      <UniqueIdentifier>{1936446a-b82a-470e-801c-3ff5d073d73e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{7983ccd7-b0fd-4f64-aaf1-e8e5ae85b197}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\C">
+      <UniqueIdentifier>{f2905952-f78d-40e3-9913-baa5fbe7e6a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generated\C">
+      <UniqueIdentifier>{2bd74428-e7b3-40d5-9ee1-89601de0dc50}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="embedded_rpc_c_test\Array.hpp" />
+    <ClInclude Include="embedded_rpc_c_test\CommCallbackMock.h" />
+    <ClInclude Include="embedded_rpc_c_test\PWMSupport.hpp" />
+    <ClInclude Include="embedded_rpc_c_test\TestSupport.hpp" />
+    <ClInclude Include="embedded_rpc_resources\CRC.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\PacketCommunicationConfig.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\PacketCommunicationDefines.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\C\PacketCommunication.hpp">
+      <Filter>Resources\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\C\PacketCommunicationBufferedReceive.hpp">
+      <Filter>Resources\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\C\PacketCommunicationReport.hpp">
+      <Filter>Resources\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\C\PacketCommunicationReportBuffered.hpp">
+      <Filter>Resources\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\C\PacketCommunicationSLIP.hpp">
+      <Filter>Resources\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\C\PacketCommunicationSLIPBuffered.hpp">
+      <Filter>Resources\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\C\PacketReantrant.hpp">
+      <Filter>Resources\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\C\PCString.hpp">
+      <Filter>Resources\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\C\PCStringVar.hpp">
+      <Filter>Resources\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\LocalPacketCommunication.hpp" />
+    <ClInclude Include="embedded_rpc_c_test\LocalPacketCommunicationMT.hpp" />
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\BarProxy.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\BarSkeleton.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\FooProxy.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\FooSkeleton.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\IBar.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\IFoo.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\IPWM.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\IPWMEvents.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\ITest.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\KeyId.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\PWMEventsProxy.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\PWMEventsSkeleton.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\PWMProxy.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\PWMSkeleton.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\Scope.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\TestProxy.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\TestSkeleton.hpp">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="embedded_rpc_c_test\interface.int" />
+    <None Include="embedded_rpc_c_test\interfacePwm.int" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="embedded_rpc_c_test\Main.cpp" />
+    <ClCompile Include="embedded_rpc_c_test\TestCommunication.cpp" />
+    <ClCompile Include="embedded_rpc_c_test\TestCommunicationC.cpp" />
+    <ClCompile Include="embedded_rpc_c_test\TestCRC.cpp" />
+    <ClCompile Include="embedded_rpc_c_test\TestCyclicBuffer.cpp" />
+    <ClCompile Include="embedded_rpc_c_test\TestPacketCommunicationBufferedReceive.cpp" />
+    <ClCompile Include="embedded_rpc_c_test\TestPacketCommunicationReportBuffered.cpp" />
+    <ClCompile Include="embedded_rpc_c_test\TestPacketCommunicationSLIPBuffered.cpp" />
+    <ClCompile Include="embedded_rpc_resources\CRC.c">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_resources\C\PacketCommunication.cpp">
+      <Filter>Resources\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_resources\C\PacketCommunicationBufferedReceive.cpp">
+      <Filter>Resources\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_resources\C\PacketCommunicationReport.cpp">
+      <Filter>Resources\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_resources\C\PacketCommunicationReportBuffered.cpp">
+      <Filter>Resources\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_resources\C\PacketCommunicationSLIP.cpp">
+      <Filter>Resources\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_resources\C\PacketCommunicationSLIPBuffered.cpp">
+      <Filter>Resources\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_resources\C\PCString.cpp">
+      <Filter>Resources\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_resources\C\PCStringVar.cpp">
+      <Filter>Resources\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\BarProxy.cpp">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\BarSkeleton.cpp">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\FooProxy.cpp">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\FooSkeleton.cpp">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\KeyId.cpp">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\PWMEventsProxy.cpp">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\PWMEventsSkeleton.cpp">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\PWMProxy.cpp">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\PWMSkeleton.cpp">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\TestProxy.cpp">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\TestSkeleton.cpp">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -6,3 +6,5 @@ Release/
 scripts/__pycache__/
 *.vcxproj.user
 packs/fsm/test/Generated/*.*
+/packs/embedded_rpc/embedded_rpc_cpp_test/Generated
+/packs/embedded_rpc/embedded_rpc_c_test/Generated

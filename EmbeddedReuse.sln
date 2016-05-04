@@ -87,6 +87,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterfaceCodeGen", "packs\e
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "embedded_rpc_cpp_test", "packs\embedded_rpc\embedded_rpc_cpp_test.vcxproj", "{01F64C01-42DC-4010-BA27-889772847246}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "embedded_rpc_c_test", "packs\embedded_rpc\embedded_rpc_c_test.vcxproj.vcxproj", "{01F65C01-42DC-4010-BA27-889772847246}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -421,6 +423,18 @@ Global
 		{01F64C01-42DC-4010-BA27-889772847246}.Release|Win32.Build.0 = Release|Win32
 		{01F64C01-42DC-4010-BA27-889772847246}.Release|x86.ActiveCfg = Release|Win32
 		{01F64C01-42DC-4010-BA27-889772847246}.Release|x86.Build.0 = Release|Win32
+		{01F65C01-42DC-4010-BA27-889772847246}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{01F65C01-42DC-4010-BA27-889772847246}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{01F65C01-42DC-4010-BA27-889772847246}.Debug|Win32.ActiveCfg = Debug|Win32
+		{01F65C01-42DC-4010-BA27-889772847246}.Debug|Win32.Build.0 = Debug|Win32
+		{01F65C01-42DC-4010-BA27-889772847246}.Debug|x86.ActiveCfg = Debug|Win32
+		{01F65C01-42DC-4010-BA27-889772847246}.Debug|x86.Build.0 = Debug|Win32
+		{01F65C01-42DC-4010-BA27-889772847246}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{01F65C01-42DC-4010-BA27-889772847246}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{01F65C01-42DC-4010-BA27-889772847246}.Release|Win32.ActiveCfg = Release|Win32
+		{01F65C01-42DC-4010-BA27-889772847246}.Release|Win32.Build.0 = Release|Win32
+		{01F65C01-42DC-4010-BA27-889772847246}.Release|x86.ActiveCfg = Release|Win32
+		{01F65C01-42DC-4010-BA27-889772847246}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -454,5 +468,6 @@ Global
 		{524A6284-7236-4900-8F86-2F237D7C4223} = {92B53991-17CE-4D48-A7ED-B483C9D925E7}
 		{4B864BE1-739C-4B35-9217-AB515F54E6DD} = {8E4ACF5F-8939-4493-AE2D-AD87371719AC}
 		{01F64C01-42DC-4010-BA27-889772847246} = {8E4ACF5F-8939-4493-AE2D-AD87371719AC}
+		{01F65C01-42DC-4010-BA27-889772847246} = {8E4ACF5F-8939-4493-AE2D-AD87371719AC}
 	EndGlobalSection
 EndGlobal

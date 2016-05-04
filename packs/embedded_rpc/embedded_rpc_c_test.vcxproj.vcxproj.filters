@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Generated">
+      <UniqueIdentifier>{afee6e81-5c73-4f38-b1a5-2f17c0ebbdc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{3acc4f2e-7150-4cea-b85d-e0a3968f5215}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\C">
+      <UniqueIdentifier>{9d19a2d2-942b-4f04-bf5f-676f84726e7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generated\C">
+      <UniqueIdentifier>{c859831a-bdf4-4e76-b1e1-6d49868883bd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="embedded_rpc_c_test\TestCommunicationC.cpp" />
+    <ClCompile Include="embedded_rpc_c_test\Array.c" />
+    <ClCompile Include="embedded_rpc_c_test\Bar.c" />
+    <ClCompile Include="embedded_rpc_c_test\BarProxyRename.c" />
+    <ClCompile Include="embedded_rpc_c_test\Foo.c" />
+    <ClCompile Include="embedded_rpc_c_test\FooEventsSkeletonRename.c" />
+    <ClCompile Include="embedded_rpc_c_test\FooProxyRename.c" />
+    <ClCompile Include="embedded_rpc_c_test\Main.cpp" />
+    <ClCompile Include="embedded_rpc_c_test\Report.c" />
+    <ClCompile Include="embedded_rpc_c_test\Serial.c" />
+    <ClCompile Include="embedded_rpc_c_test\Serial2.c" />
+    <ClCompile Include="embedded_rpc_resources\C\PacketCommunication.c">
+      <Filter>Resources\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_resources\C\PacketCommunicationReport.c">
+      <Filter>Resources\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_resources\C\PacketCommunicationSLIP.c">
+      <Filter>Resources\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_resources\C\PCString.c">
+      <Filter>Resources\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_resources\CRC.c">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\BarProxy.c">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\BarSkeleton.c">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\FooEventsProxy.c">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\FooEventsSkeleton.c">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\FooProxy.c">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\FooSkeleton.c">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Generated\C\KeyId.c">
+      <Filter>Generated\C</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="embedded_rpc_c_test\Array.h" />
+    <ClInclude Include="embedded_rpc_c_test\BarProxyRename.h" />
+    <ClInclude Include="embedded_rpc_c_test\FooEventsSkeletonRename.h" />
+    <ClInclude Include="embedded_rpc_c_test\FooProxyRename.h" />
+    <ClInclude Include="embedded_rpc_c_test\LocalPacketCommunication.h" />
+    <ClInclude Include="embedded_rpc_c_test\LocalPacketCommunicationMT.h" />
+    <ClInclude Include="embedded_rpc_c_test\Report.h" />
+    <ClInclude Include="embedded_rpc_c_test\Serial.h" />
+    <ClInclude Include="embedded_rpc_c_test\Serial2.h" />
+    <ClInclude Include="embedded_rpc_resources\C\PacketCommunication.h">
+      <Filter>Resources\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\C\PacketCommunicationReport.h">
+      <Filter>Resources\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\C\PacketCommunicationSLIP.h">
+      <Filter>Resources\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\C\PCString.h">
+      <Filter>Resources\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\CRC.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\PacketCommunicationConfig.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\PacketCommunicationDefines.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\Bar.h">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\BarSkeleton.h">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\Foo.h">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\FooEvents.h">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\FooEventsSkeleton.h">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\FooSkeleton.h">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\KeyId.h">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_c_test\Generated\C\Scope.h">
+      <Filter>Generated\C</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="embedded_rpc_c_test\interface.int" />
+  </ItemGroup>
+</Project>
