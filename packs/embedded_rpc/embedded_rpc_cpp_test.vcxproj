@@ -99,6 +99,10 @@
     </CustomBuildStep>
     <PreBuildEvent>
     </PreBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(ProjectDir)embedded_rpc_cpp_test &amp;&amp; $(OutputPath)InterfaceCodeGen.exe interface.int Generated</Command>
+      <Message>Build: InterfaceCodeGen interface.int</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\external\gmock\msvc\2013\gmock.vcxproj">
