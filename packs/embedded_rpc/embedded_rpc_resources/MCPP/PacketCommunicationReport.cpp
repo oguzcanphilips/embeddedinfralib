@@ -1,4 +1,4 @@
-﻿#include "PacketCommunicationReport.h"
+﻿#include "PacketCommunicationReport.hpp"
 #include "../PacketCommunicationDefines.h"
 
 PacketCommunicationReport::PacketCommunicationReport(IReportIO^ reportIO)

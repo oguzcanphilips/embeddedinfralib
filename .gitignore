@@ -8,3 +8,4 @@ scripts/__pycache__/
 packs/fsm/test/Generated/*.*
 /packs/embedded_rpc/embedded_rpc_cpp_test/Generated
 /packs/embedded_rpc/embedded_rpc_c_test/Generated
+/packs/embedded_rpc/embedded_rpc_mcpp_test_lib/Generated

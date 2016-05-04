@@ -86,8 +86,19 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterfaceCodeGen", "packs\embedded_rpc\InterfaceCodeGen\InterfaceCodeGen.csproj", "{4B864BE1-739C-4B35-9217-AB515F54E6DD}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "embedded_rpc_cpp_test", "packs\embedded_rpc\embedded_rpc_cpp_test.vcxproj", "{01F64C01-42DC-4010-BA27-889772847246}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4B864BE1-739C-4B35-9217-AB515F54E6DD} = {4B864BE1-739C-4B35-9217-AB515F54E6DD}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "embedded_rpc_c_test", "packs\embedded_rpc\embedded_rpc_c_test.vcxproj.vcxproj", "{01F65C01-42DC-4010-BA27-889772847246}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4B864BE1-739C-4B35-9217-AB515F54E6DD} = {4B864BE1-739C-4B35-9217-AB515F54E6DD}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "embedded_rpc_mcpp_test_lib", "packs\embedded_rpc\embedded_rpc_mcpp_test_lib\embedded_rpc_mcpp_test_lib.vcxproj", "{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4B864BE1-739C-4B35-9217-AB515F54E6DD} = {4B864BE1-739C-4B35-9217-AB515F54E6DD}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -435,6 +446,18 @@ Global
 		{01F65C01-42DC-4010-BA27-889772847246}.Release|Win32.Build.0 = Release|Win32
 		{01F65C01-42DC-4010-BA27-889772847246}.Release|x86.ActiveCfg = Release|Win32
 		{01F65C01-42DC-4010-BA27-889772847246}.Release|x86.Build.0 = Release|Win32
+		{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}.Debug|Win32.Build.0 = Debug|Win32
+		{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}.Debug|x86.ActiveCfg = Debug|Win32
+		{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}.Debug|x86.Build.0 = Debug|Win32
+		{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}.Release|Win32.ActiveCfg = Release|Win32
+		{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}.Release|Win32.Build.0 = Release|Win32
+		{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}.Release|x86.ActiveCfg = Release|Win32
+		{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -469,5 +492,6 @@ Global
 		{4B864BE1-739C-4B35-9217-AB515F54E6DD} = {8E4ACF5F-8939-4493-AE2D-AD87371719AC}
 		{01F64C01-42DC-4010-BA27-889772847246} = {8E4ACF5F-8939-4493-AE2D-AD87371719AC}
 		{01F65C01-42DC-4010-BA27-889772847246} = {8E4ACF5F-8939-4493-AE2D-AD87371719AC}
+		{1EEF29BA-4A96-41C7-AEA0-D99835C2503A} = {8E4ACF5F-8939-4493-AE2D-AD87371719AC}
 	EndGlobalSection
 EndGlobal

@@ -1,7 +1,7 @@
-#ifndef PCSTRING_H
-#define PCSTRING_H
+#ifndef PCSTRING_HPP
+#define PCSTRING_HPP
 
-#include "PacketCommunication.h"
+#include "PacketCommunication.hpp"
 
 using namespace System;
 

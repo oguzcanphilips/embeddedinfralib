@@ -1,4 +1,4 @@
-﻿#include "PacketCommunicationSLIP.h"
+﻿#include "PacketCommunicationSLIP.hpp"
 #include "../PacketCommunicationDefines.h"
 
 PacketCommunicationSLIP::PacketCommunicationSLIP(ISerialIO^ serialIO)

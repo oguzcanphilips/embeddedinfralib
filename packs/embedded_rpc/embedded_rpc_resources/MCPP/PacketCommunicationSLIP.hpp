@@ -1,8 +1,8 @@
-﻿#ifndef PACKETCOMMUNICATIONSLIP_H
-#define PACKETCOMMUNICATIONSLIP_H
+﻿#ifndef PACKETCOMMUNICATIONSLIP_HPP
+#define PACKETCOMMUNICATIONSLIP_HPP
 
 
-#include "PacketCommunication.h"
+#include "PacketCommunication.hpp"
 using namespace System;
 
 public ref class PacketCommunicationSLIP : public PacketCommunication

@@ -1,7 +1,7 @@
-﻿#ifndef PACKETCOMMUNICATIONREPORT_H
-#define PACKETCOMMUNICATIONREPORT_H
+﻿#ifndef PACKETCOMMUNICATIONREPORT_HPP
+#define PACKETCOMMUNICATIONREPORT_HPP
 
-#include "PacketCommunication.h"
+#include "PacketCommunication.hpp"
 using namespace System;
 
 

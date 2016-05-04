@@ -1,4 +1,4 @@
-#include "PCString.h"
+#include "PCString.hpp"
 #include <string>
 
 using namespace System::Runtime::InteropServices;

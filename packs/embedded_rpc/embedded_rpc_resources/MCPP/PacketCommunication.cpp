@@ -1,4 +1,4 @@
-﻿#include "PacketCommunication.h"
+﻿#include "PacketCommunication.hpp"
 
 #ifdef VALIDATION_CRC
 #include "../CRC.h"

@@ -1,5 +1,5 @@
-﻿#ifndef PACKETCOMMUNICATION_H
-#define PACKETCOMMUNICATION_H
+﻿#ifndef PACKETCOMMUNICATION_HPP
+#define PACKETCOMMUNICATION_HPP
 
 using namespace System::Collections::Generic;
 using namespace System::Threading;
