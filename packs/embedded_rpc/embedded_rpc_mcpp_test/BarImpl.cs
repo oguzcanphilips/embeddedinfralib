@@ -5,17 +5,17 @@ using System.Text;
 
 namespace TestCommunicationMCCP
 {
-    class BarImpl : IBar
+    class BarImpl : erpc.IBar
     {
-        private KeyId ki = new KeyId();
+        private erpc.KeyId ki = new erpc.KeyId();
         private UInt16 value;
-        public KeyId GetKeyId()
+        public erpc.KeyId GetKeyId()
         {
             Console.WriteLine("Bar.GetKeyId");
             return ki;
         }
 
-        public void SetKeyId(KeyId kid)
+        public void SetKeyId(erpc.KeyId kid)
         {
             Console.WriteLine("Bar.SetKeyId");
             ki = kid;

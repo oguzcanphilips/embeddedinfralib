@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace TestCommunicationMCCP
 {
-    class PacketCommunicationLocal : PacketCommunication
+    class PacketCommunicationLocal : erpc.PacketCommunication
     {
         public List<UInt16> mPacket = new List<UInt16>();
         public List<byte> mPacketRet = new List<byte>();

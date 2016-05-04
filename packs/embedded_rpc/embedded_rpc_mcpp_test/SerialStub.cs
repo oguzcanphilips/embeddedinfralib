@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TestCommunicationMCCP
 {
-    class SerialStub : PacketCommunicationSLIP.ISerialIO
+    class SerialStub : erpc.PacketCommunicationSLIP.ISerialIO
     {
         private bool isOpen = false;
         private List<byte> Data = new List<byte>();

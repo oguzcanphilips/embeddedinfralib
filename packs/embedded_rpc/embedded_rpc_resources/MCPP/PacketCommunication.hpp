@@ -110,7 +110,6 @@ namespace erpc
     protected:
         void Start();
         void Receive();
-        bool IsStarted() { return mRun; }
     private:
         void ReceiveThread();
         bool ReadInternal(uint8_t% v);

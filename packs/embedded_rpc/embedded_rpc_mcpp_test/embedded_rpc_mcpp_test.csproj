@@ -8,8 +8,8 @@
     <ProjectGuid>{DF5FBA12-5E2B-4B2F-8BD5-19A6EDB0DA57}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TestCommunicationMCCP</RootNamespace>
-    <AssemblyName>TestCommunicationMCCP</AssemblyName>
+    <RootNamespace>embedded_rpc_mcpp_test</RootNamespace>
+    <AssemblyName>embedded_rpc_mcpp_test</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -74,9 +74,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TestCommunicationMCCPLib\TestCommunicationMCCPLib.vcxproj">
-      <Project>{1EEF29BA-4A96-41C7-AEA0-D99835C2503A}</Project>
-      <Name>TestCommunicationMCCPLib</Name>
+    <ProjectReference Include="..\embedded_rpc_mcpp_test_lib\embedded_rpc_mcpp_test_lib.vcxproj">
+      <Project>{1eef29ba-4a96-41c7-aea0-d99835c2503a}</Project>
+      <Name>embedded_rpc_mcpp_test_lib</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

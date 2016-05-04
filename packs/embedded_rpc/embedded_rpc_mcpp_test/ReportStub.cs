@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TestCommunicationMCCP
 {
-    class ReportStub : PacketCommunicationReport.IReportIO
+    class ReportStub : erpc.PacketCommunicationReport.IReportIO
     {
         private UInt16 mReportLength;
         private bool isOpen = false;

@@ -103,7 +103,7 @@ namespace erpc
         try
         {
             uint8_t v;
-            if (!IsStarted() || !mSerialIO->Receive(v))
+            if (!mSerialIO->IsOpen() || !mSerialIO->Receive(v))
             {
                 Thread::Sleep(100);
                 return SLIP_END;

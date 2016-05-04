@@ -23,8 +23,8 @@ namespace TestCommunicationMCCP
         public void CreateProxy()
         {
             PacketCommunicationLocal pc = new PacketCommunicationLocal();
-            
-            IFoo foo = new FooProxy(pc);
+
+            erpc.IFoo foo = new erpc.FooProxy(pc);
             UInt32 res = foo.Post(0x12345678);
 
             Assert.AreEqual(0x100, pc.mPacket[0]);
@@ -62,8 +62,8 @@ namespace TestCommunicationMCCP
         {
             PacketCommunicationLocal pc = new PacketCommunicationLocal();
 
-            IFoo foo = new FooProxy(pc);
-            IFoo foo2 = new FooProxy(pc);
+            erpc.IFoo foo = new erpc.FooProxy(pc);
+            erpc.IFoo foo2 = new erpc.FooProxy(pc);
         }
 
         [Test]
@@ -71,16 +71,16 @@ namespace TestCommunicationMCCP
         {
             PacketCommunicationLocal pc = new PacketCommunicationLocal();
 
-            FooProxy foo = new FooProxy(pc);
+            erpc.FooProxy foo = new erpc.FooProxy(pc);
             foo.Dispose();
-            IFoo foo2 = new FooProxy(pc);
+            erpc.IFoo foo2 = new erpc.FooProxy(pc);
         }
 
         [Test]
         public void SerialData()
         {
             SerialStub serial = new SerialStub();
-            PacketCommunicationSLIP pc = new PacketCommunicationSLIP(serial);
+            erpc.PacketCommunicationSLIP pc = new erpc.PacketCommunicationSLIP(serial);
             pc.Stop();
             pc.PacketStart();
             for (int i = 0; i <= 255; i++)
@@ -102,7 +102,7 @@ namespace TestCommunicationMCCP
         public void ReportData()
         {
             ReportStub report = new ReportStub(4);
-            PacketCommunicationReport pc = new PacketCommunicationReport(report);
+            erpc.PacketCommunicationReport pc = new erpc.PacketCommunicationReport(report);
             pc.Stop();
             pc.PacketStart();
             for (int i = 0; i <= 255; i++)
@@ -127,11 +127,11 @@ namespace TestCommunicationMCCP
             LocalSerial serialA = new LocalSerial();
             LocalSerial serialB = serialA.CreateLink();
 
-            PacketCommunicationSLIP pcA = new PacketCommunicationSLIP(serialA);
-            PacketCommunicationSLIP pcB = new PacketCommunicationSLIP(serialB);
+            erpc.PacketCommunicationSLIP pcA = new erpc.PacketCommunicationSLIP(serialA);
+            erpc.PacketCommunicationSLIP pcB = new erpc.PacketCommunicationSLIP(serialB);
 
-            BarProxy proxy = new BarProxy(pcA);
-            BarSkeleton skeleton = new BarSkeleton(pcB);
+            erpc.BarProxy proxy = new erpc.BarProxy(pcA);
+            erpc.BarSkeleton skeleton = new erpc.BarSkeleton(pcB);
             skeleton.SetImpl(new BarImpl());
 
             proxy.IO_In(100);

@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace TestCommunicationMCCP
 {
-    class LocalSerial : PacketCommunicationSLIP.ISerialIO
+    class LocalSerial : erpc.PacketCommunicationSLIP.ISerialIO
     {
         private bool isOpen = false;
         private List<byte> data = new List<byte>();
