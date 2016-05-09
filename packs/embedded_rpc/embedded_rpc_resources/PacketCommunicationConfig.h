@@ -1,10 +1,6 @@
 #ifndef PACKETCOMMUNICATIONCONFIG_H
 #define PACKETCOMMUNICATIONCONFIG_H
 
-#define SIGNAL_SLOT_HEADER "infra\util\public\SignalSlot.hpp"
-#define SIGNAL infra::Signal
-#define SLOT   infra::Slot
-
 #define RECEIVE_TIMEOUT_MS 10000
 #define PCSTRING_LEN       80
 // select the message validation type. Validation is bypassed when none of the options is selected.

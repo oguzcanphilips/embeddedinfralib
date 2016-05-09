@@ -50,7 +50,7 @@ namespace InterfaceCodeGen
                 file.WriteLine("#include \"PacketCommunication.hpp\"");
                 if (i.HasEvents)
                 {
-                    file.WriteLine("#include SIGNAL_SLOT_HEADER");
+                    file.WriteLine("#include \"infra\\util\\public\\SignalSlot.hpp\"");
                 }
                 AddIncludes(file, i.GetDependencies(), "#include \"{0}.hpp\"");
                 file.WriteLine("namespace erpc");
@@ -63,7 +63,7 @@ namespace InterfaceCodeGen
                 List<Function> events = i.Events;
                 foreach (var e in events)
                 {
-                    file.Write("  SIGNAL<" + name);
+                    file.Write("  infra::Signal<" + name);
                     List<Param> ps = e.Params;
                     foreach (Param p in ps)
                     {
@@ -118,7 +118,7 @@ namespace InterfaceCodeGen
                 file.WriteLine("#include \"I" + i.Name + ".hpp\"");
                 if (i.HasEvents)
                 {
-                    file.WriteLine("#include SIGNAL_SLOT_HEADER");
+                    file.WriteLine("#include \"infra\\util\\public\\SignalSlot.hpp\"");
                     file.WriteLine("#include \"" + i.Name + "EventsSkeleton.hpp\"");
                 }
                 file.WriteLine();
@@ -328,7 +328,7 @@ namespace InterfaceCodeGen
                 file.WriteLine("#include \"I" + i.Name + ".hpp\"");
                 if (i.HasEvents)
                 {
-                    file.WriteLine("#include SIGNAL_SLOT_HEADER");
+                    file.WriteLine("#include \"infra\\util\\public\\SignalSlot.hpp\"");
                     file.WriteLine("#include \"" + i.Name + "EventsProxy.hpp\"");
                 }
                 file.WriteLine();
@@ -352,7 +352,7 @@ namespace InterfaceCodeGen
                     List<Function> events = i.Events;
                     foreach (var e in events)
                     {
-                        file.Write("  SLOT<" + i.Name + "EventsProxy");
+                        file.Write("  infra::Slot<" + i.Name + "EventsProxy");
                         List<Param> ps = e.Params;
                         foreach (Param p in ps)
                         {
