@@ -60,53 +60,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\CPP\CyclicBuffer.cpp" />
-    <Content Include="Resources\CPP\CyclicBuffer.hpp" />
-    <Content Include="Resources\CPP\PacketCommunication.cpp" />
-    <Content Include="Resources\CPP\PacketCommunication.h" />
-    <Content Include="Resources\CPP\PacketCommunicationBufferedReceive.cpp" />
-    <Content Include="Resources\CPP\PacketCommunicationBufferedReceive.hpp" />
-    <Content Include="Resources\CPP\PacketCommunicationReport.cpp" />
-    <Content Include="Resources\CPP\PacketCommunicationReport.h" />
-    <Content Include="Resources\CPP\PacketCommunicationReportBuffered.cpp" />
-    <Content Include="Resources\CPP\PacketCommunicationReportBuffered.hpp" />
-    <Content Include="Resources\CPP\PacketCommunicationSLIP.cpp" />
-    <Content Include="Resources\CPP\PacketCommunicationSLIP.h" />
-    <Content Include="Resources\CPP\PacketCommunicationSLIPBuffered.cpp" />
-    <Content Include="Resources\CPP\PacketCommunicationSLIPBuffered.hpp" />
-    <Content Include="Resources\CPP\PacketReantrant.h" />
-    <Content Include="Resources\CPP\PCString.cpp" />
-    <Content Include="Resources\CPP\PCString.h" />
-    <Content Include="Resources\CPP\PCStringVar.cpp" />
-    <Content Include="Resources\CPP\PCStringVar.h" />
-    <Content Include="Resources\CPP\SignalSlot.h" />
-    <Content Include="Resources\CRC.c" />
-    <Content Include="Resources\CRC.cpp" />
-    <Content Include="Resources\CRC.h" />
-    <Content Include="Resources\C\PacketCommunication.c" />
-    <Content Include="Resources\C\PacketCommunication.h" />
-    <Content Include="Resources\C\PacketCommunicationReport.c" />
-    <Content Include="Resources\C\PacketCommunicationReport.h" />
-    <Content Include="Resources\C\PacketCommunicationSLIP.c" />
-    <Content Include="Resources\C\PacketCommunicationSLIP.h" />
-    <Content Include="Resources\C\PCString.c" />
-    <Content Include="Resources\C\PCString.h" />
-    <Content Include="Resources\MCPP\PacketCommunicationUART.cpp" />
-    <Content Include="Resources\MCPP\PacketCommunicationUART.h" />
-    <Content Include="Resources\MCPP\PacketCommunication.cpp" />
-    <Content Include="Resources\MCPP\PacketCommunication.h" />
-    <Content Include="Resources\MCPP\PacketCommunicationReport.cpp" />
-    <Content Include="Resources\MCPP\PacketCommunicationReport.h" />
-    <Content Include="Resources\MCPP\PacketCommunicationSLIP.cpp" />
-    <Content Include="Resources\MCPP\PacketCommunicationSLIP.h" />
-    <Content Include="Resources\MCPP\PCString.cpp" />
-    <Content Include="Resources\MCPP\PCString.h" />
-    <Content Include="Resources\MCPP\PCStringVar.cpp" />
-    <Content Include="Resources\MCPP\PCStringVar.h" />
-    <Content Include="Resources\PacketCommunicationConfig.h" />
-    <Content Include="Resources\PacketCommunicationDefines.h" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="interface.int" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

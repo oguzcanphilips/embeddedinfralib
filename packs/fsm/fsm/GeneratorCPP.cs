@@ -32,6 +32,8 @@ namespace FSM
             file.WriteLine("#ifndef " + tag);
             file.WriteLine("#define " + tag);
             file.WriteLine();
+            file.WriteLine("namespace fsm");
+            file.WriteLine("{");
             file.WriteLine("class " + mConfig.Name);
             file.WriteLine("{");
             file.WriteLine("protected:");
@@ -98,8 +100,9 @@ namespace FSM
                 file.WriteLine("  void AddEvent(EventFunc* ev);");
                 file.WriteLine("  void ProcessEvents();");
             }
-            file.WriteLine("  bool mIsProcessingEvents;"); 
+            file.WriteLine("  bool mIsProcessingEvents;");
             file.WriteLine("};");
+            file.WriteLine("}");
             file.WriteLine();
             file.WriteLine("#endif");
         }
@@ -116,6 +119,8 @@ namespace FSM
             file.WriteLine("  extern void DebugFSM(const char* txt);"); ;
             file.WriteLine("#endif");
             file.WriteLine();
+            file.WriteLine("namespace fsm");
+            file.WriteLine("{");
             file.WriteLine(scope + mConfig.Name + "()");
             file.WriteLine(": currentState("+StateName("Unknown")+")");
             if (!mConfig.UseAssert)
@@ -238,6 +243,7 @@ namespace FSM
             {
                 file.WriteLine("  ProcessEvents();");
             }
+            file.WriteLine("}");
             file.WriteLine("}");
         }
     }

@@ -31,7 +31,7 @@ class PWMEvents
       mChannel[channel] = value;
     }
 public:
-    SLOT<PWMEvents, uint8_t, uint16_t> PwmUpdateSlot;
+    infra::Slot<PWMEvents, uint8_t, uint16_t> PwmUpdateSlot;
     PWMEvents(erpc::PWMProxy& p) : PwmUpdateSlot(this, &PWMEvents::PwmUpdate)
     {
         p.PwmUpdateSignal += PwmUpdateSlot;

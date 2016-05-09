@@ -3,7 +3,7 @@
 #include "Generated\TestCheckerFSM.hpp"
 #include <string>
 
-class Tester : public TestFSM
+class Tester : public fsm::TestFSM
 {
 public:
 
@@ -37,7 +37,7 @@ protected:
     }
 };
 
-class TestChecker : public TestCheckerFSM
+class TestChecker : public fsm::TestCheckerFSM
 {
 public:
 
