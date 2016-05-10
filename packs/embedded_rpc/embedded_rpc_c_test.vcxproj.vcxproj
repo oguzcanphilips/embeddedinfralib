@@ -70,8 +70,8 @@
     <PreBuildEvent>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Command>cd $(ProjectDir)$(ProjectName) &amp;&amp; $(OutputPath)InterfaceCodeGen.exe interface.int Generated</Command>
-      <Message>Build: InterfaceCodeGen interface.int</Message>
+      <Command>cd $(ProjectDir)$(ProjectName) &amp;&amp; $(OutputPath)embedded_rpc_codegen.exe interface.int Generated</Command>
+      <Message>Build: embedded_rpc_codegen interface.int</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -100,8 +100,8 @@
     <PreBuildEvent>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Command>cd $(ProjectDir)$(ProjectName) &amp;&amp; $(OutputPath)InterfaceCodeGen.exe interface.int Generated</Command>
-      <Message>Build: InterfaceCodeGen interface.int</Message>
+      <Command>cd $(ProjectDir)$(ProjectName) &amp;&amp; $(OutputPath)embedded_rpc_codegen.exe interface.int Generated</Command>
+      <Message>Build: embedded_rpc_codegen interface.int</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
