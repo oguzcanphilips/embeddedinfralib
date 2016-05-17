@@ -1,12 +1,12 @@
 #ifndef BUFFERED_PACKET_COMMUNICATION_HPP
 #define BUFFERED_PACKET_COMMUNICATION_HPP
 
-#include "PacketCommunication.hpp"
+#include "PacketCommunicationBin.hpp"
 
 namespace erpc
 {
     class PacketCommunicationBufferedReceive
-        : public PacketCommunication
+        : public PacketCommunicationBin
     {
     public:
         class CyclicBuffer

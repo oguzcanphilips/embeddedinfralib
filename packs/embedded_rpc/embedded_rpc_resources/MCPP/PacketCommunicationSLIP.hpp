@@ -25,8 +25,8 @@ namespace erpc
         virtual void Stop() override;
         virtual void ProcessReceive() override;
         virtual bool IsPacketEnded() override;
-        virtual void PacketStart() override;
-        virtual void PacketEnd() override;
+        virtual void PacketStartToken() override;
+        virtual void PackedEndToken() override;
         virtual void WriteByte(uint8_t v) override;
         virtual bool ReadByte(uint8_t% v) override;
     private:

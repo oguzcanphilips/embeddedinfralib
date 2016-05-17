@@ -10,13 +10,13 @@ namespace TestCommunicationMCCP
     {
         public List<UInt16> mPacket = new List<UInt16>();
         public List<byte> mPacketRet = new List<byte>();
-        public override void PacketEnd()
+        public override void PackedEndToken()
         {
             mPacket.Add(0x101);
             Start();
         }
 
-        public override void PacketStart()
+        public override void PacketStartToken()
         {
             mPacket.Add(0x100);
         }

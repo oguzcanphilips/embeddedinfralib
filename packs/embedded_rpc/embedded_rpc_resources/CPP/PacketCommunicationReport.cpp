@@ -27,7 +27,7 @@ namespace erpc
         return IsLastReadReport() && (mReadRemain == 0);
     }
 
-    void PacketCommunicationReportBase::PacketEnd()
+    void PacketCommunicationReportBase::PackedEndToken()
     {
         mWrBuffer[0] |= IS_LAST_REPORT_MASK;
         SendReport();
@@ -92,7 +92,7 @@ namespace erpc
         return true;
     }
 
-    void PacketCommunicationReportBase::PacketStart()
+    void PacketCommunicationReportBase::PacketStartToken()
     {
         mWrBuffer[0] = IS_FIRST_REPORT_MASK;
         mWr = mHeaderSize;

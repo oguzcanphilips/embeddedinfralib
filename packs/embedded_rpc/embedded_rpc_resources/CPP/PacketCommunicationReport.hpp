@@ -1,7 +1,7 @@
 #ifndef PACKETCOMMUNICATIONREPORT_HPP
 #define PACKETCOMMUNICATIONREPORT_HPP
 
-#include "PacketCommunication.hpp"
+#include "PacketCommunicationBin.hpp"
 
 namespace erpc
 {
@@ -12,13 +12,13 @@ namespace erpc
         virtual bool Receive(uint8_t* v) = 0;
     };
 
-    class PacketCommunicationReportBase : public PacketCommunication
+    class PacketCommunicationReportBase : public PacketCommunicationBin
     {
     public:
         void ProcessReceive();
         bool IsPacketEnded();
-        void PacketStart();
-        void PacketEnd();
+        void PacketStartToken();
+        void PackedEndToken();
         void WriteByte(uint8_t data);
         bool ReadByte(uint8_t& v);
     protected:

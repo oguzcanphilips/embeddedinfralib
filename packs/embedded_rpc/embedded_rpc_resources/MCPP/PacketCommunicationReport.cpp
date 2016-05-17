@@ -33,13 +33,13 @@ namespace erpc
         return IsLastReadReport() && (mReadRemain == 0);
     }
 
-    void PacketCommunicationReport::PacketStart()
+    void PacketCommunicationReport::PacketStartToken()
     {
         mWrBuffer[0] = IS_FIRST_REPORT_MASK;
         mWr = mHeaderSize;
     }
 
-    void PacketCommunicationReport::PacketEnd()
+    void PacketCommunicationReport::PackedEndToken()
     {
         mWrBuffer[0] |= IS_LAST_REPORT_MASK;
         SendReport();

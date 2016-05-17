@@ -17,6 +17,7 @@ namespace erpc
 
     class PacketCommunication
     {
+        friend class PacketCommunicationBin;
         friend class Callback;
     public:
         class Callback
@@ -34,8 +35,9 @@ namespace erpc
             uint32_t registerMask;
             Callback* mNext;
         };
-
+    private:
         PacketCommunication();
+    public:
         virtual ~PacketCommunication();
         void Link(PacketCommunication& link);
         void Register(Callback& callback);
@@ -43,36 +45,36 @@ namespace erpc
 
         virtual void ProcessReceive() = 0;
         virtual bool IsPacketEnded() = 0;
-        virtual void PacketStart() = 0;
-        virtual void PacketEnd() = 0;
+        virtual void PacketStartToken() = 0;
+        virtual void PackedEndToken() = 0;
         virtual void HandleReceiveError();
 
-        void PacketStart(uint8_t interfaceId, uint8_t functionId);
-        void PacketDone();
-        bool ReadDone();
+        virtual void PacketStart(uint8_t interfaceId, uint8_t functionId) = 0;
+        virtual void PacketDone() = 0;
+        virtual bool ReadDone() = 0;
 
         virtual void WriteByte(uint8_t data) = 0;
         virtual bool ReadByte(uint8_t& v) = 0;
 
-        void Write(uint8_t v);
-        void Write(uint16_t v);
-        void Write(uint32_t v);
-        void Write(int8_t v);
-        void Write(int16_t v);
-        void Write(int32_t v);
-        void Write(bool v);
-        void Write(const Serialize& obj);
-        void Write(const uint8_t* data, uint16_t len);
+        virtual void Write(uint8_t v) = 0;
+        virtual void Write(uint16_t v) = 0;
+        virtual void Write(uint32_t v) = 0;
+        virtual void Write(int8_t v) = 0;
+        virtual void Write(int16_t v) = 0;
+        virtual void Write(int32_t v) = 0;
+        virtual void Write(bool v) = 0;
+        virtual void Write(const Serialize& obj) = 0;
+        virtual void Write(const uint8_t* data, uint16_t len) = 0;
 
-        bool Read(uint8_t& v);
-        bool Read(uint16_t& v);
-        bool Read(uint32_t& v);
-        bool Read(int8_t& v);
-        bool Read(int16_t& v);
-        bool Read(int32_t& v);
-        bool Read(bool& v);
-        bool Read(Serialize& obj);
-        bool Read(uint8_t* data, uint16_t len);
+        virtual bool Read(uint8_t& v) = 0;
+        virtual bool Read(uint16_t& v) = 0;
+        virtual bool Read(uint32_t& v) = 0;
+        virtual bool Read(int8_t& v) = 0;
+        virtual bool Read(int16_t& v) = 0;
+        virtual bool Read(int32_t& v) = 0;
+        virtual bool Read(bool& v) = 0;
+        virtual bool Read(Serialize& obj) = 0;
+        virtual bool Read(uint8_t* data, uint16_t len) = 0;
 
         class FunctionScope
         {
@@ -111,10 +113,9 @@ namespace erpc
         virtual void EventReceiveDoneWait(){}
     protected:
         void Receive();
+        virtual bool ReadInterfaceId(uint8_t& id) = 0;
     private:
         static void Remove(Callback* callback);
-        void WriteInternal(uint8_t v);
-        bool ReadInternal(uint8_t& v);
 
         static uint32_t UsedIdMasks;
         static uint32_t ObtainIdMask();
@@ -123,14 +124,6 @@ namespace erpc
 
         const uint32_t mIdMask;
 
-#ifdef VALIDATION_CRC
-        uint16_t mCrcWr;
-        uint16_t mCrcRd;
-#endif
-#ifdef VALIDATION_CHECKSUM
-        uint8_t mChecksumWr;
-        uint8_t mChecksumRd;
-#endif
         PacketCommunication* mLink;
     };
 }

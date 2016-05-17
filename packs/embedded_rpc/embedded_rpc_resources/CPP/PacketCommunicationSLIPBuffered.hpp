@@ -13,8 +13,8 @@ namespace erpc
 
         void ReceivedSlipByte(uint8_t data);
 
-        virtual void PacketStart() override;
-        virtual void PacketEnd() override;
+        virtual void PacketStartToken() override;
+        virtual void PackedEndToken() override;
         virtual void WriteByte(uint8_t data) override;
 
     protected:

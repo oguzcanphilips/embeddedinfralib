@@ -20,8 +20,8 @@ public:
             , bufferFullDetected(false)
         {}
 
-        virtual void PacketStart() override {}
-        virtual void PacketEnd() override {}
+        virtual void PacketStartToken() override {}
+        virtual void PackedEndToken() override {}
         virtual void WriteByte(uint8_t data) override {}
 
         virtual void ProcessReceive() override {}

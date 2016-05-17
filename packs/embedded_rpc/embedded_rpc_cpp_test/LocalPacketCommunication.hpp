@@ -3,10 +3,10 @@
 
 #include "infra\threading\public\Thread.hpp"
 #include "infra\threading\public\Lock.hpp"
-#include "PacketCommunication.hpp"
+#include "PacketCommunicationBin.hpp"
 #include <list>
 
-class LocalPacketCommunication : public erpc::PacketCommunication
+class LocalPacketCommunication : public erpc::PacketCommunicationBin
 {
   enum
   {
@@ -47,13 +47,13 @@ public:
   {
       return true;
   }
-  void PacketStart()
+  void PacketStartToken()
   {
     infra::Lock::ScopedLock lock(mLink->mLock);
     mLink->mBuffer.push_back(StartToken);
   }
 
-  void PacketEnd()
+  void PackedEndToken()
   {
     mLink->ProcessReceive();
   }

@@ -16,7 +16,7 @@ void Serial2Write(uint8_t data)
     buffer[wrIndex++] =  data;
     
     // trigger receive. Only needed for testing.
-    if(data==SLIP_END)//PacketEnd
+    if(data==SLIP_END)//PackedEndToken
     {
         pcomm->ProcessReceive(pcomm->self);
     }

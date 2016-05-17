@@ -108,6 +108,9 @@
     <ClInclude Include="embedded_rpc_cpp_test\Generated\CPP\TestSkeleton.hpp">
       <Filter>Generated\CPP</Filter>
     </ClInclude>
+    <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunicationBin.hpp">
+      <Filter>Resources\CPP</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="embedded_rpc_cpp_test\interface.int" />
@@ -181,6 +184,9 @@
     </ClCompile>
     <ClCompile Include="embedded_rpc_cpp_test\Generated\CPP\TestSkeleton.cpp">
       <Filter>Generated\CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunicationBin.cpp">
+      <Filter>Resources\CPP</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

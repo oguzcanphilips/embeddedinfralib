@@ -35,12 +35,12 @@ namespace erpc
         return ReadInternal() == SLIP_END;
     }
 
-    void PacketCommunicationSLIP::PacketStart()
+    void PacketCommunicationSLIP::PacketStartToken()
     {
         Send(SLIP_BEGIN);
     }
 
-    void PacketCommunicationSLIP::PacketEnd()
+    void PacketCommunicationSLIP::PackedEndToken()
     {
         Send(SLIP_END);
     }

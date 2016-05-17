@@ -42,8 +42,8 @@ namespace erpc
 
         virtual void ProcessReceive() = 0;
         virtual bool IsPacketEnded() = 0;
-        virtual void PacketStart() = 0;
-        virtual void PacketEnd() = 0;
+        virtual void PacketStartToken() = 0;
+        virtual void PackedEndToken() = 0;
         bool ReadDone();
 
         void PacketStart(uint8_t interfaceId, uint8_t functionId);

@@ -114,6 +114,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunication.hpp" />
+    <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunicationBin.hpp" />
     <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunicationBufferedReceive.hpp" />
     <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunicationReport.hpp" />
     <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunicationReportBuffered.hpp" />
@@ -155,6 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunication.cpp" />
+    <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunicationBin.cpp" />
     <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunicationBufferedReceive.cpp" />
     <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunicationReport.cpp" />
     <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunicationReportBuffered.cpp" />

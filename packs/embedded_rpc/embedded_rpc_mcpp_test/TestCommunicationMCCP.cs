@@ -82,12 +82,12 @@ namespace TestCommunicationMCCP
             SerialStub serial = new SerialStub();
             erpc.PacketCommunicationSLIP pc = new erpc.PacketCommunicationSLIP(serial);
             pc.Stop();
-            pc.PacketStart();
+            pc.PacketStartToken();
             for (int i = 0; i <= 255; i++)
             {
                 pc.WriteByte((byte) i);
             }
-            pc.PacketEnd();
+            pc.PackedEndToken();
 
             pc.ProcessReceive(); // find begin and reads one byte
             for (int i = 1; i <= 255; i++)
@@ -104,12 +104,12 @@ namespace TestCommunicationMCCP
             ReportStub report = new ReportStub(4);
             erpc.PacketCommunicationReport pc = new erpc.PacketCommunicationReport(report);
             pc.Stop();
-            pc.PacketStart();
+            pc.PacketStartToken();
             for (int i = 0; i <= 255; i++)
             {
                 pc.WriteByte((byte)i);
             }
-            pc.PacketEnd();
+            pc.PackedEndToken();
 
             pc.ProcessReceive(); // find begin and reads one byte
             for (int i = 1; i <= 255; i++)

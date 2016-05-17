@@ -24,7 +24,7 @@ namespace erpc
         return ReadInternal() == SLIP_END;
     }
 
-    void PacketCommunicationSLIP::PacketEnd()
+    void PacketCommunicationSLIP::PackedEndToken()
     {
         mSerialIO.Send(SLIP_END);
     }
@@ -70,7 +70,7 @@ namespace erpc
             return SLIP_END;
     }
 
-    void PacketCommunicationSLIP::PacketStart()
+    void PacketCommunicationSLIP::PacketStartToken()
     {
         mSerialIO.Send(SLIP_BEGIN);
     }
