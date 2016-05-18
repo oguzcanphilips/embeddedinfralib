@@ -52,12 +52,12 @@ namespace erpc
         }
     }
 
-    void PacketCommunicationSLIPBufferedReceive::PacketStartToken()
+    void PacketCommunicationSLIPBufferedReceive::WriteStartToken()
     {
         WriteSlipByte(SLIP_BEGIN);
     }
 
-    void PacketCommunicationSLIPBufferedReceive::PackedEndToken()
+    void PacketCommunicationSLIPBufferedReceive::WriteEndToken()
     {
         WriteSlipByte(SLIP_END);
     }

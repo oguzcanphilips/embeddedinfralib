@@ -36,8 +36,8 @@ namespace erpc
         bool Read(uint8_t* data, uint16_t len) override;
         
     protected:
-        virtual void PacketStartToken() = 0;
-        virtual void PackedEndToken() = 0;
+        virtual void WriteStartToken() = 0;
+        virtual void WriteEndToken() = 0;
 
         bool ReadStartToken(uint8_t& interfaceId) override;
         void ForwardReceive(uint8_t interfaceId);

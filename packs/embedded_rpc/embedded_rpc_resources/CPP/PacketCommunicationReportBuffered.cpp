@@ -13,13 +13,13 @@ namespace erpc
     {
     }
 
-    void PacketCommunicationReportBuffered::PacketStartToken()
+    void PacketCommunicationReportBuffered::WriteStartToken()
     {
         sendIndex = REPORT_HEADER_SIZE(reportSize);
         sendBuffer[0] = IS_FIRST_REPORT_MASK;
     }
 
-    void PacketCommunicationReportBuffered::PackedEndToken()
+    void PacketCommunicationReportBuffered::WriteEndToken()
     {
         sendBuffer[0] |= IS_LAST_REPORT_MASK;
         SendReport();

@@ -50,12 +50,12 @@ TEST_F(PacketCommunicationReportBufferedFixture, SendMessage)
 {
 	CommCallbackMock callback(packetCommReport, 0, 2);
 
-    packetCommReport.PacketStartToken();
+    packetCommReport.WriteStartToken();
     for (uint8_t i = 0; i < 25; ++i)
     {
         packetCommReport.WriteByte(i);
     }
-    packetCommReport.PackedEndToken();
+    packetCommReport.WriteEndToken();
     ASSERT_EQ(2, packetCommReport.writtenReports.size());
     
     std::vector<uint8_t> report1 = packetCommReport.writtenReports.front();

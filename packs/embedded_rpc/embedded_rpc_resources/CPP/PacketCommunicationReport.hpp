@@ -17,8 +17,8 @@ namespace erpc
     public:
         void ProcessReceive();
         bool IsPacketEnded();
-        void PacketStartToken();
-        void PackedEndToken();
+        void WriteStartToken();
+        void WriteEndToken();
         void WriteByte(uint8_t data);
         bool ReadByte(uint8_t& v);
     protected:

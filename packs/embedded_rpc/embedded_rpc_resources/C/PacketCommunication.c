@@ -127,7 +127,7 @@ void PacketCommunication_PacketStart_InterfaceFunction(PacketCommunicationDefini
 #ifdef VALIDATION_CHECKSUM
     self->checksumWr = 0;
 #endif
-    self->PacketStartToken(self->self);
+    self->WriteStartToken(self->self);
     WriteInternal(self, interfaceId);
     WriteInternal(self, functionId);
 }
@@ -142,7 +142,7 @@ void PacketCommunication_PacketDone_InterfaceFunction(PacketCommunicationDefinit
 #ifdef VALIDATION_CHECKSUM
     self->WriteByte(self->self, self->checksumWr);
 #endif
-    self->PackedEndToken(self->self);
+    self->WriteEndToken(self->self);
 }
 
 void PacketCommunication_Write_uint8_t(PacketCommunicationDefinition_t* self, uint8_t v)
@@ -290,13 +290,13 @@ void PacketCommunication_Receive(PacketCommunicationDefinition_t* self)
         PacketCommunicationDefinition_t* linked = self->link;
         uint8_t data;
 
-        linked->PacketStartToken(linked);
+        linked->WriteStartToken(linked);
         linked->WriteByte(linked, interfaceId);
         while(self->ReadByte(self, &data))
         {
             linked->WriteByte(linked, data);
         }
-        linked->PackedEndToken(linked);
+        linked->WriteEndToken(linked);
     }
 }
 

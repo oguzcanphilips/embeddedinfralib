@@ -59,7 +59,7 @@ static bool IsPacketEnded(void* self)
     return IsLastReport(me->mRdBuffer) && (me->mReadRemain == 0);
 }
 
-static void PackedEndToken(void* self)
+static void WriteEndToken(void* self)
 {
     PacketCommunicationReport_t* me = (PacketCommunicationReport_t*)self;
     me->mWrBuffer[0] |= IS_LAST_REPORT_MASK;
@@ -95,7 +95,7 @@ static bool ReadByte(void* self, uint8_t* v)
     return true;
 }
 
-static void PacketStartToken(void* self)
+static void WriteStartToken(void* self)
 {
     PacketCommunicationReport_t* me = (PacketCommunicationReport_t*)self;
     me->mWrBuffer[0] = IS_FIRST_REPORT_MASK;
@@ -122,8 +122,8 @@ void CreatePacketCommunicationReportIntern(PacketCommunicationReport_t* definiti
 
     definition->packetCommunication.ProcessReceive = ProcessReceive;
 	definition->packetCommunication.IsPacketEnded = IsPacketEnded;
-    definition->packetCommunication.PacketStartToken = PacketStartToken;
-    definition->packetCommunication.PackedEndToken = PackedEndToken;
+    definition->packetCommunication.WriteStartToken = WriteStartToken;
+    definition->packetCommunication.WriteEndToken = WriteEndToken;
     definition->packetCommunication.HandleReceiveError = HandleReceiveError;
     definition->packetCommunication.WriteByte = WriteByte;
     definition->packetCommunication.ReadByte = ReadByte;

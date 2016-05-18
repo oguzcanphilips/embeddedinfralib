@@ -30,7 +30,7 @@ static bool IsPacketEnded(void* self)
     return ReadInternal(self) == SLIP_END;
 }
 
-static void PackedEndToken(void* self)
+static void WriteEndToken(void* self)
 {
     PacketCommunicationSlip_t* me = (PacketCommunicationSlip_t*)self;
     me->SerialSend(SLIP_END);
@@ -69,7 +69,7 @@ static bool ReadByte(void* self, uint8_t* v)
   return true;
 }
 
-static void PacketStartToken(void* self)
+static void WriteStartToken(void* self)
 {
     PacketCommunicationSlip_t* me = (PacketCommunicationSlip_t*)self;
     me->SerialSend(SLIP_BEGIN);
@@ -92,8 +92,8 @@ void CreatePacketCommunicationSlip(PacketCommunicationSlip_t* definition, void (
 
     definition->packetCommunication.ProcessReceive = ProcessReceive;
 	definition->packetCommunication.IsPacketEnded = IsPacketEnded;
-    definition->packetCommunication.PacketStartToken = PacketStartToken;
-    definition->packetCommunication.PackedEndToken = PackedEndToken;
+    definition->packetCommunication.WriteStartToken = WriteStartToken;
+    definition->packetCommunication.WriteEndToken = WriteEndToken;
     definition->packetCommunication.HandleReceiveError = HandleReceiveError;
     definition->packetCommunication.WriteByte = WriteByte;
     definition->packetCommunication.ReadByte = ReadByte;

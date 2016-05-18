@@ -12,8 +12,8 @@ namespace erpc
             uint8_t* receiveBufferStart, uint8_t* receiveBufferEnd,
             uint8_t* sendBuffer, uint16_t reportSize);
 
-        virtual void PacketStartToken();
-        virtual void PackedEndToken();
+        virtual void WriteStartToken();
+        virtual void WriteEndToken();
         virtual void WriteByte(uint8_t data);
 
     protected:

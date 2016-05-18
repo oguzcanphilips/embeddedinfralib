@@ -354,7 +354,7 @@ TEST(TestCommunicationCPP, Comm1KeepsCallbacksIfComm2Destructed)
     delete comm2;
 
     comm1->Link(comm1);
-    comm1->PacketStartToken();
+    comm1->WriteStartToken();
     comm1->WriteByte(interfaceId);
     comm1->ProcessReceive();
 

@@ -47,13 +47,13 @@ public:
   {
       return true;
   }
-  void PacketStartToken()
+  void WriteStartToken()
   {
     infra::Lock::ScopedLock lock(mLink->mLock);
     mLink->mBuffer.push_back(StartToken);
   }
 
-  void PackedEndToken()
+  void WriteEndToken()
   {
     mLink->ProcessReceive();
   }

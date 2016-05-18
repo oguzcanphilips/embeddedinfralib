@@ -176,7 +176,7 @@ namespace erpc
 #ifdef VALIDATION_CHECKSUM
         mChecksumWr = 0;
 #endif
-        PacketStartToken();
+        WriteStartToken();
         WriteInternal(interfaceId);
         WriteInternal(functionId);
     }
@@ -190,7 +190,7 @@ namespace erpc
 #ifdef VALIDATION_CHECKSUM
         WriteByte(mChecksumWr);
 #endif
-        PackedEndToken();
+        WriteEndToken();
     }
 
     bool PacketCommunicationBin::ReadDone()
@@ -224,12 +224,12 @@ namespace erpc
         if (mLink == nullptr) 
             return;
 
-        mLink->PacketStartToken();
+        mLink->WriteStartToken();
         mLink->WriteByte(interfaceId);
         
         uint8_t data;
         while (Read(data))
             mLink->WriteByte(data);
-        mLink->PackedEndToken();
+        mLink->WriteEndToken();
     }
 }

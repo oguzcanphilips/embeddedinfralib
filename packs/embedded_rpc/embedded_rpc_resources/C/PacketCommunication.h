@@ -18,8 +18,8 @@ typedef struct PacketCommunicationDefinition
 {
     void (*ProcessReceive)(    void* self);
     bool (*IsPacketEnded)(     void* self);	
-    void (*PacketStartToken)(  void* self);
-    void (*PackedEndToken)(         void* self);
+    void (*WriteStartToken)(  void* self);
+    void (*WriteEndToken)(         void* self);
     void (*HandleReceiveError)(void* self);
     void (*WriteByte)(         void* self, uint8_t v);
     bool (*ReadByte)(          void* self, uint8_t* v);

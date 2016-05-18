@@ -6,7 +6,7 @@
 class LocalPacketCommunicationMT : public LocalPacketCommunication
 {
 public:
-  void PackedEndToken()
+  void WriteEndToken()
   {
   }
 };

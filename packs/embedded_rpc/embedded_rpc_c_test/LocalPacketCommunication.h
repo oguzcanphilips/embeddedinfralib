@@ -44,13 +44,13 @@ public:
     Receive();
   }
 
-  void PacketStartToken()
+  void WriteStartToken()
   {
     Lock::ScopedLock lock(mLink->mLock);
     mLink->mBuffer.push_back(StartToken);
   }
 
-  void PackedEndToken()
+  void WriteEndToken()
   {
     mLink->ProcessReceive();
   }

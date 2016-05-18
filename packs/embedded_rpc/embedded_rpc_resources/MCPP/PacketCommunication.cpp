@@ -80,7 +80,7 @@ namespace erpc
 #ifdef VALIDATION_CHECKSUM
         mChecksumWr = 0;
 #endif
-        PacketStartToken();
+        WriteStartToken();
         WriteInternal(interfaceId);
         WriteInternal(functionId);
     }
@@ -94,7 +94,7 @@ namespace erpc
 #ifdef VALIDATION_CHECKSUM
         WriteByte(mChecksumWr);
 #endif
-        PackedEndToken();
+        WriteEndToken();
     }
 
     bool PacketCommunication::ReadInternal(uint8_t% v)
