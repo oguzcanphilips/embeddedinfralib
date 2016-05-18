@@ -8,17 +8,15 @@
 namespace erpc
 {
     PacketCommunicationBin::PacketCommunicationBin()
-        : PacketCommunication()
-#ifdef VALIDATION_CRC
-        , mCrcWr(0)
-        , mCrcRd(0)
-#endif
-#ifdef VALIDATION_CHECKSUM
-        , mChecksumWr(0)
-        , mChecksumRd(0)
-#endif
     {
     }
+
+    void PacketCommunicationBin::Link(PacketCommunicationBin& link)
+    {
+        mLink = &link;
+        link.mLink = this;
+    }
+    
     void PacketCommunicationBin::Write(uint8_t v)
     {
         WriteInternal(v);
@@ -210,7 +208,7 @@ namespace erpc
 #endif
     }
 
-    bool PacketCommunicationBin::ReadInterfaceId(uint8_t& id)
+    bool PacketCommunicationBin::ReadStartToken(uint8_t& interfaceId)
     {
 #ifdef VALIDATION_CRC
         mCrcRd = 0;
@@ -218,6 +216,20 @@ namespace erpc
 #ifdef VALIDATION_CHECKSUM
         mChecksumRd = 0;
 #endif
-        return Read(id);
+        return Read(interfaceId);
+    }
+
+    void PacketCommunicationBin::ForwardReceive(uint8_t interfaceId)
+    {
+        if (mLink == nullptr) 
+            return;
+
+        mLink->PacketStartToken();
+        mLink->WriteByte(interfaceId);
+        
+        uint8_t data;
+        while (Read(data))
+            mLink->WriteByte(data);
+        mLink->PackedEndToken();
     }
 }

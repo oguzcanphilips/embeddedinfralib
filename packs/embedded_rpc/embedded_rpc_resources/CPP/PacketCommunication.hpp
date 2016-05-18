@@ -17,7 +17,6 @@ namespace erpc
 
     class PacketCommunication
     {
-        friend class PacketCommunicationBin;
         friend class Callback;
     public:
         class Callback
@@ -35,19 +34,13 @@ namespace erpc
             uint32_t registerMask;
             Callback* mNext;
         };
-    private:
         PacketCommunication();
-    public:
         virtual ~PacketCommunication();
-        void Link(PacketCommunication& link);
         void Register(Callback& callback);
         void Unregister(Callback& callback);
 
         virtual void ProcessReceive() = 0;
         virtual bool IsPacketEnded() = 0;
-        virtual void PacketStartToken() = 0;
-        virtual void PackedEndToken() = 0;
-        virtual void HandleReceiveError();
 
         virtual void PacketStart(uint8_t interfaceId, uint8_t functionId) = 0;
         virtual void PacketDone() = 0;
@@ -75,6 +68,8 @@ namespace erpc
         virtual bool Read(bool& v) = 0;
         virtual bool Read(Serialize& obj) = 0;
         virtual bool Read(uint8_t* data, uint16_t len) = 0;
+
+        virtual void HandleReceiveError();
 
         class FunctionScope
         {
@@ -112,8 +107,9 @@ namespace erpc
         virtual void EventReceiveDoneReset(){}
         virtual void EventReceiveDoneWait(){}
     protected:
+        virtual bool ReadStartToken(uint8_t& interfaceId) = 0;
         void Receive();
-        virtual bool ReadInterfaceId(uint8_t& id) = 0;
+        virtual void ForwardReceive(uint8_t interfaceId);
     private:
         static void Remove(Callback* callback);
 
@@ -123,8 +119,6 @@ namespace erpc
         static Callback* Callbacks;
 
         const uint32_t mIdMask;
-
-        PacketCommunication* mLink;
     };
 }
 #endif

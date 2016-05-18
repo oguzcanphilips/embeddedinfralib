@@ -8,19 +8,12 @@ namespace erpc
 
     PacketCommunication::PacketCommunication()
         : mIdMask(ObtainIdMask())
-        , mLink(0)
     {
     }
 
     PacketCommunication::~PacketCommunication()
     {
         ReleaseIdMask(mIdMask);
-    }
-
-    void PacketCommunication::Link(PacketCommunication& link)
-    {
-        mLink = &link;
-        link.mLink = this;
     }
 
     uint32_t PacketCommunication::ObtainIdMask()
@@ -94,31 +87,22 @@ namespace erpc
     void PacketCommunication::Receive()
     {
         uint8_t interfaceId;
-        if (!ReadInterfaceId(interfaceId))
+        if (!ReadStartToken(interfaceId))
             return;
 
         for (Callback* it = Callbacks; it; it = it->mNext)
         {
-            if (it->mInterfaceId == interfaceId)
+            if (it->mInterfaceId == interfaceId && 
+                it->registerMask & mIdMask)
             {
-                if (it->registerMask & mIdMask)
-                {
-                    it->Receive(*this);
-                    return;
-                }
+                it->Receive(*this);
+                return;
             }
         }
-        // not handled, forward to link
-        if (mLink)
-        {
-            mLink->PacketStartToken();
-            mLink->WriteByte(interfaceId);
-            uint8_t data;
-            while (Read(data))
-            {
-                mLink->WriteByte(data);
-            }
-            mLink->PackedEndToken();
-        }
+        ForwardReceive(interfaceId);
+    }
+ 
+    void PacketCommunication::ForwardReceive(uint8_t interfaceId)
+    {
     }
 }

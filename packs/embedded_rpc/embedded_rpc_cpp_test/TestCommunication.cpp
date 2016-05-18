@@ -270,31 +270,31 @@ TEST(TestCommunication, Report2)
 
 TEST(TestCommunication, Forward)
 {
-  SerialLocal serialA;
-  SerialLocal serialB;
-  serialA.Link(&serialB);
-  
-  ReportLocal reportA(4);
-  ReportLocal reportB(4);
-  reportA.Link(&reportB);
+    SerialLocal serialA;
+    SerialLocal serialB;
+    serialA.Link(&serialB);
 
-  erpc::PacketReantrant<erpc::PacketCommunicationSLIP> pcomm1(1000, serialA);
-  erpc::PacketReantrant<erpc::PacketCommunicationSLIP> pcomm2(1000, serialB);
-  erpc::PacketReantrant<erpc::PacketCommunicationReport<4> > pcomm3(1000, reportA);
-  erpc::PacketReantrant<erpc::PacketCommunicationReport<4> > pcomm4(1000, reportB);
+    ReportLocal reportA(4);
+    ReportLocal reportB(4);
+    reportA.Link(&reportB);
 
-  pcomm2.Link(pcomm3);
-  
-  TestImpl     impl;
-  erpc::TestSkeleton skeleton;
-  skeleton.SetImpl(impl);
-  pcomm4.Register(skeleton);
+    erpc::PacketReantrant<erpc::PacketCommunicationSLIP> pcomm1(1000, serialA);
+    erpc::PacketReantrant<erpc::PacketCommunicationSLIP> pcomm2(1000, serialB);
+    erpc::PacketReantrant<erpc::PacketCommunicationReport<4> > pcomm3(1000, reportA);
+    erpc::PacketReantrant<erpc::PacketCommunicationReport<4> > pcomm4(1000, reportB);
 
-  erpc::TestProxy proxy(pcomm1);
+    pcomm2.Link(pcomm3);
 
-  pcomm1.Start();
-  pcomm2.Start();
-  pcomm3.Start();
-  pcomm4.Start();
-  ASSERT_EQ(1000, proxy.DoubleOutput(500));
+    TestImpl     impl;
+    erpc::TestSkeleton skeleton;
+    skeleton.SetImpl(impl);
+    pcomm4.Register(skeleton);
+
+    erpc::TestProxy proxy(pcomm1);
+
+    pcomm1.Start();
+    pcomm2.Start();
+    pcomm3.Start();
+    pcomm4.Start();
+    ASSERT_EQ(1000, proxy.DoubleOutput(500));
 }
