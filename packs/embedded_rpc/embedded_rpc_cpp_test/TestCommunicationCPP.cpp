@@ -1,14 +1,14 @@
 #include "gtest/gtest.h"
 
+#include "BarImpl.hpp"
+#include "FooImpl.hpp"
 #include "infra\threading\public\Lock.hpp"
 #include "infra\threading\public\Thread.hpp"
 #include "Generated\CPP\IPWM.hpp"
 #include "Generated\CPP\PWMProxy.hpp"
 #include "Generated\CPP\PWMSkeleton.hpp"
-#include "Generated\CPP\IFoo.hpp"
 #include "Generated\CPP\FooProxy.hpp"
 #include "Generated\CPP\FooSkeleton.hpp"
-#include "Generated\CPP\IBar.hpp"
 #include "Generated\CPP\BarProxy.hpp"
 #include "Generated\CPP\BarSkeleton.hpp"
 #include "Generated\CPP\TestProxy.hpp"
@@ -17,71 +17,8 @@
 #include "LocalPacketCommunicationMT.hpp"
 #include "PacketReantrant.hpp"
 #include "PWMSupport.hpp"
-#include "TestSupport.hpp"
+#include "TestImpl.hpp"
 #include <list>
-
-class BarImpl : public erpc::IBar
-{
-public:
-  erpc::KeyId mKid;
-  void SetKeyId(const erpc::KeyId& v)
-  {
-      mKid = v;
-  }
-  erpc::KeyId GetKeyId()
-  {
-      return mKid;
-  }
-  void SetGetKeyId(erpc::KeyId& kid)
-  {
-      erpc::KeyId tmp = mKid;
-      mKid = kid;
-      kid = tmp;
-  }
-};
-
-class FooImpl : public erpc::IFoo
-{
-public:
-    erpc::Array mData;
-    void DoThis(const erpc::Array& array)
-  {
-    mData = array;
-  }
-  uint32_t DoThat(uint32_t i)
-  {
-    return i*2;
-  }
-  erpc::PCString UpperCase(const erpc::PCString& str)
-  {
-      erpc::PCString res;
-    uint8_t i=0;
-    while(str.text[i])
-    {
-        if(str.text[i]>='a' && str.text[i]<='z')
-        {
-            res.text[i] = str.text[i]-32;
-        }
-        else
-        {
-            res.text[i] = str.text[i];
-        }
-        i++;
-    }
-    res.text[i] = 0;
-    return res;
-  }
-
-  erpc::Scope NextScope(const erpc::Scope& s)
-  {
-      if (s == erpc::Scope::Low)
-          return erpc::Scope::Med;
-      if (s == erpc::Scope::Med)
-          return erpc::Scope::High;
-      return erpc::Scope::Low;
-  }
-
-};
 
 TEST(TestCommunicationCPP, CallImpl)
 {
@@ -209,7 +146,7 @@ TEST(TestCommunicationCPP, CallString)
   erpc::PCString str("Hello World");
 
   erpc::PCString res = proxy.UpperCase(str);
-  ASSERT_STREQ("HELLO WORLD", res.text);
+  ASSERT_STREQ("HELLO WORLD", res);
 }
 
 TEST(TestCommunicationCPP, GeneratedDataType)

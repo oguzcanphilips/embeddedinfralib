@@ -6,4 +6,7 @@ interface PWM
   void SetPwm(uint8_t channel, uint16_t value) = 100 # second
   uint16_t GetPwm(uint8_t channel)
   void ResetPwm()
+
+  void SetName(PCString name)
+  PCString GetName()
 end

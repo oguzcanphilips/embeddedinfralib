@@ -7,19 +7,30 @@ class PWMImpl : public erpc::IPWM
 {
 private:
   uint16_t mPWMs[2];
+  erpc::PCString name;
 public:
-  void SetPwm(uint8_t channel, uint16_t value)
+  void SetPwm(uint8_t channel, uint16_t value) override
   {
     mPWMs[channel] = value;
     PwmUpdate(channel, value);
   }
 
-  uint16_t GetPwm(uint8_t channel)
+  uint16_t GetPwm(uint8_t channel) override
   {
     return mPWMs[channel];
   }
 
-  void ResetPwm(){}
+  void ResetPwm() override
+  {}
+
+  void SetName(const erpc::PCString& name) override
+  {
+      this->name = name;
+  }
+  erpc::PCString GetName() override
+  {
+      return name;
+  }
 };
 
 

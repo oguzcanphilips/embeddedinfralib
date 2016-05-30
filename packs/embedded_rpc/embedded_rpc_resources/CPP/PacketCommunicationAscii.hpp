@@ -1,15 +1,14 @@
-#ifndef PACKETCOMMUNICATIONBIN_HPP
-#define PACKETCOMMUNICATIONBIN_HPP
+#ifndef PACKETCOMMUNICATIONASCII_HPP
+#define PACKETCOMMUNICATIONASCII_HPP
 
 #include "PacketCommunication.hpp"
 
 namespace erpc
 {
-    class PacketCommunicationBin : public PacketCommunication
+    class PacketCommunicationAscii : public PacketCommunication
     {
     public:
-        PacketCommunicationBin();
-        void Link(PacketCommunicationBin& link);
+        PacketCommunicationAscii();
 
         void PacketStart(uint8_t interfaceId, uint8_t functionId) override;
         void PacketDone() override;
@@ -36,32 +35,33 @@ namespace erpc
         bool Read(Serialize& obj) override;
         bool Read(uint8_t* data, uint16_t len) override;
         
+        uint8_t WriteMessageId() override;
         void WriteMessageId(uint8_t id) override;
         bool ReadMessageId(uint8_t& id) override;
     protected:
-        virtual bool IsPacketEnded() = 0;
-        virtual void WriteStartToken() = 0;
-        virtual void WriteEndToken() = 0;
-        virtual void WriteByte(uint8_t data) = 0;
+        virtual void WriteByte(uint8_t v) = 0;
         virtual bool ReadByte(uint8_t& v) = 0;
 
         bool ReadStartToken(uint8_t& interfaceId) override;
-        void ForwardReceive(uint8_t interfaceId) override;
-
     private:
         void WriteInternal(uint8_t v);
         bool ReadInternal(uint8_t& v);
-        
-        PacketCommunicationBin* mLink = nullptr;
+        bool PeakInternal(uint8_t& v);
 
-#ifdef VALIDATION_CRC
-        uint16_t mCrcWr = 0;
-        uint16_t mCrcRd = 0;
-#endif
-#ifdef VALIDATION_CHECKSUM
-        uint8_t mChecksumWr = 0;
-        uint8_t mChecksumRd = 0;
-#endif
+        void WriteSeperator();
+        void WriteAscii(int32_t v);
+        void WriteAscii(uint32_t v);
+        void WriteAsciiU(uint32_t v);
+        bool ReadAscii(int32_t& v);
+        bool ReadAscii(uint32_t& v);
+
+        void WriteString(const char* string);
+
+        bool pendingPeakByte = false;
+        bool insideString = false;
+        uint8_t pendingInterfaceId = 0xff;
+        uint8_t peakByte = 0;
+        uint8_t seperatorIndex = 0;
     };
 }
 #endif

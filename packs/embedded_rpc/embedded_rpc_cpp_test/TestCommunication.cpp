@@ -12,7 +12,7 @@
 #include "PacketReantrant.hpp"
 
 #include "PWMSupport.hpp"
-#include "TestSupport.hpp"
+#include "TestImpl.hpp"
 #include "LocalPacketCommunication.hpp"
 #include <list>
 #include <iostream>

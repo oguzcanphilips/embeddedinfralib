@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TESTIMPL_HPP
+#define TESTIMPL_HPP
+
 #include "Generated\CPP\ITest.hpp"
 
 class TestImpl : public erpc::ITest
@@ -31,3 +33,5 @@ public:
       value = temp;
   }
 };
+
+#endif

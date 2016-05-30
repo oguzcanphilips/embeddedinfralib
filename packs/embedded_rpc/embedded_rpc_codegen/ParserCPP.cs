@@ -31,6 +31,7 @@ namespace codegen
                 GenerateCppSkeletonHFile(i);
                 GenerateCppSkeletonCFile(i);
             }
+            GenereteCppLut();
             foreach (DataType d in mDataTypes)
             {
                 GenerateCppDataTypeHFile(d);
@@ -172,9 +173,8 @@ namespace codegen
                 if (i.HasReturnValues)
                 {
                     file.WriteLine("  volatile bool mReceiving;");
-                    file.WriteLine("  volatile uint8_t mMessageCnt;");
                     file.WriteLine("  volatile uint8_t mPendingFunctionId;");
-                    file.WriteLine("  volatile uint8_t mPendingMessageCnt;");
+                    file.WriteLine("  volatile uint8_t mPendingMessageId;");
                 }
                 file.WriteLine("  PacketCommunication& mPacketComm;");
                 if (i.HasEvents)
@@ -202,7 +202,6 @@ namespace codegen
                 {
                     file.WriteLine("PacketCommunication::Callback(" + i.Id + ")");
                     file.WriteLine(", mReceiving(false)");
-                    file.WriteLine(", mMessageCnt(0)");
                     file.Write(", "); 
                 }
                 file.WriteLine("mPacketComm(packetComm)");
@@ -236,9 +235,9 @@ namespace codegen
                     file.WriteLine("  uint8_t functionId;");
                     file.WriteLine("  if(!pc.Read(functionId)) return;");
                     file.WriteLine("  if(mPendingFunctionId != functionId) return;");
-                    file.WriteLine("  uint8_t messageCnt;");
-                    file.WriteLine("  if(!pc.Read(messageCnt)) return;");
-                    file.WriteLine("  if(mPendingMessageCnt != messageCnt) return;");
+                    file.WriteLine("  uint8_t messageId;");
+                    file.WriteLine("  if(!pc.ReadMessageId(messageId)) return;");
+                    file.WriteLine("  if(mPendingMessageId != messageId) return;");
                     file.WriteLine("  mReceiving = false;");
                     file.WriteLine("  pc.EventReceiveDoneReset();");
                     file.WriteLine("  pc.EventReceiveSet();");
@@ -268,9 +267,8 @@ namespace codegen
                         file.WriteLine("  mPacketComm.EventReceiveReset();");
                         file.WriteLine("  mReceiving = true;");
                         file.WriteLine("  mPendingFunctionId = " + f.Id + ";");
-                        file.WriteLine("  mPendingMessageCnt = mMessageCnt++;");
                         file.WriteLine("  mPacketComm.PacketStart(" + (i.Id + 128) + ", " + f.Id + ");");
-                        file.WriteLine("  mPacketComm.Write(mPendingMessageCnt);");
+                        file.WriteLine("  mPendingMessageId = mPacketComm.WriteMessageId();");
                     }
                     else
                     {
@@ -439,8 +437,8 @@ namespace codegen
                     }
                     if (f.HasReturn)
                     {
-                        file.WriteLine("      uint8_t messageCnt;");
-                        file.WriteLine("      if(!pc.Read(messageCnt)) return;");
+                        file.WriteLine("      uint8_t messageId;");
+                        file.WriteLine("      if(!pc.ReadMessageId(messageId)) return;");
                     }
                     foreach (Param p in ps)
                     {
@@ -472,7 +470,7 @@ namespace codegen
                     if (f.HasReturn)
                     {
                         file.WriteLine("      pc.PacketStart(" + i.Id + ", " + f.Id + ");");
-                        file.WriteLine("      pc.Write(messageCnt);");
+                        file.WriteLine("      pc.WriteMessageId(messageId);");
                         if(!f.ReturnVoid) file.WriteLine("      pc.Write(ret);");
                         foreach (Param p in ps)
                         {
@@ -656,6 +654,58 @@ namespace codegen
                 file.WriteLine("};");
                 file.WriteLine("}");
             }
+        }
+
+        private void GenereteCppLut()
+        {
+            using (StreamWriter file = new HeaderFile("CPP/PacketHeaderLut.hpp"))
+            {
+                file.WriteLine("#include <cstdint>");
+                file.WriteLine("namespace erpc");
+                file.WriteLine("{");
+                file.WriteLine("  namespace Lut");
+                file.WriteLine("  {");
+                file.WriteLine("    struct InterfaceSpec");
+                file.WriteLine("    {");
+                file.WriteLine("      const char* name;");
+                file.WriteLine("      const uint8_t id;");
+                file.WriteLine("      const uint8_t numberOfFuncions;");
+                file.WriteLine("      const uint16_t functionIndex;");
+                file.WriteLine("    };");
+                file.WriteLine("    struct FunctionSpec");
+                file.WriteLine("    {");
+                file.WriteLine("      const char* name;");
+                file.WriteLine("      const uint8_t id;");
+                file.WriteLine("    };");
+
+
+                string functionSpecs = "    const static struct FunctionSpec functionSpecs[] =" + Environment.NewLine;
+                functionSpecs += "    {" + Environment.NewLine;
+
+                string interfaceSpecs = "    const static struct InterfaceSpec interfaceSpecs[] =" +  Environment.NewLine;
+                interfaceSpecs += "    {"+Environment.NewLine;
+
+                int functionIndex = 0;
+                foreach (var interfaceSpec in mInterfaces)
+                {
+                    interfaceSpecs += "      {\"" + interfaceSpec.Name + "\", " + interfaceSpec.Id + ", " +
+                                      interfaceSpec.Functions.Count + ", " + functionIndex + "}," + Environment.NewLine;
+
+                    functionIndex += interfaceSpec.Functions.Count;
+                    foreach (var func in interfaceSpec.Functions)
+                    {
+                        functionSpecs += "      {\"" + func.Name + "\", " + func.Id + "}," + Environment.NewLine;
+                    }
+                }
+//                functionSpecs += "      {0,0}" + Environment.NewLine;
+                functionSpecs += "    };";
+//                interfaceSpecs += "      {0,0,0,0}" + Environment.NewLine;
+                interfaceSpecs += "    };";
+                file.WriteLine(functionSpecs);
+                file.WriteLine(interfaceSpecs);
+                file.WriteLine("  }");
+                file.WriteLine("}");
+            }            
         }
     }
 }

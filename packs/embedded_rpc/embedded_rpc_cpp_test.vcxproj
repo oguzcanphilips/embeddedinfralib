@@ -113,7 +113,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="embedded_rpc_cpp_test\BarImpl.hpp" />
+    <ClInclude Include="embedded_rpc_cpp_test\FooImpl.hpp" />
+    <ClInclude Include="embedded_rpc_cpp_test\Generated\CPP\PacketHeaderLut.hpp" />
+    <ClInclude Include="embedded_rpc_cpp_test\LocalPacketCommunicationAscii.hpp" />
     <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunication.hpp" />
+    <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunicationAscii.hpp" />
     <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunicationBin.hpp" />
     <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunicationBufferedReceive.hpp" />
     <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunicationReport.hpp" />
@@ -122,7 +127,6 @@
     <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunicationSLIPBuffered.hpp" />
     <ClInclude Include="embedded_rpc_resources\CPP\PacketReantrant.hpp" />
     <ClInclude Include="embedded_rpc_resources\CPP\PCString.hpp" />
-    <ClInclude Include="embedded_rpc_resources\CPP\PCStringVar.hpp" />
     <ClInclude Include="embedded_rpc_resources\CRC.h" />
     <ClInclude Include="embedded_rpc_resources\PacketCommunicationConfig.h" />
     <ClInclude Include="embedded_rpc_resources\PacketCommunicationDefines.h" />
@@ -148,14 +152,16 @@
     <ClInclude Include="embedded_rpc_cpp_test\LocalPacketCommunication.hpp" />
     <ClInclude Include="embedded_rpc_cpp_test\LocalPacketCommunicationMT.hpp" />
     <ClInclude Include="embedded_rpc_cpp_test\PWMSupport.hpp" />
-    <ClInclude Include="embedded_rpc_cpp_test\TestSupport.hpp" />
+    <ClInclude Include="embedded_rpc_cpp_test\TestImpl.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="embedded_rpc_cpp_test\interface.int" />
     <None Include="embedded_rpc_cpp_test\interfacePwm.int" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="embedded_rpc_cpp_test\TestCommunicationCPPAscii.cpp" />
     <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunication.cpp" />
+    <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunicationAscii.cpp" />
     <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunicationBin.cpp" />
     <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunicationBufferedReceive.cpp" />
     <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunicationReport.cpp" />
@@ -163,7 +169,6 @@
     <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunicationSLIP.cpp" />
     <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunicationSLIPBuffered.cpp" />
     <ClCompile Include="embedded_rpc_resources\CPP\PCString.cpp" />
-    <ClCompile Include="embedded_rpc_resources\CPP\PCStringVar.cpp" />
     <ClCompile Include="embedded_rpc_resources\CRC.c" />
     <ClCompile Include="embedded_rpc_cpp_test\Generated\CPP\BarProxy.cpp" />
     <ClCompile Include="embedded_rpc_cpp_test\Generated\CPP\BarSkeleton.cpp" />

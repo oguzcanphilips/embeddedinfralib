@@ -16,6 +16,13 @@ namespace erpc
         ReleaseIdMask(mIdMask);
     }
 
+    uint8_t PacketCommunication::WriteMessageId()
+    {
+        uint8_t id = ++messageId;
+        WriteMessageId(id);
+        return id;
+    }
+
     uint32_t PacketCommunication::ObtainIdMask()
     {
         uint32_t mask = 1;

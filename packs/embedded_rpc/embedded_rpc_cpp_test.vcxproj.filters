@@ -18,7 +18,6 @@
     <ClInclude Include="embedded_rpc_cpp_test\Array.hpp" />
     <ClInclude Include="embedded_rpc_cpp_test\CommCallbackMock.h" />
     <ClInclude Include="embedded_rpc_cpp_test\PWMSupport.hpp" />
-    <ClInclude Include="embedded_rpc_cpp_test\TestSupport.hpp" />
     <ClInclude Include="embedded_rpc_resources\CRC.h">
       <Filter>Resources</Filter>
     </ClInclude>
@@ -50,9 +49,6 @@
       <Filter>Resources\CPP</Filter>
     </ClInclude>
     <ClInclude Include="embedded_rpc_resources\CPP\PCString.hpp">
-      <Filter>Resources\CPP</Filter>
-    </ClInclude>
-    <ClInclude Include="embedded_rpc_resources\CPP\PCStringVar.hpp">
       <Filter>Resources\CPP</Filter>
     </ClInclude>
     <ClInclude Include="embedded_rpc_cpp_test\LocalPacketCommunication.hpp" />
@@ -111,6 +107,16 @@
     <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunicationBin.hpp">
       <Filter>Resources\CPP</Filter>
     </ClInclude>
+    <ClInclude Include="embedded_rpc_cpp_test\BarImpl.hpp" />
+    <ClInclude Include="embedded_rpc_cpp_test\FooImpl.hpp" />
+    <ClInclude Include="embedded_rpc_cpp_test\TestImpl.hpp" />
+    <ClInclude Include="embedded_rpc_cpp_test\LocalPacketCommunicationAscii.hpp" />
+    <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunicationAscii.hpp">
+      <Filter>Resources\CPP</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded_rpc_cpp_test\Generated\CPP\PacketHeaderLut.hpp">
+      <Filter>Generated\CPP</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="embedded_rpc_cpp_test\interface.int" />
@@ -149,9 +155,6 @@
     <ClCompile Include="embedded_rpc_resources\CPP\PCString.cpp">
       <Filter>Resources\CPP</Filter>
     </ClCompile>
-    <ClCompile Include="embedded_rpc_resources\CPP\PCStringVar.cpp">
-      <Filter>Resources\CPP</Filter>
-    </ClCompile>
     <ClCompile Include="embedded_rpc_cpp_test\Generated\CPP\BarProxy.cpp">
       <Filter>Generated\CPP</Filter>
     </ClCompile>
@@ -186,6 +189,10 @@
       <Filter>Generated\CPP</Filter>
     </ClCompile>
     <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunicationBin.cpp">
+      <Filter>Resources\CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded_rpc_cpp_test\TestCommunicationCPPAscii.cpp" />
+    <ClCompile Include="embedded_rpc_resources\CPP\PacketCommunicationAscii.cpp">
       <Filter>Resources\CPP</Filter>
     </ClCompile>
   </ItemGroup>

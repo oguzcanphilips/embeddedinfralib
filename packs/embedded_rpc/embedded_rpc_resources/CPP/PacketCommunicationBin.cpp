@@ -38,12 +38,15 @@ namespace erpc
 
     void PacketCommunicationBin::Write(const uint8_t* data, uint16_t len)
     {
-        while (len)
-        {
-            WriteInternal(*data);
-            data++;
-            len--;
-        }
+        while (len--)
+            WriteInternal(*data++);
+    }
+
+    void PacketCommunicationBin::Write(const char* string)
+    {
+        do
+            WriteInternal(*string);
+        while (*string++);
     }
 
     void PacketCommunicationBin::Write(int8_t v)
@@ -140,6 +143,16 @@ namespace erpc
     bool PacketCommunicationBin::Read(Serialize& obj)
     {
         return obj.Read(*this);
+    }
+
+    void PacketCommunicationBin::WriteMessageId(uint8_t id)
+    {
+        Write(id);
+    }
+
+    bool PacketCommunicationBin::ReadMessageId(uint8_t& id)
+    {
+        return Read(id);
     }
 
     void PacketCommunicationBin::WriteInternal(uint8_t v)

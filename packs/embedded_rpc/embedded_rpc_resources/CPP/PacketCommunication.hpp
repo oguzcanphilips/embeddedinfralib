@@ -40,14 +40,14 @@ namespace erpc
         void Unregister(Callback& callback);
 
         virtual void ProcessReceive() = 0;
-        virtual bool IsPacketEnded() = 0;
 
         virtual void PacketStart(uint8_t interfaceId, uint8_t functionId) = 0;
         virtual void PacketDone() = 0;
         virtual bool ReadDone() = 0;
 
-        virtual void WriteByte(uint8_t data) = 0;
-        virtual bool ReadByte(uint8_t& v) = 0;
+        virtual uint8_t WriteMessageId();
+        virtual void WriteMessageId(uint8_t id) = 0;
+        virtual bool ReadMessageId(uint8_t& id) = 0;
 
         virtual void Write(uint8_t v) = 0;
         virtual void Write(uint16_t v) = 0;
@@ -58,6 +58,7 @@ namespace erpc
         virtual void Write(bool v) = 0;
         virtual void Write(const Serialize& obj) = 0;
         virtual void Write(const uint8_t* data, uint16_t len) = 0;
+        virtual void Write(const char* string) = 0;
 
         virtual bool Read(uint8_t& v) = 0;
         virtual bool Read(uint16_t& v) = 0;
@@ -119,6 +120,7 @@ namespace erpc
         static Callback* Callbacks;
 
         const uint32_t mIdMask;
+        volatile uint8_t messageId = 0;
     };
 }
 #endif
