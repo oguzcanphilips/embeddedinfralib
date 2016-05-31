@@ -47,9 +47,22 @@ namespace codegen
                         break;
                 }
             }
+            CheckEnumBeingUnique();
             GenerateCode();
         }
 
+        private void CheckEnumBeingUnique()
+        {
+            HashSet<string> set = new HashSet<string>();
+            foreach (var enumSpec in mEnums)
+            {
+                foreach (var field in enumSpec.Fields)
+                {
+                    if (!set.Add(field.Name))
+                        throw new Exception("Enum field not unique: " + enumSpec.Name + "." + field.Name);
+                }
+            }
+        }
         private void GenerateCode()
         {
             GenerateMCPP();

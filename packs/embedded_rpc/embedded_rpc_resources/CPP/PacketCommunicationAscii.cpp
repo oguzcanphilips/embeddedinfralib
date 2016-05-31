@@ -1,5 +1,6 @@
 #include "PacketCommunicationAscii.hpp"
 #include "Generated/CPP/PacketHeaderLut.hpp"
+#include <array>
 #include <cstdlib>
 
 namespace erpc
@@ -154,9 +155,9 @@ namespace erpc
 
     void PacketCommunicationAscii::PacketStart(uint8_t interfaceId, uint8_t functionId)
     {
-        WriteAscii(interfaceId);
-        WriteAscii(functionId);
-        return;
+        //WriteAscii(interfaceId);
+        //WriteAscii(functionId);
+        //return;
         interfaceId &= 0x7f;
         uint32_t interfaceSpecIndex = 0;
         for (const erpc::Lut::InterfaceSpec& iSpec : erpc::Lut::interfaceSpecs)
@@ -190,8 +191,6 @@ namespace erpc
 
     bool PacketCommunicationAscii::ReadDone()
     {
-        pendingInterfaceId = 0xff;
-
         uint8_t c = 0;
         if (!ReadInternal(c))
             return false;
@@ -203,10 +202,64 @@ namespace erpc
         return c == '\n';
     }
 
+    bool PacketCommunicationAscii::ReadFunctionId(uint8_t& functionId)
+    {
+        functionId = readFunctionId;
+        return true;
+    }
+
     bool PacketCommunicationAscii::ReadStartToken(uint8_t& interfaceId)
     {
         insideString = false;
-        return Read(interfaceId);
+        // read string with format "iiii.ffff("
+
+        const erpc::Lut::InterfaceSpec* interfaceSpec = nullptr;
+        std::array<char, 100> input;
+        uint32_t readIndex = 0;
+        char c;
+        while (readIndex < input.size() && ReadInternal(reinterpret_cast<uint8_t&>(c)))
+        {
+            switch (c)
+            {
+            case '\n':
+                readIndex = 0;
+                break;
+            case '.':
+                input[readIndex] = 0;
+                readIndex = 0;
+                for (const erpc::Lut::InterfaceSpec& iSpec : erpc::Lut::interfaceSpecs)
+                {
+                    if (strcmp(iSpec.name, &input[0]) == 0)
+                    {
+                        interfaceSpec = &iSpec;
+                        break;
+                    }
+                }
+                break;
+            case '(':
+                if (interfaceSpec == nullptr)
+                    return false;
+                input[readIndex] = 0;
+                readIndex = 0;
+                {
+                    const uint16_t functionEnd = interfaceSpec->functionIndex + interfaceSpec->numberOfFuncions;
+                    for (uint16_t i = interfaceSpec->functionIndex; i != functionEnd; ++i)
+                    {
+                        if (strcmp(erpc::Lut::functionSpecs[i].name, &input[0]) == 0)
+                        {
+                            interfaceId = interfaceSpec->id;
+                            readFunctionId = erpc::Lut::functionSpecs[i].id;
+                            return true;
+                        }
+                    }
+                }
+                break;
+            default:
+                input[readIndex++] = c;
+                break;
+            }
+        }
+        return false;
     }
 
     void PacketCommunicationAscii::WriteSeperator()

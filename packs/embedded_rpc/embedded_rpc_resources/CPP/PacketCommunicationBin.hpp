@@ -35,7 +35,8 @@ namespace erpc
         bool Read(bool& v) override;
         bool Read(Serialize& obj) override;
         bool Read(uint8_t* data, uint16_t len) override;
-        
+        bool ReadFunctionId(uint8_t& functionId) override;
+
         void WriteMessageId(uint8_t id) override;
         bool ReadMessageId(uint8_t& id) override;
     protected:

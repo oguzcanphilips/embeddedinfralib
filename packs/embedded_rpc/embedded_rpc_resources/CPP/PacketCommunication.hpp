@@ -69,6 +69,7 @@ namespace erpc
         virtual bool Read(bool& v) = 0;
         virtual bool Read(Serialize& obj) = 0;
         virtual bool Read(uint8_t* data, uint16_t len) = 0;
+        virtual bool ReadFunctionId(uint8_t& functionId) = 0;
 
         virtual void HandleReceiveError();
 

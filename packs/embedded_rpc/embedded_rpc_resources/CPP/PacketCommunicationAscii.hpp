@@ -34,7 +34,8 @@ namespace erpc
         bool Read(bool& v) override;
         bool Read(Serialize& obj) override;
         bool Read(uint8_t* data, uint16_t len) override;
-        
+        bool ReadFunctionId(uint8_t& functionId) override;
+
         uint8_t WriteMessageId() override;
         void WriteMessageId(uint8_t id) override;
         bool ReadMessageId(uint8_t& id) override;
@@ -59,7 +60,7 @@ namespace erpc
 
         bool pendingPeakByte = false;
         bool insideString = false;
-        uint8_t pendingInterfaceId = 0xff;
+        uint8_t readFunctionId = 0;
         uint8_t peakByte = 0;
         uint8_t seperatorIndex = 0;
     };

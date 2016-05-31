@@ -233,7 +233,7 @@ namespace codegen
                     file.WriteLine("void " + name + "::Receive(PacketCommunication& pc)");
                     file.WriteLine("{");
                     file.WriteLine("  uint8_t functionId;");
-                    file.WriteLine("  if(!pc.Read(functionId)) return;");
+                    file.WriteLine("  if(!pc.ReadFunctionId(functionId)) return;");
                     file.WriteLine("  if(mPendingFunctionId != functionId) return;");
                     file.WriteLine("  uint8_t messageId;");
                     file.WriteLine("  if(!pc.ReadMessageId(messageId)) return;");
@@ -422,7 +422,7 @@ namespace codegen
                 file.WriteLine("void " + name + "::Receive(PacketCommunication& pc)");
                 file.WriteLine("{");
                 file.WriteLine("  uint8_t func;");
-                file.WriteLine("  if(!pc.Read(func)) return;");
+                file.WriteLine("  if(!pc.ReadFunctionId(func)) return;");
                 file.WriteLine("  switch(func)");
                 file.WriteLine("  {");
                 List<Function> fs = i.Functions;
@@ -677,6 +677,11 @@ namespace codegen
                 file.WriteLine("      const char* name;");
                 file.WriteLine("      const uint8_t id;");
                 file.WriteLine("    };");
+                file.WriteLine("    struct EnumSpec");
+                file.WriteLine("    {");
+                file.WriteLine("      const char* name;");
+                file.WriteLine("      const int32_t id;");
+                file.WriteLine("    };");
 
 
                 string functionSpecs = "    const static struct FunctionSpec functionSpecs[] =" + Environment.NewLine;
@@ -697,12 +702,21 @@ namespace codegen
                         functionSpecs += "      {\"" + func.Name + "\", " + func.Id + "}," + Environment.NewLine;
                     }
                 }
-//                functionSpecs += "      {0,0}" + Environment.NewLine;
                 functionSpecs += "    };";
-//                interfaceSpecs += "      {0,0,0,0}" + Environment.NewLine;
                 interfaceSpecs += "    };";
                 file.WriteLine(functionSpecs);
                 file.WriteLine(interfaceSpecs);
+
+                file.WriteLine("    const static struct EnumSpec enumSpecs[] =");
+                file.WriteLine("    {");
+                foreach (var enumSpec in mEnums)
+                {
+                    foreach (var field in enumSpec.Fields)
+                    {
+                        file.WriteLine("      {\"" + field.Name + "\", " + field.Value + "},");
+                    }
+                }
+                file.WriteLine("    };");
                 file.WriteLine("  }");
                 file.WriteLine("}");
             }            

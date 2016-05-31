@@ -232,6 +232,11 @@ namespace erpc
         return Read(interfaceId);
     }
 
+    bool PacketCommunicationBin::ReadFunctionId(uint8_t& functionId)
+    {
+        return Read(functionId);
+    }
+    
     void PacketCommunicationBin::ForwardReceive(uint8_t interfaceId)
     {
         if (mLink == nullptr) 
