@@ -15,7 +15,6 @@ extern "C"
     #include "PacketCommunicationSLIP.h"
     #include "Report.h"
     #include "Serial.h"
-    #include "Serial2.h"
     #include "Array.h"    
 
     extern void PacketCommunication_ResetIdCounterForTesting(void);
@@ -24,8 +23,9 @@ extern "C"
 array_t array;
 
 static uint16_t updatedValue = 0;
-static PacketCommunicationReport_t report;
-static PacketCommunicationSlip_t slip;
+static PacketCommunicationReport_t report1;
+static PacketCommunicationReport_t report2;
+static PacketCommunicationSlip_t slip1;
 static PacketCommunicationSlip_t slip2;
 
 extern "C" void FooEventsRename_UpdateMe(uint16_t v)
@@ -46,30 +46,30 @@ public:
     {
         PacketCommunication_ResetIdCounterForTesting();
 
-        CreatePacketCommunicationReport(&report, ReportWrite, ReportRead,4);
-        CreatePacketCommunicationSlip(&slip, SerialWrite, SerialRead);
-        CreatePacketCommunicationSlip(&slip2, Serial2Write, Serial2Read);
-        ReportInit(&report.packetCommunication);
-        SerialInit(&slip.packetCommunication);
+        CreatePacketCommunicationReport(&report1, Report2Write, Report1Read, 4);
+        CreatePacketCommunicationReport(&report2, Report1Write, Report2Read, 4);
+        CreatePacketCommunicationSlip(&slip1, Serial2Write, Serial1Read);
+        CreatePacketCommunicationSlip(&slip2, Serial1Write, Serial2Read);
+        Report1Init(&report1.packetCommunication);
+        Report2Init(&report2.packetCommunication);
+        Serial1Init(&slip1.packetCommunication);
         Serial2Init(&slip2.packetCommunication);
 
-        FooSkeleton_Init(&slip.packetCommunication);
         FooSkeleton_Init(&slip2.packetCommunication);
-        FooEventsSkeleton_Init(&slip.packetCommunication);
-        FooEvents_Init(&slip.packetCommunication);
-        FooProxy_Init(&slip.packetCommunication);
-        BarSkeleton_Init(&report.packetCommunication);
-        BarProxy_Init(&report.packetCommunication);
+        FooProxy_Init(&slip1.packetCommunication);
+        FooEventsSkeleton_Init(&slip1.packetCommunication);
+        FooEvents_Init(&slip2.packetCommunication);
+        BarProxy_Init(&report1.packetCommunication);
+        BarSkeleton_Init(&report2.packetCommunication);
     }
     ~TestCommunicationCM()
     {
-        FooSkeleton_DeInit(&slip.packetCommunication);
         FooSkeleton_DeInit(&slip2.packetCommunication);
-        FooEventsSkeleton_DeInit(&slip.packetCommunication);
-        FooEvents_DeInit(&slip.packetCommunication);
-        FooProxy_DeInit(&slip.packetCommunication);
-        BarSkeleton_DeInit(&report.packetCommunication);
-        BarProxy_DeInit(&report.packetCommunication);
+        FooProxy_DeInit(&slip1.packetCommunication);
+        FooEventsSkeleton_DeInit(&slip1.packetCommunication);
+        FooEvents_DeInit(&slip2.packetCommunication);
+        BarProxy_DeInit(&report1.packetCommunication);
+        BarSkeleton_DeInit(&report2.packetCommunication);
     }
 
 };
@@ -80,15 +80,6 @@ TEST_F(TestCommunicationCM, CallImpl)
       
     ASSERT_EQ(2468, FooProxy_DoThat(2));
     ASSERT_EQ(1234, updatedValue);
-}
-
-TEST_F(TestCommunicationCM, 2CommunicationChannels)
-{
-    ASSERT_EQ(2468, FooProxy_DoThat(2));
-
-    FooProxy_DeInit(&slip.packetCommunication);
-    FooProxy_Init(&slip2.packetCommunication);
-    ASSERT_EQ(1234, FooProxy_DoThat(1));
 }
 
 TEST_F(TestCommunicationCM, CallArray)
@@ -153,9 +144,9 @@ TEST_F(TestCommunicationCM, Forwarding)
     keyId_t kidGet;
     uint16_t i;
 
-    BarProxy_Init(&slip.packetCommunication);
+    BarProxy_Init(&slip1.packetCommunication);
     BarSkeleton_Init(&slip2.packetCommunication);
-    PacketCommunication_Link(&slip.packetCommunication, &slip2.packetCommunication);
+    PacketCommunication_Link(&slip1.packetCommunication, &slip2.packetCommunication);
         
     kid.id = 0x12345678;
     kid.scope = Scope_Normal;

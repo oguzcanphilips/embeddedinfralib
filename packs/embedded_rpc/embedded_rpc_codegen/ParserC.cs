@@ -164,12 +164,12 @@ namespace codegen
                         file.WriteLine("  receiving = true;");
                         file.WriteLine("  pendingFunctionId = " + f.Id + ";");
                         file.WriteLine("  pendingMessageCnt = messageCntGen++;");
-                        file.WriteLine("  PacketCommunication_PacketStart_InterfaceFunction(pcomm, " + (i.Id + 128) + ", " + f.Id + ");");
+                        file.WriteLine("  PacketCommunication_PacketStart_InterfaceFunction(pcomm, " + i.Id + ", " + f.Id + ");");
                         file.WriteLine("  PacketCommunication_Write_uint8_t(pcomm, pendingMessageCnt);");
                     }
                     else
                     {
-                        file.WriteLine("  PacketCommunication_PacketStart_InterfaceFunction(pcomm, " + (i.Id + 128) + ", " + f.Id + ");");
+                        file.WriteLine("  PacketCommunication_PacketStart_InterfaceFunction(pcomm, " + i.Id + ", " + f.Id + ");");
                     }
                     foreach (Param p in f.Params)
                     {
@@ -238,7 +238,7 @@ namespace codegen
                 file.WriteLine("#include \"" + i.Name + ".h\"");
                 file.WriteLine();
                 file.WriteLine("static void Receive(PacketCommunicationDefinition_t* pc);");
-                file.WriteLine("static packetCommunicationCallback_t callback = {" + (i.Id + 128) + ", 0, 0, &Receive};");
+                file.WriteLine("static packetCommunicationCallback_t callback = {" + i.Id + ", 0, 0, &Receive};");
                 file.WriteLine();
                 file.WriteLine();
                 file.WriteLine("void " + name + "_Init(PacketCommunicationDefinition_t* pc)");

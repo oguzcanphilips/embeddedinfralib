@@ -8,6 +8,8 @@ namespace TestCommunicationMCCP
 {
     class LocalSerial : erpc.PacketCommunicationSLIP.ISerialIO
     {
+        private static int idnew = 0;
+        private int id = idnew++;
         private bool isOpen = false;
         private List<byte> data = new List<byte>();
         private LocalSerial link;
@@ -36,25 +38,35 @@ namespace TestCommunicationMCCP
 
         public void Send(byte v)
         {
+            Console.WriteLine(id + " Send:" + v);
             lock (link.data)
             {
                 link.data.Add(v);
             }
         }
 
+        public int GetCount()
+        {
+            lock (data)
+            {
+                return data.Count;
+            }
+        }
         public bool Receive(ref byte v)
         {
+            Console.WriteLine(id + " Receive....");
             int timeout = 250;
-            while (data.Count == 0)
+            while (GetCount() == 0)
             {
                 Thread.Sleep(10);
                 if (0 == timeout--) break;
             }
-            if (data.Count == 0) return false;
             lock (data)
             {
+                if (data.Count == 0) return false;
                 v = data[0];
                 data.RemoveAt(0);
+                Console.WriteLine(id+" Receive:" + v);
                 return true;
             }
         }

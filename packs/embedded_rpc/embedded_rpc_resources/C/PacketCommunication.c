@@ -4,10 +4,11 @@
 #include "../CRC.h"
 #endif
 
+#include <assert.h>
 #include <string.h>
 
 static uint32_t idMaskCounter = 1;
-static packetCommunicationCallback_t* callbacks = 0;
+//static packetCommunicationCallback_t* callbacks = 0;
 
 void PacketCommunication_ResetIdCounterForTesting(void)
 {
@@ -73,15 +74,19 @@ void PacketCommunication_Register(PacketCommunicationDefinition_t* self, packetC
 	
 	if(self == 0) return;
     callback->registerMask |= self->idMask;
-    for(it = callbacks; it; it = it->next)
+    for(it = self->callbacks; it; it = it->next)
     {
-        if(it==callback) 
+        if (it == callback)
+            return;
+
+        if (it->interfaceId == callback->interfaceId)
         {
+            assert(false);
             return;
         }
     }
-    callback->next = callbacks;
-    callbacks = callback;
+    callback->next = self->callbacks;
+    self->callbacks = callback;
 }
 
 void PacketCommunication_Unregister(PacketCommunicationDefinition_t* self, packetCommunicationCallback_t* callback)
@@ -92,14 +97,14 @@ void PacketCommunication_Unregister(PacketCommunicationDefinition_t* self, packe
 	if(self == 0) return;
     callback->registerMask &= ~self->idMask;
     if(callback->registerMask) return;
-    if(callbacks == 0) return;
-    if(callbacks == callback)
+    if (self->callbacks == 0) return;
+    if (self->callbacks == callback)
     {
-        callbacks = callbacks->next;
+        self->callbacks = self->callbacks->next;
         return;
     }
     
-    itPrev = callbacks;
+    itPrev = self->callbacks;
     for(it = itPrev->next; it; it = it->next)
     {
         if(it==callback)
@@ -273,7 +278,7 @@ void PacketCommunication_Receive(PacketCommunicationDefinition_t* self)
     checksumRd = 0;
 #endif
     if(!ReadInternal(self, &interfaceId)) return;
-    for(it = callbacks; it; it = it->next)
+    for (it = self->callbacks; it; it = it->next)
     {
         if(it->interfaceId == interfaceId) 
         {

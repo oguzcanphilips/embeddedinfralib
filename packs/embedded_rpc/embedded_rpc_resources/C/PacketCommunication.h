@@ -35,6 +35,7 @@ typedef struct PacketCommunicationDefinition
     uint32_t idMask;
     void* self;
     struct PacketCommunicationDefinition* link;
+    packetCommunicationCallback_t* callbacks;
 } PacketCommunicationDefinition_t;
 
 void CreatePacketCommunication(PacketCommunicationDefinition_t* definition);

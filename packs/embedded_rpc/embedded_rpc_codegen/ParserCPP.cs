@@ -267,12 +267,12 @@ namespace codegen
                         file.WriteLine("  mPacketComm.EventReceiveReset();");
                         file.WriteLine("  mReceiving = true;");
                         file.WriteLine("  mPendingFunctionId = " + f.Id + ";");
-                        file.WriteLine("  mPacketComm.PacketStart(" + (i.Id + 128) + ", " + f.Id + ");");
+                        file.WriteLine("  mPacketComm.PacketStart(" + i.Id + ", " + f.Id + ");");
                         file.WriteLine("  mPendingMessageId = mPacketComm.WriteMessageId();");
                     }
                     else
                     {
-                        file.WriteLine("  mPacketComm.PacketStart(" + (i.Id + 128) + ", " + f.Id + ");");
+                        file.WriteLine("  mPacketComm.PacketStart(" + i.Id + ", " + f.Id + ");");
                     }
                     foreach (Param p in f.Params)
                     {
@@ -385,7 +385,7 @@ namespace codegen
                 if (i.HasEvents)
                 {
                     file.WriteLine(name + "::" + name + "(PacketCommunication& packetCommEvents)");
-                    file.WriteLine(": Callback(" + (i.Id + 128) + ") // Interface Id");
+                    file.WriteLine(": Callback(" + i.Id + ") // Interface Id");
                     List<Function> events = i.Events;
                     foreach (var e in events)
                     {
@@ -399,7 +399,7 @@ namespace codegen
                 else
                 {
                     file.WriteLine(name + "::" + name + "()");
-                    file.WriteLine(": Callback(" + (i.Id + 128) + ") // Interface Id");
+                    file.WriteLine(": Callback(" + i.Id + ") // Interface Id");
                     file.WriteLine(", mImpl(0)");
                     file.WriteLine("{");
                     file.WriteLine("}");

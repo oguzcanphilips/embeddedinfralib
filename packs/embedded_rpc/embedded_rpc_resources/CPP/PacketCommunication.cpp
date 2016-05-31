@@ -99,7 +99,7 @@ namespace erpc
 
         for (Callback* it = Callbacks; it; it = it->mNext)
         {
-            if ((it->mInterfaceId &0x7f) == (interfaceId & 0x7f) && 
+            if (it->mInterfaceId == interfaceId && 
                 it->registerMask & mIdMask)
             {
                 it->Receive(*this);

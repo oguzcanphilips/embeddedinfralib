@@ -138,7 +138,6 @@
     <ClCompile Include="embedded_rpc_c_test\Main.cpp" />
     <ClCompile Include="embedded_rpc_c_test\Report.c" />
     <ClCompile Include="embedded_rpc_c_test\Serial.c" />
-    <ClCompile Include="embedded_rpc_c_test\Serial2.c" />
     <ClCompile Include="embedded_rpc_c_test\TestCommunicationC.cpp" />
     <ClCompile Include="embedded_rpc_resources\CRC.c" />
     <ClCompile Include="embedded_rpc_resources\C\PacketCommunication.c" />
@@ -163,7 +162,6 @@
     <ClInclude Include="embedded_rpc_c_test\LocalPacketCommunicationMT.h" />
     <ClInclude Include="embedded_rpc_c_test\Report.h" />
     <ClInclude Include="embedded_rpc_c_test\Serial.h" />
-    <ClInclude Include="embedded_rpc_c_test\Serial2.h" />
     <ClInclude Include="embedded_rpc_resources\CRC.h" />
     <ClInclude Include="embedded_rpc_resources\C\PacketCommunication.h" />
     <ClInclude Include="embedded_rpc_resources\C\PacketCommunicationReport.h" />

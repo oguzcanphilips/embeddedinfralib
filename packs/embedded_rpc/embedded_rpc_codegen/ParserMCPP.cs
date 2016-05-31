@@ -289,12 +289,12 @@ namespace codegen
                         file.WriteLine("  mReceiving = true;");
                         file.WriteLine("  mPendingFunctionId = " + f.Id + ";");
                         file.WriteLine("  mPendingMessageCnt = mMessageCnt++;");
-                        file.WriteLine("  mPacketComm->PacketStart(" + (i.Id + 128) + ", " + f.Id + ");");
+                        file.WriteLine("  mPacketComm->PacketStart(" + i.Id + ", " + f.Id + ");");
                         file.WriteLine("  mPacketComm->Write(mPendingMessageCnt);");
                     }
                     else
                     {
-                        file.WriteLine("  mPacketComm->PacketStart(" + (i.Id + 128) + ", " + f.Id + ");");
+                        file.WriteLine("  mPacketComm->PacketStart(" + i.Id + ", " + f.Id + ");");
                     }
                     foreach (Param p in f.Params)
                     {
@@ -389,7 +389,7 @@ namespace codegen
                 file.WriteLine("namespace erpc");
                 file.WriteLine("{");
                 file.WriteLine(name + "::" + name + "(PacketCommunication^ packetComm)");
-                file.WriteLine(": Callback(" + (i.Id + 128) + ") // Interface Id");
+                file.WriteLine(": Callback(" + i.Id + ") // Interface Id");
                 file.WriteLine(", mPacketComm(packetComm)");
                 if (i.HasEvents)
                 {

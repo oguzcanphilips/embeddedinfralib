@@ -27,7 +27,8 @@ namespace erpc
         {
             v = ReadInternal();
         } while (v != SLIP_BEGIN && v != SLIP_END);
-        if (v == SLIP_BEGIN) Receive();
+        if (v == SLIP_BEGIN) 
+            Receive();
     }
 
     bool PacketCommunicationSLIP::IsPacketEnded()

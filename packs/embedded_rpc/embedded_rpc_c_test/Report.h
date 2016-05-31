@@ -3,8 +3,12 @@
 
 #include "PacketCommunication.h"
 
-void ReportInit(PacketCommunicationDefinition_t* pc);
-void ReportWrite(uint8_t* v, uint16_t l);
-bool ReportRead(uint8_t* v);
+void Report1Init(PacketCommunicationDefinition_t* pc);
+void Report1Write(uint8_t* v, uint16_t l);
+bool Report1Read(uint8_t* v);
+
+void Report2Init(PacketCommunicationDefinition_t* pc);
+void Report2Write(uint8_t* v, uint16_t l);
+bool Report2Read(uint8_t* v);
 
 #endif

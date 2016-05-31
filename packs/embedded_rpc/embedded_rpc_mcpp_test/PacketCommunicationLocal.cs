@@ -23,7 +23,7 @@ namespace TestCommunicationMCCP
 
         public override void ProcessReceive()
         {
-            mPacketRet.Add((byte)(mPacket[1] - 128));
+            mPacketRet.Add((byte)(mPacket[1]));
             mPacketRet.Add((byte)mPacket[2]);
             mPacketRet.Add((byte)mPacket[3]);
 
@@ -33,8 +33,8 @@ namespace TestCommunicationMCCP
             mPacketRet.Add((byte)mPacket[7]);
             if (mPacket.Count == 11) // CRC
             {
-                mPacketRet.Add(0x5f);
-                mPacketRet.Add(0x8f);
+                mPacketRet.Add(95);
+                mPacketRet.Add(143);
             }
             else if (mPacket.Count == 10) // CHECKSUM
             {

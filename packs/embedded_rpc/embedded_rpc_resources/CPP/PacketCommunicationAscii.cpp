@@ -155,14 +155,10 @@ namespace erpc
 
     void PacketCommunicationAscii::PacketStart(uint8_t interfaceId, uint8_t functionId)
     {
-        //WriteAscii(interfaceId);
-        //WriteAscii(functionId);
-        //return;
-        interfaceId &= 0x7f;
         uint32_t interfaceSpecIndex = 0;
         for (const erpc::Lut::InterfaceSpec& iSpec : erpc::Lut::interfaceSpecs)
         {
-            if (iSpec.id == (interfaceId & 0x7f))
+            if (iSpec.id == interfaceId)
             {
                 WriteSeperator();
                 WriteString(iSpec.name);

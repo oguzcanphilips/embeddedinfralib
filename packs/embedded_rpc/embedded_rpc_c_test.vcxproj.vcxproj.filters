@@ -24,8 +24,6 @@
     <ClCompile Include="embedded_rpc_c_test\FooProxyRename.c" />
     <ClCompile Include="embedded_rpc_c_test\Main.cpp" />
     <ClCompile Include="embedded_rpc_c_test\Report.c" />
-    <ClCompile Include="embedded_rpc_c_test\Serial.c" />
-    <ClCompile Include="embedded_rpc_c_test\Serial2.c" />
     <ClCompile Include="embedded_rpc_resources\C\PacketCommunication.c">
       <Filter>Resources\C</Filter>
     </ClCompile>
@@ -62,6 +60,7 @@
     <ClCompile Include="embedded_rpc_c_test\Generated\C\KeyId.c">
       <Filter>Generated\C</Filter>
     </ClCompile>
+    <ClCompile Include="embedded_rpc_c_test\Serial.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="embedded_rpc_c_test\Array.h" />
@@ -72,7 +71,6 @@
     <ClInclude Include="embedded_rpc_c_test\LocalPacketCommunicationMT.h" />
     <ClInclude Include="embedded_rpc_c_test\Report.h" />
     <ClInclude Include="embedded_rpc_c_test\Serial.h" />
-    <ClInclude Include="embedded_rpc_c_test\Serial2.h" />
     <ClInclude Include="embedded_rpc_resources\C\PacketCommunication.h">
       <Filter>Resources\C</Filter>
     </ClInclude>

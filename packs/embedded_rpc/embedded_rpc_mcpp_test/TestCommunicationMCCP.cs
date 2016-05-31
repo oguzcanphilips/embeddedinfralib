@@ -28,7 +28,7 @@ namespace TestCommunicationMCCP
             UInt32 res = foo.Post(0x12345678);
 
             Assert.AreEqual(0x100, pc.mPacket[0]);
-            Assert.AreEqual(  130, pc.mPacket[1]);
+            Assert.AreEqual(    2, pc.mPacket[1]);
             Assert.AreEqual(    2, pc.mPacket[2]);
 
             Assert.AreEqual( 0x12, pc.mPacket[4]);
@@ -45,8 +45,8 @@ namespace TestCommunicationMCCP
             }
             else if (pc.mPacket.Count == 11) 
             {
-                Assert.AreEqual(244, pc.mPacket[8]); // CRC
-                Assert.AreEqual(118, pc.mPacket[9]);
+                Assert.AreEqual(95, pc.mPacket[8]); // CRC
+                Assert.AreEqual(143, pc.mPacket[9]);
             }
             else
             {
@@ -126,7 +126,8 @@ namespace TestCommunicationMCCP
         {
             LocalSerial serialA = new LocalSerial();
             LocalSerial serialB = serialA.CreateLink();
-
+            serialA.Open();
+            serialB.Open();
             erpc.PacketCommunicationSLIP pcA = new erpc.PacketCommunicationSLIP(serialA);
             erpc.PacketCommunicationSLIP pcB = new erpc.PacketCommunicationSLIP(serialB);
 
