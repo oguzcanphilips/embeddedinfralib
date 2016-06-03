@@ -44,10 +44,16 @@ namespace erpc
         virtual bool ReadByte(uint8_t& v) = 0;
 
         bool ReadStartToken(uint8_t& interfaceId) override;
+        void WriteMessage(const char* msg);
     private:
+        void FlushInput();
+        void ReportError(const char* msg);
+        bool ReadByteNoSpaces(uint8_t& b);
         void WriteInternal(uint8_t v);
         bool ReadInternal(uint8_t& v);
+        bool ReadInternalWithErrorReport(uint8_t& v);
         bool PeakInternal(uint8_t& v);
+        bool PeakInternalWithErrorReport(uint8_t& v);
 
         void WriteSeperator();
         void WriteAscii(int32_t v);
@@ -57,12 +63,15 @@ namespace erpc
         bool ReadAscii(uint32_t& v);
 
         void WriteString(const char* string);
-
+        void ReadCommand();
         bool pendingPeakByte = false;
         bool insideString = false;
         uint8_t readFunctionId = 0;
         uint8_t peakByte = 0;
         uint8_t seperatorIndex = 0;
+        uint8_t outputInterfaceId = 0;
+        bool outputHex = false;
+        bool outputTrimRet = false;
     };
 }
 #endif

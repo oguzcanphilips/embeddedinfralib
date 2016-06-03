@@ -3,7 +3,6 @@
 
 int main(int argc, char **argv) 
 {
-    //testing::FLAGS_gtest_filter = "TestCommunicationCPPAscii*";
     testing::FLAGS_gtest_filter = "*";
 
     ::testing::InitGoogleTest(&argc, argv);
