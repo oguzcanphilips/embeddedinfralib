@@ -105,7 +105,8 @@ namespace erpc
     {
         for (uint16_t i = 0; i < len; ++i)
         {
-            if (!Read(data[i])) return false;
+            if (!Read(data[i]))
+                return false;
         }
         return true;
     }
@@ -171,15 +172,15 @@ namespace erpc
         {
             if (iSpec.id == interfaceId)
             {
-                WriteSeperator();
                 WriteString(iSpec.name);
+                WriteByte('.');
                 const uint16_t functionEnd = iSpec.functionIndex + iSpec.numberOfFuncions;
                 for (uint16_t i = iSpec.functionIndex; i != functionEnd; ++i)
                 {
                     if (erpc::Lut::functionSpecs[i].id == functionId)
                     {
-                        WriteSeperator();
                         WriteString(erpc::Lut::functionSpecs[i].name);
+                        WriteByte('(');
                         return;
                     }
                 }
@@ -191,8 +192,6 @@ namespace erpc
     {
         if (!outputTrimRet || outputInterfaceId & 0x01)
         {
-            if (seperatorIndex == 2)
-                WriteByte('(');
             WriteByte(')');
         }
         WriteByte('\n');
@@ -293,24 +292,12 @@ namespace erpc
 
     void PacketCommunicationAscii::WriteSeperator()
     {
-        switch (seperatorIndex)
-        {
-        case 0:
+        if (seperatorIndex == 0)
             seperatorIndex++;
-            break;
-        case 1:
-            seperatorIndex++;
-            WriteByte('.');
-            break;
-        case 2:
-            seperatorIndex++;
-            WriteByte('(');
-            break;
-        default:
+        else
             WriteByte(',');
-            break;
-        }
     }
+
     void PacketCommunicationAscii::WriteAscii(int32_t v)
     {
         WriteSeperator();
@@ -502,6 +489,7 @@ namespace erpc
                 insideString = true;
                 return ReadAscii(v);
             }
+
         } 
         while (!IsDigit(d, isHex, dv));
         do
