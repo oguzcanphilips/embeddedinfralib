@@ -160,17 +160,17 @@ TEST(TestCommunication, CallImpl)
   PWMImpl pwm;
   skeleton.SetImpl(pwm);
 
-  proxy.SetPwm(0,1000);
-  proxy.SetPwm(1,2000);
+  proxy.SetPwm(erpc::ChannelId::ChannelLow, 1000);
+  proxy.SetPwm(erpc::ChannelId::ChannelHigh, 2000);
 
-  ASSERT_EQ(1000, pwm.GetPwm(0));
-  ASSERT_EQ(2000, pwm.GetPwm(1));
+  ASSERT_EQ(1000, pwm.GetPwm(erpc::ChannelId::ChannelLow));
+  ASSERT_EQ(2000, pwm.GetPwm(erpc::ChannelId::ChannelHigh));
 
-  ASSERT_EQ(1000, proxy.GetPwm(0));
-  ASSERT_EQ(2000, proxy.GetPwm(1));
+  ASSERT_EQ(1000, proxy.GetPwm(erpc::ChannelId::ChannelLow));
+  ASSERT_EQ(2000, proxy.GetPwm(erpc::ChannelId::ChannelHigh));
 
-  ASSERT_EQ(1000, events.GetPwm(0));
-  ASSERT_EQ(2000, events.GetPwm(1));
+  ASSERT_EQ(1000, events.GetPwm(erpc::ChannelId::ChannelLow));
+  ASSERT_EQ(2000, events.GetPwm(erpc::ChannelId::ChannelHigh));
 }
 
 TEST(TestCommunication, CallImplSecondProxy)
@@ -187,14 +187,14 @@ TEST(TestCommunication, CallImplSecondProxy)
   {
       erpc::PWMProxy proxy(commA);
     PWMEvents events(proxy);
-    proxy.SetPwm(0,1000);
-    ASSERT_EQ(1000, proxy.GetPwm(0));
+    proxy.SetPwm(erpc::ChannelId::ChannelLow, 1000);
+    ASSERT_EQ(1000, proxy.GetPwm(erpc::ChannelId::ChannelLow));
   }
   {
       erpc::PWMProxy proxy(commA);
-    ASSERT_EQ(1000, proxy.GetPwm(0));
-    proxy.SetPwm(0,2000);
-    ASSERT_EQ(2000, proxy.GetPwm(0));
+      ASSERT_EQ(1000, proxy.GetPwm(erpc::ChannelId::ChannelLow));
+      proxy.SetPwm(erpc::ChannelId::ChannelLow, 2000);
+    ASSERT_EQ(2000, proxy.GetPwm(erpc::ChannelId::ChannelLow));
   }
 }
 
@@ -233,9 +233,9 @@ TEST(TestCommunication, SLIP)
   PWMApplicationSlip application(serial);
   comm.Start();
 
-  proxy.SetPwm(0,1000);
-  ASSERT_EQ(1000, proxy.GetPwm(0));
-  ASSERT_EQ(1000, events.GetPwm(0));
+  proxy.SetPwm(erpc::ChannelId::ChannelLow, 1000);
+  ASSERT_EQ(1000, proxy.GetPwm(erpc::ChannelId::ChannelLow));
+  ASSERT_EQ(1000, events.GetPwm(erpc::ChannelId::ChannelLow));
 }
 
 TEST(TestCommunication, Report1)
@@ -248,9 +248,9 @@ TEST(TestCommunication, Report1)
 	PWMApplicationReport<4> application(report);
 	comm.Start();
 
-	proxy.SetPwm(0,1000);
-	ASSERT_EQ(1000, proxy.GetPwm(0));
-	ASSERT_EQ(1000, events.GetPwm(0));
+    proxy.SetPwm(erpc::ChannelId::ChannelLow, 1000);
+    ASSERT_EQ(1000, proxy.GetPwm(erpc::ChannelId::ChannelLow));
+    ASSERT_EQ(1000, events.GetPwm(erpc::ChannelId::ChannelLow));
 }
 
 TEST(TestCommunication, Report2)
@@ -263,9 +263,9 @@ TEST(TestCommunication, Report2)
 	PWMApplicationReport<16> application(report);
 	comm.Start();
 
-	proxy.SetPwm(0,1000);
-	ASSERT_EQ(1000, proxy.GetPwm(0));
-	ASSERT_EQ(1000, events.GetPwm(0));
+    proxy.SetPwm(erpc::ChannelId::ChannelLow, 1000);
+    ASSERT_EQ(1000, proxy.GetPwm(erpc::ChannelId::ChannelLow));
+    ASSERT_EQ(1000, events.GetPwm(erpc::ChannelId::ChannelLow));
 }
 
 TEST(TestCommunication, Forward)

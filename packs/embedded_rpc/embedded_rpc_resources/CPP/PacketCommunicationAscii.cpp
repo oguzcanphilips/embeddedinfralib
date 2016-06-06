@@ -1,5 +1,5 @@
 #include "PacketCommunicationAscii.hpp"
-#include "Generated/CPP/PacketHeaderLut.hpp"
+#include "Generated/CPP/PacketCommunicationLut.hpp"
 #include <array>
 #include <cstdlib>
 
@@ -191,9 +191,7 @@ namespace erpc
     void PacketCommunicationAscii::PacketDone()
     {
         if (!outputTrimRet || outputInterfaceId & 0x01)
-        {
             WriteByte(')');
-        }
         WriteByte('\n');
         seperatorIndex = 0;
     }
@@ -204,9 +202,6 @@ namespace erpc
         if (!ReadInternalWithErrorReport(c))
             return false;
 
-        if (c == ')')
-            if (!ReadInternalWithErrorReport(c))
-                return false;
         if (c != '\n')
         {
             ReportError("Syntax error");
@@ -272,6 +267,10 @@ namespace erpc
                         {
                             interfaceId = interfaceSpec->id;
                             readFunctionId = erpc::Lut::functionSpecs[i].id;
+                            if (!PeakInternalWithErrorReport(reinterpret_cast<uint8_t&>(c)))
+                                return false;
+                            if (c == ')') 
+                                ReadInternalWithErrorReport(reinterpret_cast<uint8_t&>(c));
                             return true;
                         }
                     }
@@ -353,7 +352,7 @@ namespace erpc
         bool res = ReadByte(b);
 
         if (!insideString)
-        while (res && b == ' ')
+        while (res && (b == ' ' || b == '\r'))
             res = ReadByte(b);
         return res;
     }
@@ -449,54 +448,57 @@ namespace erpc
         ReportError("No input");
         return false;
     }
+    bool PacketCommunicationAscii::ReadAsciiInsideString(uint32_t& v)
+    {
+        uint8_t d = 0;
+        if (!ReadInternalWithErrorReport(d))
+            return false;
+        if (d == '"')
+        {
+            v = 0;
+            insideString = false;
+            return ReadInternalWithErrorReport(d); // read seperator
+        }
+        else if (d == '\\')
+        {
+            if (!ReadInternalWithErrorReport(d))
+                return false;
+        }
+        v = d;
+        return true;
+    }
+
     bool PacketCommunicationAscii::ReadAscii(uint32_t& v)
     {
-        bool isHex = false;
         v = 0;
         uint8_t d = 0;
-        uint8_t dv = 0;
 
         if (insideString)
+            return ReadAsciiInsideString(v);
+
+        if (!ReadInternalWithErrorReport(d))
+            return false;
+
+        if (d == '"')
         {
-            if (!ReadInternalWithErrorReport(d))
-                return false;
-            if (d == '"')
-            {
-                v = 0;
-                insideString = false;
-                return ReadInternalWithErrorReport(d); // read seperator
-            }
-            else if (d == '\\')
-            {
-                if (!ReadInternalWithErrorReport(d))
-                    return false;
-            }
-            v = d;
-            return true;
+            insideString = true;
+            return ReadAsciiInsideString(v);
+        }
+        if (d == '\n')
+        {
+            ReportError("Unexpected end of line");
+            return false;
         }
 
-        do
+        bool found = false;
+        bool isHex = false;
+        uint8_t dv = 0;
+        while (IsDigit(d, isHex, dv))
         {
-            if (!ReadInternalWithErrorReport(d))
-                return false;
-            if (d == '\n')
-            {
-                ReportError("Unexpected end of line");
-                return false;
-            }
-            if (d == '"')
-            {
-                insideString = true;
-                return ReadAscii(v);
-            }
-
-        } 
-        while (!IsDigit(d, isHex, dv));
-        do
-        {
+            found = true;
             v *= isHex ? 16 : 10;
             v += dv;
-            if (!PeakInternalWithErrorReport(d))
+            if (!ReadInternalWithErrorReport(d))
                 return false;
             if (d == '\n')
             {
@@ -505,17 +507,48 @@ namespace erpc
             }
             if (d == 'x' || d == 'X')
             {
+                isHex = true;
                 if (v == 0)
                 {
-                    ReadInternalWithErrorReport(d);
-                    isHex = true;
+                    if (!ReadInternalWithErrorReport(d))
+                        return false;
+                }
+                else
+                {
+                    ReportError("Syntax error");
+                    return false;
                 }
             }
-            if (!ReadInternalWithErrorReport(d))
-                return false;
+        } 
+        if (!found)
+        {
+            std::array<char, 20> enumInput;
+            enumInput[0] = d;
+            uint32_t readIndex = 1;
+            char c = 0;
+            while (!found && ReadInternalWithErrorReport(reinterpret_cast<uint8_t&>(c)))
+            {
+                if (c != ',' && c != ')')
+                {
+                    if (readIndex < (enumInput.size() - 1))
+                        enumInput[readIndex++] = c;
+                }
+                else
+                {
+                    enumInput[readIndex] = 0;
+                    for (const erpc::Lut::EnumSpec& enumSpec : erpc::Lut::enumSpecs)
+                    {
+                        if (strcmp(enumSpec.name, &enumInput[0]) == 0)
+                        {
+                            found = true;
+                            v = enumSpec.id;
+                            break;
+                        }
+                    }
+                }
+            }
         }
-        while (IsDigit(d, isHex, dv));
-        return true;
+        return found;
     }
 
     void PacketCommunicationAscii::ReadCommand()
@@ -523,7 +556,7 @@ namespace erpc
         std::array<char, 10> input;
         uint32_t readIndex = 0;
         char c = 0;
-        while (ReadInternal(reinterpret_cast<uint8_t&>(c)))
+        while (ReadInternalWithErrorReport(reinterpret_cast<uint8_t&>(c)))
         {
             if (c != '\n')
             {
@@ -532,7 +565,7 @@ namespace erpc
             }
             else
             {
-                input[readIndex++] = 0;
+                input[readIndex] = 0;
                 if (strcmp(&input[0], "HEX") == 0)
                     outputHex = true;
                 else if (strcmp(&input[0], "DEC") == 0)
@@ -543,7 +576,7 @@ namespace erpc
                     outputTrimRet = false;
                 else
                     ReportError("Unknown command");
-                return; 
+                break;
             }
         }
     }

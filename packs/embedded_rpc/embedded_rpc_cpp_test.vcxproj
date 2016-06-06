@@ -115,7 +115,7 @@
   <ItemGroup>
     <ClInclude Include="embedded_rpc_cpp_test\BarImpl.hpp" />
     <ClInclude Include="embedded_rpc_cpp_test\FooImpl.hpp" />
-    <ClInclude Include="embedded_rpc_cpp_test\Generated\CPP\PacketHeaderLut.hpp" />
+    <ClInclude Include="embedded_rpc_cpp_test\Generated\CPP\PacketCommunicationLut.hpp" />
     <ClInclude Include="embedded_rpc_cpp_test\LocalPacketCommunicationAscii.hpp" />
     <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunication.hpp" />
     <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunicationAscii.hpp" />

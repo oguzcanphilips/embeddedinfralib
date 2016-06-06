@@ -1,10 +1,15 @@
+enum ChannelId
+  ChannelLow
+  ChannelHigh
+end
+
 interface PWM
   # Events
-  EVENT PwmUpdate(uint8_t channel, uint16_t value)
+  EVENT PwmUpdate(ChannelId channel, uint16_t value)
 
   # Functions
-  void SetPwm(uint8_t channel, uint16_t value) = 100 # second
-  uint16_t GetPwm(uint8_t channel)
+  void SetPwm(ChannelId channel, uint16_t value) = 100 # second
+  uint16_t GetPwm(ChannelId channel)
   void ResetPwm()
 
   void SetName(PCString name)

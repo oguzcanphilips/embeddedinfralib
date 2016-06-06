@@ -658,7 +658,7 @@ namespace codegen
 
         private void GenereteCppLut()
         {
-            using (StreamWriter file = new HeaderFile("CPP/PacketHeaderLut.hpp"))
+            using (StreamWriter file = new HeaderFile("CPP/PacketCommunicationLut.hpp"))
             {
                 file.WriteLine("#include <cstdint>");
                 file.WriteLine("namespace erpc");

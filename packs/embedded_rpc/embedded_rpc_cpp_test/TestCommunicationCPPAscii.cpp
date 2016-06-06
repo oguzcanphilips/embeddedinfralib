@@ -67,9 +67,9 @@ TEST(TestCommunicationCPPAscii, CallImplViaProxy)
     skeleton.SetImpl(pwm);
     
     commA.SetMode(LocalPacketCommunicationAscii::OnEndSendReceive);
-    proxy.SetPwm(0, 1000);
+    proxy.SetPwm(erpc::ChannelId::ChannelLow, 1000);
     commA.SetMode(LocalPacketCommunicationAscii::OnEndSend);
-    ASSERT_EQ(1000, proxy.GetPwm(0));
+    ASSERT_EQ(1000, proxy.GetPwm(erpc::ChannelId::ChannelLow));
     
     commA.SetMode(LocalPacketCommunicationAscii::OnEndSend);
     proxy.SetName("Hello");
@@ -89,8 +89,8 @@ TEST(TestCommunicationCPPAscii, CallImpl)
     comm.Write("PWM.GetName()");
     EXPECT_EQ("PWM.GetName(\"Hello!\")", comm.output);
 
-    comm.Write("PWM.SetPwm(0,123)");
-    comm.Write("PWM.GetPwm(0)");
+    comm.Write("PWM.SetPwm(ChannelLow,123)");
+    comm.Write("PWM.GetPwm(ChannelLow)");
     EXPECT_EQ("PWM.GetPwm(123)", comm.output);
 }
 
@@ -197,8 +197,8 @@ TEST(TestCommunicationCPPAscii, CallImplWithSpaces)
     comm.Write("PWM.GetName(  )");
     EXPECT_EQ("PWM.GetName(\" Hello! \")", comm.output);
 
-    comm.Write("PWM.SetPwm(   0   , 123 )");
-    comm.Write("PWM.GetPwm(   0   )");
+    comm.Write("PWM.SetPwm(   ChannelLow   , 123 )");
+    comm.Write("PWM.GetPwm(   ChannelLow   )");
     EXPECT_EQ("PWM.GetPwm(123)", comm.output);
 }
 

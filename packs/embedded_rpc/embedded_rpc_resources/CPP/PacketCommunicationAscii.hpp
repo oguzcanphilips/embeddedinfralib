@@ -61,6 +61,8 @@ namespace erpc
         void WriteAsciiU(uint32_t v);
         bool ReadAscii(int32_t& v);
         bool ReadAscii(uint32_t& v);
+        bool ReadAsciiInsideString(uint32_t& v);
+        bool ReadAsciiEnum(uint32_t& v);
 
         void WriteString(const char* string);
         void ReadCommand();

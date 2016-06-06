@@ -114,7 +114,7 @@
     <ClInclude Include="embedded_rpc_resources\CPP\PacketCommunicationAscii.hpp">
       <Filter>Resources\CPP</Filter>
     </ClInclude>
-    <ClInclude Include="embedded_rpc_cpp_test\Generated\CPP\PacketHeaderLut.hpp">
+    <ClInclude Include="embedded_rpc_cpp_test\Generated\CPP\PacketCommunicationLut.hpp">
       <Filter>Generated\CPP</Filter>
     </ClInclude>
   </ItemGroup>
