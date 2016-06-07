@@ -89,8 +89,8 @@ TEST(TestCommunicationCPPAscii, CallImpl)
     comm.Write("PWM.GetName()");
     EXPECT_EQ("PWM.GetName(\"Hello!\")", comm.output);
 
-    comm.Write("PWM.SetPwm(ChannelLow,123)");
-    comm.Write("PWM.GetPwm(ChannelLow)");
+    comm.Write("PWM.SetPwm(Channel.Low,123)");
+    comm.Write("PWM.GetPwm(Channel.Low)");
     EXPECT_EQ("PWM.GetPwm(123)", comm.output);
 }
 
@@ -197,8 +197,8 @@ TEST(TestCommunicationCPPAscii, CallImplWithSpaces)
     comm.Write("PWM.GetName(  )");
     EXPECT_EQ("PWM.GetName(\" Hello! \")", comm.output);
 
-    comm.Write("PWM.SetPwm(   ChannelLow   , 123 )");
-    comm.Write("PWM.GetPwm(   ChannelLow   )");
+    comm.Write("PWM.SetPwm(   Channel.Low   , 123 )");
+    comm.Write("PWM.GetPwm(   Channel.Low   )");
     EXPECT_EQ("PWM.GetPwm(123)", comm.output);
 }
 

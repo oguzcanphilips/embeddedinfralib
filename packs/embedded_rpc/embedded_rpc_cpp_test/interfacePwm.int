@@ -1,6 +1,6 @@
-enum ChannelId
-  ChannelLow
-  ChannelHigh
+enum Channel
+  Low
+  High
 end
 
 interface PWM

@@ -665,6 +665,11 @@ namespace codegen
                 file.WriteLine("{");
                 file.WriteLine("  namespace Lut");
                 file.WriteLine("  {");
+                file.WriteLine("    struct FunctionId");
+                file.WriteLine("    {");
+                file.WriteLine("      const char* name;");
+                file.WriteLine("      const uint8_t id;");
+                file.WriteLine("    };");
                 file.WriteLine("    struct InterfaceSpec");
                 file.WriteLine("    {");
                 file.WriteLine("      const char* name;");
@@ -672,51 +677,64 @@ namespace codegen
                 file.WriteLine("      const uint8_t numberOfFuncions;");
                 file.WriteLine("      const uint16_t functionIndex;");
                 file.WriteLine("    };");
-                file.WriteLine("    struct FunctionSpec");
-                file.WriteLine("    {");
-                file.WriteLine("      const char* name;");
-                file.WriteLine("      const uint8_t id;");
-                file.WriteLine("    };");
-                file.WriteLine("    struct EnumSpec");
+                file.WriteLine("    struct EnumField");
                 file.WriteLine("    {");
                 file.WriteLine("      const char* name;");
                 file.WriteLine("      const int32_t id;");
                 file.WriteLine("    };");
+                file.WriteLine("    struct EnumSpec");
+                file.WriteLine("    {");
+                file.WriteLine("      const char* name;");
+                file.WriteLine("      const uint8_t numberOfFields;");
+                file.WriteLine("      const uint16_t fieldIndex;");
+                file.WriteLine("    };");
 
 
-                string functionSpecs = "    const static struct FunctionSpec functionSpecs[] =" + Environment.NewLine;
-                functionSpecs += "    {" + Environment.NewLine;
+                string functions = "    const static struct FunctionId functionIds[] =" + Environment.NewLine;
+                functions += "    {" + Environment.NewLine;
 
                 string interfaceSpecs = "    const static struct InterfaceSpec interfaceSpecs[] =" +  Environment.NewLine;
                 interfaceSpecs += "    {"+Environment.NewLine;
 
-                int functionIndex = 0;
+                string enumFields = "    const static struct EnumField enumFields[] =" + Environment.NewLine;
+                enumFields += "    {" + Environment.NewLine;
+
+                string enumSpecs = "    const static struct EnumSpec enumSpecs[] =" + Environment.NewLine;
+                enumSpecs += "    {" + Environment.NewLine;
+
+                int nameIndex = 0;
                 foreach (var interfaceSpec in mInterfaces)
                 {
                     interfaceSpecs += "      {\"" + interfaceSpec.Name + "\", " + interfaceSpec.Id + ", " +
-                                      interfaceSpec.Functions.Count + ", " + functionIndex + "}," + Environment.NewLine;
+                                      interfaceSpec.Functions.Count + ", " + nameIndex + "}," + Environment.NewLine;
 
-                    functionIndex += interfaceSpec.Functions.Count;
+                    nameIndex += interfaceSpec.Functions.Count;
                     foreach (var func in interfaceSpec.Functions)
                     {
-                        functionSpecs += "      {\"" + func.Name + "\", " + func.Id + "}," + Environment.NewLine;
+                        functions += "      {\"" + func.Name + "\", " + func.Id + "}," + Environment.NewLine;
                     }
                 }
-                functionSpecs += "    };";
-                interfaceSpecs += "    };";
-                file.WriteLine(functionSpecs);
-                file.WriteLine(interfaceSpecs);
-
-                file.WriteLine("    const static struct EnumSpec enumSpecs[] =");
-                file.WriteLine("    {");
+                nameIndex = 0;
                 foreach (var enumSpec in mEnums)
                 {
-                    foreach (var field in enumSpec.Fields)
+                    enumSpecs += "      {\"" + enumSpec.Name + "\", " +
+                                      enumSpec.Fields.Count + ", " + nameIndex + "}," + Environment.NewLine;
+
+                    nameIndex += enumSpec.Fields.Count;
+                    foreach (var eSpec in enumSpec.Fields)
                     {
-                        file.WriteLine("      {\"" + field.Name + "\", " + field.Value + "},");
+                        enumFields += "      {\"" + eSpec.Name + "\", " + eSpec.Value + "}," + Environment.NewLine;
                     }
                 }
-                file.WriteLine("    };");
+
+                functions += "    };";
+                enumFields += "    };";
+                interfaceSpecs += "    };";
+                enumSpecs += "    };";
+                file.WriteLine(functions);
+                file.WriteLine(interfaceSpecs);
+                file.WriteLine(enumFields);
+                file.WriteLine(enumSpecs);
                 file.WriteLine("  }");
                 file.WriteLine("}");
             }            

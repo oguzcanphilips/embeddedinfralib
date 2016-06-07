@@ -177,9 +177,9 @@ namespace erpc
                 const uint16_t functionEnd = iSpec.functionIndex + iSpec.numberOfFuncions;
                 for (uint16_t i = iSpec.functionIndex; i != functionEnd; ++i)
                 {
-                    if (erpc::Lut::functionSpecs[i].id == functionId)
+                    if (erpc::Lut::functionIds[i].id == functionId)
                     {
-                        WriteString(erpc::Lut::functionSpecs[i].name);
+                        WriteString(erpc::Lut::functionIds[i].name);
                         WriteByte('(');
                         return;
                     }
@@ -257,16 +257,22 @@ namespace erpc
                     }
                     break;
             case '(':
+                if (!interfaceSpec)
+                {
+                    ReportError("Unknown interface");
+                    FlushInput();
+                    return false;
+                }
                 input[readIndex] = 0;
                 readIndex = 0;
                 {
                     const uint16_t functionEnd = interfaceSpec->functionIndex + interfaceSpec->numberOfFuncions;
                     for (uint16_t i = interfaceSpec->functionIndex; i != functionEnd; ++i)
                     {
-                        if (strcmp(erpc::Lut::functionSpecs[i].name, &input[0]) == 0)
+                        if (strcmp(erpc::Lut::functionIds[i].name, &input[0]) == 0)
                         {
                             interfaceId = interfaceSpec->id;
-                            readFunctionId = erpc::Lut::functionSpecs[i].id;
+                            readFunctionId = erpc::Lut::functionIds[i].id;
                             if (!PeakInternalWithErrorReport(reinterpret_cast<uint8_t&>(c)))
                                 return false;
                             if (c == ')') 
@@ -526,25 +532,61 @@ namespace erpc
             enumInput[0] = d;
             uint32_t readIndex = 1;
             char c = 0;
+            const erpc::Lut::EnumSpec* spec = nullptr;
             while (!found && ReadInternalWithErrorReport(reinterpret_cast<uint8_t&>(c)))
             {
-                if (c != ',' && c != ')')
+                switch (c)
                 {
-                    if (readIndex < (enumInput.size() - 1))
-                        enumInput[readIndex++] = c;
-                }
-                else
-                {
+                case '.':
                     enumInput[readIndex] = 0;
-                    for (const erpc::Lut::EnumSpec& enumSpec : erpc::Lut::enumSpecs)
+                    readIndex = 0;
+                    for (const erpc::Lut::EnumSpec& iSpec : erpc::Lut::enumSpecs)
                     {
-                        if (strcmp(enumSpec.name, &enumInput[0]) == 0)
+                        if (strcmp(iSpec.name, &enumInput[0]) == 0)
                         {
-                            found = true;
-                            v = enumSpec.id;
+                            spec = &iSpec;
                             break;
                         }
                     }
+                    if (spec == nullptr)
+                    {
+                        ReportError("Unknown enum");
+                        FlushInput();
+                        return false;
+                    }
+                    break;
+                case ',':
+                case ')':
+                    if (!spec)
+                    {
+                        ReportError("Unknown enum");
+                        FlushInput();
+                        return false;
+                    }
+                    {
+                        enumInput[readIndex] = 0;
+                        const uint16_t end = spec->fieldIndex + spec->numberOfFields;
+                        for (uint16_t i = spec->fieldIndex; i != end; ++i)
+                        {
+                            if (strcmp(erpc::Lut::enumFields[i].name, &enumInput[0]) == 0)
+                            {
+                                found = true;
+                                v = erpc::Lut::enumFields[i].id;
+                                break;
+                            }
+                        }
+                        if (!found)
+                        {
+                            ReportError("Unknown enum field");
+                            FlushInput();
+                            return false;
+                        }
+                    }
+                    break;
+                default:
+                    if (readIndex < (enumInput.size() - 1))
+                        enumInput[readIndex++] = c;
+                    break;
                 }
             }
         }
