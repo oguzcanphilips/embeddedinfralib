@@ -47,7 +47,7 @@ namespace erpc
         void WriteMessage(const char* msg);
     private:
         void FlushInput();
-        void ReportError(const char* msg);
+        void ReportError(const char* msg, const char* info = nullptr);
         bool ReadByteNoSpaces(uint8_t& b);
         void WriteInternal(uint8_t v);
         bool ReadInternal(uint8_t& v);

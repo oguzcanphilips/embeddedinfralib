@@ -149,7 +149,7 @@ TEST(TestCommunicationCPPAscii, UnknownCommand)
     PWMImpl pwm;
     skeleton.SetImpl(pwm);
     comm.Write("$BlaBla");
-    EXPECT_EQ("$ERROR:Unknown command", comm.output);
+    EXPECT_EQ("$ERROR:Unknown command (BLABLA)", comm.output);
 }
 
 TEST(TestCommunicationCPPAscii, UnknownCommandTooLong)
@@ -160,7 +160,7 @@ TEST(TestCommunicationCPPAscii, UnknownCommandTooLong)
     PWMImpl pwm;
     skeleton.SetImpl(pwm);
     comm.Write("$BlaBlaBlaBlaBlaBla");
-    EXPECT_EQ("$ERROR:Unknown command", comm.output);
+    EXPECT_EQ("$ERROR:Unknown command (BLABLABLA)", comm.output);
 } 
 
 TEST(TestCommunicationCPPAscii, KnownCommand)
@@ -202,6 +202,41 @@ TEST(TestCommunicationCPPAscii, CallImplWithSpaces)
     EXPECT_EQ("PWM.GetPwm(123)", comm.output);
 }
 
+TEST(TestCommunicationCPPAscii, CallImplWithUnknownEnum)
+{
+    PacketCommunicationAsciiIO comm;
+    erpc::PWMSkeleton skeleton(comm);
+    comm.Register(skeleton);
+    PWMImpl pwm;
+    skeleton.SetImpl(pwm);
+    comm.Write("PWM.SetPwm(   Channel_.Low   , 123 )");
+    EXPECT_EQ("$ERROR:Unknown enum (Channel_)", comm.output);
+    comm.Write("PWM.SetPwm(   Channel.Low_   , 123 )");
+    EXPECT_EQ("$ERROR:Unknown enum field (Low_)", comm.output);
+}
+
+TEST(TestCommunicationCPPAscii, CallImplWithUnknownInterface)
+{
+    PacketCommunicationAsciiIO comm;
+    erpc::PWMSkeleton skeleton(comm);
+    comm.Register(skeleton);
+    PWMImpl pwm;
+    skeleton.SetImpl(pwm);
+    comm.Write("PWM_.SetPwm(Channel.Low, 123)");
+    EXPECT_EQ("$ERROR:Unknown interface (PWM_)", comm.output);
+}
+
+TEST(TestCommunicationCPPAscii, CallImplWithUnknownFunction)
+{
+    PacketCommunicationAsciiIO comm;
+    erpc::PWMSkeleton skeleton(comm);
+    comm.Register(skeleton);
+    PWMImpl pwm;
+    skeleton.SetImpl(pwm);
+    comm.Write("PWM.SetPwm_(Channel.Low, 123)");
+    EXPECT_EQ("$ERROR:Unknown function (SetPwm_)", comm.output);
+}
+
 TEST(TestCommunicationCPPAscii, CallImplWithMissingInput)
 {
     PacketCommunicationAsciiIO comm;
@@ -221,8 +256,5 @@ TEST(TestCommunicationCPPAscii, CallImplWithMissingInput)
     comm.output = "";
     comm.Write("PWM.SetPw");
     EXPECT_EQ("$ERROR:Syntax error", comm.output);
-    comm.output = "";
-    comm.Write("PWM.SetPw(");
-    EXPECT_EQ("$ERROR:Unknown function", comm.output);
     comm.output = "";
 }

@@ -235,7 +235,7 @@ namespace erpc
                     interfaceSpec = erpc::Lut::FindInterface(&input[0]);
                     if (interfaceSpec == nullptr)
                     {
-                        ReportError("Unknown interface");
+                        ReportError("Unknown interface", &input[0]);
                         FlushInput();
                         return false;
                     }
@@ -257,7 +257,7 @@ namespace erpc
                     }
                     else
                     {
-                        ReportError("Unknown function");
+                        ReportError("Unknown function", &input[0]);
                         FlushInput();
                         return false;
                     }
@@ -410,10 +410,16 @@ namespace erpc
         for (; *msg; ++msg)
             WriteInternal(*msg);
     }
-    void PacketCommunicationAscii::ReportError(const char* msg)
+    void PacketCommunicationAscii::ReportError(const char* msg, const char* info)
     {
         WriteMessage("$ERROR:");
         WriteMessage(msg);
+        if (info)
+        {
+            WriteMessage(" (");
+            WriteMessage(info);
+            WriteMessage(")");
+        }
         WriteMessage("\n");
     }
     bool PacketCommunicationAscii::ReadInternalWithErrorReport(uint8_t& v)
@@ -521,7 +527,7 @@ namespace erpc
                     spec = erpc::Lut::FindEnum(&enumInput[0]);
                     if (spec == nullptr)
                     {
-                        ReportError("Unknown enum");
+                        ReportError("Unknown enum", &enumInput[0]);
                         FlushInput();
                         return false;
                     }
@@ -538,7 +544,7 @@ namespace erpc
                         }
                         else
                         {
-                            ReportError("Unknown enum field");
+                            ReportError("Unknown enum field", &enumInput[0]);
                             FlushInput();
                             return false;
                         }
@@ -578,7 +584,7 @@ namespace erpc
                 else if (strcmp(&input[0], "!TRIM") == 0)
                     outputTrimRet = false;
                 else
-                    ReportError("Unknown command");
+                    ReportError("Unknown command", &input[0]);
                 break;
             }
         }
