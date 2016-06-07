@@ -661,6 +661,7 @@ namespace codegen
             using (StreamWriter file = new HeaderFile("CPP/PacketCommunicationLut.hpp"))
             {
                 file.WriteLine("#include <cstdint>");
+                file.WriteLine("#include <cstring>");
                 file.WriteLine("namespace erpc");
                 file.WriteLine("{");
                 file.WriteLine("  namespace Lut");
@@ -735,6 +736,76 @@ namespace codegen
                 file.WriteLine(interfaceSpecs);
                 file.WriteLine(enumFields);
                 file.WriteLine(enumSpecs);
+
+                file.WriteLine("    const InterfaceSpec* FindInterface(uint8_t id)");
+                file.WriteLine("    {");
+                file.WriteLine("      for (const erpc::Lut::InterfaceSpec& iSpec : erpc::Lut::interfaceSpecs)");
+                file.WriteLine("      {");
+                file.WriteLine("        if (iSpec.id == id)");
+                file.WriteLine("          return &iSpec;");
+                file.WriteLine("      }");
+                file.WriteLine("      return nullptr;");
+                file.WriteLine("    }");
+
+                file.WriteLine("    const InterfaceSpec* FindInterface(const char* name)");
+                file.WriteLine("    {");
+                file.WriteLine("      for (const erpc::Lut::InterfaceSpec& iSpec : erpc::Lut::interfaceSpecs)");
+                file.WriteLine("      {");
+                file.WriteLine("        if (strcmp(iSpec.name, name)==0)");
+                file.WriteLine("          return &iSpec;");
+                file.WriteLine("      }");
+                file.WriteLine("      return nullptr;");
+                file.WriteLine("    }");
+
+                file.WriteLine("    const FunctionId* FindFunction(const InterfaceSpec* interfaceSpec, uint8_t id)");
+                file.WriteLine("    {");
+                file.WriteLine("      if (!interfaceSpec)");
+                file.WriteLine("        return nullptr;");
+                file.WriteLine("      const uint16_t end = interfaceSpec->functionIndex + interfaceSpec->numberOfFuncions;");
+                file.WriteLine("      for (uint16_t i = interfaceSpec->functionIndex; i != end; ++i)");
+                file.WriteLine("      {");
+                file.WriteLine("        if (erpc::Lut::functionIds[i].id == id)");
+                file.WriteLine("          return &erpc::Lut::functionIds[i];");
+                file.WriteLine("      }");
+                file.WriteLine("      return nullptr;");
+                file.WriteLine("    }");
+
+                file.WriteLine("    const FunctionId* FindFunction(const InterfaceSpec* interfaceSpec, const char* name)");
+                file.WriteLine("    {");
+                file.WriteLine("      if (!interfaceSpec)");
+                file.WriteLine("        return nullptr;");
+                file.WriteLine("      const uint16_t end = interfaceSpec->functionIndex + interfaceSpec->numberOfFuncions;");
+                file.WriteLine("      for (uint16_t i = interfaceSpec->functionIndex; i != end; ++i)");
+                file.WriteLine("      {");
+                file.WriteLine("        if (strcmp(erpc::Lut::functionIds[i].name, name) == 0)");
+                file.WriteLine("          return &erpc::Lut::functionIds[i];");
+                file.WriteLine("      }");
+                file.WriteLine("      return nullptr;");
+                file.WriteLine("    }");
+
+                file.WriteLine("    const EnumSpec* FindEnum(const char* name)");
+                file.WriteLine("    {");
+                file.WriteLine("      for (const erpc::Lut::EnumSpec& iSpec : erpc::Lut::enumSpecs)");
+                file.WriteLine("      {");
+                file.WriteLine("        if (strcmp(iSpec.name, name)==0)");
+                file.WriteLine("          return &iSpec;");
+                file.WriteLine("      }");
+                file.WriteLine("      return nullptr;");
+                file.WriteLine("    }");
+
+                file.WriteLine("    const EnumField* FindEnumField(const EnumSpec* enumSpec, const char* name)");
+                file.WriteLine("    {");
+                file.WriteLine("      if (!enumSpec)");
+                file.WriteLine("        return nullptr;");
+                file.WriteLine("      const uint16_t end = enumSpec->fieldIndex + enumSpec->numberOfFields;");
+                file.WriteLine("      for (uint16_t i = enumSpec->fieldIndex; i != end; ++i)");
+                file.WriteLine("      {");
+                file.WriteLine("        if (strcmp(erpc::Lut::enumFields[i].name, name) == 0)");
+                file.WriteLine("          return &erpc::Lut::enumFields[i];");
+                file.WriteLine("      }");
+                file.WriteLine("      return nullptr;");
+                file.WriteLine("    }");
+
                 file.WriteLine("  }");
                 file.WriteLine("}");
             }            

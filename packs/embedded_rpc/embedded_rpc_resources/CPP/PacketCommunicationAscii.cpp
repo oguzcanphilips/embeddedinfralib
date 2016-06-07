@@ -168,23 +168,14 @@ namespace erpc
         if (outputTrimRet && (interfaceId & 0x01) == 0)
             return;
 
-        for (const erpc::Lut::InterfaceSpec& iSpec : erpc::Lut::interfaceSpecs)
+        const erpc::Lut::InterfaceSpec* iSpec = erpc::Lut::FindInterface(interfaceId);
+        const erpc::Lut::FunctionId* function = erpc::Lut::FindFunction(iSpec, functionId);
+        if (function)
         {
-            if (iSpec.id == interfaceId)
-            {
-                WriteString(iSpec.name);
-                WriteByte('.');
-                const uint16_t functionEnd = iSpec.functionIndex + iSpec.numberOfFuncions;
-                for (uint16_t i = iSpec.functionIndex; i != functionEnd; ++i)
-                {
-                    if (erpc::Lut::functionIds[i].id == functionId)
-                    {
-                        WriteString(erpc::Lut::functionIds[i].name);
-                        WriteByte('(');
-                        return;
-                    }
-                }
-            }
+            WriteString(iSpec->name);
+            WriteByte('.');
+            WriteString(function->name);
+            WriteByte('(');
         }
     }
 
@@ -241,14 +232,7 @@ namespace erpc
             case '.':
                     input[readIndex] = 0;
                     readIndex = 0;
-                    for (const erpc::Lut::InterfaceSpec& iSpec : erpc::Lut::interfaceSpecs)
-                    {
-                        if (strcmp(iSpec.name, &input[0]) == 0)
-                        {
-                            interfaceSpec = &iSpec;
-                            break;
-                        }
-                    }
+                    interfaceSpec = erpc::Lut::FindInterface(&input[0]);
                     if (interfaceSpec == nullptr)
                     {
                         ReportError("Unknown interface");
@@ -257,32 +241,26 @@ namespace erpc
                     }
                     break;
             case '(':
-                if (!interfaceSpec)
                 {
-                    ReportError("Unknown interface");
-                    FlushInput();
-                    return false;
-                }
-                input[readIndex] = 0;
-                readIndex = 0;
-                {
-                    const uint16_t functionEnd = interfaceSpec->functionIndex + interfaceSpec->numberOfFuncions;
-                    for (uint16_t i = interfaceSpec->functionIndex; i != functionEnd; ++i)
+                    input[readIndex] = 0;
+                    readIndex = 0;
+                    const erpc::Lut::FunctionId* functionId = FindFunction(interfaceSpec, &input[0]);
+                    if (functionId)
                     {
-                        if (strcmp(erpc::Lut::functionIds[i].name, &input[0]) == 0)
-                        {
-                            interfaceId = interfaceSpec->id;
-                            readFunctionId = erpc::Lut::functionIds[i].id;
-                            if (!PeakInternalWithErrorReport(reinterpret_cast<uint8_t&>(c)))
-                                return false;
-                            if (c == ')') 
-                                ReadInternalWithErrorReport(reinterpret_cast<uint8_t&>(c));
-                            return true;
-                        }
+                        interfaceId = interfaceSpec->id;
+                        readFunctionId = functionId->id;
+                        if (!PeakInternalWithErrorReport(reinterpret_cast<uint8_t&>(c)))
+                            return false;
+                        if (c == ')')
+                            ReadInternalWithErrorReport(reinterpret_cast<uint8_t&>(c));
+                        return true;
                     }
-                    ReportError("Unknown function");
-                    FlushInput();
-                    return false;
+                    else
+                    {
+                        ReportError("Unknown function");
+                        FlushInput();
+                        return false;
+                    }
                 }
                 break;
             default:
@@ -540,14 +518,7 @@ namespace erpc
                 case '.':
                     enumInput[readIndex] = 0;
                     readIndex = 0;
-                    for (const erpc::Lut::EnumSpec& iSpec : erpc::Lut::enumSpecs)
-                    {
-                        if (strcmp(iSpec.name, &enumInput[0]) == 0)
-                        {
-                            spec = &iSpec;
-                            break;
-                        }
-                    }
+                    spec = erpc::Lut::FindEnum(&enumInput[0]);
                     if (spec == nullptr)
                     {
                         ReportError("Unknown enum");
@@ -557,25 +528,15 @@ namespace erpc
                     break;
                 case ',':
                 case ')':
-                    if (!spec)
-                    {
-                        ReportError("Unknown enum");
-                        FlushInput();
-                        return false;
-                    }
                     {
                         enumInput[readIndex] = 0;
-                        const uint16_t end = spec->fieldIndex + spec->numberOfFields;
-                        for (uint16_t i = spec->fieldIndex; i != end; ++i)
+                        const erpc::Lut::EnumField* field = erpc::Lut::FindEnumField(spec, &enumInput[0]);
+                        if (field)
                         {
-                            if (strcmp(erpc::Lut::enumFields[i].name, &enumInput[0]) == 0)
-                            {
-                                found = true;
-                                v = erpc::Lut::enumFields[i].id;
-                                break;
-                            }
+                            found = true;
+                            v = field->id;
                         }
-                        if (!found)
+                        else
                         {
                             ReportError("Unknown enum field");
                             FlushInput();
