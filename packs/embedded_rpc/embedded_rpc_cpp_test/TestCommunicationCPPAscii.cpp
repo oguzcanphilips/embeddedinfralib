@@ -67,9 +67,9 @@ TEST(TestCommunicationCPPAscii, CallImplViaProxy)
     skeleton.SetImpl(pwm);
     
     commA.SetMode(LocalPacketCommunicationAscii::OnEndSendReceive);
-    proxy.SetPwm(erpc::ChannelId::ChannelLow, 1000);
+    proxy.SetPwm(erpc::Channel::Low, 1000);
     commA.SetMode(LocalPacketCommunicationAscii::OnEndSend);
-    ASSERT_EQ(1000, proxy.GetPwm(erpc::ChannelId::ChannelLow));
+    ASSERT_EQ(1000, proxy.GetPwm(erpc::Channel::Low));
     
     commA.SetMode(LocalPacketCommunicationAscii::OnEndSend);
     proxy.SetName("Hello");

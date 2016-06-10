@@ -5,6 +5,29 @@
 
 namespace erpc
 {
+    static bool IsDigit(char d, bool isHex, uint8_t& value)
+    {
+        if (d >= '0' && d <= '9')
+        {
+            value = d - '0';
+            return true;
+        }
+        if (isHex)
+        {
+            if (d >= 'A' && d <= 'F')
+            {
+                value = d - 'A' + 10;
+                return true;
+            }
+            if (d >= 'a' && d <= 'f')
+            {
+                value = d - 'a' + 10;
+                return true;
+            }
+        }
+        return false;
+    }
+
     PacketCommunicationAscii::PacketCommunicationAscii()
     {
     }
@@ -236,7 +259,6 @@ namespace erpc
                     if (interfaceSpec == nullptr)
                     {
                         ReportError("Unknown interface", &input[0]);
-                        FlushInput();
                         return false;
                     }
                     break;
@@ -258,7 +280,6 @@ namespace erpc
                     else
                     {
                         ReportError("Unknown function", &input[0]);
-                        FlushInput();
                         return false;
                     }
                 }
@@ -269,7 +290,6 @@ namespace erpc
             }
         }
         ReportError("Syntax error");
-        FlushInput();
         return false;
     }
 
@@ -381,30 +401,6 @@ namespace erpc
         }
         return true;
     }
-
-    static bool IsDigit(char d, bool isHex, uint8_t& value)
-    {
-        if (d >= '0' && d <= '9')
-        {
-            value = d - '0';
-            return true;
-        }
-        if (isHex)
-        {
-            if (d >= 'A' && d <= 'F')
-            {
-                value = d - 'A' + 10;
-                return true;
-            }
-            if (d >= 'a' && d <= 'f')
-            {
-                value = d - 'a' + 10;
-                return true;
-            }
-        }
-        return false;
-    }
-
     void PacketCommunicationAscii::WriteMessage(const char* msg)
     {
         for (; *msg; ++msg)
@@ -412,6 +408,7 @@ namespace erpc
     }
     void PacketCommunicationAscii::ReportError(const char* msg, const char* info)
     {
+        FlushInput();
         WriteMessage("$ERROR:");
         WriteMessage(msg);
         if (info)
@@ -528,7 +525,6 @@ namespace erpc
                     if (spec == nullptr)
                     {
                         ReportError("Unknown enum", &enumInput[0]);
-                        FlushInput();
                         return false;
                     }
                     break;
@@ -545,7 +541,6 @@ namespace erpc
                         else
                         {
                             ReportError("Unknown enum field", &enumInput[0]);
-                            FlushInput();
                             return false;
                         }
                     }

@@ -5,11 +5,11 @@ end
 
 interface PWM
   # Events
-  EVENT PwmUpdate(ChannelId channel, uint16_t value)
+  EVENT PwmUpdate(Channel channel, uint16_t value)
 
   # Functions
-  void SetPwm(ChannelId channel, uint16_t value) = 100 # second
-  uint16_t GetPwm(ChannelId channel)
+  void SetPwm(Channel channel, uint16_t value) = 100 # second
+  uint16_t GetPwm(Channel channel)
   void ResetPwm()
 
   void SetName(PCString name)

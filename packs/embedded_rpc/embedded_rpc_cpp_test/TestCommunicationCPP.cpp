@@ -34,17 +34,17 @@ TEST(TestCommunicationCPP, CallImpl)
   PWMImpl pwm;
   skeleton.SetImpl(pwm);
 
-  proxy.SetPwm(erpc::ChannelId::ChannelLow, 1000);
-  proxy.SetPwm(erpc::ChannelId::ChannelHigh, 2000);
+  proxy.SetPwm(erpc::Channel::Low, 1000);
+  proxy.SetPwm(erpc::Channel::High, 2000);
 
-  ASSERT_EQ(1000, pwm.GetPwm(erpc::ChannelId::ChannelLow));
-  ASSERT_EQ(2000, pwm.GetPwm(erpc::ChannelId::ChannelHigh));
+  ASSERT_EQ(1000, pwm.GetPwm(erpc::Channel::Low));
+  ASSERT_EQ(2000, pwm.GetPwm(erpc::Channel::High));
 
-  ASSERT_EQ(1000, events.GetPwm(erpc::ChannelId::ChannelLow));
-  ASSERT_EQ(2000, events.GetPwm(erpc::ChannelId::ChannelHigh));
+  ASSERT_EQ(1000, events.GetPwm(erpc::Channel::Low));
+  ASSERT_EQ(2000, events.GetPwm(erpc::Channel::High));
 
-  ASSERT_EQ(1000, proxy.GetPwm(erpc::ChannelId::ChannelLow));
-  ASSERT_EQ(2000, proxy.GetPwm(erpc::ChannelId::ChannelHigh));
+  ASSERT_EQ(1000, proxy.GetPwm(erpc::Channel::Low));
+  ASSERT_EQ(2000, proxy.GetPwm(erpc::Channel::High));
 }
 
 TEST(TestCommunicationCPP, 2ChannelCommunication)
@@ -88,20 +88,20 @@ TEST(TestCommunicationCPP, CallImplMT)
   PWMImpl pwm;
   skeleton.SetImpl(pwm);
 
-  proxy.SetPwm(erpc::ChannelId::ChannelLow, 1000);
-  proxy.SetPwm(erpc::ChannelId::ChannelHigh, 2000);
+  proxy.SetPwm(erpc::Channel::Low, 1000);
+  proxy.SetPwm(erpc::Channel::High, 2000);
 
-  ASSERT_EQ(1000, proxy.GetPwm(erpc::ChannelId::ChannelLow));
+  ASSERT_EQ(1000, proxy.GetPwm(erpc::Channel::Low));
   for(int i=0;i<10;++i)
   {
-      ASSERT_EQ(2000, proxy.GetPwm(erpc::ChannelId::ChannelHigh));
+      ASSERT_EQ(2000, proxy.GetPwm(erpc::Channel::High));
   }
 
-  ASSERT_EQ(1000, pwm.GetPwm(erpc::ChannelId::ChannelLow));
-  ASSERT_EQ(2000, pwm.GetPwm(erpc::ChannelId::ChannelHigh));
+  ASSERT_EQ(1000, pwm.GetPwm(erpc::Channel::Low));
+  ASSERT_EQ(2000, pwm.GetPwm(erpc::Channel::High));
 
-  ASSERT_EQ(1000, events.GetPwm(erpc::ChannelId::ChannelLow));
-  ASSERT_EQ(2000, events.GetPwm(erpc::ChannelId::ChannelHigh));
+  ASSERT_EQ(1000, events.GetPwm(erpc::Channel::Low));
+  ASSERT_EQ(2000, events.GetPwm(erpc::Channel::High));
 }
 
 TEST(TestCommunicationCPP, CallArray)
