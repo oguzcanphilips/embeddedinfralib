@@ -118,7 +118,7 @@ TEST(TestCommunicationCPPAscii, CallImplHexOutputHexAndDec)
 
     comm.Write("$HEX");
     comm.Write("PWM.GetPwm(0x00)");
-    EXPECT_EQ("PWM.GetPwm(0x123)", comm.output);
+    EXPECT_EQ("PWM.GetPwm(0x0123)", comm.output);
     comm.Write("$DEC");
     comm.Write("PWM.GetPwm(0x00)");
     EXPECT_EQ("PWM.GetPwm(291)", comm.output);

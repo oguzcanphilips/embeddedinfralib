@@ -34,17 +34,17 @@ namespace erpc
         
     void PacketCommunicationAscii::Write(uint8_t v)
     {
-        Write(static_cast<uint32_t>(v));
+        WriteAscii(v,2);
     }
 
     void PacketCommunicationAscii::Write(uint16_t v)
     {
-        Write(static_cast<uint32_t>(v));
+        WriteAscii(v,4);
     }
 
     void PacketCommunicationAscii::Write(uint32_t v)
     {
-        WriteAscii(v);
+        WriteAscii(v,8);
     }
 
     void PacketCommunicationAscii::Write(const uint8_t* data, uint16_t len)
@@ -68,17 +68,17 @@ namespace erpc
 
     void PacketCommunicationAscii::Write(int8_t v)
     {
-        Write(static_cast<int32_t>(v));
+        WriteAscii(static_cast<int32_t>(v),2);
     }
 
     void PacketCommunicationAscii::Write(int16_t v)
     {
-        Write(static_cast<int32_t>(v));
+        WriteAscii(static_cast<int32_t>(v),4);
     }
 
     void PacketCommunicationAscii::Write(int32_t v)
     {
-        WriteAscii(v);
+        WriteAscii(v,8);
     }
 
     void PacketCommunicationAscii::Write(bool v)
@@ -301,29 +301,32 @@ namespace erpc
             WriteByte(',');
     }
 
-    void PacketCommunicationAscii::WriteAscii(int32_t v)
+    void PacketCommunicationAscii::WriteAscii(int32_t v, uint8_t width)
     {
         WriteSeperator();
         if (v < 0)
         {
             WriteByte('-');
-            WriteAsciiU(static_cast<uint32_t>(-v));
+            WriteAsciiU(static_cast<uint32_t>(-v), width);
         }
         else
         {
-            WriteAsciiU(static_cast<uint32_t>(v));
+            WriteAsciiU(static_cast<uint32_t>(v), width);
         }
     }
 
-    void PacketCommunicationAscii::WriteAscii(uint32_t v)
+    void PacketCommunicationAscii::WriteAscii(uint32_t v, uint8_t width)
     {
         WriteSeperator();
-        WriteAsciiU(v);
+        WriteAsciiU(v, width);
     }
 
-    void PacketCommunicationAscii::WriteAsciiU(uint32_t v)
+    void PacketCommunicationAscii::WriteAsciiU(uint32_t v, uint8_t width)
     {
         uint32_t base = outputHex ? 16 : 10;
+        if (!outputHex)
+            width = 0;
+
         const static uint8_t digits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
         uint8_t str[10];
         uint8_t index = sizeof(str)-1;
@@ -333,8 +336,10 @@ namespace erpc
             index--;
             str[index] = digits[v % base];
             v /= base;
+            if (width) 
+                width--;
         } 
-        while (v);
+        while (v || width);
         if (outputHex)
             WriteString("0x");
 

@@ -56,9 +56,9 @@ namespace erpc
         bool PeakInternalWithErrorReport(uint8_t& v);
         
         void WriteSeperator();
-        void WriteAscii(int32_t v);
-        void WriteAscii(uint32_t v);
-        void WriteAsciiU(uint32_t v);
+        void WriteAscii(int32_t v, uint8_t width);
+        void WriteAscii(uint32_t v, uint8_t width);
+        void WriteAsciiU(uint32_t v, uint8_t width);
         bool ReadAscii(int32_t& v);
         bool ReadAscii(uint32_t& v);
         bool ReadAsciiInsideString(uint32_t& v);
