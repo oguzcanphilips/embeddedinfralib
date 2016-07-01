@@ -52,7 +52,7 @@ macro(ccola_component name)
 
 	ccola_set_source_group(CMake "${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt")
 
-	ccola_find_first(CCOLA_COMPONENT_TYPE_DIR component_${CCOLA_COMPONENT_TYPE} ${CCOLA_COMPONENT_TYPE_DIRS})
+	ccola_find_first(CCOLA_COMPONENT_TYPE_DIR component_${CCOLA_COMPONENT_TYPE} "${CCOLA_COMPONENT_TYPE_DIRS}")
 	if(NOT CCOLA_COMPONENT_TYPE_DIR)
 		message(FATAL_ERROR "Cannot find directory for component type ${CCOLA_COMPONENT_TYPE} in these directories: ${CCOLA_COMPONENT_TYPE_DIRS}")
 	endif()
@@ -166,55 +166,37 @@ macro(ccola_install_file_rename from to rename)
 endmacro()
 
 
-macro(ccola_repository path)
-
-	list(APPEND CCOLA_REPOSITORIES "${path}")
-	ccola_promote_variable(CCOLA_REPOSITORIES)
-	if(EXISTS "${path}/packs")
-		list(APPEND CCOLA_PACK_SOURCE_DIRS "${path}/packs")
-		file(GLOB pack_names RELATIVE "${path}/packs" "${path}/packs/*")
-		foreach(name ${pack_names})
-			ccola_include_pack(${name})
-		endforeach()
-	endif()
-
-endmacro()
-
-
-macro(ccola_include_pack name)
-
-	list(FIND CCOLA_PACKS ${name} result)
-	if(result EQUAL -1)
-	    message(STATUS "adding pack ${name}")
-
-		list(APPEND CCOLA_PACKS ${name})
-		ccola_find_first(pack_dir ${name} ${CCOLA_PACK_SOURCE_DIRS})
-		if(NOT pack_dir)
-			message(FATAL_ERROR "Cannot find pack ${name} in directories ${CCOLA_PACK_SOURCE_DIRS}.")
-		endif()
-
-		set(CCOLA_PACK_DIR_${name} "${pack_dir}")
-		ccola_promote_variable(CCOLA_PACK_DIR_${name})
-		ccola_require_file(${pack_dir}/start_pack.inc "pack ${name}")
-		ccola_require_file(${pack_dir}/end_pack.inc "pack ${name}")
-		list(APPEND CCOLA_PACK_DIRS "${pack_dir}")
-		list(APPEND CCOLA_PACK_NAMES ${name})
-		ccola_promote_variable(CCOLA_PACK_NAMES)
-		include(${pack_dir}/start_pack.inc)
-		ccola_make_absolute(dir ${pack_dir}/components)
-		if(EXISTS ${dir})
-			list(APPEND CCOLA_COMPONENT_TYPE_DIRS ${dir})
-			ccola_promote_variable(CCOLA_COMPONENT_TYPE_DIRS)
-		endif()
-	endif()
-
-endmacro()
-
-
 macro(ccola_pack_directory dir)
 
-	ccola_repository("${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
-	ccola_install_directory(packs "${CCOLA_INSTALL_DIR}/${dir}")
+	get_filename_component(name "${dir}" NAME)
+	message(STATUS "adding pack ${name}")
+
+	if(NOT EXISTS ${dir})
+		set(pack_dir "${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
+	else()
+		get_filename_component(pack_dir "${dir}" ABSOLUTE)
+	endif()
+
+	set(CCOLA_PACK_DIR_${name} "${pack_dir}")
+	ccola_promote_variable(CCOLA_PACK_DIR_${name})
+	ccola_require_file(${pack_dir}/start_pack.inc "pack ${name}")
+	ccola_require_file(${pack_dir}/end_pack.inc "pack ${name}")
+	list(APPEND CCOLA_PACK_DIRS "${pack_dir}")
+	list(APPEND CCOLA_PACK_NAMES ${name})
+	ccola_promote_variable(CCOLA_PACK_NAMES)
+	include(${pack_dir}/start_pack.inc)
+
+	ccola_make_absolute(components_dir "${pack_dir}/components")
+	if(EXISTS "${components_dir}")
+		list(APPEND CCOLA_COMPONENT_TYPE_DIRS "${components_dir}")
+		ccola_promote_variable(CCOLA_COMPONENT_TYPE_DIRS)
+	endif()
+
+	ccola_make_absolute(programmers_dir "${pack_dir}/programmers")
+	if(EXISTS "${programmers_dir}")
+		list(APPEND CCOLA_PROGRAMMERS_DIRS "${programmers_dir}")
+		ccola_promote_variable(CCOLA_PROGRAMMERS_DIRS)
+	endif()
 
 endmacro()
 
@@ -243,10 +225,21 @@ macro(ccola_set_source_group group)
 endmacro()
 
 
+macro(ccola_bin_dir result component_name)
+
+	set(${result} ${CCOLA_EXE_INSTALL_DIR})
+	string(REPLACE "<CCOLA_COMPONENT_NAME>" "${component_name}" ${result} "${${result}}")
+	ccola_translate_generator_expression_with_component(${result} ${component_name} "${${result}}")
+
+endmacro()
+
+
 macro(ccola_get_executable_path path target)
 
 	if(${CCOLA_ARCH} STREQUAL "win")
 		get_target_property(${path} ${target} ccola_location)
+        string(REPLACE "<CCOLA_COMPONENT_NAME>" "${target}" ${path} "${${path}}")
+        ccola_translate_generator_expression(${path} "${${path}}")
 
 		if(DEFINED CCOLA_COMPONENT_NAME)
 			ccola_dependencies(

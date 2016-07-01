@@ -89,9 +89,23 @@ macro(ccola_find_first result file)
 	list(REMOVE_AT paths 0 1)
 	unset(${result})
 	foreach(path ${paths})
+		if(EXISTS "${path}/${file}")
+			set(${result} "${path}/${file}")
+			break()
+		endif()
+	endforeach()
+
+endmacro()
+
+
+macro(ccola_find_last result file)
+
+	set(paths ${ARGV})
+	list(REMOVE_AT paths 0 1)
+	unset(${result})
+	foreach(path ${paths})
 		if(EXISTS ${path}/${file})
 			set(${result} ${path}/${file})
-			break()
 		endif()
 	endforeach()
 

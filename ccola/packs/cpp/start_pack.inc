@@ -186,6 +186,15 @@ macro(ccola_cpp_cli)
 endmacro()
 
 
+macro(ccola_exclude_from_all)
+
+	if(NOT CCOLA_COMPONENT_SKIP)
+		set(CCOLA_EXCLUDE_FROM_ALL EXCLUDE_FROM_ALL)
+	endif()
+
+endmacro()
+
+
 macro(ccola_link_libraries)
 
 	if(NOT CCOLA_COMPONENT_SKIP)
@@ -347,18 +356,21 @@ macro(ccola_set_component_properties_for_all_configurations component property)
 endmacro()
 
 
-macro(ccola_translate_generator_expression var)
-
-	set(values "${ARGV}")
-	list(REMOVE_AT values 0)
+macro(ccola_translate_generator_expression_with_component var component values)
 
 	if(CMAKE_CONFIGURATION_TYPES)
-		string(REPLACE "<CCOLA_CONFIGURATION>" "${CCOLA_SYSTEM_CONFIGURATION}-\$<CONFIGURATION>" values "${values}")
+		string(REPLACE "<CCOLA_CONFIGURATION>" "${CCOLA_SYSTEM_CONFIGURATION}-\$<CONFIGURATION>" ${var} "${values}")
 	else()
-		string(REPLACE "<CCOLA_CONFIGURATION>" "${CCOLA_SYSTEM_CONFIGURATION}" values "${values}")
+		string(REPLACE "<CCOLA_CONFIGURATION>" "${CCOLA_SYSTEM_CONFIGURATION}" ${var} "${values}")
 	endif()
-	string(REPLACE "<CCOLA_COMPONENT_NAME>" ${CCOLA_COMPONENT_NAME} values "${values}")
-	set(${var} "${values}")
+	string(REPLACE "<CCOLA_COMPONENT_NAME>" ${component} ${var} "${${var}}")
+
+endmacro()
+
+
+macro(ccola_translate_generator_expression var values)
+
+	ccola_translate_generator_expression_with_component(${var} ${CCOLA_COMPONENT_NAME} "${values}")
 
 endmacro()
 
@@ -464,21 +476,25 @@ macro(ccola_configure_eclipse_launch exe_path name)
 		file(TO_NATIVE_PATH "${CCOLA_DEBUG_TOOL}" debug_tool_n)
 		file(TO_NATIVE_PATH "${exe_path}" exe_path_n)
 		get_filename_component(build_dir "${CCOLA_BUILD_DIR}" NAME)
+
+		if(DEFINED CCOLA_EXTRA_CONFIGURATION)
+			set(extra_configuration "-${CCOLA_EXTRA_CONFIGURATION}")
+		else()
+			set(extra_configuration "")
+		endif()
+
 		if(NOT CCOLA_PROGRAMMER)
 			message(STATUS "No programmer specified, skipping generation of launch file for ${friendly_name}")
-		elseif(NOT EXISTS "${CCOLA_PACK_DIR_cpp}/programmers/${CCOLA_PROGRAMMER}")
-			message(SEND_ERROR "Unknown programmer ${CCOLA_PROGRAMMER}")
-		elseif(NOT EXISTS "${CCOLA_PACK_DIR_cpp}/programmers/${CCOLA_PROGRAMMER}/eclipse_${CCOLA_PROCESSOR}.launch.conf")
-			message(STATUS "Launch file for programmer ${CCOLA_PROGRAMMER} on ${CCOLA_PROCESSOR} not available, skipping generation of launch file for ${friendly_name}")
 		else()
-			if(DEFINED CCOLA_EXTRA_CONFIGURATION)
-				set(extra_configuration "-${CCOLA_EXTRA_CONFIGURATION}")
+			ccola_find_last(programmer_file ${CCOLA_PROGRAMMER}_eclipse_${CCOLA_PROCESSOR}.launch.conf ${CCOLA_PROGRAMMERS_DIRS})
+			if(NOT programmer_file)
+				message(STATUS "Launch file for programmer ${CCOLA_PROGRAMMER} on ${CCOLA_PROCESSOR} not available, skipping generation of launch file for ${friendly_name}")
 			else()
-				set(extra_configuration "")
-			endif()
-			configure_file("${CCOLA_PACK_DIR_cpp}/programmers/${CCOLA_PROGRAMMER}/eclipse_${CCOLA_PROCESSOR}.launch.conf" "${CCOLA_BUILD_DIR}/${name}${extra_configuration}.launch" @ONLY)
+				message(STATUS "Configuring launch file for ${friendly_name} from ${programmer_file}")
+				configure_file("${programmer_file}" "${CCOLA_BUILD_DIR}/${name}${extra_configuration}.launch" @ONLY)
 
-			file(APPEND "${CCOLA_BUILD_DIR}/eclipse_launch_files.txt" "${name}${extra_configuration}.launch\n")
+				file(APPEND "${CCOLA_BUILD_DIR}/eclipse_launch_files.txt" "${name}${extra_configuration}.launch\n")
+			endif()
 		endif()
 	endif()
 
