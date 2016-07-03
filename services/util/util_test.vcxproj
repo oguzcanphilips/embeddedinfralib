@@ -82,6 +82,23 @@
     <ClCompile Include="test\TestSpiMasterWithChipSelect.cpp" />
     <ClCompile Include="test\TestSpiMultipleAccess.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\external\gmock\msvc\2013\gmock.vcxproj">
+      <Project>{e53a840f-3ef4-44e5-b796-4711b709fae8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\infra\event\event.vcxproj">
+      <Project>{f37deb21-494b-42de-bc62-686e8994f93d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\infra\timer\timer.vcxproj">
+      <Project>{a1a1710c-c9ad-4749-b24f-ea44752415e1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\infra\timer\timer_test_helper.vcxproj">
+      <Project>{8df681e3-bf1b-4018-b851-56e3a84f4290}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\infra\util\util.vcxproj">
+      <Project>{1c860ac0-083c-47ce-b70e-a1913937ef2b}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
