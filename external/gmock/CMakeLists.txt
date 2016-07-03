@@ -40,4 +40,4 @@ if(${CCOLA_ARCH} STREQUAL win)
 
 endif()
 
-ccola_pack_directory(.)
+ccola_pack_directory(gmock_pack)
