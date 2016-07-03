@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "hal/interfaces/public/Flash.hpp"
-#include "hal/interfaces/test_helper/public/FlashStub.hpp"
+#include "hal/interfaces/test_doubles/public/FlashStub.hpp"
 
 class FlashAddressTest
     : public testing::Test
@@ -25,9 +25,9 @@ TEST_F(FlashAddressTest, AddressOfSector)
     EXPECT_EQ(7, flash.AddressOfSector(1));
 }
 
-TEST_F(FlashAddressTest, SectorAddress)
+TEST_F(FlashAddressTest, StartOfSector)
 {
-    EXPECT_EQ(0, flash.SectorAddress(1));
+    EXPECT_EQ(0, flash.StartOfSector(1));
 }
 
 TEST_F(FlashAddressTest, StartOfNextSector)

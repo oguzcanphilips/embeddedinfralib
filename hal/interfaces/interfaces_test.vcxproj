@@ -68,10 +68,18 @@
   <ItemGroup>
     <ClCompile Include="test\Main.cpp" />
     <ClCompile Include="test\TestFlash.cpp" />
+    <ClCompile Include="test\TestI2cRegisterAccess.cpp" />
+    <ClCompile Include="test\TestQuadSpi.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\external\gmock\msvc\2013\gmock.vcxproj">
       <Project>{e53a840f-3ef4-44e5-b796-4711b709fae8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\infra\event\event.vcxproj">
+      <Project>{f37deb21-494b-42de-bc62-686e8994f93d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\infra\util\util.vcxproj">
+      <Project>{1c860ac0-083c-47ce-b70e-a1913937ef2b}</Project>
     </ProjectReference>
     <ProjectReference Include="interfaces.vcxproj">
       <Project>{3429de0f-24fc-4d2c-9249-b4f803928609}</Project>

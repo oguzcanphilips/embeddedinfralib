@@ -10,6 +10,28 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test_doubles\private\FileSystemStub.cpp" />
+    <ClCompile Include="test_doubles\private\FlashMock.cpp" />
+    <ClCompile Include="test_doubles\private\FlashStub.cpp" />
+    <ClCompile Include="test_doubles\private\GpioStub.cpp" />
+    <ClCompile Include="test_doubles\private\I2cMock.cpp" />
+    <ClCompile Include="test_doubles\private\I2cRegisterAccessMock.cpp" />
+    <ClCompile Include="test_doubles\private\QuadSpiStub.cpp" />
+    <ClCompile Include="test_doubles\private\SerialCommunicationStub.cpp" />
+    <ClCompile Include="test_doubles\private\SpiMock.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="test_doubles\public\FileSystemStub.hpp" />
+    <ClInclude Include="test_doubles\public\FlashMock.hpp" />
+    <ClInclude Include="test_doubles\public\FlashStub.hpp" />
+    <ClInclude Include="test_doubles\public\GpioStub.hpp" />
+    <ClInclude Include="test_doubles\public\I2cMock.hpp" />
+    <ClInclude Include="test_doubles\public\I2cRegisterAccessMock.hpp" />
+    <ClInclude Include="test_doubles\public\QuadSpiStub.hpp" />
+    <ClInclude Include="test_doubles\public\SerialCommunicationStub.hpp" />
+    <ClInclude Include="test_doubles\public\SpiMock.hpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7CC06A04-6210-4632-A760-4EBAAB3474D4}</ProjectGuid>
     <RootNamespace>interfaces_test_helper</RootNamespace>
@@ -46,6 +68,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)\external\gmock\include\;$(SolutionDir)\external\gmock\gtest\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -58,6 +81,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)\external\gmock\include\;$(SolutionDir)\external\gmock\gtest\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -65,12 +89,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="test_helper\public\FlashStub.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="test_helper\private\FlashStub.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

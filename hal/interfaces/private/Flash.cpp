@@ -7,14 +7,14 @@ namespace hal
         return AddressOfSector(NumberOfSectors() - 1) + SizeOfSector(NumberOfSectors() - 1);
     }
 
-    uint32_t Flash::SectorAddress(uint32_t address) const
+    uint32_t Flash::StartOfSector(uint32_t address) const
     {
         return AddressOfSector(SectorOfAddress(address));
     }
 
     uint32_t Flash::AddressOffsetInSector(uint32_t address) const
     {
-        return address - SectorAddress(address);
+        return address - StartOfSector(address);
     }
 
     uint32_t Flash::StartOfNextSector(uint32_t address) const
@@ -45,7 +45,7 @@ namespace hal
 
     bool Flash::AtStartOfSector(uint32_t address) const
     {
-        return SectorAddress(address) == address;
+        return StartOfSector(address) == address;
     }
 
     void Flash::EraseSector(uint32_t sectorIndex, infra::Function<void()> onDone)

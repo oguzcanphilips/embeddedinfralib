@@ -2,7 +2,6 @@
 #define HAL_INTERFACE_FLASH_HPP
 
 #include "infra/util/public/ByteRange.hpp"
-#include "infra/util/public/Compare.hpp"
 #include "infra/util/public/Function.hpp"
 #include <cstdint>
 
@@ -23,7 +22,7 @@ namespace hal
 
         virtual uint32_t SectorOfAddress(uint32_t address) const = 0;
         virtual uint32_t AddressOfSector(uint32_t sectorIndex) const = 0;
-        uint32_t SectorAddress(uint32_t address) const;
+        uint32_t StartOfSector(uint32_t address) const;
         uint32_t AddressOffsetInSector(uint32_t address) const;
         uint32_t StartOfNextSector(uint32_t address) const;
         uint32_t StartOfPreviousSector(uint32_t address) const;
@@ -36,7 +35,7 @@ namespace hal
 
         void EraseSector(uint32_t sectorIndex, infra::Function<void()> onDone);
         virtual void EraseSectors(uint32_t beginIndex, uint32_t endIndex, infra::Function<void()> onDone) = 0;  // Erases sectors in de range [beginIndex, endIndex)
-        virtual void EraseAll(infra::Function<void()> onDone);
+        void EraseAll(infra::Function<void()> onDone);
     };
 }
 

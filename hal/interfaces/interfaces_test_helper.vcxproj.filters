@@ -9,13 +9,61 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="test_helper\public\FlashStub.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="test_helper\private\FlashStub.cpp">
+    <ClCompile Include="test_doubles\private\FileSystemStub.cpp">
       <Filter>private</Filter>
     </ClCompile>
+    <ClCompile Include="test_doubles\private\FlashMock.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="test_doubles\private\FlashStub.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="test_doubles\private\GpioStub.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="test_doubles\private\I2cMock.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="test_doubles\private\I2cRegisterAccessMock.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="test_doubles\private\QuadSpiStub.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="test_doubles\private\SerialCommunicationStub.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="test_doubles\private\SpiMock.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="test_doubles\public\FileSystemStub.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="test_doubles\public\FlashMock.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="test_doubles\public\FlashStub.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="test_doubles\public\GpioStub.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="test_doubles\public\I2cMock.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="test_doubles\public\I2cRegisterAccessMock.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="test_doubles\public\QuadSpiStub.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="test_doubles\public\SerialCommunicationStub.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="test_doubles\public\SpiMock.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

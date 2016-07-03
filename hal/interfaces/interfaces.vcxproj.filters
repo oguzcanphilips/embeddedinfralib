@@ -12,9 +12,48 @@
     <ClInclude Include="public\Flash.hpp">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="public\FileSystem.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\FlashHomogeneous.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\Gpio.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\I2c.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\I2cRegisterAccess.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\QuadSpi.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\SerialCommunication.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\Spi.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\Flash.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\FlashHomogeneous.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\Gpio.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\I2cRegisterAccess.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\QuadSpi.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\Spi.cpp">
       <Filter>private</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,4 +1,5 @@
-#include "hal/interfaces/test_helper/public/FlashStub.hpp"
+#include "hal/interfaces/test_doubles/public/FlashStub.hpp"
+#include "infra/event/public/EventDispatcher.hpp"
 
 namespace hal
 {
@@ -44,7 +45,7 @@ namespace hal
 
     void FlashStub::WriteBuffer(infra::ConstByteRange buffer, uint32_t address, infra::Function<void()> onDone)
     {
-        onDone();
+        infra::EventDispatcher::Instance().Schedule(onDone);
 
         if (stopAfterWriteSteps)
             if (*stopAfterWriteSteps > 0)
@@ -74,7 +75,8 @@ namespace hal
             buffer.pop_front(size);
             address = StartOfNextSectorCyclical(address);
         }
-        onDone();
+
+        infra::EventDispatcher::Instance().Schedule(onDone);
     }
 
     void FlashStub::EraseSectors(uint32_t beginIndex, uint32_t endIndex, infra::Function<void()> onDone)
@@ -84,6 +86,6 @@ namespace hal
 
         onEraseDone = onDone;
         if (!delaySignalEraseDone)
-            onDone();
+            infra::EventDispatcher::Instance().Schedule(onDone);
     }
 }

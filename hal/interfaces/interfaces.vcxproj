@@ -67,9 +67,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="private\Flash.cpp" />
+    <ClCompile Include="private\FlashHomogeneous.cpp" />
+    <ClCompile Include="private\Gpio.cpp" />
+    <ClCompile Include="private\I2cRegisterAccess.cpp" />
+    <ClCompile Include="private\QuadSpi.cpp" />
+    <ClCompile Include="private\Spi.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="public\FileSystem.hpp" />
     <ClInclude Include="public\Flash.hpp" />
+    <ClInclude Include="public\FlashHomogeneous.hpp" />
+    <ClInclude Include="public\Gpio.hpp" />
+    <ClInclude Include="public\I2c.hpp" />
+    <ClInclude Include="public\I2cRegisterAccess.hpp" />
+    <ClInclude Include="public\QuadSpi.hpp" />
+    <ClInclude Include="public\SerialCommunication.hpp" />
+    <ClInclude Include="public\Spi.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

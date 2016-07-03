@@ -12,5 +12,11 @@
     <ClCompile Include="test\Main.cpp">
       <Filter>test</Filter>
     </ClCompile>
+    <ClCompile Include="test\TestI2cRegisterAccess.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\TestQuadSpi.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
