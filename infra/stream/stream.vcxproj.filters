@@ -35,6 +35,9 @@
     <ClCompile Include="private\ByteInputStream.cpp">
       <Filter>private</Filter>
     </ClCompile>
+    <ClCompile Include="private\StreamManipulators.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="public\ByteOutputStream.hpp">

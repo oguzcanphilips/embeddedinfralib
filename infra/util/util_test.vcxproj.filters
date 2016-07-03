@@ -22,9 +22,6 @@
     <ClCompile Include="test\TestBoundedVector.cpp">
       <Filter>test</Filter>
     </ClCompile>
-    <ClCompile Include="test\TestCompare.cpp">
-      <Filter>test</Filter>
-    </ClCompile>
     <ClCompile Include="test\TestFixedPoint.cpp">
       <Filter>test</Filter>
     </ClCompile>
@@ -73,7 +70,22 @@
     <ClCompile Include="test\TestSignalSlot.cpp">
       <Filter>test</Filter>
     </ClCompile>
-    <ClCompile Include="test\TestSignalSlotLegacy.cpp">
+    <ClCompile Include="test\TestCompareMembers.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\TestCyclicBuffer.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\TestObserver.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\TestPolymorphicVariant.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\TestProxyCreator.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\TestSequencer.cpp">
       <Filter>test</Filter>
     </ClCompile>
   </ItemGroup>

@@ -20,9 +20,9 @@ namespace infra
         ~StdStringOutputStream();
 
     private:
-        void Insert(ConstByteRange range) override;
-        void Insert(uint8_t element) override;
-        void Forward(std::size_t amount) override;
+        virtual void Insert(ConstByteRange range) override;
+        virtual void Insert(uint8_t element) override;
+        virtual void Forward(std::size_t amount) override;
 
     private:
         std::string& string;

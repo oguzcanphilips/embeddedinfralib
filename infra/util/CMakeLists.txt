@@ -1,7 +1,9 @@
-ccola_component(util source)
+ccola_component(util static_library)
 
 	ccola_inheritable_include_directories(../..)
+
 	ccola_sources(
+		private/Sequencer.cpp
 		public/AutoResetFunction.hpp
 		public/BitLogic.hpp
 		public/BoundedDeque.hpp
@@ -9,7 +11,7 @@ ccola_component(util source)
 		public/BoundedString.hpp
 		public/BoundedVector.hpp
 		public/ByteRange.hpp
-		public/Compare.hpp
+		public/CompareMembers.hpp
 		public/CyclicBuffer.hpp
 		public/FixedPoint.hpp
 		public/Function.hpp
@@ -20,10 +22,15 @@ ccola_component(util source)
 		public/IntrusivePriorityQueue.hpp
 		public/IntrusiveSet.hpp
 		public/MemoryRange.hpp
+		public/Observer.hpp
 		public/Optional.hpp
+		public/PolymorphicVariant.hpp
+		public/ProxyCreator.hpp
 		public/ReallyAssert.hpp
 		public/ReferenceCountedSingleton.hpp
 		public/ReverseRange.hpp
+		public/Sequencer.hpp
+		public/SequencerIdiom.hpp
 		public/StaticStorage.hpp
 		public/Unit.hpp
 		public/VariadicTemplates.hpp

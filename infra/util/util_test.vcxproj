@@ -81,16 +81,14 @@
   <ItemGroup>
     <ClCompile Include="test\Main.cpp" />
     <ClCompile Include="test\TestAutoResetFunction.cpp" />
-    <ClCompile Include="test\TestBoundedDeque.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="test\TestBoundedDeque.cpp" />
     <ClCompile Include="test\TestBoundedPriorityQueue.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="test\TestBoundedString.cpp" />
     <ClCompile Include="test\TestBoundedVector.cpp" />
-    <ClCompile Include="test\TestCompare.cpp" />
+    <ClCompile Include="test\TestCompareMembers.cpp" />
+    <ClCompile Include="test\TestCyclicBuffer.cpp" />
     <ClCompile Include="test\TestFixedPoint.cpp" />
     <ClCompile Include="test\TestFunction.cpp" />
     <ClCompile Include="test\TestInterfaceConnector.cpp" />
@@ -100,10 +98,13 @@
     <ClCompile Include="test\TestIntrusivePriorityQueue.cpp" />
     <ClCompile Include="test\TestIntrusiveSet.cpp" />
     <ClCompile Include="test\TestMemoryRange.cpp" />
+    <ClCompile Include="test\TestObserver.cpp" />
     <ClCompile Include="test\TestOptional.cpp" />
+    <ClCompile Include="test\TestPolymorphicVariant.cpp" />
+    <ClCompile Include="test\TestProxyCreator.cpp" />
     <ClCompile Include="test\TestReferenceCountedSingleton.cpp" />
+    <ClCompile Include="test\TestSequencer.cpp" />
     <ClCompile Include="test\TestSignalSlot.cpp" />
-    <ClCompile Include="test\TestSignalSlotLegacy.cpp" />
     <ClCompile Include="test\TestStaticStorage.cpp" />
     <ClCompile Include="test\TestUnit.cpp" />
     <ClCompile Include="test\TestVariant.cpp" />

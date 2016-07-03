@@ -63,11 +63,16 @@ namespace infra
         BoundedStringBase& operator=(const BoundedStringBase& other);
         BoundedStringBase& operator=(const char* s);
         BoundedStringBase& operator=(char ch);
-        void AssignFromStorage(const BoundedStringBase& other);
+        template<class U>
+            void AssignFromStorage(const BoundedStringBase<U>& other);
+        void AssignFromStorage(const char* s);
+        void AssignFromStorage(char ch);
 
         BoundedStringBase& assign(size_type count, char ch);
-        BoundedStringBase& assign(const BoundedStringBase& other);
-        BoundedStringBase& assign(const BoundedStringBase& other, size_type pos, size_type count);
+        template<class U>
+            BoundedStringBase& assign(const BoundedStringBase<U>& other);
+        template<class U>
+            BoundedStringBase& assign(const BoundedStringBase<U>& other, size_type pos, size_type count);
         BoundedStringBase& assign(const char* s, size_type count);
         BoundedStringBase& assign(const char* s);
         BoundedStringBase& assign(const std::string& s);
@@ -221,18 +226,18 @@ namespace infra
         size_type length = 0;
     };
 
-    template<class T>
-        bool operator==(const BoundedStringBase<T>& lhs, const BoundedStringBase<T>& rhs);
-    template<class T>
-        bool operator!=(const BoundedStringBase<T>& lhs, const BoundedStringBase<T>& rhs);
-    template<class T>
-        bool operator<(const BoundedStringBase<T>& lhs, const BoundedStringBase<T>& rhs);
-    template<class T>
-        bool operator<=(const BoundedStringBase<T>& lhs, const BoundedStringBase<T>& rhs);
-    template<class T>
-        bool operator>(const BoundedStringBase<T>& lhs, const BoundedStringBase<T>& rhs);
-    template<class T>
-        bool operator>=(const BoundedStringBase<T>& lhs, const BoundedStringBase<T>& rhs);
+    template<class T, class U>
+        bool operator==(const BoundedStringBase<T>& lhs, const BoundedStringBase<U>& rhs);
+    template<class T, class U>
+        bool operator!=(const BoundedStringBase<T>& lhs, const BoundedStringBase<U>& rhs);
+    template<class T, class U>
+        bool operator<(const BoundedStringBase<T>& lhs, const BoundedStringBase<U>& rhs);
+    template<class T, class U>
+        bool operator<=(const BoundedStringBase<T>& lhs, const BoundedStringBase<U>& rhs);
+    template<class T, class U>
+        bool operator>(const BoundedStringBase<T>& lhs, const BoundedStringBase<U>& rhs);
+    template<class T, class U>
+        bool operator>=(const BoundedStringBase<T>& lhs, const BoundedStringBase<U>& rhs);
     template<class T>
         bool operator==(const char* lhs, const BoundedStringBase<T>& rhs);
     template<class T>
@@ -405,9 +410,22 @@ namespace infra
     }
 
     template<class T>
-    void BoundedStringBase<T>::AssignFromStorage(const BoundedStringBase& other)
+    template<class U>
+    void BoundedStringBase<T>::AssignFromStorage(const BoundedStringBase<U>& other)
     {
         assign(other);
+    }
+
+    template<class T>
+    void BoundedStringBase<T>::AssignFromStorage(const char* s)
+    {
+        *this = s;
+    }
+
+    template<class T>
+    void BoundedStringBase<T>::AssignFromStorage(char ch)
+    {
+        *this = ch;
     }
 
     template<class T>
@@ -421,7 +439,8 @@ namespace infra
     }
 
     template<class T>
-    BoundedStringBase<T>& BoundedStringBase<T>::assign(const BoundedStringBase<T>& other)
+    template<class U>
+    BoundedStringBase<T>& BoundedStringBase<T>::assign(const BoundedStringBase<U>& other)
     {
         assert(other.size() <= max_size());
         length = other.length;
@@ -431,7 +450,8 @@ namespace infra
     }
 
     template<class T>
-    BoundedStringBase<T>& BoundedStringBase<T>::assign(const BoundedStringBase<T>& other, size_type pos, size_type count)
+    template<class U>
+    BoundedStringBase<T>& BoundedStringBase<T>::assign(const BoundedStringBase<U>& other, size_type pos, size_type count)
     {
         count = std::min(count, other.size());
         assert(count <= max_size());
@@ -1294,39 +1314,39 @@ namespace infra
         return *this;
     }
 
-    template<class T>
-    bool operator==(const BoundedStringBase<T>& lhs, const BoundedStringBase<T>& rhs)
+    template<class T, class U>
+    bool operator==(const BoundedStringBase<T>& lhs, const BoundedStringBase<U>& rhs)
     {
         return lhs.size() == rhs.size()
             && std::equal(lhs.begin(), lhs.end(), rhs.begin());
     }
 
-    template<class T>
-    bool operator!=(const BoundedStringBase<T>& lhs, const BoundedStringBase<T>& rhs)
+    template<class T, class U>
+    bool operator!=(const BoundedStringBase<T>& lhs, const BoundedStringBase<U>& rhs)
     {
         return !(lhs == rhs);
     }
 
-    template<class T>
-    bool operator<(const BoundedStringBase<T>& lhs, const BoundedStringBase<T>& rhs)
+    template<class T, class U>
+    bool operator<(const BoundedStringBase<T>& lhs, const BoundedStringBase<U>& rhs)
     {
         return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
     }
 
-    template<class T>
-    bool operator<=(const BoundedStringBase<T>& lhs, const BoundedStringBase<T>& rhs)
+    template<class T, class U>
+    bool operator<=(const BoundedStringBase<T>& lhs, const BoundedStringBase<U>& rhs)
     {
         return !(rhs < lhs);
     }
 
-    template<class T>
-    bool operator>(const BoundedStringBase<T>& lhs, const BoundedStringBase<T>& rhs)
+    template<class T, class U>
+    bool operator>(const BoundedStringBase<T>& lhs, const BoundedStringBase<U>& rhs)
     {
         return rhs < lhs;
     }
 
-    template<class T>
-    bool operator>=(const BoundedStringBase<T>& lhs, const BoundedStringBase<T>& rhs)
+    template<class T, class U>
+    bool operator>=(const BoundedStringBase<T>& lhs, const BoundedStringBase<U>& rhs)
     {
         return !(lhs < rhs);
     }

@@ -11,8 +11,7 @@ namespace infra
         : StreamWriter(infra::softFail)
         , DataOutputStream(static_cast<StreamWriter&>(*this))
         , range(range)
-    {
-    }
+    {}
 
     ByteRange ByteOutputStream::Processed() const
     {

@@ -15,11 +15,11 @@ namespace infra
         explicit StringInputStream(const BoundedConstString& string);
         StringInputStream(const BoundedConstString& string, SoftFail);
     private:
-        void Extract(ByteRange range) override;
-        void Extract(uint8_t& element) override;
-        void Peek(uint8_t& element) override;
-        void Forward(std::size_t amount) override;
-        bool Empty() const override;
+        virtual void Extract(ByteRange range) override;
+        virtual void Extract(uint8_t& element) override;
+        virtual void Peek(uint8_t& element) override;
+        virtual void Forward(std::size_t amount) override;
+        virtual bool Empty() const override;
     private:
         uint32_t offset = 0;
         const BoundedConstString& string;

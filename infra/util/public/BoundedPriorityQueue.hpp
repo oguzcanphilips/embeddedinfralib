@@ -4,7 +4,6 @@
 //  BoundedPriorityQueue is similar to std::priority_queue, except that it can contain a limited number of elements
 
 #include "infra/util/public/BoundedVector.hpp"
-#include "infra/util/public/Compare.hpp"
 #include <functional>
 
 namespace infra

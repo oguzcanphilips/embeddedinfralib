@@ -536,7 +536,9 @@ namespace infra
     template<class... Args>
     void BoundedVector<T>::emplace_back(Args&&... args)
     {
-        emplace(end(), std::forward<Args>(args)...);
+        really_assert(size() != max_size());
+        storage[numAllocated].Construct(std::forward<Args>(args)...);
+        ++numAllocated;
     }
 
     template<class T>

@@ -1,4 +1,4 @@
-#include "infra/stream/public//StdStringOutputStream.hpp"
+#include "infra/stream/public/StdStringOutputStream.hpp"
 
 namespace infra
 {

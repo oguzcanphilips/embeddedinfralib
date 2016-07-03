@@ -6,7 +6,8 @@ ccola_component(util_test gmock_test)
 		TestBoundedPriorityQueue.cpp
 		TestBoundedString.cpp
 		TestBoundedVector.cpp
-		TestCompare.cpp
+		TestCompareMembers.cpp
+		TestCyclicBuffer.cpp
 		TestFixedPoint.cpp
 		TestFunction.cpp
 		TestInterfaceConnector.cpp
@@ -16,8 +17,13 @@ ccola_component(util_test gmock_test)
 		TestIntrusivePriorityQueue.cpp
 		TestIntrusiveSet.cpp
 		TestMemoryRange.cpp
+		TestObserver.cpp
 		TestOptional.cpp
+		TestPolymorphicVariant.cpp
+		TestProxyCreator.cpp
 		TestReferenceCountedSingleton.cpp
+		TestSequencer.cpp
+		TestSignalSlot.cpp
 		TestStaticStorage.cpp
 		TestUnit.cpp
 		TestVariant.cpp

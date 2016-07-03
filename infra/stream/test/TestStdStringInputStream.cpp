@@ -14,7 +14,7 @@ TEST(StringInputStreamTest, StdStringInputStream)
 
 TEST(StringInputStreamTest, ExtractHexFrowStdStringInputStreamWithOverflow)
 {
-    infra::StdStringInputStream stream("",infra::softFail);
+    infra::StdStringInputStream::WithStorage stream(infra::inPlace, "", infra::softFail);
 
     uint8_t v(1);
     stream >> infra::hex >> v;
@@ -24,7 +24,7 @@ TEST(StringInputStreamTest, ExtractHexFrowStdStringInputStreamWithOverflow)
 
 TEST(StringInputStreamTest, ExtractStringLiteral)
 {
-    infra::StdStringInputStream stream("abcd");
+    infra::StdStringInputStream::WithStorage stream(infra::inPlace, "abcd");
 
     stream >> "abcd";
     EXPECT_TRUE(stream.IsEmpty());

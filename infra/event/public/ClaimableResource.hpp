@@ -70,10 +70,10 @@ namespace infra
         ClaimerWithSize(ClaimableResource& resource);
 
         void Claim(const infra::Function<void(), ExtraSize>& claimedFunc);
-        void Release() override;
+        virtual void Release() override;
 
     private:
-        void ClaimGranted() override;
+        virtual void ClaimGranted() override;
 
     private:
         infra::AutoResetFunction<void(), ExtraSize> onGranted;

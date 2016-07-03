@@ -95,11 +95,11 @@ namespace infra
 
     template<class T, class Compare>
     template <class InputIterator>
-    IntrusivePriorityQueue<T, Compare>::IntrusivePriorityQueue(InputIterator mFirst, InputIterator mLast, const Compare& comp)
+    IntrusivePriorityQueue<T, Compare>::IntrusivePriorityQueue(InputIterator first, InputIterator last, const Compare& comp)
         : compare(comp)
     {
-        for (; mFirst != mLast; ++mFirst)
-            push(*mFirst);
+        for (; first != last; ++first)
+            push(*first);
     }
 
     template<class T, class Compare>

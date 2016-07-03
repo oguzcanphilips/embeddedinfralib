@@ -17,6 +17,7 @@
     <ClCompile Include="private\OutputStream.cpp" />
     <ClCompile Include="private\StdStringOutputStream.cpp" />
     <ClCompile Include="private\StdStringInputStream.cpp" />
+    <ClCompile Include="private\StreamManipulators.cpp" />
     <ClCompile Include="private\StringOutputStream.cpp" />
     <ClCompile Include="private\StringInputStream.cpp" />
   </ItemGroup>

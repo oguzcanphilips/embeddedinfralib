@@ -55,8 +55,8 @@ namespace infra
         void shrink_from_back_to(std::size_t newSize);
 
     private:
-        T* mBegin;
-        T* mEnd;
+        T* beginElement;
+        T* endElement;
     };
 
     template<class T>
@@ -70,6 +70,8 @@ namespace infra
         MemoryRange<T> ReinterpretCastMemoryRange(MemoryRange<U> memoryRange);
     template<class T>
         MemoryRange<T> ConstCastMemoryRange(MemoryRange<const T> memoryRange);
+    template<class T>
+        MemoryRange<T> VolatileCastMemoryRange(MemoryRange<volatile T> memoryRange);
 
     template<class T>
         void Copy(MemoryRange<const typename std::remove_const<T>::type> from, MemoryRange<T> to);
@@ -101,73 +103,75 @@ namespace infra
 
     template<class T>
     MemoryRange<T>::MemoryRange()
-        : mBegin(nullptr)
-        , mEnd(nullptr)
+        : beginElement(nullptr)
+        , endElement(nullptr)
     {}
 
     template<class T>
     MemoryRange<T>::MemoryRange(T* begin, T* end)
-        : mBegin(begin)
-        , mEnd(end)
+        : beginElement(begin)
+        , endElement(end)
     {}
 
     template<class T>
     template<class U>
     MemoryRange<T>::MemoryRange(const MemoryRange<U>& other)
-        : mBegin(other.begin())
-        , mEnd(other.end())
+        : beginElement(other.begin())
+        , endElement(other.end())
     {}
 
     template<class T>
     template<class T2, std::size_t N>
     constexpr MemoryRange<T>::MemoryRange(const std::array<T2, N>& array)
-        : mBegin(&array[0])
-        , mEnd(&array[0] + array.size())
-    {}
+        : beginElement(N != 0 ? &array.front() : nullptr)
+        , endElement(N != 0 ? &array.front() + array.size() : nullptr)
+    {
+        static_assert(N != 0, "");
+    }
 
     template<class T>
     template<class T2, std::size_t N>
     MemoryRange<T>::MemoryRange(std::array<T2, N>& array)
-        : mBegin(array.data())
-        , mEnd(array.data() + array.size())
+        : beginElement(array.data())
+        , endElement(array.data() + array.size())
     {}
 
     template<class T>
     template<class T2>
     MemoryRange<T>::MemoryRange(const std::vector<T2>& vector)
-        : mBegin(vector.data())
-        , mEnd(vector.data() + vector.size())
+        : beginElement(vector.data())
+        , endElement(vector.data() + vector.size())
     {}
 
     template<class T>
     template<class T2>
     MemoryRange<T>::MemoryRange(std::vector<T2>& vector)
-        : mBegin(vector.data())
-        , mEnd(vector.data() + vector.size())
+        : beginElement(vector.data())
+        , endElement(vector.data() + vector.size())
     {}
 
     template<class T>
     bool MemoryRange<T>::empty() const
     {
-        return mBegin == mEnd;
+        return beginElement == endElement;
     }
 
     template<class T>
     std::size_t MemoryRange<T>::size() const
     {
-        return mEnd - mBegin;
+        return endElement - beginElement;
     }
 
     template<class T>
     T* MemoryRange<T>::begin() const
     {
-        return mBegin;
+        return beginElement;
     }
 
     template<class T>
     T* MemoryRange<T>::end() const
     {
-        return mEnd;
+        return endElement;
     }
 
     template<class T>
@@ -180,7 +184,7 @@ namespace infra
     template<class T>
     bool MemoryRange<T>::operator==(const MemoryRange<T>& rhs) const
     {
-        return mBegin == rhs.mBegin && mEnd == rhs.mEnd;
+        return beginElement == rhs.beginElement && endElement == rhs.endElement;
     }
 
     template<class T>
@@ -192,60 +196,60 @@ namespace infra
     template<class T>
     T& MemoryRange<T>::front() const
     {
-        return *mBegin;
+        return *beginElement;
     }
 
     template<class T>
     T& MemoryRange<T>::back() const
     {
-        return *(mEnd - 1);
+        return *(endElement - 1);
     }
 
     template<class T>
     bool MemoryRange<T>::contains(const T* element) const
     {
-        return element >= mBegin && element < mEnd;
+        return element >= beginElement && element < endElement;
     }
 
     template<class T>
     bool MemoryRange<T>::contains_or_end(const T* element) const
     {
-        return element >= mBegin && element <= mEnd;
+        return element >= beginElement && element <= endElement;
     }
 
     template<class T>
     void MemoryRange<T>::clear()
     {
-        mBegin = nullptr;
-        mEnd = nullptr;
+        beginElement = nullptr;
+        endElement = nullptr;
     }
 
     template<class T>
     void MemoryRange<T>::pop_front(std::size_t num)
     {
         assert(num <= size());
-        mBegin += num;
+        beginElement += num;
     }
 
     template<class T>
     void MemoryRange<T>::pop_back(std::size_t num)
     {
         assert(num <= size());
-        mEnd -= num;
+        endElement -= num;
     }
 
     template<class T>
     void MemoryRange<T>::shrink_from_front_to(std::size_t newSize)
     {
         if (newSize < size())
-            mBegin = mEnd - newSize;
+            beginElement = endElement - newSize;
     }
 
     template<class T>
     void MemoryRange<T>::shrink_from_back_to(std::size_t newSize)
     {
         if (newSize < size())
-            mEnd = mBegin + newSize;
+            endElement = beginElement + newSize;
     }
 
     template<class T>
@@ -274,6 +278,12 @@ namespace infra
 
     template<class T>
     MemoryRange<T> ConstCastMemoryRange(MemoryRange<const T> memoryRange)
+    {
+        return MemoryRange<T>(const_cast<T*>(memoryRange.begin()), const_cast<T*>(memoryRange.end()));
+    }
+
+    template<class T>
+    MemoryRange<T> VolatileCastMemoryRange(MemoryRange<volatile T> memoryRange)
     {
         return MemoryRange<T>(const_cast<T*>(memoryRange.begin()), const_cast<T*>(memoryRange.end()));
     }

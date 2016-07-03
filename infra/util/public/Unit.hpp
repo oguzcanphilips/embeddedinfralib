@@ -1,7 +1,6 @@
 #ifndef INFRA_UNIT_HPP
 #define INFRA_UNIT_HPP
 
-#include "infra/util/public/Compare.hpp"
 #include "infra/util/public/VariadicTemplates.hpp"
 #include <cstdint>
 #include <utility>
@@ -212,7 +211,6 @@ namespace infra
 
     template<class UnitType, class StorageType>
     class Quantity
-        : public infra::TotallyOrdered<Quantity<UnitType, StorageType>>
     {
     public:
         Quantity();
@@ -241,7 +239,11 @@ namespace infra
             Quantity<typename UnitType::template Div<UnitTypeOther>, StorageType> operator/(Quantity<UnitTypeOther, StorageType> other) const;
 
         bool operator==(const Quantity& other) const;
+        bool operator!=(const Quantity& other) const;
         bool operator<(const Quantity& other) const;
+        bool operator>(const Quantity& other) const;
+        bool operator<=(const Quantity& other) const;
+        bool operator>=(const Quantity& other) const;
 
     private:
         template<class UnitTypeOther, class TypeOther>
@@ -399,9 +401,33 @@ namespace infra
     }
 
     template<class UnitType, class StorageType>
+    bool Quantity<UnitType, StorageType>::operator!=(const Quantity& other) const
+    {
+        return value != other.value;
+    }
+
+    template<class UnitType, class StorageType>
     bool Quantity<UnitType, StorageType>::operator<(const Quantity& other) const
     {
         return value < other.value;
+    }
+
+    template<class UnitType, class StorageType>
+    bool Quantity<UnitType, StorageType>::operator>(const Quantity& other) const
+    {
+        return value > other.value;
+    }
+
+    template<class UnitType, class StorageType>
+    bool Quantity<UnitType, StorageType>::operator<=(const Quantity& other) const
+    {
+        return value <= other.value;
+    }
+
+    template<class UnitType, class StorageType>
+    bool Quantity<UnitType, StorageType>::operator>=(const Quantity& other) const
+    {
+        return value >= other.value;
     }
 
     typedef BaseUnit<1> Meter;

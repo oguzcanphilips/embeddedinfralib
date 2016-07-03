@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "infra\util\public\SignalSlot.hpp"
+#include "infra/util/public/SignalSlot.hpp"
 #include <stdint.h>
 
 class Sender

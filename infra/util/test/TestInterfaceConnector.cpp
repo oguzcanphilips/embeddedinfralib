@@ -12,7 +12,7 @@ class TestSingleton
     : public ITestSingleton
 {
 public:
-    void f() override {}
+    virtual void f() override {}
 };
 
 TEST(InterfaceConnectorTest, TestConstruction)

@@ -133,7 +133,7 @@ TEST(IntrusiveListTest, TestAssignRange)
     infra::IntrusiveList<ListInt> list(range, range + 3);
 
     ListInt otherRange[2] = { 4, 5 };
-    list.Assign(otherRange, otherRange + 2);
+    list.assign(otherRange, otherRange + 2);
 
     EXPECT_EQ(2, list.size());
     EXPECT_EQ(ListInt(4), list.front());
@@ -146,7 +146,7 @@ TEST(IntrusiveListTest, TestAssignN)
     infra::IntrusiveList<ListInt> list(range, range + 3);
 
     ListInt range2[2] = { 3, 4 };
-    list.Assign(range2, range2 + 2);
+    list.assign(range2, range2 + 2);
 
     EXPECT_EQ(2, list.size());
     EXPECT_EQ(ListInt(3), list.front());

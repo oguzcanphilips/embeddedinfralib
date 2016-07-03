@@ -11,13 +11,18 @@ namespace infra
     {
     public:
         ByteInputStream(ConstByteRange range);
+
+        ConstByteRange Processed() const;   // Invariant: Processed() ++ Remaining() == range
+        ConstByteRange Remaining() const;
+
         void Reset();
+
     private:
-        void Extract(ByteRange range) override;
-        void Extract(uint8_t& element) override;
-        void Peek(uint8_t& element) override;
-        void Forward(std::size_t amount) override;
-        bool Empty() const override;
+        virtual void Extract(ByteRange range) override;
+        virtual void Extract(uint8_t& element) override;
+        virtual void Peek(uint8_t& element) override;
+        virtual void Forward(std::size_t amount) override;
+        virtual bool Empty() const override;
 
     private:
         ConstByteRange range;

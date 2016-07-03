@@ -92,7 +92,7 @@ namespace infra
         void erase(const_reference value);
 
         template<class InputIterator>
-            void Assign(InputIterator first, InputIterator last);
+            void assign(InputIterator first, InputIterator last);
 
         void swap(IntrusiveList& other);
 
@@ -107,9 +107,9 @@ namespace infra
         bool operator>=(const IntrusiveList& other) const;
 
     private:
-        size_type mSize;
-        NodeType* mBegin;
-        NodeType mEnd;
+        size_type numberOfElements;
+        NodeType* beginNode;
+        NodeType endNode;
     };
 
     template<class T>
@@ -149,7 +149,7 @@ namespace infra
             template<class>
             friend class IntrusiveList;
 
-            const IntrusiveListNode<typename std::remove_const<T>::type>* mNode;
+            const IntrusiveListNode<typename std::remove_const<T>::type>* node;
         };
     }
 
@@ -157,23 +157,23 @@ namespace infra
 
     template<class T>
     IntrusiveList<T>::IntrusiveList()
-        : mSize(0)
-        , mBegin(&mEnd)
+        : numberOfElements(0)
+        , beginNode(&endNode)
     {}
 
     template<class T>
     template<class InputIterator>
     IntrusiveList<T>::IntrusiveList(InputIterator first, InputIterator last)
-        : mSize(0)
-        , mBegin(&mEnd)
+        : numberOfElements(0)
+        , beginNode(&endNode)
     {
-        Assign(first, last);
+        assign(first, last);
     }
 
     template<class T>
     IntrusiveList<T>::IntrusiveList(IntrusiveList&& other)
-        : mSize(0)
-        , mBegin(&mEnd)
+        : numberOfElements(0)
+        , beginNode(&endNode)
     {
         *this = std::move(other);
     }
@@ -182,11 +182,11 @@ namespace infra
     IntrusiveList<T>& IntrusiveList<T>::operator=(IntrusiveList&& other)
     {
         clear();
-        mSize = other.mSize;
-        mBegin = other.mBegin;
-        mEnd.previous = other.mEnd.previous;
-        if (mEnd.previous)
-            mEnd.previous->next = &mEnd;
+        numberOfElements = other.numberOfElements;
+        beginNode = other.beginNode;
+        endNode.previous = other.endNode.previous;
+        if (endNode.previous)
+            endNode.previous->next = &endNode;
         other.clear();
 
         return *this;
@@ -199,25 +199,25 @@ namespace infra
     template<class T>
     typename IntrusiveList<T>::iterator IntrusiveList<T>::begin()
     {
-        return iterator(mBegin);
+        return iterator(beginNode);
     }
 
     template<class T>
     typename IntrusiveList<T>::const_iterator IntrusiveList<T>::begin() const
     {
-        return const_iterator(mBegin);
+        return const_iterator(beginNode);
     }
 
     template<class T>
     typename IntrusiveList<T>::iterator IntrusiveList<T>::end()
     {
-        return iterator(&mEnd);
+        return iterator(&endNode);
     }
 
     template<class T>
     typename IntrusiveList<T>::const_iterator IntrusiveList<T>::end() const
     {
-        return const_iterator(&mEnd);
+        return const_iterator(&endNode);
     }
 
     template<class T>
@@ -271,13 +271,13 @@ namespace infra
     template<class T>
     typename IntrusiveList<T>::size_type IntrusiveList<T>::size() const
     {
-        return mSize;
+        return numberOfElements;
     }
 
     template<class T>
     bool IntrusiveList<T>::empty() const
     {
-        return mSize == 0;
+        return numberOfElements == 0;
     }
 
     template<class T>
@@ -293,86 +293,86 @@ namespace infra
     template<class T>
     typename IntrusiveList<T>::reference IntrusiveList<T>::front()
     {
-        return static_cast<T&>(*mBegin);
+        return static_cast<T&>(*beginNode);
     }
 
     template<class T>
     typename IntrusiveList<T>::const_reference IntrusiveList<T>::front() const
     {
-        return static_cast<T&>(*mBegin);
+        return static_cast<T&>(*beginNode);
     }
 
     template<class T>
     typename IntrusiveList<T>::reference IntrusiveList<T>::back()
     {
-        return static_cast<T&>(*mEnd.previous);
+        return static_cast<T&>(*endNode.previous);
     }
 
     template<class T>
     typename IntrusiveList<T>::const_reference IntrusiveList<T>::back() const
     {
-        return static_cast<T&>(*mEnd.previous);
+        return static_cast<T&>(*endNode.previous);
     }
 
     template<class T>
     void IntrusiveList<T>::push_front(const_reference value)
     {
         NodeType& node = const_cast<reference>(value);
-        node.next = mBegin;
+        node.next = beginNode;
         node.previous = nullptr;
 
         if (node.next)
             node.next->previous = &node;
 
-        mBegin = &node;
-        ++mSize;
+        beginNode = &node;
+        ++numberOfElements;
     }
 
     template<class T>
     void IntrusiveList<T>::push_back(const_reference value)
     {
         NodeType& node = const_cast<reference>(value);
-        node.next = &mEnd;
-        node.previous = mEnd.previous;
+        node.next = &endNode;
+        node.previous = endNode.previous;
 
         if (node.previous)
             node.previous->next = &node;
         else
-            mBegin = &node;
+            beginNode = &node;
 
-        mEnd.previous = &node;
-        ++mSize;
+        endNode.previous = &node;
+        ++numberOfElements;
     }
 
     template<class T>
     void IntrusiveList<T>::pop_front()
     {
-        mBegin = mBegin->next;
-        mBegin->previous = nullptr;
-        --mSize;
+        beginNode = beginNode->next;
+        beginNode->previous = nullptr;
+        --numberOfElements;
     }
 
     template<class T>
     void IntrusiveList<T>::pop_back()
     {
-        mEnd.previous = mEnd.previous->previous;
-        if (mEnd.previous)
-            mEnd.previous->next = &mEnd;
-        --mSize;
+        endNode.previous = endNode.previous->previous;
+        if (endNode.previous)
+            endNode.previous->next = &endNode;
+        --numberOfElements;
     }
 
     template<class T>
     void IntrusiveList<T>::insert(const_iterator position, const_reference value)
     {
         NodeType& node = const_cast<reference>(value);
-        node.previous = position.mNode->previous;
-        node.next = const_cast<NodeType*>(position.mNode);
-        const_cast<NodeType*>(position.mNode)->previous = &node;
+        node.previous = position.node->previous;
+        node.next = const_cast<NodeType*>(position.node);
+        const_cast<NodeType*>(position.node)->previous = &node;
         if (node.previous)
             node.previous->next = &node;
         else
-            mBegin = &node;
-        ++mSize;
+            beginNode = &node;
+        ++numberOfElements;
     }
 
     template<class T>
@@ -382,15 +382,15 @@ namespace infra
         if (node.previous)
             node.previous->next = node.next;
         else
-            mBegin = node.next;
+            beginNode = node.next;
 
         node.next->previous = node.previous;
-        --mSize;
+        --numberOfElements;
     }
 
     template<class T>
     template<class InputIterator>
-    void IntrusiveList<T>::Assign(InputIterator first, InputIterator last)
+    void IntrusiveList<T>::assign(InputIterator first, InputIterator last)
     {
         clear();
         for (; first != last; ++first)
@@ -401,17 +401,17 @@ namespace infra
     void IntrusiveList<T>::swap(IntrusiveList& other)
     {
         using std::swap;
-        std::swap(mEnd, other.mEnd);
-        std::swap(mBegin, other.mBegin);
-        std::swap(mSize, other.mSize);
+        std::swap(endNode, other.endNode);
+        std::swap(beginNode, other.beginNode);
+        std::swap(numberOfElements, other.numberOfElements);
     }
 
     template<class T>
     void IntrusiveList<T>::clear()
     {
-        mBegin = &mEnd;
-        mEnd.previous = nullptr;
-        mSize = 0;
+        beginNode = &endNode;
+        endNode.previous = nullptr;
+        numberOfElements = 0;
     }
 
     template<class T>
@@ -479,25 +479,25 @@ namespace infra
 
         template<class T>
         IntrusiveListIterator<T>::IntrusiveListIterator()
-            : mNode(nullptr)
+            : node(nullptr)
         {}
 
         template<class T>
         IntrusiveListIterator<T>::IntrusiveListIterator(const IntrusiveListNode<typename std::remove_const<T>::type>* node)
-            : mNode(node)
+            : node(node)
         {}
 
         template<class T>
         template<class T2>
         IntrusiveListIterator<T>::IntrusiveListIterator(const IntrusiveListIterator<T2>& other)
-            : mNode(other.mNode)
+            : node(other.node)
         {}
 
         template<class T>
         template<class T2>
         IntrusiveListIterator<T>& IntrusiveListIterator<T>::operator=(const IntrusiveListIterator<T2>& other)
         {
-            mNode = other.mNode;
+            node = other.node;
 
             return *this;
         }
@@ -505,19 +505,19 @@ namespace infra
         template<class T>
         T& IntrusiveListIterator<T>::operator*() const
         {
-            return const_cast<T&>(static_cast<const T&>(*mNode));
+            return const_cast<T&>(static_cast<const T&>(*node));
         }
 
         template<class T>
         T* IntrusiveListIterator<T>::operator->() const
         {
-            return const_cast<T*>(static_cast<const T*>(mNode));
+            return const_cast<T*>(static_cast<const T*>(node));
         }
 
         template<class T>
         IntrusiveListIterator<T>& IntrusiveListIterator<T>::operator++()
         {
-            mNode = mNode->next;
+            node = node->next;
             return *this;
         }
 
@@ -525,14 +525,14 @@ namespace infra
         IntrusiveListIterator<T> IntrusiveListIterator<T>::operator++(int)
         {
             IntrusiveListIterator copy(*this);
-            mNode = mNode->next;
+            node = node->next;
             return copy;
         }
 
         template<class T>
         IntrusiveListIterator<T>& IntrusiveListIterator<T>::operator--()
         {
-            mNode = mNode->previous;
+            node = node->previous;
             return *this;
         }
 
@@ -540,7 +540,7 @@ namespace infra
         IntrusiveListIterator<T> IntrusiveListIterator<T>::operator--(int)
         {
             IntrusiveListIterator copy(*this);
-            mNode = mNode->previous;
+            node = node->previous;
             return copy;
         }
 
@@ -548,7 +548,7 @@ namespace infra
         template<class T2>
         bool IntrusiveListIterator<T>::operator==(const IntrusiveListIterator<T2>& other) const
         {
-            return mNode == other.mNode;
+            return node == other.node;
         }
 
         template<class T>

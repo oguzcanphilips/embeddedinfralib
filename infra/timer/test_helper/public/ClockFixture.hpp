@@ -33,8 +33,8 @@ namespace infra
         public:
             TimeMatcher(infra::TimePoint expectedCallTime);
 
-            bool MatchAndExplain(const std::tuple<>& x, testing::MatchResultListener* listener) const override;
-            void DescribeTo(std::ostream* os) const override;
+            virtual bool MatchAndExplain(const std::tuple<>& x, testing::MatchResultListener* listener) const override;
+            virtual void DescribeTo(std::ostream* os) const override;
 
         private:
             void StreamTime(TimePoint time, std::ostream& os) const;

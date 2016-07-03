@@ -18,13 +18,16 @@ namespace infra
         StreamReader();
         StreamReader(SoftFail);
         ~StreamReader();
+
         virtual void Extract(ByteRange range) = 0;
         virtual void Extract(uint8_t& element) = 0;
         virtual void Peek(uint8_t& element) = 0;
         virtual void Forward(std::size_t amount) = 0;
         virtual bool Empty() const = 0;
+
         bool Failed() const;
         void ReportResult(bool ok);
+
     private:
         bool softFail = false;
         bool failed = false;
@@ -36,14 +39,18 @@ namespace infra
     public:
         bool IsEmpty() const;
         bool HasFailed() const;
+
     protected:
         InputStream(StreamReader& reader);
+
         StreamReader& Reader();
+
     private:
         StreamReader& reader;
     };
 
-    class DataInputStream : public InputStream
+    class DataInputStream
+        : public InputStream
     {
     public:
         DataInputStream(StreamReader& reader);
@@ -55,18 +62,19 @@ namespace infra
             DataInputStream& operator>>(Data& data);
     };
     
-    class TextInputStream : public InputStream
+    class TextInputStream
+        : public InputStream
     {
     public:
         explicit TextInputStream(StreamReader& reader);
         TextInputStream(StreamReader& reader, SoftFail);
-
 
         DataInputStream operator>>(Data);
         TextInputStream operator>>(Hex);
         TextInputStream operator>>(Width width);
 
         TextInputStream& operator>>(MemoryRange<char> text);
+        TextInputStream& operator>>(char& c);
         TextInputStream& operator>>(int8_t& v);
         TextInputStream& operator>>(int16_t& v);
         TextInputStream& operator>>(int32_t& v);

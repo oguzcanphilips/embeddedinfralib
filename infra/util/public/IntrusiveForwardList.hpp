@@ -69,7 +69,7 @@ namespace infra
         void erase_slow(const_reference value); // Runs in O(n) time
 
         template<class InputIterator>
-            void Assign(InputIterator first, InputIterator last);
+            void assign(InputIterator first, InputIterator last);
 
         void swap(IntrusiveForwardList& other);
 
@@ -84,7 +84,7 @@ namespace infra
         bool operator>=(const IntrusiveForwardList& other) const;
 
     private:
-        detail::IntrusiveForwardListNode<T>* mBegin;
+        detail::IntrusiveForwardListNode<T>* beginNode;
     };
 
     template<class T>
@@ -157,29 +157,29 @@ namespace infra
 
     template<class T>
     IntrusiveForwardList<T>::IntrusiveForwardList()
-        : mBegin(nullptr)
+        : beginNode(nullptr)
     {}
 
     template<class T>
     template<class InputIterator>
     IntrusiveForwardList<T>::IntrusiveForwardList(InputIterator first, InputIterator last)
-        : mBegin(nullptr)
+        : beginNode(nullptr)
     {
-        Assign(first, last);
+        assign(first, last);
     }
 
     template<class T>
     IntrusiveForwardList<T>::IntrusiveForwardList(IntrusiveForwardList&& other)
-        : mBegin(other.mBegin)
+        : beginNode(other.beginNode)
     {
-        other.mBegin = nullptr;
+        other.beginNode = nullptr;
     }
 
     template<class T>
     IntrusiveForwardList<T>& IntrusiveForwardList<T>::operator=(IntrusiveForwardList&& other)
     {
-        mBegin = other.mBegin;
-        other.mBegin = nullptr;
+        beginNode = other.beginNode;
+        other.beginNode = nullptr;
 
         return *this;
     }
@@ -191,13 +191,13 @@ namespace infra
     template<class T>
     typename IntrusiveForwardList<T>::iterator IntrusiveForwardList<T>::begin()
     {
-        return iterator(mBegin);
+        return iterator(beginNode);
     }
 
     template<class T>
     typename IntrusiveForwardList<T>::const_iterator IntrusiveForwardList<T>::begin() const
     {
-        return const_iterator(mBegin);
+        return const_iterator(beginNode);
     }
 
     template<class T>
@@ -227,7 +227,7 @@ namespace infra
     template<class T>
     bool IntrusiveForwardList<T>::empty() const
     {
-        return mBegin == nullptr;
+        return beginNode == nullptr;
     }
 
     template<class T>
@@ -243,28 +243,28 @@ namespace infra
     template<class T>
     typename IntrusiveForwardList<T>::reference IntrusiveForwardList<T>::front()
     {
-        return static_cast<T&>(*mBegin);
+        return static_cast<T&>(*beginNode);
     }
 
     template<class T>
     typename IntrusiveForwardList<T>::const_reference IntrusiveForwardList<T>::front() const
     {
-        return static_cast<T&>(*mBegin);
+        return static_cast<T&>(*beginNode);
     }
 
     template<class T>
     void IntrusiveForwardList<T>::push_front(const_reference value)
     {
         NodeType& node = const_cast<reference>(value);
-        node.next = mBegin;
+        node.next = beginNode;
 
-        mBegin = &node;
+        beginNode = &node;
     }
 
     template<class T>
     void IntrusiveForwardList<T>::pop_front()
     {
-        mBegin = mBegin->next;
+        beginNode = beginNode->next;
     }
 
     template<class T>
@@ -302,7 +302,7 @@ namespace infra
 
     template<class T>
     template<class InputIterator>
-    void IntrusiveForwardList<T>::Assign(InputIterator first, InputIterator last)
+    void IntrusiveForwardList<T>::assign(InputIterator first, InputIterator last)
     {
         clear();
 
@@ -326,20 +326,20 @@ namespace infra
     template<class T>
     void IntrusiveForwardList<T>::swap(IntrusiveForwardList& other)
     {
-        std::swap(mBegin, other.mBegin);
+        std::swap(beginNode, other.beginNode);
     }
 
     template<class T>
     void IntrusiveForwardList<T>::clear()
     {
-        mBegin = nullptr;
+        beginNode = nullptr;
     }
 
     template<class T>
     bool IntrusiveForwardList<T>::operator==(const IntrusiveForwardList& other) const
     {
-        const NodeType* i = mBegin;
-        const NodeType* j = other.mBegin;
+        const NodeType* i = beginNode;
+        const NodeType* j = other.beginNode;
 
         while (i != nullptr && j != nullptr)
         {

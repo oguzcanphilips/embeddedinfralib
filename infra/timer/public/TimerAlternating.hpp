@@ -18,8 +18,8 @@ namespace infra
         void Start(Duration duration1, const infra::Function<void()>& aAction1, Duration duration2, const infra::Function<void()>& aAction2);
 
     protected:
-        const infra::Function<void()>& Action() const override;
-        void ComputeNextTriggerTime() override;
+        virtual const infra::Function<void()>& Action() const override;
+        virtual void ComputeNextTriggerTime() override;
 
     private:
         std::array<Duration, 2> durations;

@@ -13,19 +13,22 @@
     <ClCompile Include="test\TestByteOutputStream.cpp">
       <Filter>test</Filter>
     </ClCompile>
-    <ClCompile Include="test\TestStringOuputStream.cpp">
-      <Filter>test</Filter>
-    </ClCompile>
     <ClCompile Include="test\TestStringInputStream.cpp">
-      <Filter>test</Filter>
-    </ClCompile>
-    <ClCompile Include="test\TestStdStringOuputStream.cpp">
       <Filter>test</Filter>
     </ClCompile>
     <ClCompile Include="test\TestByteInputStream.cpp">
       <Filter>test</Filter>
     </ClCompile>
     <ClCompile Include="test\TestStdStringInputStream.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\TestOutputStreamSwitch.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\TestStdStringOutputStream.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\TestStringOutputStream.cpp">
       <Filter>test</Filter>
     </ClCompile>
   </ItemGroup>

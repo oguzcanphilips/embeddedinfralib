@@ -11,6 +11,7 @@ namespace infra
     const struct Hex {} hex;
     const struct Data {} data;
     const struct Endl {} endl;
+
     struct Width
     {
         explicit Width(std::size_t width, char padding = ' ');
@@ -25,17 +26,6 @@ namespace infra
 
         std::size_t amount;
     };
-
-    ////    Implementation    ////
-
-    inline Width::Width(std::size_t width, char padding)
-        : width(width)
-        , padding(padding)
-    {}
-
-    inline ForwardStream::ForwardStream(std::size_t amount)
-        : amount(amount)
-    {}
 }
 
 #endif

@@ -15,7 +15,6 @@
 //      opt.Emplace(2, 3, 4);       // Late construction by explicitly calling Emplace
 //  opt = MyClass(2, 3, 4);         // Use the copy constructor for construction
 
-#include "infra/util/public/Compare.hpp"
 #include "infra/util/public/StaticStorage.hpp"
 #include <memory>
 #include <type_traits>
@@ -31,9 +30,6 @@ namespace infra
 
     template<class T>
     class Optional
-        : public EqualityComparable<Optional<T>>
-        , public EqualityComparableHeterogeneous<Optional<T>, T>
-        , public EqualityComparableHeterogeneous<Optional<T>, None>
     {
     public:
         Optional();
@@ -66,8 +62,15 @@ namespace infra
 
         bool operator!() const;
         bool operator==(const Optional& other) const;
-        bool operator==(const None& other) const;
-        bool operator==(const T& other) const;
+        bool operator!=(const Optional& other) const;
+        friend bool operator==(const Optional& x, const None& y) { return !x; }
+        friend bool operator!=(const Optional& x, const None& y) { return !(x == y); }
+        friend bool operator==(const None& x, const Optional& y) { return y == x; }
+        friend bool operator!=(const None& x, const Optional& y) { return y != x; }
+        friend bool operator==(const Optional& x, const T& y) { return x && *x == y; }
+        friend bool operator!=(const Optional& x, const T& y) { return !(x == y); }
+        friend bool operator==(const T& x, const Optional& y) { return y == x; }
+        friend bool operator!=(const T& x, const Optional& y) { return y != x; }
 
         template<class U>
         T ValueOr(U&& value) const;
@@ -76,8 +79,8 @@ namespace infra
         void Reset();
 
     private:
-        bool mInitialized;
-        StaticStorage<T> mData;
+        bool initialized;
+        StaticStorage<T> data;
     };
 
     template<class T> 
@@ -85,9 +88,6 @@ namespace infra
 
     template<class T, std::size_t ExtraSize>
     class OptionalForPolymorphicObjects
-        : public EqualityComparable<OptionalForPolymorphicObjects<T, ExtraSize>>
-        , public EqualityComparableHeterogeneous<OptionalForPolymorphicObjects<T, ExtraSize>, T>
-        , public EqualityComparableHeterogeneous<OptionalForPolymorphicObjects<T, ExtraSize>, None>
     {
     public:
         OptionalForPolymorphicObjects();
@@ -121,15 +121,22 @@ namespace infra
 
         bool operator!() const;
         bool operator==(const OptionalForPolymorphicObjects& other) const;
-        bool operator==(const None& other) const;
-        bool operator==(const T& other) const;
+        bool operator!=(const OptionalForPolymorphicObjects& other) const;
+        friend bool operator==(const OptionalForPolymorphicObjects& x, const None& y) { return !x; }
+        friend bool operator!=(const OptionalForPolymorphicObjects& x, const None& y) { return !(x == y); }
+        friend bool operator==(const None& x, const OptionalForPolymorphicObjects& y) { return y == x; }
+        friend bool operator!=(const None& x, const OptionalForPolymorphicObjects& y) { return y != x; }
+        friend bool operator==(const OptionalForPolymorphicObjects& x, const T& y) { return x && *x == y; }
+        friend bool operator!=(const OptionalForPolymorphicObjects& x, const T& y) { return !(x == y); }
+        friend bool operator==(const T& x, const OptionalForPolymorphicObjects& y) { return y == x; }
+        friend bool operator!=(const T& x, const OptionalForPolymorphicObjects& y) { return y != x; }
 
     private:
         void Reset();
 
     private:
-        bool mInitialized;
-        StaticStorageForPolymorphicObjects<T, ExtraSize> mData;
+        bool initialized;
+        StaticStorageForPolymorphicObjects<T, ExtraSize> data;
     };
 
     template<class T>
@@ -139,12 +146,12 @@ namespace infra
 
     template<class T>
     Optional<T>::Optional()
-        : mInitialized(false)
+        : initialized(false)
     {}
 
     template<class T>
     Optional<T>::Optional(const Optional& other)
-        : mInitialized(false)
+        : initialized(false)
     {
         if (other)
             Emplace(*other);
@@ -152,7 +159,7 @@ namespace infra
 
     template<class T>
     Optional<T>::Optional(Optional&& other)
-        : mInitialized(false)
+        : initialized(false)
     {
         if (other)
         {
@@ -163,13 +170,13 @@ namespace infra
 
     template<class T>
     Optional<T>::Optional(None)
-        : mInitialized(false)
+        : initialized(false)
     {}
 
     template<class T>
     template<class... Args>
     Optional<T>::Optional(InPlace, Args&&... args)
-        : mInitialized(false)
+        : initialized(false)
     {
         Emplace(std::forward<Args>(args)...);
     }
@@ -235,65 +242,59 @@ namespace infra
     template<class T>
     const T& Optional<T>::operator*() const
     {
-        return *mData;
+        return *data;
     }
 
     template<class T>
     T& Optional<T>::operator*()
     {
-        return *mData;
+        return *data;
     }
 
     template<class T>
     const T* Optional<T>::operator->() const
     {
-        return &*mData;
+        return &*data;
     }
 
     template<class T>
     T* Optional<T>::operator->()
     {
-        return &*mData;
+        return &*data;
     }
 
     template<class T>
     Optional<T>::operator bool() const
     {
-        return mInitialized;
+        return initialized;
     }
 
     template<class T>
     bool Optional<T>::operator!() const
     {
-        return !mInitialized;
+        return !initialized;
     }
 
     template<class T>
     bool Optional<T>::operator==(const Optional& other) const
     {
-        if (mInitialized && other.mInitialized)
+        if (initialized && other.initialized)
             return **this == *other;
         else
-            return mInitialized == other.mInitialized;
+            return initialized == other.initialized;
     }
 
     template<class T>
-    bool Optional<T>::operator==(const None& other) const
+    bool Optional<T>::operator!=(const Optional& other) const
     {
-        return !mInitialized;
-    }
-
-    template<class T>
-    bool Optional<T>::operator==(const T& other) const
-    {
-        return mInitialized && **this == other;
+        return !(*this == other);
     }
 
     template<class T>
     template<class U>
     T Optional<T>::ValueOr(U&& value) const
     {
-        if (mInitialized)
+        if (initialized)
             return **this;
         else
             return std::move(value);
@@ -304,8 +305,8 @@ namespace infra
     void Optional<T>::Emplace(Args&&... args)
     {
         Reset();
-        mData.Construct(std::forward<Args>(args)...);
-        mInitialized = true;
+        data.Construct(std::forward<Args>(args)...);
+        initialized = true;
     }
 
     template<class T>
@@ -313,17 +314,17 @@ namespace infra
     void Optional<T>::Emplace(std::initializer_list<U> list, Args&&... args)
     {
         Reset();
-        mData.Construct(list, std::forward<Args>(args)...);
-        mInitialized = true;
+        data.Construct(list, std::forward<Args>(args)...);
+        initialized = true;
     }
 
     template<class T>
     void Optional<T>::Reset()
     {
-        if (mInitialized)
+        if (initialized)
         {
-            mData.Destruct();
-            mInitialized = false;
+            data.Destruct();
+            initialized = false;
         }
     }
 
@@ -335,14 +336,14 @@ namespace infra
 
     template<class T, std::size_t ExtraSize>
     OptionalForPolymorphicObjects<T, ExtraSize>::OptionalForPolymorphicObjects()
-        : mInitialized(false)
+        : initialized(false)
     {}
 
     template<class T, std::size_t ExtraSize>
     template<class Derived, std::size_t OtherExtraSize>
     OptionalForPolymorphicObjects<T, ExtraSize>::OptionalForPolymorphicObjects(const OptionalForPolymorphicObjects<Derived, OtherExtraSize>& other
             , typename std::enable_if<std::is_base_of<T, Derived>::value>::type*)
-        : mInitialized(false)
+        : initialized(false)
     {
         if (other)
             Emplace<Derived>(*other);
@@ -350,13 +351,13 @@ namespace infra
 
     template<class T, std::size_t ExtraSize>
     OptionalForPolymorphicObjects<T, ExtraSize>::OptionalForPolymorphicObjects(None)
-        : mInitialized(false)
+        : initialized(false)
     {}
 
     template<class T, std::size_t ExtraSize>
     template<class... Args>
     OptionalForPolymorphicObjects<T, ExtraSize>::OptionalForPolymorphicObjects(InPlace, Args&&... args)
-        : mInitialized(false)
+        : initialized(false)
     {
         Emplace<T>(std::forward<Args>(args)...);
     }
@@ -404,58 +405,52 @@ namespace infra
     template<class T, std::size_t ExtraSize>
     const T& OptionalForPolymorphicObjects<T, ExtraSize>::operator*() const
     {
-        return *mData;
+        return *data;
     }
 
     template<class T, std::size_t ExtraSize>
     T& OptionalForPolymorphicObjects<T, ExtraSize>::operator*()
     {
-        return *mData;
+        return *data;
     }
 
     template<class T, std::size_t ExtraSize>
     const T* OptionalForPolymorphicObjects<T, ExtraSize>::operator->() const
     {
-        return &*mData;
+        return &*data;
     }
 
     template<class T, std::size_t ExtraSize>
     T* OptionalForPolymorphicObjects<T, ExtraSize>::operator->()
     {
-        return &*mData;
+        return &*data;
     }
 
     template<class T, std::size_t ExtraSize>
     OptionalForPolymorphicObjects<T, ExtraSize>::operator bool() const
     {
-        return mInitialized;
+        return initialized;
     }
 
     template<class T, std::size_t ExtraSize>
     bool OptionalForPolymorphicObjects<T, ExtraSize>::operator!() const
     {
-        return !mInitialized;
+        return !initialized;
     }
 
     template<class T, std::size_t ExtraSize>
     bool OptionalForPolymorphicObjects<T, ExtraSize>::operator==(const OptionalForPolymorphicObjects& other) const
     {
-        if (mInitialized && other.mInitialized)
+        if (initialized && other.initialized)
             return **this == *other;
         else
-            return mInitialized == other.mInitialized;
+            return initialized == other.initialized;
     }
 
     template<class T, std::size_t ExtraSize>
-    bool OptionalForPolymorphicObjects<T, ExtraSize>::operator==(const None& other) const
+    bool OptionalForPolymorphicObjects<T, ExtraSize>::operator!=(const OptionalForPolymorphicObjects& other) const
     {
-        return !mInitialized;
-    }
-
-    template<class T, std::size_t ExtraSize>
-    bool OptionalForPolymorphicObjects<T, ExtraSize>::operator==(const T& other) const
-    {
-        return mInitialized && **this == other;
+        return !(*this == other);
     }
 
     template<class T, std::size_t ExtraSize>
@@ -463,17 +458,17 @@ namespace infra
     void OptionalForPolymorphicObjects<T, ExtraSize>::Emplace(Args&&... args)
     {
         Reset();
-        mData.template Construct<Derived>(std::forward<Args>(args)...);
-        mInitialized = true;
+        data.template Construct<Derived>(std::forward<Args>(args)...);
+        initialized = true;
     }
 
     template<class T, std::size_t ExtraSize>
     void OptionalForPolymorphicObjects<T, ExtraSize>::Reset()
     {
-        if (mInitialized)
+        if (initialized)
         {
-            mData.Destruct();
-            mInitialized = false;
+            data.Destruct();
+            initialized = false;
         }
     }
 

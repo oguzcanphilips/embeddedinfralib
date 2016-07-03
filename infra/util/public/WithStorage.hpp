@@ -6,9 +6,16 @@
 
 namespace infra
 {
+    namespace detail
+    {
+        template<class StorageType, class Base>
+            class StorageHolder;
+    }
+
     template<class Base, class StorageType>
     class WithStorage
-        : public Base
+        : private detail::StorageHolder<StorageType, Base>    // Inherit from StorageHolder so that the storage gets constructed before the base
+        , public Base
     {
     public:
         template<class StorageArg, class... Args>
@@ -23,48 +30,58 @@ namespace infra
 
         WithStorage& operator=(const WithStorage& other);
         WithStorage& operator=(WithStorage&& other);
-        WithStorage& operator=(const Base& other);
-        WithStorage& operator=(Base&& other);
 
         template<class T>
             WithStorage& operator=(T&& value);
 
         const StorageType& Storage() const;
         StorageType& Storage();
-
-    private:
-        StorageType storage;
     };
+
+    namespace detail
+    {
+        template<class StorageType, class Base>
+        class StorageHolder
+        {
+        public:
+            StorageHolder() = default;
+
+            template<class Arg0, class... Args>
+                StorageHolder(Arg0&& arg0, Args&&... args);
+
+            StorageType storage;
+        };
+    }
 
     ////    Implementation    ////
 
     template<class Base, class StorageType>
     template<class StorageArg, class... Args>
     WithStorage<Base, StorageType>::WithStorage(InPlace, StorageArg&& storageArg, Args&&... args)
-        : Base(storage, std::forward<Args>(args)...)
-        , storage(std::forward<StorageArg>(storageArg))
+        : detail::StorageHolder<StorageType, Base>(std::forward<StorageArg>(storageArg))
+        , Base(detail::StorageHolder<StorageType, Base>::storage, std::forward<Args>(args)...)
     {}
 
     template<class Base, class StorageType>
     template<class... Args>
     WithStorage<Base, StorageType>::WithStorage(Args&&... args)
-        : Base(storage, std::forward<Args>(args)...)
+        : Base(detail::StorageHolder<StorageType, Base>::storage, std::forward<Args>(args)...)
     {}
 
     template<class Base, class StorageType>
     template<class T, class... Args>
     WithStorage<Base, StorageType>::WithStorage(std::initializer_list<T> initializerList, Args&&... args)
-        : Base(storage, initializerList, std::forward<Args>(args)...)
+        : Base(detail::StorageHolder<StorageType, Base>::storage, initializerList, std::forward<Args>(args)...)
     {}
 
     template<class Base, class StorageType>
     WithStorage<Base, StorageType>::WithStorage(const WithStorage& other)
-        : Base(storage, other)
+        : Base(detail::StorageHolder<StorageType, Base>::storage, other)
     {}
 
     template<class Base, class StorageType>
     WithStorage<Base, StorageType>::WithStorage(WithStorage&& other)
-        : Base(storage, std::move(other))
+        : Base(detail::StorageHolder<StorageType, Base>::storage, std::move(other))
     {}
 
     template<class Base, class StorageType>
@@ -82,37 +99,32 @@ namespace infra
     }
 
     template<class Base, class StorageType>
-    WithStorage<Base, StorageType>& WithStorage<Base, StorageType>::operator=(const Base& other)
-    {
-        this->AssignFromStorage(other);
-        return *this;
-    }
-
-    template<class Base, class StorageType>
-    WithStorage<Base, StorageType>& WithStorage<Base, StorageType>::operator=(Base&& other)
-    {
-        this->AssignFromStorage(std::move(other));
-        return *this;
-    }
-
-    template<class Base, class StorageType>
     template<class T>
     WithStorage<Base, StorageType>& WithStorage<Base, StorageType>::operator=(T&& value)
     {
-        static_cast<Base&>(*this) = std::forward<T>(value);
+        this->AssignFromStorage(std::forward<T>(value));
         return *this;
     }
 
     template<class Base, class StorageType>
     const StorageType& WithStorage<Base, StorageType>::Storage() const
     {
-        return storage;
+        return detail::StorageHolder<StorageType, Base>::storage;
     }
 
     template<class Base, class StorageType>
     StorageType& WithStorage<Base, StorageType>::Storage()
     {
-        return storage;
+        return detail::StorageHolder<StorageType, Base>::storage;
+    }
+
+    namespace detail
+    {
+        template<class StorageType, class Base>
+        template<class Arg0, class... Args>
+        StorageHolder<StorageType, Base>::StorageHolder(Arg0&& arg0, Args&&... args)
+            : storage(std::forward<Arg0>(arg0), std::forward<Args>(args)...)
+        {}
     }
 }
 

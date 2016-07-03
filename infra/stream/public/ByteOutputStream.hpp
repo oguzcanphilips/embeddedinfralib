@@ -38,9 +38,9 @@ namespace infra
             using WithStorage = infra::WithStorage<ByteOutputStream, std::array<uint8_t, Size>>;
 
     private:
-        void Insert(ConstByteRange range) override;
-        void Insert(uint8_t element) override;
-        void Forward(std::size_t amount) override;
+        virtual void Insert(ConstByteRange range) override;
+        virtual void Insert(uint8_t element) override;
+        virtual void Forward(std::size_t amount) override;
 
     private:
         ByteRange range;

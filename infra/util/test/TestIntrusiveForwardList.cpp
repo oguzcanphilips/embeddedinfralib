@@ -117,7 +117,7 @@ TEST(IntrusiveForwardListTest, TestAssignRange)
     infra::IntrusiveForwardList<ForwardListInt> list(range, range + 3);
 
     ForwardListInt otherRange[2] = { 4, 5 };
-    list.Assign(otherRange, otherRange + 2);
+    list.assign(otherRange, otherRange + 2);
 
     EXPECT_EQ(ForwardListInt(4), list.front());
     EXPECT_EQ(ForwardListInt(5), *std::next(list.begin()));
@@ -129,7 +129,7 @@ TEST(IntrusiveForwardListTest, TestAssignN)
     infra::IntrusiveForwardList<ForwardListInt> list(range, range + 3);
 
     ForwardListInt range2[2] = { 3, 4 };
-    list.Assign(range2, range2 + 2);
+    list.assign(range2, range2 + 2);
 
     EXPECT_EQ(ForwardListInt(3), list.front());
     EXPECT_EQ(ForwardListInt(4), *std::next(list.begin()));

@@ -1,12 +1,12 @@
 #include "gtest/gtest.h"
 #include "infra/stream/public/ByteOutputStream.hpp"
-#include "infra/stream/public/StdStringStream.hpp"
-#include "infra/stream/public/StringStream.hpp"
+#include "infra/stream/public/StdStringOutputStream.hpp"
+#include "infra/stream/public/StringOutputStream.hpp"
 #include <cstdint>
 
 TEST(OutputStreamSwitchTest, StreamToTextStream)
 {
-    infra::ByteOutputStream<uint8_t>::WithStorage<2> stream;
+    infra::ByteOutputStream::WithStorage<2> stream;
 
     stream << infra::text << uint8_t(12);
     EXPECT_EQ((std::array<uint8_t, 2>{{ '1', '2' }}), stream.Processed());
@@ -22,7 +22,7 @@ TEST(OutputStreamSwitchTest, TextStreamToStream)
 
 TEST(OutputStreamSwitchTest, StreamToTextStreamToStream)
 {
-    infra::ByteOutputStream<uint8_t>::WithStorage<3> stream;
+    infra::ByteOutputStream::WithStorage<3> stream;
 
     stream << infra::text << uint8_t(12) << infra::data << uint8_t(12);
     EXPECT_EQ((std::array<uint8_t, 3>{{ '1', '2', 12 }}), stream.Processed());

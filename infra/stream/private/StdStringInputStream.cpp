@@ -1,13 +1,13 @@
-#include "infra/stream/public//StdStringInputStream.hpp"
+#include "infra/stream/public/StdStringInputStream.hpp"
 
 namespace infra
 {
-    StdStringInputStream::StdStringInputStream(const std::string& string)
+    StdStringInputStream::StdStringInputStream(std::string& string)
         : TextInputStream(static_cast<StreamReader&>(*this))
         , string(string)
     {}
 
-    StdStringInputStream::StdStringInputStream(const std::string& string, SoftFail)
+    StdStringInputStream::StdStringInputStream(std::string& string, SoftFail)
         : StreamReader(infra::softFail)
         , TextInputStream(static_cast<StreamReader&>(*this), infra::softFail)
         , string(string)

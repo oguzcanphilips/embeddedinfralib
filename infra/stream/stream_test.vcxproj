@@ -14,14 +14,18 @@
     <ClCompile Include="test\Main.cpp" />
     <ClCompile Include="test\TestByteOutputStream.cpp" />
     <ClCompile Include="test\TestByteInputStream.cpp" />
+    <ClCompile Include="test\TestOutputStreamSwitch.cpp" />
     <ClCompile Include="test\TestStdStringInputStream.cpp" />
-    <ClCompile Include="test\TestStdStringOuputStream.cpp" />
-    <ClCompile Include="test\TestStringOuputStream.cpp" />
+    <ClCompile Include="test\TestStdStringOutputStream.cpp" />
     <ClCompile Include="test\TestStringInputStream.cpp" />
+    <ClCompile Include="test\TestStringOutputStream.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\external\gmock\msvc\2013\gmock.vcxproj">
       <Project>{e53a840f-3ef4-44e5-b796-4711b709fae8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\util\util.vcxproj">
+      <Project>{1c860ac0-083c-47ce-b70e-a1913937ef2b}</Project>
     </ProjectReference>
     <ProjectReference Include="stream.vcxproj">
       <Project>{1532c322-a152-486b-8842-ca07f2f43057}</Project>

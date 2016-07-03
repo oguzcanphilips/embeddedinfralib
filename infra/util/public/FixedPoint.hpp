@@ -1,11 +1,8 @@
 #ifndef INFRA_FIXED_POINT_HPP
 #define INFRA_FIXED_POINT_HPP
 
-#include "infra/util/public/Compare.hpp"
-
 namespace infra
 {
-
     struct Scaled {};
     const Scaled scaled;
     struct Unscaled {};
@@ -13,8 +10,6 @@ namespace infra
 
     template<class T, T Factor>
     struct FixedPoint
-        : TotallyOrdered<FixedPoint<T, Factor>>
-        , TotallyOrderedHeterogeneous<FixedPoint<T, Factor>, T>
     {
         FixedPoint()
             : value(0)
@@ -49,15 +44,27 @@ namespace infra
         friend FixedPoint operator/(FixedPoint x, T y) { return x /= y; }
 
         friend bool operator==(const FixedPoint& x, const FixedPoint& y) { return x.value == y.value; }
+        friend bool operator!=(const FixedPoint& x, const FixedPoint& y) { return !(x == y); }
         friend bool operator<(const FixedPoint& x, const FixedPoint& y) { return x.value < y.value; }
+        friend bool operator>(const FixedPoint& x, const FixedPoint& y) { return y < x; }
+        friend bool operator<=(const FixedPoint& x, const FixedPoint& y) { return !(y < x); }
+        friend bool operator>=(const FixedPoint& x, const FixedPoint& y) { return !(x < y); }
         friend bool operator==(const FixedPoint& x, const T& y) { return x.value == y * Factor; }
+        friend bool operator!=(const FixedPoint& x, const T& y) { return x.value != y * Factor; }
         friend bool operator<(const FixedPoint& x, const T& y) { return x.value < y * Factor; }
         friend bool operator>(const FixedPoint& x, const T& y) { return x.value > y * Factor; }
+        friend bool operator<=(const FixedPoint& x, const T& y) { return x.value <= y * Factor; }
+        friend bool operator>=(const FixedPoint& x, const T& y) { return x.value >= y * Factor; }
+        friend bool operator==(const T& x, const FixedPoint& y) { return x * Factor == y.value; }
+        friend bool operator!=(const T& x, const FixedPoint& y) { return x * Factor != y.value; }
+        friend bool operator<(const T& x, const FixedPoint& y) { return x * Factor < y.value; }
+        friend bool operator>(const T& x, const FixedPoint& y) { return x * Factor > y.value; }
+        friend bool operator<=(const T& x, const FixedPoint& y) { return x * Factor <= y.value; }
+        friend bool operator>=(const T& x, const FixedPoint& y) { return x * Factor >= y.value; }
 
     private:
         T value;
     };
-
 }
 
 #endif

@@ -31,9 +31,6 @@
     <ClInclude Include="public\ByteRange.hpp">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="public\Compare.hpp">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="public\CyclicBuffer.hpp">
       <Filter>public</Filter>
     </ClInclude>
@@ -97,9 +94,27 @@
     <ClInclude Include="public\SignalSlot.hpp">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="public\CompareMembers.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\Observer.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\PolymorphicVariant.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\ProxyCreator.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\Sequencer.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\SequencerIdiom.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="private\dummy.cpp">
+    <ClCompile Include="private\Sequencer.cpp">
       <Filter>private</Filter>
     </ClCompile>
   </ItemGroup>

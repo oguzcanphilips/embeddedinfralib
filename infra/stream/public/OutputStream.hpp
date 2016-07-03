@@ -18,11 +18,14 @@ namespace infra
         StreamWriter();
         StreamWriter(SoftFail);
         ~StreamWriter();
+
         virtual void Insert(ConstByteRange range) = 0;
         virtual void Insert(uint8_t element) = 0;
         virtual void Forward(std::size_t amount) = 0;
+
         bool Failed() const;
         void ReportResult(bool ok);
+
     private:
         bool softFail = false;
         bool failed = false;
@@ -33,14 +36,17 @@ namespace infra
     {
     public:
         bool HasFailed() const;
+
     protected:
         OutputStream(StreamWriter& writer);
         StreamWriter& Writer();
+
     private:
         StreamWriter& writer;
     };
 
-    class DataOutputStream : public OutputStream
+    class DataOutputStream
+        : public OutputStream
     {
     public:
         DataOutputStream(StreamWriter& writer);
@@ -54,7 +60,8 @@ namespace infra
             DataOutputStream& operator<<(MemoryRange<Data> data);
     };
 
-    class TextOutputStream : public OutputStream
+    class TextOutputStream
+        : public OutputStream
     {
     public:
         explicit TextOutputStream(StreamWriter& stream);
@@ -65,7 +72,7 @@ namespace infra
         TextOutputStream& operator<<(Endl);
 
         TextOutputStream& operator<<(const char* zeroTerminatedString);
-        TextOutputStream& operator<<(const BoundedString& string);
+        TextOutputStream& operator<<(BoundedConstString string);
         TextOutputStream& operator<<(char c);
         TextOutputStream& operator<<(uint8_t v);
         TextOutputStream& operator<<(int32_t v);

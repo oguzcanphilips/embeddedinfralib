@@ -4,15 +4,11 @@ namespace infra
 {
     StreamWriter::StreamWriter()
         : softFail(false)
-    {
-
-    }
+    {}
 
     StreamWriter::StreamWriter(SoftFail)
         : softFail(true)
-    {
-
-    }
+    {}
 
     StreamWriter::~StreamWriter()
     {
@@ -37,8 +33,7 @@ namespace infra
 
     OutputStream::OutputStream(StreamWriter& writer)
         : writer(writer)
-    {
-    }
+    {}
     
     bool OutputStream::HasFailed() const
     {
@@ -75,7 +70,7 @@ namespace infra
 
         return *this;
     }
-    TextOutputStream& TextOutputStream::operator<<(const BoundedString& string)
+    TextOutputStream& TextOutputStream::operator<<(BoundedConstString string)
     {
         Writer().Insert(ReinterpretCastByteRange(MakeRange(string.begin(), string.end())));
 
@@ -148,7 +143,7 @@ namespace infra
     TextOutputStream& TextOutputStream::operator<<(float v)
     {
         float vv = 0;
-        if (v<0)
+        if (v < 0)
         {
             *this << "-";
             vv = -v;
@@ -199,8 +194,8 @@ namespace infra
         }
 
         if (width)
-        for (std::size_t i = nofDigits; i < width->width; ++i)
-            Writer().Insert(width->padding);
+            for (std::size_t i = nofDigits; i < width->width; ++i)
+                Writer().Insert(width->padding);
 
         while (mask)
         {

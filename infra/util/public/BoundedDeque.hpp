@@ -188,8 +188,8 @@ namespace infra
             template<class, class>
                 friend class BoundedDequeIterator;
 
-            std::size_t mIndex;
-            DequeType* mDeque;
+            std::size_t index;
+            DequeType* deque;
         };
 
     }
@@ -717,23 +717,23 @@ namespace infra
     {
         template<class DequeType, class T>
         BoundedDequeIterator<DequeType, T>::BoundedDequeIterator(DequeType* deque, std::size_t offset)
-            : mIndex(offset)
-            , mDeque(deque)
+            : index(offset)
+            , deque(deque)
         {}
 
         template<class DequeType, class T>
         template<class DequeType2, class T2>
         BoundedDequeIterator<DequeType, T>::BoundedDequeIterator(const BoundedDequeIterator<DequeType2, T2>& other)
-            : mIndex(other.mIndex)
-            , mDeque(other.mDeque)
+            : index(other.index)
+            , deque(other.deque)
         {}
 
         template<class DequeType, class T>
         template<class DequeType2, class T2>
         BoundedDequeIterator<DequeType, T>& BoundedDequeIterator<DequeType, T>::operator=(const BoundedDequeIterator<DequeType2, T2>& other)
         {
-            mDeque = other.mDeque;
-            mIndex = other.mIndex;
+            deque = other.deque;
+            index = other.index;
 
             return *this;
         }
@@ -741,25 +741,25 @@ namespace infra
         template<class DequeType, class T>
         T& BoundedDequeIterator<DequeType, T>::operator*() const
         {
-            return (*mDeque)[mIndex];
+            return (*deque)[index];
         }
 
         template<class DequeType, class T>
         T* BoundedDequeIterator<DequeType, T>::operator->() const
         {
-            return &(*mDeque)[mIndex];
+            return &(*deque)[index];
         }
 
         template<class DequeType, class T>
         T& BoundedDequeIterator<DequeType, T>::operator[](std::ptrdiff_t offset) const
         {
-            return (*mDeque)[mIndex + offset];
+            return (*deque)[index + offset];
         }
 
         template<class DequeType, class T>
         BoundedDequeIterator<DequeType, T>& BoundedDequeIterator<DequeType, T>::operator++()
         {
-            ++mIndex;
+            ++index;
             return *this;
         }
 
@@ -767,14 +767,14 @@ namespace infra
         BoundedDequeIterator<DequeType, T> BoundedDequeIterator<DequeType, T>::operator++(int)
         {
             BoundedDequeIterator copy(*this);
-            ++mIndex;
+            ++index;
             return copy;
         }
 
         template<class DequeType, class T>
         BoundedDequeIterator<DequeType, T>& BoundedDequeIterator<DequeType, T>::operator--()
         {
-            --mIndex;
+            --index;
             return *this;
         }
 
@@ -782,14 +782,14 @@ namespace infra
         BoundedDequeIterator<DequeType, T> BoundedDequeIterator<DequeType, T>::operator--(int)
         {
             BoundedDequeIterator copy(*this);
-            --mIndex;
+            --index;
             return copy;
         }
 
         template<class DequeType, class T>
         BoundedDequeIterator<DequeType, T>& BoundedDequeIterator<DequeType, T>::operator+=(std::ptrdiff_t offset)
         {
-            mIndex += offset;
+            index += offset;
             return *this;
         }
 
@@ -804,7 +804,7 @@ namespace infra
         template<class DequeType, class T>
         BoundedDequeIterator<DequeType, T>& BoundedDequeIterator<DequeType, T>::operator-=(std::ptrdiff_t offset)
         {
-            mIndex -= offset;
+            index -= offset;
             return *this;
         }
 
@@ -819,15 +819,15 @@ namespace infra
         template<class DequeType, class T>
         std::ptrdiff_t BoundedDequeIterator<DequeType, T>::operator-(BoundedDequeIterator other) const
         {
-            return mIndex - other.mIndex;
+            return index - other.index;
         }
 
         template<class DequeType, class T>
         template<class DequeType2, class T2>
         bool BoundedDequeIterator<DequeType, T>::operator==(const BoundedDequeIterator<DequeType2, T2>& other) const
         {
-            really_assert(mDeque == other.mDeque);
-            return mIndex == other.mIndex;
+            really_assert(deque == other.deque);
+            return index == other.index;
         }
 
         template<class DequeType, class T>
@@ -841,8 +841,8 @@ namespace infra
         template<class DequeType2, class T2>
         bool BoundedDequeIterator<DequeType, T>::operator<(const BoundedDequeIterator<DequeType2, T2>& other) const
         {
-            really_assert(mDeque == other.mDeque);
-            return mIndex < other.mIndex;
+            really_assert(deque == other.deque);
+            return index < other.index;
         }
 
         template<class DequeType, class T>

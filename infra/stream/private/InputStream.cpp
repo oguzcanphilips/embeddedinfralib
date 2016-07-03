@@ -5,15 +5,11 @@ namespace infra
 {
     StreamReader::StreamReader()
         : softFail(false)
-    {
-
-    }
+    {}
 
     StreamReader::StreamReader(SoftFail)
         : softFail(true)
-    {
-
-    }
+    {}
 
     StreamReader::~StreamReader()
     {
@@ -38,8 +34,7 @@ namespace infra
     
     InputStream::InputStream(StreamReader& reader)
         : reader(reader)
-    {
-    }
+    {}
 
     bool InputStream::IsEmpty() const
     {
@@ -50,6 +45,7 @@ namespace infra
     {
         return reader.Failed();
     }
+
     StreamReader& InputStream::Reader()
     {
         return reader;
@@ -57,8 +53,7 @@ namespace infra
 
     DataInputStream::DataInputStream(StreamReader& reader)
         : InputStream(reader)
-    {
-    }
+    {}
     
     TextInputStream DataInputStream::operator>>(Text)
     {
@@ -79,13 +74,11 @@ namespace infra
 
     TextInputStream::TextInputStream(StreamReader& reader)
         : InputStream(reader)
-    {
-    }
+    {}
 
     TextInputStream::TextInputStream(StreamReader& reader, SoftFail)
         : InputStream(reader)
-    {
-    }
+    {}
 
     DataInputStream TextInputStream::operator>>(Data)
     {
@@ -98,12 +91,14 @@ namespace infra
         res.isDecimal = false;
         return res;
     }
+
     TextInputStream TextInputStream::operator>>(Width width)
     {
         TextInputStream res(*this);
         res.width = width.width;
         return res;
     }
+
     TextInputStream& TextInputStream::operator>>(MemoryRange<char> text)
     {
         Reader().Extract(ReinterpretCastByteRange(text));
@@ -116,6 +111,12 @@ namespace infra
         return *this;
     }
 
+    TextInputStream& TextInputStream::operator>>(char& c)
+    {
+        Reader().Extract(reinterpret_cast<uint8_t&>(c));
+        return *this;
+    }
+
     TextInputStream& TextInputStream::operator>>(int8_t& v)
     {
         int32_t v32;
@@ -123,6 +124,7 @@ namespace infra
         v = v32;
         return *this;
     }
+
     TextInputStream& TextInputStream::operator>>(int16_t& v)
     {
         int32_t v32;
@@ -130,11 +132,13 @@ namespace infra
         v = v32;
         return *this;
     }
+
     TextInputStream& TextInputStream::operator>>(int32_t& v)
     {
         Read(v);
         return *this;
     }
+
     TextInputStream& TextInputStream::operator>>(uint8_t& v)
     {
         uint32_t v32;
@@ -142,6 +146,7 @@ namespace infra
         v = v32;
         return *this;
     }
+
     TextInputStream& TextInputStream::operator>>(uint16_t& v)
     {
         uint32_t v32;
@@ -149,12 +154,12 @@ namespace infra
         v = v32;
         return *this;
     }
+
     TextInputStream& TextInputStream::operator>>(uint32_t& v)
     {
         Read(v);
         return *this;
     }
-
 
     TextInputStream& TextInputStream::operator>>(float& v)
     {
@@ -195,6 +200,7 @@ namespace infra
 
         return *this;
     }
+
     void TextInputStream::SkipSpaces()
     {
         uint8_t c;
@@ -205,6 +211,7 @@ namespace infra
             Reader().Peek(c);
         }
     }
+
     void TextInputStream::Read(int32_t& v)
     {
         if (isDecimal)
@@ -299,7 +306,7 @@ namespace infra
                 v = (v << 4) + c - 'A' + 10;
             else
             {
-                Reader().ReportResult(i>0);
+                Reader().ReportResult(i > 0);
                 break;
             }
 

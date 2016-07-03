@@ -7,6 +7,16 @@ namespace infra
         , range(range)
     {}
 
+    ConstByteRange ByteInputStream::Processed() const
+    {
+        return MakeRange(range.begin(), range.begin() + offset);
+    }
+
+    ConstByteRange ByteInputStream::Remaining() const
+    {
+        return MakeRange(range.begin() + offset, range.end());
+    }
+
     void ByteInputStream::Extract(ByteRange dataRange)
     {
         ReportResult(dataRange.size() <= range.size() - offset);
@@ -38,5 +48,4 @@ namespace infra
     {
         return offset == range.size();
     }
-
 }

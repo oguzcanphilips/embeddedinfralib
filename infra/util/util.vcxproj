@@ -18,7 +18,7 @@
     <ClInclude Include="public\BoundedString.hpp" />
     <ClInclude Include="public\BoundedVector.hpp" />
     <ClInclude Include="public\ByteRange.hpp" />
-    <ClInclude Include="public\Compare.hpp" />
+    <ClInclude Include="public\CompareMembers.hpp" />
     <ClInclude Include="public\CyclicBuffer.hpp" />
     <ClInclude Include="public\FixedPoint.hpp" />
     <ClInclude Include="public\Function.hpp" />
@@ -29,10 +29,15 @@
     <ClInclude Include="public\IntrusivePriorityQueue.hpp" />
     <ClInclude Include="public\IntrusiveSet.hpp" />
     <ClInclude Include="public\MemoryRange.hpp" />
+    <ClInclude Include="public\Observer.hpp" />
     <ClInclude Include="public\Optional.hpp" />
+    <ClInclude Include="public\PolymorphicVariant.hpp" />
+    <ClInclude Include="public\ProxyCreator.hpp" />
     <ClInclude Include="public\ReallyAssert.hpp" />
     <ClInclude Include="public\ReferenceCountedSingleton.hpp" />
     <ClInclude Include="public\ReverseRange.hpp" />
+    <ClInclude Include="public\Sequencer.hpp" />
+    <ClInclude Include="public\SequencerIdiom.hpp" />
     <ClInclude Include="public\SignalSlot.hpp" />
     <ClInclude Include="public\StaticStorage.hpp" />
     <ClInclude Include="public\Unit.hpp" />
@@ -42,12 +47,11 @@
     <ClInclude Include="public\WithStorage.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="private\dummy.cpp" />
+    <ClCompile Include="private\Sequencer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1C860AC0-083C-47CE-B70E-A1913937EF2B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    
     <ProjectName>util</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -69,9 +73,11 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PropertySheet_Lib.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PropertySheet_Lib.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
