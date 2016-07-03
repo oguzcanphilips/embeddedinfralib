@@ -1,0 +1,49 @@
+ccola_component(pack_builder_library win: static_library other: noncompile)
+
+	ccola_sources(
+		BuildReferenceUpgradePack.cpp
+		BuildReferenceUpgradePack.hpp
+		BuildUpgradePack.cpp
+		BuildUpgradePack.hpp
+		ImageAuthenticatorHmac.cpp
+		ImageAUthenticatorHmac.hpp
+		ImageEncryptorAes.cpp
+		ImageEncryptorAes.hpp
+		ImageEncryptorNone.cpp
+		ImageEncryptorNone.hpp
+		ImageEncryptorXtea.cpp
+		ImageEncryptorXtea.hpp
+		ImageSecurity.hpp
+		ImageSecurityXteaHmac.cpp
+		ImageSecurityXteaHmac.hpp
+		ImageSigner.hpp
+		ImageSignerEcDsa.cpp
+		ImageSignerEcDsa.hpp
+		ImageSignerRsa.cpp
+		ImageSignerRsa.hpp
+		Input.cpp
+		Input.hpp
+		InputBinary.cpp
+		InputBinary.hpp
+		InputFactory.hpp
+		InputHex.cpp
+		InputHex.hpp
+		RandomNumberGenerator.cpp
+		RandomNumberGenerator.hpp
+		UpgradePackBuilder.cpp
+		UpgradePackBuilder.hpp
+		UpgradePackInputFactory.cpp
+		UpgradePackInputFactory.hpp
+	)
+
+	ccola_dependencies(
+		pack
+		infra.util
+		hal.interfaces
+		crypto.mbed_tls
+		crypto.micro_ecc
+		crypto.tiny_aes128
+		hex_compiler.application
+	)
+
+ccola_end_component()
