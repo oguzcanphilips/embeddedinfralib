@@ -2,7 +2,11 @@ if(${CCOLA_ARCH} STREQUAL "win")
 	ccola_get_filename_component_we(name ${CCOLA_COMPONENT_PROJECT_NAME})
 
 	foreach(configuration ${CMAKE_CONFIGURATION_TYPES})
-		set_target_properties(${CCOLA_COMPONENT_NAME} PROPERTIES ccola_location "${CCOLA_COMPONENT_PROJECT_PATH}/bin/$<CONFIGURATION>/${name}.exe")
+		if(DEFINED ccola_location)
+			set_target_properties(${CCOLA_COMPONENT_NAME} PROPERTIES ccola_location "${ccola_location}")
+		else()
+			set_target_properties(${CCOLA_COMPONENT_NAME} PROPERTIES ccola_location "${CCOLA_COMPONENT_PROJECT_PATH}/bin/$<CONFIGURATION>/${name}.exe")
+		endif()
 	endforeach()
 
 	configure_file(

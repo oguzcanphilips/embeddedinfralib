@@ -14,7 +14,7 @@ namespace application
     {};
 
     class Compiler
-        : private CommandLineParser
+        : private fsm::CommandLineParser
     {
     public:
         Compiler(hal::FileSystem& fileSystem);

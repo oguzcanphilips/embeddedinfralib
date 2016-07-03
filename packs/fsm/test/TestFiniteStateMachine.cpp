@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "Generated\TestFSM.hpp"
-#include "Generated\TestCheckerFSM.hpp"
+#include "fsm_fsm_test_generated/TestFSM.hpp"
+#include "fsm_fsm_test_generated/TestCheckerFSM.hpp"
 #include <string>
 
 class Tester : public fsm::TestFSM
