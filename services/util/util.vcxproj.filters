@@ -9,18 +9,96 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="public\CyclicFlashStorage.hpp">
+    <ClInclude Include="public\CyclicStore.hpp">
       <Filter>public</Filter>
     </ClInclude>
-    <ClInclude Include="public\CyclicFlashStorageImpl.hpp">
+    <ClInclude Include="public\DebugLed.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\FlashDelayedInit.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\FlashMultipleAccess.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\FlashQuadSpi.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\FlashRegion.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\FlashSpi.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\GpioPinInverted.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\I2cMultipleAccess.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\RepeatingButton.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\SignalLed.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\SpiMasterWithChipSelect.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\SpiMultipleAccess.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\Json.hpp">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\JsonFormatter.hpp">
       <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="private\CyclicFlashStorage.cpp">
+    <ClCompile Include="private\CyclicStore.cpp">
       <Filter>private</Filter>
     </ClCompile>
-    <ClCompile Include="private\CyclicFlashStorageImpl.cpp">
+    <ClCompile Include="private\DebugLed.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\FlashDelayedInit.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\FlashMultipleAccess.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\FlashQuadSpi.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\FlashRegion.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\FlashSpi.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\GpioPinInverted.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\I2cMultipleAccess.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\RepeatingButton.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\SignalLed.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\SpiMasterWithChipSelect.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\SpiMultipleAccess.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\Json.cpp">
+      <Filter>private</Filter>
+    </ClCompile>
+    <ClCompile Include="private\JsonFormatter.cpp">
       <Filter>private</Filter>
     </ClCompile>
   </ItemGroup>

@@ -67,12 +67,38 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="private\CyclicFlashStorage.cpp" />
-    <ClCompile Include="private\CyclicFlashStorageImpl.cpp" />
+    <ClCompile Include="private\CyclicStore.cpp" />
+    <ClCompile Include="private\DebugLed.cpp" />
+    <ClCompile Include="private\FlashDelayedInit.cpp" />
+    <ClCompile Include="private\FlashMultipleAccess.cpp" />
+    <ClCompile Include="private\FlashQuadSpi.cpp" />
+    <ClCompile Include="private\FlashRegion.cpp" />
+    <ClCompile Include="private\FlashSpi.cpp" />
+    <ClCompile Include="private\GpioPinInverted.cpp" />
+    <ClCompile Include="private\I2cMultipleAccess.cpp" />
+    <ClCompile Include="private\Json.cpp" />
+    <ClCompile Include="private\JsonFormatter.cpp" />
+    <ClCompile Include="private\RepeatingButton.cpp" />
+    <ClCompile Include="private\SignalLed.cpp" />
+    <ClCompile Include="private\SpiMasterWithChipSelect.cpp" />
+    <ClCompile Include="private\SpiMultipleAccess.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="public\CyclicFlashStorage.hpp" />
-    <ClInclude Include="public\CyclicFlashStorageImpl.hpp" />
+    <ClInclude Include="public\CyclicStore.hpp" />
+    <ClInclude Include="public\DebugLed.hpp" />
+    <ClInclude Include="public\FlashDelayedInit.hpp" />
+    <ClInclude Include="public\FlashMultipleAccess.hpp" />
+    <ClInclude Include="public\FlashQuadSpi.hpp" />
+    <ClInclude Include="public\FlashRegion.hpp" />
+    <ClInclude Include="public\FlashSpi.hpp" />
+    <ClInclude Include="public\GpioPinInverted.hpp" />
+    <ClInclude Include="public\I2cMultipleAccess.hpp" />
+    <ClInclude Include="public\Json.hpp" />
+    <ClInclude Include="public\JsonFormatter.hpp" />
+    <ClInclude Include="public\RepeatingButton.hpp" />
+    <ClInclude Include="public\SignalLed.hpp" />
+    <ClInclude Include="public\SpiMasterWithChipSelect.hpp" />
+    <ClInclude Include="public\SpiMultipleAccess.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
