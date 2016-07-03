@@ -74,7 +74,7 @@ endmacro()
 macro(ccola_verify_not_nested name var purpose)
 
     if(DEFINED ${var})
-        message(FATAL_ERROR "${purpose}s may not be nested: ${name} is nested in ${var}.")
+        message(FATAL_ERROR "${purpose}s may not be nested: ${name} is nested in ${${var}}.")
     endif()
 
 endmacro()
