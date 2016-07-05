@@ -95,7 +95,7 @@ namespace infra
     template<class T, class Compare>
     template<class InputIterator>
     IntrusiveSet<T, Compare>::IntrusiveSet(InputIterator first, InputIterator last, const Compare& compare)
-        : IntrusiveBinarySearchTree(compare)
+        : IntrusiveBinarySearchTree<T, Compare>(compare)
     {
         assign(first, last);
     }

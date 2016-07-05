@@ -67,7 +67,7 @@ namespace infra
         void swap(BoundedPriorityQueue& x);
 
     private:
-        BoundedVector<value_type>::WithMaxSize<Max> values;
+        typename BoundedVector<value_type>::template WithMaxSize<Max> values;
         Compare compare;
     };
 

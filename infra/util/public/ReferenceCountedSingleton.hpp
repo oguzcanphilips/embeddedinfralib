@@ -2,6 +2,7 @@
 #define INFRA_REFERENCE_COUNTED_SINGLETON_HPP
 
 #include "infra/util/public/StaticStorage.hpp"
+#include <cassert>
 
 // Two classes are available: ReferenceCountedSingleton, and ReferenceCountedSingletons (plural)
 // These classes help creating singletons that are constructed and destroyed based on a reference count.
