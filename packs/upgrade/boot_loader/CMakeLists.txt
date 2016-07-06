@@ -39,6 +39,7 @@ ccola_component(boot_loader static_library)
 	ccola_dependencies(
 		pack
 		infra.util
+		infra.stream
 		crypto.mbed_tls
 		crypto.micro_ecc
 		crypto.tiny_aes128
