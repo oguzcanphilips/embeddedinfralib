@@ -19,7 +19,7 @@ namespace
     }
 }
 
-namespace infra
+namespace services
 {
     namespace JsonToken
     {
@@ -787,37 +787,37 @@ namespace infra
         state = end;
     }
 
-    detail::DoublePair<JsonValueArrayIterator<bool>> JsonBooleanArray(JsonArray& array)
+    infra::detail::DoublePair<JsonValueArrayIterator<bool>> JsonBooleanArray(JsonArray& array)
     {
-        return detail::DoublePair<JsonValueArrayIterator<bool>>(
+        return infra::detail::DoublePair<JsonValueArrayIterator<bool>>(
             JsonValueArrayIterator<bool>(array.begin(), array.end()),
             JsonValueArrayIterator<bool>(array.end(), array.end()));
     }
 
-    detail::DoublePair<JsonValueArrayIterator<int32_t>> JsonIntegerArray(JsonArray& array)
+    infra::detail::DoublePair<JsonValueArrayIterator<int32_t>> JsonIntegerArray(JsonArray& array)
     {
-        return detail::DoublePair<JsonValueArrayIterator<int32_t>>(
+        return infra::detail::DoublePair<JsonValueArrayIterator<int32_t>>(
             JsonValueArrayIterator<int32_t>(array.begin(), array.end()),
             JsonValueArrayIterator<int32_t>(array.end(), array.end()));
     }
 
-    detail::DoublePair<JsonValueArrayIterator<infra::BoundedConstString>> JsonStringArray(JsonArray& array)
+    infra::detail::DoublePair<JsonValueArrayIterator<infra::BoundedConstString>> JsonStringArray(JsonArray& array)
     {
-        return detail::DoublePair<JsonValueArrayIterator<infra::BoundedConstString>>(
+        return infra::detail::DoublePair<JsonValueArrayIterator<infra::BoundedConstString>>(
             JsonValueArrayIterator<infra::BoundedConstString>(array.begin(), array.end()),
             JsonValueArrayIterator<infra::BoundedConstString>(array.end(), array.end()));
     }
 
-    detail::DoublePair<JsonValueArrayIterator<JsonObject>> JsonObjectArray(JsonArray& array)
+    infra::detail::DoublePair<JsonValueArrayIterator<JsonObject>> JsonObjectArray(JsonArray& array)
     {
-        return detail::DoublePair<JsonValueArrayIterator<JsonObject>>(
+        return infra::detail::DoublePair<JsonValueArrayIterator<JsonObject>>(
             JsonValueArrayIterator<JsonObject>(array.begin(), array.end()),
             JsonValueArrayIterator<JsonObject>(array.end(), array.end()));
     }
 
-    detail::DoublePair<JsonValueArrayIterator<JsonArray>> JsonArrayArray(JsonArray& array)
+    infra::detail::DoublePair<JsonValueArrayIterator<JsonArray>> JsonArrayArray(JsonArray& array)
     {
-        return detail::DoublePair<JsonValueArrayIterator<JsonArray>>(
+        return infra::detail::DoublePair<JsonValueArrayIterator<JsonArray>>(
             JsonValueArrayIterator<JsonArray>(array.begin(), array.end()),
             JsonValueArrayIterator<JsonArray>(array.end(), array.end()));
     }

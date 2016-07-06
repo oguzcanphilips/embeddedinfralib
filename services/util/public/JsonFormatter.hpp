@@ -5,7 +5,7 @@
 #include "infra/stream/public/StringOutputStream.hpp"
 #include "infra/util/public/WithStorage.hpp"
 
-namespace infra
+namespace services
 {
     class JsonFormatter
     {

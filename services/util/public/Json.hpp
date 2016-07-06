@@ -6,7 +6,7 @@
 #include "infra/util/public/ReverseRange.hpp"
 #include "infra/util/public/Variant.hpp"
 
-namespace infra
+namespace services
 {
     namespace JsonToken
     {
@@ -365,11 +365,11 @@ namespace infra
         JsonArrayIterator arrayEndIterator;
     };
 
-    detail::DoublePair<JsonValueArrayIterator<bool>> JsonBooleanArray(JsonArray& array);
-    detail::DoublePair<JsonValueArrayIterator<int32_t>> JsonIntegerArray(JsonArray& array);
-    detail::DoublePair<JsonValueArrayIterator<infra::BoundedConstString>> JsonStringArray(JsonArray& array);
-    detail::DoublePair<JsonValueArrayIterator<JsonObject>> JsonObjectArray(JsonArray& array);
-    detail::DoublePair<JsonValueArrayIterator<JsonArray>> JsonArrayArray(JsonArray& array);
+    infra::detail::DoublePair<JsonValueArrayIterator<bool>> JsonBooleanArray(JsonArray& array);
+    infra::detail::DoublePair<JsonValueArrayIterator<int32_t>> JsonIntegerArray(JsonArray& array);
+    infra::detail::DoublePair<JsonValueArrayIterator<infra::BoundedConstString>> JsonStringArray(JsonArray& array);
+    infra::detail::DoublePair<JsonValueArrayIterator<JsonObject>> JsonObjectArray(JsonArray& array);
+    infra::detail::DoublePair<JsonValueArrayIterator<JsonArray>> JsonArrayArray(JsonArray& array);
 
     ////    Implementation    ////
 
