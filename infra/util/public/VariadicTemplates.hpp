@@ -27,12 +27,12 @@ namespace infra
 
     template<std::size_t x, std::size_t y>
     struct Max
-        : std::integral_constant<std::size_t, (x > y ? x : y) >
+        : std::integral_constant<std::size_t, (x > y ? x : y)>
     {};
 
     template<std::size_t x, std::size_t y>
     struct Min
-        : std::integral_constant < std::size_t, (x < y ? x : y)>
+        : std::integral_constant<std::size_t, (x < y ? x : y)>
     {};
 
     template<class... List>
@@ -43,9 +43,6 @@ namespace infra
 
     template<class... Types>
     struct MaxAlignmentType;
-
-    template<class... Ts>
-    struct IsHomogeneousPack;
 
     template<class... T>
     struct List
@@ -138,34 +135,6 @@ namespace infra
         typedef Front Type;
     };
 
-    namespace detail
-    {
-        template<class... Ts>
-        struct HomogeneousType;
-
-        template<class T>
-        struct HomogeneousType<T>
-        {
-            typedef T Type;
-            static const bool isHomogeneous = true;
-        };
-
-        template<class T, class... Ts>
-        struct HomogeneousType<T, Ts...>
-        {
-            typedef typename HomogeneousType<Ts...>::Type TypeOfRemainingParameters;
-            static const bool isHomogeneous = std::is_same<T, TypeOfRemainingParameters>::value;
-
-            typedef typename std::conditional<isHomogeneous, T, NullType>::Type Type;
-        };
-    }
-
-    template<class... Ts>
-    struct IsHomogeneousPack
-    {
-        static const bool value = detail::HomogeneousType<Ts...>::isHomogeneous;
-    };
-
     template<class... ListA, class... ListB>
     struct ListJoin<List<ListA...>, List<ListB...>>
     {
@@ -202,15 +171,16 @@ namespace infra
     struct CanCallHelper
     {
         template<class ResultType, class... Args>
-        static decltype(std::declval<ResultType>()(std::declval<Args>()...), std::true_type()) f(int);
+            static decltype(std::declval<ResultType>()(std::declval<Args>()...), std::true_type()) f(int);
 
         template<class ResultType, class... Args>
-        static std::false_type f(...);
+            static std::false_type f(...);
     };
 
     template<class ResultType, class... Args>
-    struct CanCall<ResultType(Args...)>: decltype(CanCallHelper::f<ResultType, Args...>(0)) {};
-
+    struct CanCall<ResultType(Args...)>
+        : decltype(CanCallHelper::f<ResultType, Args...>(0))
+    {};
 }
 
 #endif
