@@ -10,7 +10,6 @@ ccola_component(boot_loader static_library)
 		private/ImageUpgraderDiComm.cpp
 		private/ImageUpgraderInternalFlash.cpp
 		private/ImageUpgraderSkip.cpp
-		private/JsonObject.cpp
 		private/PackUpgrader.cpp
 		private/SecondStageToRamLoader.cpp
 		private/VerifierEcDsa.cpp
@@ -27,7 +26,6 @@ ccola_component(boot_loader static_library)
 		public/ImageUpgraderDiComm.hpp
 		public/ImageUpgraderInternalFlash.hpp
 		public/ImageUpgraderSkip.hpp
-		public/JsonObject.hpp
 		public/PackUpgrader.hpp
 		public/SecondStageToRamLoader.hpp
 		public/Verifier.hpp
@@ -45,6 +43,7 @@ ccola_component(boot_loader static_library)
 		crypto.tiny_aes128
 		hal.synchronous_interfaces
 		services.synchronous_util
+		services.util
 	)
 
 ccola_end_component()

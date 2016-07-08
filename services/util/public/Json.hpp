@@ -189,6 +189,7 @@ namespace services
 
         infra::Optional<infra::BoundedConstString> GetOptionalString(infra::BoundedConstString key);
         infra::Optional<bool> GetOptionalBoolean(infra::BoundedConstString key);
+        infra::Optional<int32_t> GetOptionalInteger(infra::BoundedConstString key);
         infra::Optional<JsonObject> GetOptionalObject(infra::BoundedConstString key);
         infra::Optional<JsonArray> GetOptionalArray(infra::BoundedConstString key);
 

@@ -379,6 +379,11 @@ namespace services
         return GetOptionalValue<bool>(key);
     }
 
+    infra::Optional<int32_t> JsonObject::GetOptionalInteger(infra::BoundedConstString key)
+    {
+        return GetOptionalValue<int32_t>(key);
+    }
+
     infra::Optional<JsonObject> JsonObject::GetOptionalObject(infra::BoundedConstString key)
     {
         return GetOptionalValue<JsonObject>(key);

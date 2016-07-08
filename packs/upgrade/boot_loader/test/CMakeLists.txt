@@ -10,7 +10,6 @@ ccola_component(boot_loader_test gmock_test)
 		TestImageUpgraderDiComm.cpp
 		TestImageUpgraderInternalFlash.cpp
 		TestImageUpgraderSkip.cpp
-		TestJsonObject.cpp
 		TestPackUpgrader.cpp
 		TestSecondStageToRamLoader.cpp
 	)
