@@ -7,7 +7,6 @@
 
 namespace infra
 {
-
     template<uint64_t Value1, uint64_t Value2>
     struct StaticGCD
     {
@@ -455,7 +454,6 @@ namespace infra
     typedef Joule::Scale<StaticRational<3600, 1000>> KiloWattHour;
 
     typedef BaseUnit<4> Celsius;
-
 }
 
 #endif

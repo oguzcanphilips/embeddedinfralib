@@ -1,8 +1,8 @@
 #ifndef SERVICES_JSON_FORMATTER_HPP
 #define SERVICES_JSON_FORMATTER_HPP
 
-#include "infra/util/public/BoundedString.hpp"
 #include "infra/stream/public/StringOutputStream.hpp"
+#include "infra/util/public/BoundedString.hpp"
 #include "infra/util/public/WithStorage.hpp"
 
 namespace services

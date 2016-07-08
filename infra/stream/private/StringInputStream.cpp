@@ -6,12 +6,12 @@ namespace infra
         : TextInputStream(static_cast<StreamReader&>(*this))
         , string(string)
     {}
+
     StringInputStream::StringInputStream(const BoundedConstString& string, SoftFail)
         : StreamReader(infra::softFail)
         , TextInputStream(static_cast<StreamReader&>(*this), infra::softFail)
         , string(string)
-    {
-    }
+    {}
 
     void StringInputStream::Extract(ByteRange range)
     {
@@ -60,4 +60,3 @@ namespace infra
         return offset == string.size();
     }
 }
-

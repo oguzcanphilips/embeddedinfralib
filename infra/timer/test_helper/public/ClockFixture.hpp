@@ -2,9 +2,9 @@
 #define INFRA_CLOCK_FIXTURE_HPP
 
 #include "gmock/gmock.h"
+#include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
 #include "infra/timer/public/BaseTimerService.hpp"
 #include "infra/timer/public/TimerService.hpp"
-#include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
 
 namespace infra
 {

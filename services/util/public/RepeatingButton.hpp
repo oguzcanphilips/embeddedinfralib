@@ -6,7 +6,6 @@
 
 namespace services
 {
-
     class RepeatingButton
     {
     public:
@@ -53,7 +52,6 @@ namespace services
         infra::TimerSingleShot debounceEnd;
         infra::Function<void()> callback;
     };
-
 }
 
 #endif

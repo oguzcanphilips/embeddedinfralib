@@ -6,7 +6,6 @@
 
 namespace services
 {
-
     class SignalLed
     {
     public:
@@ -25,7 +24,6 @@ namespace services
         infra::TimerRepeating timer;
         uint32_t index = 0;
     };
-
 }
 
 #endif

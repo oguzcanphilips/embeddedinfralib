@@ -24,7 +24,6 @@ namespace infra
 
     namespace detail
     {
-
         template<std::size_t Index, class Visitor, class Variant, class Enable = void>
         struct ApplyVisitorHelper
         {

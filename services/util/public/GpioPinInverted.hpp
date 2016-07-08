@@ -6,7 +6,6 @@
 
 namespace services
 {
-
     class GpioPinInverted
         : public hal::GpioPin
     {
@@ -27,7 +26,6 @@ namespace services
     private:
         hal::GpioPin& pin;
     };
-
 }
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef SYNCHRONOUS_SERVICES_SYNCHRONOUS_SPI_MASTER_WITH_CHIP_SELECT_HPP
-#define SYNCHRONOUS_SERVICES_SYNCHRONOUS_SPI_MASTER_WITH_CHIP_SELECT_HPP
+#ifndef SERVICES_SYNCHRONOUS_SPI_MASTER_WITH_CHIP_SELECT_HPP
+#define SERVICES_SYNCHRONOUS_SPI_MASTER_WITH_CHIP_SELECT_HPP
 
 #include "hal/synchronous_interfaces/public/SynchronousSpi.hpp"
 #include "hal/synchronous_interfaces/public/SynchronousGpio.hpp"

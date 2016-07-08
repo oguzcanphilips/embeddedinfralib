@@ -2,7 +2,6 @@
 
 namespace services
 {
-
     const uint8_t SynchronousFlashSpi::commandPageProgram = 0x02;
     const uint8_t SynchronousFlashSpi::commandReadData = 0x03;
     const uint8_t SynchronousFlashSpi::commandReadStatusRegister = 0x05;

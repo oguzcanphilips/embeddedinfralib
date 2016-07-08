@@ -6,7 +6,6 @@
 
 namespace infra
 {
-
     struct NullType
     {};
 

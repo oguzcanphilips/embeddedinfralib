@@ -1,6 +1,6 @@
-#include <gtest/gtest.h>
 #include "infra/event/public/ClaimableResource.hpp"
 #include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
+#include <gtest/gtest.h>
 
 class TestClaimer
     : public infra::ClaimableResource::Claimer

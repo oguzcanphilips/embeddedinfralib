@@ -3,7 +3,6 @@
 
 #include "infra/timer/public/Timer.hpp"
 #include "infra/util/public/IntrusiveForwardList.hpp"
-#include "infra/util/public/IntrusivePriorityQueue.hpp"
 
 namespace infra
 {

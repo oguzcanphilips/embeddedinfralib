@@ -1,5 +1,5 @@
-#ifndef SYNCHRONOUS_SERVICES_SYNCHRONOUS_FLASH_QUAD_SPI_HPP
-#define SYNCHRONOUS_SERVICES_SYNCHRONOUS_FLASH_QUAD_SPI_HPP
+#ifndef SERVICES_SYNCHRONOUS_FLASH_QUAD_SPI_HPP
+#define SERVICES_SYNCHRONOUS_FLASH_QUAD_SPI_HPP
 
 #include "hal/synchronous_interfaces/public/SynchronousFlashHomogeneous.hpp"
 #include "hal/synchronous_interfaces/public/SynchronousQuadSpi.hpp"

@@ -1,5 +1,5 @@
-#include "infra/timer/public/BaseTimerService.hpp"
 #include "infra/event/public/EventDispatcher.hpp"
+#include "infra/timer/public/BaseTimerService.hpp"
 #include "infra/timer/public/TimerServiceManager.hpp"
 #include <cassert>
 
