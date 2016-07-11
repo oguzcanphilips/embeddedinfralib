@@ -1,4 +1,4 @@
-ccola_component(interface_test gmock_test)
+ccola_component(interfaces_test gmock_test)
 
 	ccola_sources(
 		TestFlash.cpp
