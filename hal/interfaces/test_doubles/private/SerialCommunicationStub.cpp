@@ -2,9 +2,6 @@
 
 namespace hal
 {
-    SerialCommunicationStub::SerialCommunicationStub()
-    {}
-
     void SerialCommunicationStub::SendData(infra::ConstByteRange data, infra::Function<void()> actionOnCompletion)
     {
         for (size_t i = 0; i < data.size(); ++i)

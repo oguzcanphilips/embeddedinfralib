@@ -8,6 +8,7 @@ ccola_component(test_doubles win: static_library other: noncompile)
 		private/I2cMock.cpp
 		private/I2cRegisterAccessMock.cpp
 		private/QuadSpiStub.cpp
+		private/SerialCommunicationMock.cpp
 		private/SerialCommunicationStub.cpp
 		private/SpiMock.cpp
 		public/FileSystemStub.hpp
@@ -17,6 +18,7 @@ ccola_component(test_doubles win: static_library other: noncompile)
 		public/I2cMock.hpp
 		public/I2cRegisterAccessMock.hpp
 		public/QuadSpiStub.hpp
+		public/SerialCommunicationMock.hpp
 		public/SerialCommunicationStub.hpp
 		public/SpiMock.hpp
 	)

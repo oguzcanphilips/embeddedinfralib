@@ -1,12 +1,12 @@
-#ifndef HAL_SERIAL_COMMUNICATION_STUB_HPP
-#define HAL_SERIAL_COMMUNICATION_STUB_HPP
+#ifndef HAL_SERIAL_COMMUNICATION_MOCK_HPP
+#define HAL_SERIAL_COMMUNICATION_MOCK_HPP
 
+#include "gmock/gmock.h"
 #include "hal/interfaces/public/SerialCommunication.hpp"
-#include <deque>
 
 namespace hal
 {
-    class SerialCommunicationStub
+    class SerialCommunicationMock
         : public SerialCommunication
     {
     public:
@@ -14,12 +14,10 @@ namespace hal
         virtual void SendData(infra::ConstByteRange data, infra::Function<void()> actionOnCompletion) override;
         virtual void ReceiveData(infra::Function<void(infra::ConstByteRange data)> dataReceived) override;
 
-        std::deque<uint8_t> dataReceivedByStub;
+        MOCK_METHOD1(SendDataMock, void(std::vector<uint8_t>));
 
-    private:
+        infra::Function<void()> actionOnCompletion;
         infra::Function<void(infra::ConstByteRange data)> dataReceived;
-        uint32_t bytesInRxBuffer;
-        infra::ByteRange rxBufferMemoryRange;
     };
 }
 
