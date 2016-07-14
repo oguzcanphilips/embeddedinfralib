@@ -79,9 +79,47 @@ namespace infra
         TextOutputStream& operator<<(uint32_t v);
         TextOutputStream& operator<<(float v);
 
+        template<class... Args>
+            void Format(const char* format, Args&&... arguments);
+
+    private:
+        class FormatterBase
+        {
+        public:
+            FormatterBase() = default;
+            FormatterBase(const FormatterBase& other) = delete;
+            FormatterBase& operator=(const FormatterBase& other) = delete;
+
+        public:
+            virtual void Stream(TextOutputStream& stream) = 0;
+
+        protected:
+            ~FormatterBase() = default;
+        };
+
+        template<class T>
+        class Formatter
+            : public FormatterBase
+        {
+        public:
+            Formatter(T value);
+
+            virtual void Stream(TextOutputStream& stream) override;
+
+        private:
+            T value;
+        };
+
+        template<class T>
+            Formatter<T> MakeFormatter(T&& argument);
+
     private:
         void OutputAsDecimal(uint32_t v);
         void OutputAsHex(uint32_t v);
+
+        template<class... Formatters>
+            void FormatHelper(const char* format, Formatters&&... formatters);
+        void FormatArgs(const char* format, infra::MemoryRange<FormatterBase*> formatters);
 
     private:
         bool decimal = true;
@@ -104,6 +142,36 @@ namespace infra
         ConstByteRange dataRange(ReinterpretCastByteRange(data));
         Writer().Insert(dataRange);
         return *this;
+    }
+
+    template<class T>
+    TextOutputStream::Formatter<T>::Formatter(T value)
+        : value(value)
+    {}
+
+    template<class T>
+    void TextOutputStream::Formatter<T>::Stream(TextOutputStream& stream)
+    {
+        stream << value;
+    }
+
+    template<class T>
+    TextOutputStream::Formatter<T> TextOutputStream::MakeFormatter(T&& argument)
+    {
+        return Formatter<T>(std::forward<T>(argument));
+    }
+
+    template<class... Args>
+    void TextOutputStream::Format(const char* format, Args&&... arguments)
+    {
+        FormatHelper(format, MakeFormatter(arguments)...);
+    }
+
+    template<class... Args>
+    void TextOutputStream::FormatHelper(const char* format, Args&&... arguments)
+    {
+        std::array<FormatterBase*, sizeof...(Args)> formatters = { &arguments... };
+        FormatArgs(format, formatters);
     }
 }
 

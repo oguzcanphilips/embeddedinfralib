@@ -3,7 +3,7 @@
 #include "infra/util/public/BoundedString.hpp"
 #include <cstdint>
 
-TEST(StringOuputStreamTest, StreamByte)
+TEST(StringOutputStreamTest, stream_byte)
 {
     infra::StringOutputStream::WithStorage<2> stream;
 
@@ -11,7 +11,7 @@ TEST(StringOuputStreamTest, StreamByte)
     EXPECT_EQ("12", stream.Storage());
 }
 
-TEST(StringOuputStreamTest, StreamFromBoundedString)
+TEST(StringOutputStreamTest, stream_from_bounded_string)
 {
     infra::BoundedString::WithStorage<10> s = "abcd";
     infra::StringOutputStream stream(s);
@@ -21,7 +21,7 @@ TEST(StringOuputStreamTest, StreamFromBoundedString)
     EXPECT_EQ("abcd12a", s);
 }
 
-TEST(StringOuputStreamTest, StreamLiteral)
+TEST(StringOutputStreamTest, stream_literal)
 {
     infra::StringOutputStream::WithStorage<10> stream;
 
@@ -30,7 +30,7 @@ TEST(StringOuputStreamTest, StreamLiteral)
     EXPECT_EQ("abcd", stream.Storage());
 }
 
-TEST(StringOuputStreamTest, StreamLiteralInHexStream)
+TEST(StringOutputStreamTest, stream_literal_in_hex_stream)
 {
     infra::StringOutputStream::WithStorage<10> stream;
 
@@ -39,7 +39,7 @@ TEST(StringOuputStreamTest, StreamLiteralInHexStream)
     EXPECT_EQ("abcd", stream.Storage());
 }
 
-TEST(StringOuputStreamTest, StreamCharacter)
+TEST(StringOutputStreamTest, stream_character)
 {
     infra::StringOutputStream::WithStorage<10> stream;
 
@@ -48,7 +48,7 @@ TEST(StringOuputStreamTest, StreamCharacter)
     EXPECT_EQ("a", stream.Storage());
 }
 
-TEST(StringOuputStreamTest, StreamUint8)
+TEST(StringOutputStreamTest, stream_uint8)
 {
     infra::StringOutputStream::WithStorage<10> stream;
 
@@ -57,7 +57,7 @@ TEST(StringOuputStreamTest, StreamUint8)
     EXPECT_EQ("255", stream.Storage());
 }
 
-TEST(StringOuputStreamTest, StreamInt8)
+TEST(StringOutputStreamTest, stream_int8)
 {
     infra::StringOutputStream::WithStorage<10> stream;
 
@@ -66,7 +66,7 @@ TEST(StringOuputStreamTest, StreamInt8)
     EXPECT_EQ("127", stream.Storage());
 }
 
-TEST(StringOuputStreamTest, StreamNegativeInt8)
+TEST(StringOutputStreamTest, stream_negative_int8)
 {
     infra::StringOutputStream::WithStorage<10> stream;
 
@@ -75,7 +75,7 @@ TEST(StringOuputStreamTest, StreamNegativeInt8)
     EXPECT_EQ("-128", stream.Storage());
 }
 
-TEST(StringOuputStreamTest, StreamInt8WithLeadingZeroes)
+TEST(StringOutputStreamTest, stream_int8_with_leading_zeroes)
 {
     infra::StringOutputStream::WithStorage<10> stream;
 
@@ -84,7 +84,7 @@ TEST(StringOuputStreamTest, StreamInt8WithLeadingZeroes)
     EXPECT_EQ("00127", stream.Storage());
 }
 
-TEST(StringOuputStreamTest, StreamInt8WithSmallerWidth)
+TEST(StringOutputStreamTest, stream_int8_with_smaller_width)
 {
     infra::StringOutputStream::WithStorage<10> stream;
 
@@ -93,7 +93,7 @@ TEST(StringOuputStreamTest, StreamInt8WithSmallerWidth)
     EXPECT_EQ("127", stream.Storage());
 }
 
-TEST(StringOuputStreamTest, StreamShortHex)
+TEST(StringOutputStreamTest, stream_short_hex)
 {
     infra::StringOutputStream::WithStorage<10> stream;
 
@@ -102,7 +102,7 @@ TEST(StringOuputStreamTest, StreamShortHex)
     EXPECT_EQ("a", stream.Storage());
 }
 
-TEST(StringOuputStreamTest, StreamLongerHex)
+TEST(StringOutputStreamTest, stream_longer_hex)
 {
     infra::StringOutputStream::WithStorage<10> stream;
 
@@ -110,7 +110,7 @@ TEST(StringOuputStreamTest, StreamLongerHex)
     EXPECT_EQ("1a", stream.Storage());
 }
 
-TEST(StringOuputStreamTest, StreamNegativeHex)
+TEST(StringOutputStreamTest, stream_negative_hex)
 {
     infra::StringOutputStream::WithStorage<10> stream;
 
@@ -118,7 +118,7 @@ TEST(StringOuputStreamTest, StreamNegativeHex)
     EXPECT_EQ("-1a", stream.Storage());
 }
 
-TEST(StringOuputStreamTest, StreamHexWithLeadingZeroes)
+TEST(StringOutputStreamTest, stream_hex_with_leading_zeroes)
 {
     infra::StringOutputStream::WithStorage<10> stream;
 
@@ -126,7 +126,7 @@ TEST(StringOuputStreamTest, StreamHexWithLeadingZeroes)
     EXPECT_EQ("001a", stream.Storage());
 }
 
-TEST(StringOuputStreamTest, Overflow)
+TEST(StringOutputStreamTest, overflow)
 {
     infra::StringOutputStream::WithStorage<2> stream(infra::softFail);
 
@@ -135,11 +135,89 @@ TEST(StringOuputStreamTest, Overflow)
     EXPECT_TRUE(stream.HasFailed());
 }
 
-TEST(StringOuputStreamTest, OverflowTwice)
+TEST(StringOutputStreamTest, overflow_twice)
 {
     infra::StringOutputStream::WithStorage<2> stream(infra::softFail);
 
     stream << "abc" << "def";
     EXPECT_EQ("ab", stream.Storage());
     EXPECT_TRUE(stream.HasFailed());
+}
+
+TEST(StringOutputStreamTest, format_simple_string)
+{
+    infra::StringOutputStream::WithStorage<64> stream;
+
+    stream.Format("simple");
+    EXPECT_EQ("simple", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, format_string_with_one_parameter)
+{
+    infra::StringOutputStream::WithStorage<64> stream;
+
+    stream.Format("%1%", 1);
+    EXPECT_EQ("1", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, format_string_with_two_parameters)
+{
+    infra::StringOutputStream::WithStorage<64> stream;
+
+    stream.Format("%1% %2%", 5, 'a');
+    EXPECT_EQ("5 a", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, format_string_with_string)
+{
+    infra::StringOutputStream::WithStorage<64> stream;
+
+    stream.Format("%1%", "bla");
+    EXPECT_EQ("bla", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, format_string_with_invalid_param_specifier)
+{
+    infra::StringOutputStream::WithStorage<64> stream;
+
+    stream.Format("%bla");
+    EXPECT_EQ("bla", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, format_string_with_incomplete_param_specifier)
+{
+    infra::StringOutputStream::WithStorage<64> stream;
+
+    stream.Format("%1", "bla");
+    EXPECT_EQ("", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, format_string_with_out_of_range_index)
+{
+    infra::StringOutputStream::WithStorage<64> stream;
+
+    stream.Format("%3%", 1, 2);
+    EXPECT_EQ("", stream.Storage());
+}
+
+struct MyObject
+{
+    explicit MyObject(int) {}
+    MyObject(const MyObject& other) = delete;
+    MyObject& operator=(const MyObject& other) = delete;
+
+    friend infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const MyObject& object)
+    {
+        stream << "MyObject!";
+        return stream;
+    }
+};
+
+TEST(StringOutputStreamTest, format_custom_parameter)
+{
+    infra::StringOutputStream::WithStorage<64> stream;
+
+    MyObject myObject(5);
+    stream.Format("%1%", myObject);
+    EXPECT_EQ("MyObject!", stream.Storage());
 }

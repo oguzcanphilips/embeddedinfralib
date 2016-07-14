@@ -203,4 +203,33 @@ namespace infra
             mask /= 16;
         }
     }
+
+    void TextOutputStream::FormatArgs(const char* format, infra::MemoryRange<FormatterBase*> formatters)
+    {
+        while (*format)
+        {
+            const char* start = format;
+            while (*format && *format != '%')
+                ++format;
+
+            Writer().Insert(infra::ReinterpretCastByteRange(infra::MakeRange(start, format)));
+
+            if (*format == '%')
+            {
+                if (format[1] >= '1' && format[1] <= '9')
+                {
+                    uint8_t index = format[1] - '1';
+                    if (format[2] == '%')
+                    {
+                        if (index < formatters.size())
+                            formatters[index]->Stream(*this);
+                        ++format;
+                    }
+                    ++format;
+                }
+
+                ++format;
+            }
+        }
+    }
 }
