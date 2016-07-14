@@ -77,6 +77,9 @@ namespace infra
         TextOutputStream& operator<<(uint8_t v);
         TextOutputStream& operator<<(int32_t v);
         TextOutputStream& operator<<(uint32_t v);
+#ifndef _MSC_VER
+        TextOutputStream& operator<<(int v);
+#endif
         TextOutputStream& operator<<(float v);
 
         template<class... Args>

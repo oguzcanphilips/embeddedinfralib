@@ -118,16 +118,6 @@ namespace infra
         return *this;
     }
 
-    TextOutputStream& TextOutputStream::operator<<(uint32_t v)
-    {
-        if (decimal)
-            OutputAsDecimal(v);
-        else
-            OutputAsHex(v);
-
-        return *this;
-    }
-
     TextOutputStream& TextOutputStream::operator<<(int32_t v)
     {
         if (v < 0)
@@ -139,6 +129,30 @@ namespace infra
 
         return *this;
     }
+
+    TextOutputStream& TextOutputStream::operator<<(uint32_t v)
+    {
+        if (decimal)
+            OutputAsDecimal(v);
+        else
+            OutputAsHex(v);
+
+        return *this;
+    }
+
+#ifndef _MSC_VER
+    TextOutputStream& TextOutputStream::operator<<(int v)
+    {
+        if (v < 0)
+            Writer().Insert('-');
+        if (decimal)
+            OutputAsDecimal(std::abs(v));
+        else
+            OutputAsHex(std::abs(v));
+
+        return *this;
+    }
+#endif
 
     TextOutputStream& TextOutputStream::operator<<(float v)
     {
