@@ -129,6 +129,31 @@ namespace infra
         infra::Optional<Width> width;
     };
 
+    class AsAsciiHelper
+    {
+    public:
+        AsAsciiHelper(infra::ConstByteRange data);
+
+        friend infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const AsAsciiHelper& asAsciiHelper);
+
+    private:
+        infra::ConstByteRange data;
+    };
+
+    class AsHexHelper
+    {
+    public:
+        AsHexHelper(infra::ConstByteRange data);
+
+        friend infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const AsHexHelper& asHexHelper);
+
+    private:
+        infra::ConstByteRange data;
+    };
+
+    AsAsciiHelper AsAscii(infra::ConstByteRange data);
+    AsHexHelper AsHex(infra::ConstByteRange data);
+
     ////    Implementation    ////
 
     template<class Data>

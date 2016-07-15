@@ -221,3 +221,21 @@ TEST(StringOutputStreamTest, format_custom_parameter)
     stream.Format("%1%", myObject);
     EXPECT_EQ("MyObject!", stream.Storage());
 }
+
+TEST(StringOutputStreamTest, stream_byte_range_as_ascii)
+{
+    infra::StringOutputStream::WithStorage<64> stream;
+
+    std::array<uint8_t, 4> data = { 1, 2, 'a', 'b' };
+    stream << infra::AsAscii(infra::ByteRange(data));
+    EXPECT_EQ("..ab", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, stream_byte_range_as_hex)
+{
+    infra::StringOutputStream::WithStorage<64> stream;
+
+    std::array<uint8_t, 4> data = { 1, 2, 0x30, 0x40 };
+    stream << infra::AsHex(infra::ByteRange(data));
+    EXPECT_EQ("01023040", stream.Storage());
+}

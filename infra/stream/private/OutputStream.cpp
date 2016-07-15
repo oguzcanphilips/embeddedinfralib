@@ -246,4 +246,43 @@ namespace infra
             }
         }
     }
+
+    AsAsciiHelper::AsAsciiHelper(infra::ConstByteRange data)
+        : data(data)
+    {}
+
+    infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const AsAsciiHelper& asAsciiHelper)
+    {
+        for (uint8_t byte : asAsciiHelper.data)
+            if (byte < 32)
+                stream << '.';
+            else
+                stream << static_cast<char>(byte);
+
+        return stream;
+    }
+
+    AsHexHelper::AsHexHelper(infra::ConstByteRange data)
+        : data(data)
+    {}
+
+    infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const AsHexHelper& asHexHelper)
+    {
+        infra::TextOutputStream hexStream = stream << hex << Width(2, '0');
+
+        for (uint8_t byte : asHexHelper.data)
+            hexStream << byte;
+
+        return stream;
+    }
+
+    AsAsciiHelper AsAscii(infra::ConstByteRange data)
+    {
+        return AsAsciiHelper(data);
+    }
+
+    AsHexHelper AsHex(infra::ConstByteRange data)
+    {
+        return AsHexHelper(data);
+    }
 }
