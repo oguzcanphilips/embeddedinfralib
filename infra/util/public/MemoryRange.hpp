@@ -80,6 +80,10 @@ namespace infra
 
     template<class T>
         MemoryRange<T> IntersectingRange(MemoryRange<T> x, MemoryRange<T> y);
+    template<class T>
+        MemoryRange<T> HeadRange(MemoryRange<T> range, std::size_t size);
+    template<class T>
+        MemoryRange<T> TailRange(MemoryRange<T> range, std::size_t size);
 
     template<class T, class U, std::size_t N>
         bool operator==(MemoryRange<T> x, const std::array<U, N>& y);
@@ -309,6 +313,20 @@ namespace infra
             return MemoryRange<T>();
 
         return MemoryRange<T>(std::max(x.begin(), y.begin()), std::min(x.end(), y.end()));
+    }
+
+    template<class T>
+    MemoryRange<T> HeadRange(MemoryRange<T> range, std::size_t size)
+    {
+        range.shrink_from_back_to(size);
+        return range;
+    }
+
+    template<class T>
+    MemoryRange<T> TailRange(MemoryRange<T> range, std::size_t size)
+    {
+        range.shrink_from_front_to(size);
+        return range;
     }
 
     template<class T, class U, std::size_t N>
