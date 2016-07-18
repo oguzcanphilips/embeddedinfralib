@@ -86,8 +86,7 @@ namespace services
 
     void FlashSpi::PageProgram()
     {
-        writeBuffer = buffer;
-        writeBuffer.shrink_from_back_to(sizePage - AddressOffsetInSector(address) % sizePage);
+        writeBuffer = infra::Head(buffer, sizePage - AddressOffsetInSector(address) % sizePage);
         buffer.pop_front(writeBuffer.size());
 
         instructionAndAddress.instruction = commandPageProgram;

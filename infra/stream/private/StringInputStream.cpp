@@ -16,7 +16,7 @@ namespace infra
     void StringInputStream::Extract(ByteRange range)
     {
         Reader().ReportResult(offset + range.size() <= string.size());
-        range.shrink_from_back_to(string.size()-offset);
+        range.shrink_from_back_to(string.size() - offset);
         std::copy(string.begin() + offset, string.begin() + offset + range.size(), range.begin());
         offset += range.size();
     }

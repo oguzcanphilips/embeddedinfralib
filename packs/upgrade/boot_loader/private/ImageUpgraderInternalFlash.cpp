@@ -18,8 +18,7 @@ namespace application
         uint32_t imageAddressStart = imageAddress;
         while (imageAddress - imageAddressStart < imageSize)
         {
-            infra::ByteRange bufferRange(buffer);
-            bufferRange.shrink_from_back_to(imageSize - (imageAddress - imageAddressStart));
+            infra::ByteRange bufferRange(infra::Head(buffer, imageSize - (imageAddress - imageAddressStart)));
             upgradePackFlash.ReadBuffer(bufferRange, imageAddress);
             imageAddress += bufferRange.size();
 

@@ -66,8 +66,7 @@ namespace services
 
     void SynchronousFlashSpi::PageProgram()
     {
-        infra::ConstByteRange currentBuffer = buffer;
-        currentBuffer.shrink_from_back_to(sizePage - AddressOffsetInSector(address) % sizePage);
+        infra::ConstByteRange currentBuffer = infra::Head(buffer, sizePage - AddressOffsetInSector(address) % sizePage);
         buffer.pop_front(currentBuffer.size());
 
         instructionAndAddress.instruction = commandPageProgram;
