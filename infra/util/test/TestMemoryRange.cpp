@@ -201,18 +201,34 @@ TEST(MemoryRangeTest, IntersectingRange)
     EXPECT_EQ(infra::ByteRange(), infra::IntersectingRange(infra::ByteRange(range.data(), range.data() + 2), infra::ByteRange(range.data() + 3, range.data() + 6)));
 }
 
-TEST(MemoryRangeTest, HeadRange)
+TEST(MemoryRangeTest, Head)
 {
     std::array<uint8_t, 10> range;
 
-    EXPECT_EQ(infra::ByteRange(range.data(), range.data() + 4), infra::HeadRange(infra::ByteRange(range), 4));
-    EXPECT_EQ(infra::ByteRange(range.data(), range.data() + 10), infra::HeadRange(infra::ByteRange(range), 14));
+    EXPECT_EQ(infra::ByteRange(range.data(), range.data() + 4), infra::Head(infra::ByteRange(range), 4));
+    EXPECT_EQ(infra::ByteRange(range.data(), range.data() + 10), infra::Head(infra::ByteRange(range), 14));
 }
 
-TEST(MemoryRangeTest, TailRange)
+TEST(MemoryRangeTest, Tail)
 {
     std::array<uint8_t, 10> range;
 
-    EXPECT_EQ(infra::ByteRange(range.data() + 6, range.data() + 10), infra::TailRange(infra::ByteRange(range), 4));
-    EXPECT_EQ(infra::ByteRange(range.data(), range.data() + 10), infra::TailRange(infra::ByteRange(range), 14));
+    EXPECT_EQ(infra::ByteRange(range.data() + 6, range.data() + 10), infra::Tail(infra::ByteRange(range), 4));
+    EXPECT_EQ(infra::ByteRange(range.data(), range.data() + 10), infra::Tail(infra::ByteRange(range), 14));
+}
+
+TEST(MemoryRangeTest, DiscardHead)
+{
+    std::array<uint8_t, 10> range;
+
+    EXPECT_EQ(infra::ByteRange(range.data() + 4, range.data() + range.size()), infra::DiscardHead(infra::ByteRange(range), 4));
+    EXPECT_EQ(infra::ByteRange(), infra::DiscardHead(infra::ByteRange(range), 14));
+}
+
+TEST(MemoryRangeTest, DiscardTail)
+{
+    std::array<uint8_t, 10> range;
+
+    EXPECT_EQ(infra::ByteRange(range.data(), range.data() + 6), infra::DiscardTail(infra::ByteRange(range), 4));
+    EXPECT_EQ(infra::ByteRange(), infra::DiscardTail(infra::ByteRange(range), 14));
 }

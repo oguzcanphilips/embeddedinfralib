@@ -81,9 +81,13 @@ namespace infra
     template<class T>
         MemoryRange<T> IntersectingRange(MemoryRange<T> x, MemoryRange<T> y);
     template<class T>
-        MemoryRange<T> HeadRange(MemoryRange<T> range, std::size_t size);
+        MemoryRange<T> Head(MemoryRange<T> range, std::size_t size);
     template<class T>
-        MemoryRange<T> TailRange(MemoryRange<T> range, std::size_t size);
+        MemoryRange<T> Tail(MemoryRange<T> range, std::size_t size);
+    template<class T>
+        MemoryRange<T> DiscardHead(MemoryRange<T> range, std::size_t size);
+    template<class T>
+        MemoryRange<T> DiscardTail(MemoryRange<T> range, std::size_t size);
 
     template<class T, class U, std::size_t N>
         bool operator==(MemoryRange<T> x, const std::array<U, N>& y);
@@ -316,16 +320,36 @@ namespace infra
     }
 
     template<class T>
-    MemoryRange<T> HeadRange(MemoryRange<T> range, std::size_t size)
+    MemoryRange<T> Head(MemoryRange<T> range, std::size_t size)
     {
         range.shrink_from_back_to(size);
         return range;
     }
 
     template<class T>
-    MemoryRange<T> TailRange(MemoryRange<T> range, std::size_t size)
+    MemoryRange<T> Tail(MemoryRange<T> range, std::size_t size)
     {
         range.shrink_from_front_to(size);
+        return range;
+    }
+
+    template<class T>
+    MemoryRange<T> DiscardHead(MemoryRange<T> range, std::size_t size)
+    {
+        if (range.size() <= size)
+            return MemoryRange<T>();
+
+        range.pop_front(size);
+        return range;
+    }
+
+    template<class T>
+    MemoryRange<T> DiscardTail(MemoryRange<T> range, std::size_t size)
+    {
+        if (range.size() <= size)
+            return MemoryRange<T>();
+
+        range.pop_back(size);
         return range;
     }
 
