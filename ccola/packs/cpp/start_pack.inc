@@ -41,6 +41,15 @@ macro(ccola_sources)
 				endif()
 
 				get_filename_component(directory "${sourcefile}" DIRECTORY)
+				
+				# Strip off "public" and "private" from directory
+				if(directory)
+					get_filename_component(file "${directory}" NAME)
+					if("${file}" STREQUAL "public" OR "${file}" STREQUAL "private")
+						get_filename_component(directory "${directory}" DIRECTORY)
+					endif()
+				endif()
+
 				if(${generated})
 					ccola_set_source_group("Generated Source Files" ${sourcefile})
 				elseif(directory)
