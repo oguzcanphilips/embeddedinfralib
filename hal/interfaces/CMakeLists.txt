@@ -4,6 +4,7 @@ ccola_component(interfaces static_library)
 		private/Flash.cpp
 		private/FlashHomogeneous.cpp
 		private/Gpio.cpp
+		private/I2c.cpp
 		private/I2cRegisterAccess.cpp
 		private/QuadSpi.cpp
 		private/Spi.cpp

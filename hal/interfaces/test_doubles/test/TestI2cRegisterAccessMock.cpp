@@ -24,8 +24,8 @@ TEST_F(RegisterAccessMockTest, ReadRegisterInOneRead)
 
     uint8_t dataRegister = 3;
     std::array<uint8_t, 4> data;
-    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(dataRegister), hal::Action::repeatedStart, 100000, sendDataDoneVerifier);
-    master.ReceiveData(hal::I2cAddress(1), infra::MakeByteRange(data), hal::Action::stop, 100000, receiveDataDoneVerifier);
+    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(dataRegister), hal::Action::repeatedStart, sendDataDoneVerifier);
+    master.ReceiveData(hal::I2cAddress(1), infra::MakeByteRange(data), hal::Action::stop, receiveDataDoneVerifier);
 
     EXPECT_EQ((std::array<uint8_t, 4>{ 1, 2, 3, 4 }), data);
 }
@@ -37,12 +37,12 @@ TEST_F(RegisterAccessMockTest, ReadRegisterInTwoReads)
     EXPECT_CALL(masterMock, ReadRegisterMock(3)).WillOnce(testing::Return(std::vector<uint8_t>{ 1, 2, 3, 4 }));
 
     uint8_t dataRegister = 3;
-    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(dataRegister), hal::Action::repeatedStart, 100000, [](hal::Result, uint32_t numberOfBytesSent) {});
+    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(dataRegister), hal::Action::repeatedStart, [](hal::Result, uint32_t numberOfBytesSent) {});
     
     std::array<uint8_t, 3> data1;
     std::array<uint8_t, 1> data2;
-    master.ReceiveData(hal::I2cAddress(1), infra::MakeByteRange(data1), hal::Action::continueSession, 100000, receiveDataDone1Verifier);
-    master.ReceiveData(hal::I2cAddress(1), infra::MakeByteRange(data2), hal::Action::stop, 100000, receiveDataDone2Verifier);
+    master.ReceiveData(hal::I2cAddress(1), infra::MakeByteRange(data1), hal::Action::continueSession, receiveDataDone1Verifier);
+    master.ReceiveData(hal::I2cAddress(1), infra::MakeByteRange(data2), hal::Action::stop, receiveDataDone2Verifier);
     EXPECT_EQ((std::array<uint8_t, 3>{ 1, 2, 3 }), data1);
     EXPECT_EQ((std::array<uint8_t, 1>{ 4 }), data2);
 }
@@ -53,7 +53,7 @@ TEST_F(RegisterAccessMockTest, WriteRegisterInOneWrite)
     EXPECT_CALL(masterMock, WriteRegisterMock(3, std::vector<uint8_t>{ 1, 2, 3, 4 }));
 
     std::array<uint8_t, 5> data = { 3, 1, 2, 3, 4 };
-    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(data), hal::Action::stop, 100000, sendDataDoneVerifier);
+    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(data), hal::Action::stop, sendDataDoneVerifier);
 }
 
 TEST_F(RegisterAccessMockTest, WriteRegisterInTwoWrites)
@@ -64,8 +64,8 @@ TEST_F(RegisterAccessMockTest, WriteRegisterInTwoWrites)
 
     uint8_t dataRegister = 3;
     std::array<uint8_t, 4> data = { 1, 2, 3, 4 };
-    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(dataRegister), hal::Action::continueSession, 100000, sendDataDone1Verifier);
-    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(data), hal::Action::stop, 100000, sendDataDone2Verifier);
+    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(dataRegister), hal::Action::continueSession, sendDataDone1Verifier);
+    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(data), hal::Action::stop, sendDataDone2Verifier);
 }
 
 TEST_F(RegisterAccessMockTest, WriteRegisterInThreeWrites)
@@ -78,7 +78,7 @@ TEST_F(RegisterAccessMockTest, WriteRegisterInThreeWrites)
     uint8_t dataRegister = 3;
     std::array<uint8_t, 3> data1 = { 1, 2, 3 };
     std::array<uint8_t, 1> data2 = { 4 };
-    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(dataRegister), hal::Action::continueSession, 100000, sendDataDone1Verifier);
-    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(data1), hal::Action::continueSession, 100000, sendDataDone2Verifier);
-    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(data2), hal::Action::stop, 100000, sendDataDone3Verifier);
+    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(dataRegister), hal::Action::continueSession, sendDataDone1Verifier);
+    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(data1), hal::Action::continueSession, sendDataDone2Verifier);
+    master.SendData(hal::I2cAddress(1), infra::MakeByteRange(data2), hal::Action::stop, sendDataDone3Verifier);
 }

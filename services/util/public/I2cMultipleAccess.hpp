@@ -14,9 +14,9 @@ namespace services
     public:
         I2cMultipleAccessMaster(hal::I2cMaster& master);
 
-        virtual void SendData(hal::I2cAddress address, infra::ConstByteRange data, hal::Action nextAction, uint32_t speedInkHz,
+        virtual void SendData(hal::I2cAddress address, infra::ConstByteRange data, hal::Action nextAction,
             infra::Function<void(hal::Result, uint32_t numberOfBytesSent)> onSent) override;
-        virtual void ReceiveData(hal::I2cAddress address, infra::ByteRange data, hal::Action nextAction, uint32_t speedInkHz,
+        virtual void ReceiveData(hal::I2cAddress address, infra::ByteRange data, hal::Action nextAction,
             infra::Function<void(hal::Result)> onReceived) override;
 
     private:
@@ -29,14 +29,14 @@ namespace services
     public:
         I2cMultipleAccess(I2cMultipleAccessMaster& master);
 
-        virtual void SendData(hal::I2cAddress address, infra::ConstByteRange data, hal::Action nextAction, uint32_t speedInkHz,
+        virtual void SendData(hal::I2cAddress address, infra::ConstByteRange data, hal::Action nextAction,
             infra::Function<void(hal::Result, uint32_t numberOfBytesSent)> onSent) override;
-        virtual void ReceiveData(hal::I2cAddress address, infra::ByteRange data, hal::Action nextAction, uint32_t speedInkHz,
+        virtual void ReceiveData(hal::I2cAddress address, infra::ByteRange data, hal::Action nextAction,
             infra::Function<void(hal::Result)> onReceived) override;
 
     private:
-        void SendDataOnClaimed(hal::I2cAddress address, infra::ConstByteRange data, hal::Action nextAction, uint32_t speedInkHz);
-        void ReceiveDataOnClaimed(hal::I2cAddress address, infra::ByteRange data, hal::Action nextAction, uint32_t speedInkHz);
+        void SendDataOnClaimed(hal::I2cAddress address, infra::ConstByteRange data, hal::Action nextAction);
+        void ReceiveDataOnClaimed(hal::I2cAddress address, infra::ByteRange data, hal::Action nextAction);
 
     private:
         I2cMultipleAccessMaster& master;

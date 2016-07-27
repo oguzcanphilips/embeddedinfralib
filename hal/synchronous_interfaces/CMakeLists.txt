@@ -7,6 +7,7 @@ ccola_component(synchronous_interfaces static_library)
 		public/SynchronousFlash.hpp
 		public/SynchronousFlashHomogeneous.hpp
 		public/SynchronousGpio.hpp
+		public/SynchronousI2c.hpp
 		public/SynchronousQuadSpi.hpp
 		public/SynchronousSerialCommunication.hpp
 		public/SynchronousSpi.hpp

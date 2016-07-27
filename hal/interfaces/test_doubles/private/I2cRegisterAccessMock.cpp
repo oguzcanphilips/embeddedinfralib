@@ -4,7 +4,7 @@
 
 namespace hal
 {
-    void I2cMasterRegisterAccessMock::SendData(hal::I2cAddress address, infra::ConstByteRange data, hal::Action nextAction, uint32_t speedInkHz,
+    void I2cMasterRegisterAccessMock::SendData(hal::I2cAddress address, infra::ConstByteRange data, hal::Action nextAction,
         infra::Function<void(hal::Result, uint32_t numberOfBytesSent)> onSent)
     {
         assert(atStart || sending);
@@ -28,7 +28,7 @@ namespace hal
         onSent(hal::Result::complete, data.size());
     }
 
-    void I2cMasterRegisterAccessMock::ReceiveData(hal::I2cAddress address, infra::ByteRange data, hal::Action nextAction, uint32_t speedInkHz,
+    void I2cMasterRegisterAccessMock::ReceiveData(hal::I2cAddress address, infra::ByteRange data, hal::Action nextAction,
         infra::Function<void(hal::Result)> onReceived)
     {
         assert(atStart || !sending);

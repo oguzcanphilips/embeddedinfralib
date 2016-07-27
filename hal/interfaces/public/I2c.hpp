@@ -29,11 +29,9 @@ namespace hal
     class I2cAddress
     {
     public:
-        I2cAddress(uint16_t address)
-            : address(address)
-        {}
+        I2cAddress(uint16_t address);
 
-        bool operator==(const I2cAddress& address) const{return address.address == this->address;}
+        bool operator==(const I2cAddress& other) const;
 
         uint16_t address;
     };
@@ -41,11 +39,9 @@ namespace hal
     class I2cMaster
     {
     public:
-        virtual void SendData(I2cAddress address, infra::ConstByteRange data, Action nextAction, uint32_t speedInkHz,
-            infra::Function<void(Result, uint32_t numberOfBytesSent)> onSent) = 0;
+        virtual void SendData(I2cAddress address, infra::ConstByteRange data, Action nextAction, infra::Function<void(Result, uint32_t numberOfBytesSent)> onSent) = 0;
 
-        virtual void ReceiveData(I2cAddress address, infra::ByteRange data, Action nextAction, uint32_t speedInkHz,
-            infra::Function<void(Result)> onReceived) = 0;
+        virtual void ReceiveData(I2cAddress address, infra::ByteRange data, Action nextAction, infra::Function<void(Result)> onReceived) = 0;
     };
 
     class I2cSlave
@@ -58,19 +54,6 @@ namespace hal
         virtual void ReceiveData(infra::ByteRange data, bool lastOfSession, infra::Function<void(Result, uint32_t numberOfBytesReceived)> onReceived) = 0;
 
         virtual void StopTransceiving() = 0;
-    };
-
-    class I2cMasterSynchronous
-    {
-    public:
-        struct SendResult
-        {
-            Result result;
-            uint32_t numberOfBytesSent;
-        };
-
-        virtual SendResult SendData(I2cAddress address, infra::ConstByteRange data, Action nextAction, uint32_t speedInkHz) = 0;
-        virtual Result ReceiveData(I2cAddress address, infra::ByteRange data, Action nextAction, uint32_t speedInkHz) = 0;
     };
 }
 
