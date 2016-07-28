@@ -63,10 +63,12 @@ namespace infra
         BoundedStringBase& operator=(const BoundedStringBase& other);
         BoundedStringBase& operator=(const char* s);
         BoundedStringBase& operator=(char ch);
+        BoundedStringBase& operator=(const std::string& s);
         template<class U>
             void AssignFromStorage(const BoundedStringBase<U>& other);
         void AssignFromStorage(const char* s);
         void AssignFromStorage(char ch);
+        void AssignFromStorage(const std::string& s);
 
         BoundedStringBase& assign(size_type count, char ch);
         template<class U>
@@ -410,6 +412,12 @@ namespace infra
     }
 
     template<class T>
+    BoundedStringBase<T>& BoundedStringBase<T>::operator=(const std::string& s)
+    {
+        return assign(s);
+    }
+
+    template<class T>
     template<class U>
     void BoundedStringBase<T>::AssignFromStorage(const BoundedStringBase<U>& other)
     {
@@ -426,6 +434,12 @@ namespace infra
     void BoundedStringBase<T>::AssignFromStorage(char ch)
     {
         *this = ch;
+    }
+
+    template<class T>
+    void BoundedStringBase<T>::AssignFromStorage(const std::string& s)
+    {
+        *this = s;
     }
 
     template<class T>

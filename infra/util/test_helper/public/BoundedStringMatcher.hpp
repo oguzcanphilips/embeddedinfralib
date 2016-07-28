@@ -2,6 +2,7 @@
 #define INFRA_BOUNDED_STRING_MATCHER_HPP
 
 #include "gmock/gmock.h"
+#include "infra/util/public/BoundedString.hpp"
 
 namespace testing
 {
