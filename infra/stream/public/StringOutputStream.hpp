@@ -19,6 +19,7 @@ namespace infra
         explicit StringOutputStream(BoundedString& string);
         StringOutputStream(BoundedString& string, SoftFail);
         ~StringOutputStream() = default;
+
     private:
         virtual void Insert(ConstByteRange range) override;
         virtual void Insert(uint8_t element) override;

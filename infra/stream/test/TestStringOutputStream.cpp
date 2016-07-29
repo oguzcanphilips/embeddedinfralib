@@ -3,6 +3,22 @@
 #include "infra/util/public/BoundedString.hpp"
 #include <cstdint>
 
+namespace
+{
+    struct MyObject
+    {
+        explicit MyObject(int) {}
+        MyObject(const MyObject& other) = delete;
+        MyObject& operator=(const MyObject& other) = delete;
+
+        friend infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const MyObject& object)
+        {
+            stream << "MyObject!";
+            return stream;
+        }
+    };
+}
+
 TEST(StringOutputStreamTest, stream_byte)
 {
     infra::StringOutputStream::WithStorage<2> stream;
@@ -199,19 +215,6 @@ TEST(StringOutputStreamTest, format_string_with_out_of_range_index)
     stream.Format("%3%", 1, 2);
     EXPECT_EQ("", stream.Storage());
 }
-
-struct MyObject
-{
-    explicit MyObject(int) {}
-    MyObject(const MyObject& other) = delete;
-    MyObject& operator=(const MyObject& other) = delete;
-
-    friend infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const MyObject& object)
-    {
-        stream << "MyObject!";
-        return stream;
-    }
-};
 
 TEST(StringOutputStreamTest, format_custom_parameter)
 {

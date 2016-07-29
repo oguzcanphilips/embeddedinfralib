@@ -10,8 +10,6 @@ ccola_component(util static_library)
 		private/FlashRegion.cpp
 		private/GpioPinInverted.cpp
 		private/I2cMultipleAccess.cpp
-		private/Json.cpp
-		private/JsonFormatter.cpp
 		private/RepeatingButton.cpp
 		private/SignalLed.cpp
 		private/SpiMasterWithChipSelect.cpp
@@ -25,8 +23,6 @@ ccola_component(util static_library)
 		public/FlashRegion.hpp
 		public/GpioPinInverted.hpp
 		public/I2cMultipleAccess.hpp
-		public/Json.hpp
-		public/JsonFormatter.hpp
 		public/RepeatingButton.hpp
 		public/SignalLed.hpp
 		public/SpiMasterWithChipSelect.hpp

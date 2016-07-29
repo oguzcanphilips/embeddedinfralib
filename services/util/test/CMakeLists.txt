@@ -9,8 +9,6 @@ ccola_component(util_test gmock_test)
 		TestFlashSpi.cpp
 		TestI2cMultipleAccess.cpp
 		TestInverseLogicPin.cpp
-		TestJson.cpp
-		TestJsonFormatter.cpp
 		TestRepeatingButton.cpp
 		TestSignalLed.cpp
 		TestSpiMasterWithChipSelect.cpp

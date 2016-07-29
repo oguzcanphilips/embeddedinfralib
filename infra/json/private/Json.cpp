@@ -1,4 +1,4 @@
-#include "services/util/public/Json.hpp"
+#include "infra/json/public/Json.hpp"
 #include <cctype>
 
 namespace
@@ -19,7 +19,7 @@ namespace
     }
 }
 
-namespace services
+namespace infra
 {
     namespace JsonToken
     {

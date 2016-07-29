@@ -1,6 +1,6 @@
-#include "services/util/public/JsonFormatter.hpp"
+#include "infra/json/public/JsonFormatter.hpp"
 
-namespace services
+namespace infra
 {
     JsonObjectFormatter::JsonObjectFormatter(infra::TextOutputStream& stream)
         : stream(&stream)

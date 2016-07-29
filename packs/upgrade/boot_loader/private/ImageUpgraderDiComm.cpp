@@ -1,6 +1,6 @@
 #include "infra/stream/public/ByteOutputStream.hpp"
 #include "packs/upgrade/boot_loader/public/ImageUpgraderDiComm.hpp"
-#include "services/util/public/Json.hpp"
+#include "infra/json/public/Json.hpp"
 
 namespace application
 {
@@ -37,7 +37,7 @@ namespace application
         if (!diComm.GetProps("firmware", firmwarePropertiesString))
             return false;
 
-        services::JsonObject firmwareProperties(firmwarePropertiesString);
+        infra::JsonObject firmwareProperties(firmwarePropertiesString);
         infra::BoundedConstString state = firmwareProperties.GetString("state");
         bool canUpgrade = firmwareProperties.GetOptionalBoolean("canupgrade").ValueOr(true);
         maxChunkSize = firmwareProperties.GetOptionalInteger("maxchunksize").ValueOr((chunkSizeMax + 2) / 3 * 4);
@@ -73,12 +73,12 @@ namespace application
         do
         {
             infra::BoundedString firmwarePropertiesString(infra::ReinterpretCastMemoryRange<char>(buffer));
-            services::JsonObject firmwareProperties(firmwarePropertiesString);
+            infra::JsonObject firmwareProperties(firmwarePropertiesString);
 
             if (!diComm.GetProps("firmware", firmwarePropertiesString))
                 return false;
 
-            firmwareProperties = services::JsonObject(firmwarePropertiesString);
+            firmwareProperties = infra::JsonObject(firmwarePropertiesString);
             infra::BoundedConstString state = firmwareProperties.GetString("state");
             if (state == "error")
                 return false;
@@ -136,7 +136,7 @@ namespace application
         if (!diComm.PutProps("firmware", infra::BoundedConstString(reinterpret_cast<char*>(chunkData.Processed().begin()), chunkData.Processed().size()), result))
             return false;
 
-        services::JsonObject resultProperties = services::JsonObject(result);
+        infra::JsonObject resultProperties = infra::JsonObject(result);
         if (resultProperties.GetString("state") == "error")
             return false;
 

@@ -6,7 +6,7 @@
 #include "infra/util/public/ReverseRange.hpp"
 #include "infra/util/public/Variant.hpp"
 
-namespace services
+namespace infra
 {
     namespace JsonToken
     {

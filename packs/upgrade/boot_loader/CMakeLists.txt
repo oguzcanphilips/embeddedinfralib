@@ -38,12 +38,12 @@ ccola_component(boot_loader static_library)
 		pack
 		infra.util
 		infra.stream
+		infra.json
 		crypto.mbed_tls
 		crypto.micro_ecc
 		crypto.tiny_aes128
 		hal.synchronous_interfaces
 		services.synchronous_util
-		services.util
 	)
 
 ccola_end_component()

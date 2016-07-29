@@ -1,11 +1,11 @@
 #include "gtest/gtest.h"
-#include "services/util/public/JsonFormatter.hpp"
+#include "infra/json/public/JsonFormatter.hpp"
 
 TEST(BasicUsageTest, format_json_object)
 {
     infra::BoundedString::WithStorage<100> response;
     {
-        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, response);
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, response);
         formatter.Add("name", "Upgrade 19.2");
         formatter.Add("version", "19.2");
         formatter.Add("canupgrade", true);
@@ -19,7 +19,7 @@ TEST(JsonObjectFormatter, construction_results_in_empty_object)
     infra::BoundedString::WithStorage<64> string;
 
     {
-        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
     }
 
     EXPECT_EQ("{  }", string);
@@ -30,7 +30,7 @@ TEST(JsonObjectFormatter, add_bool)
     infra::BoundedString::WithStorage<64> string;
 
     {
-        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("trueTag", true);
         formatter.Add("falseTag", false);
     }
@@ -43,7 +43,7 @@ TEST(JsonObjectFormatter, add_int)
     infra::BoundedString::WithStorage<64> string;
 
     {
-        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("intTag", 0);
         formatter.Add("uint32Tag", static_cast<uint32_t>(5));
     }
@@ -57,7 +57,7 @@ TEST(JsonObjectFormatter, add_const_char_ptr)
 
     {
         const char* s = "test";
-        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("tag", s);
     }
 
@@ -70,7 +70,7 @@ TEST(JsonObjectFormatter, add_BoundedConstString)
 
     {
         infra::BoundedConstString s("test");
-        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("tag", s);
     }
 
@@ -82,9 +82,9 @@ TEST(JsonObjectFormatter, add_sub_object)
     infra::BoundedString::WithStorage<64> string;
 
     {
-        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
         {
-            services::JsonObjectFormatter subObject(formatter.SubObject("tag"));
+            infra::JsonObjectFormatter subObject(formatter.SubObject("tag"));
             subObject.Add("subTagName", "value");
         }
     }
@@ -98,7 +98,7 @@ TEST(JsonObjectFormatter, output_is_truncated_on_small_output_string)
 
     {
         infra::BoundedConstString s("test");
-        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("tag", s);
     }
 
@@ -110,7 +110,7 @@ TEST(JsonArrayFormatter, construction_results_in_empty_object)
     infra::BoundedString::WithStorage<64> string;
 
     {
-        services::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+        infra::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
     }
 
     EXPECT_EQ("[  ]", string);
@@ -121,7 +121,7 @@ TEST(JsonArrayFormatter, add_bool)
     infra::BoundedString::WithStorage<64> string;
 
     {
-        services::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+        infra::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add(true);
         formatter.Add(false);
     }
@@ -134,7 +134,7 @@ TEST(JsonArrayFormatter, add_int)
     infra::BoundedString::WithStorage<64> string;
 
     {
-        services::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+        infra::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add(0);
         formatter.Add(static_cast<uint32_t>(5));
     }
@@ -148,7 +148,7 @@ TEST(JsonArrayFormatter, add_const_char_ptr)
 
     {
         const char* s = "test";
-        services::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+        infra::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add(s);
     }
 
@@ -161,7 +161,7 @@ TEST(JsonArrayFormatter, add_BoundedConstString)
 
     {
         infra::BoundedConstString s("test");
-        services::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+        infra::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add(s);
     }
 
@@ -173,9 +173,9 @@ TEST(JsonArrayFormatter, add_sub_object)
     infra::BoundedString::WithStorage<64> string;
 
     {
-        services::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+        infra::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
         {
-            services::JsonObjectFormatter subObject(formatter.SubObject());
+            infra::JsonObjectFormatter subObject(formatter.SubObject());
             subObject.Add("subTagName", "value");
         }
     }
@@ -189,7 +189,7 @@ TEST(JsonArrayFormatter, output_is_truncated_on_small_output_string)
 
     {
         infra::BoundedConstString s("test");
-        services::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+        infra::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add(s);
     }
 

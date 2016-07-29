@@ -5,7 +5,7 @@
 #include "infra/util/public/BoundedString.hpp"
 #include "infra/util/public/WithStorage.hpp"
 
-namespace services
+namespace infra
 {
     class JsonObjectFormatter
     {
