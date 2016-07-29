@@ -23,6 +23,7 @@ namespace infra
         virtual void Insert(uint8_t element) = 0;
         virtual void Forward(std::size_t amount) = 0;
 
+        void SetSoftFail(bool enabled);
         bool Failed() const;
         void ReportResult(bool ok);
 
@@ -35,6 +36,7 @@ namespace infra
     class OutputStream
     {
     public:
+        void SetSoftFail(bool enabled);
         bool HasFailed() const;
 
     protected:

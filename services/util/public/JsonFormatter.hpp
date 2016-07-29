@@ -23,6 +23,8 @@ namespace services
         void Add(const char* tagName, const char* tag);
         void Add(const char* tagName, infra::BoundedConstString tag);
 
+        bool HasFailed() const;
+
     private:
         void InsertSeparation();
 

@@ -15,6 +15,11 @@ namespace infra
         assert(checkedFail);
     }
 
+    void StreamWriter::SetSoftFail(bool enabled)
+    {
+        softFail = enabled;
+    }
+
     bool StreamWriter::Failed() const
     {
         checkedFail = true;
@@ -35,6 +40,11 @@ namespace infra
         : writer(writer)
     {}
     
+    void OutputStream::SetSoftFail(bool enabled)
+    {
+        writer.SetSoftFail(enabled);
+    }
+
     bool OutputStream::HasFailed() const
     {
         return writer.Failed();

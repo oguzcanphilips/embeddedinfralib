@@ -5,6 +5,7 @@ namespace services
     JsonFormatter::JsonFormatter(infra::TextOutputStream& stream)
         : stream(stream)
     {
+        stream.SetSoftFail(true);
         stream << "{ ";
     }
 
@@ -41,6 +42,11 @@ namespace services
     {
         InsertSeparation();
         stream << '"' << tagName << R"(": ")" << tag << '"';
+    }
+
+    bool JsonFormatter::HasFailed() const
+    {
+        return stream->HasFailed();
     }
 
     void JsonFormatter::InsertSeparation()

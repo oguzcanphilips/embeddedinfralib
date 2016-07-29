@@ -5,7 +5,7 @@ TEST(BasicUsageTest, format_json_object)
 {
     infra::BoundedString::WithStorage<100> response;
     {
-        infra::JsonFormatter::WithStringStream formatter(infra::inPlace, response);
+        services::JsonFormatter::WithStringStream formatter(infra::inPlace, response);
         formatter.Add("name", "Upgrade 19.2");
         formatter.Add("version", "19.2");
         formatter.Add("canupgrade", true);
@@ -19,7 +19,7 @@ TEST(JsonFormatter, construction_results_in_empty_object)
     infra::BoundedString::WithStorage<64> string;
 
     {
-        infra::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
+        services::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
     }
 
     EXPECT_EQ("{  }", string);
@@ -30,7 +30,7 @@ TEST(JsonFormatter, add_bool)
     infra::BoundedString::WithStorage<64> string;
 
     {
-        infra::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
+        services::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("trueTag", true);
         formatter.Add("falseTag", false);
     }
@@ -43,7 +43,7 @@ TEST(JsonFormatter, add_int)
     infra::BoundedString::WithStorage<64> string;
 
     {
-        infra::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
+        services::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("intTag", 0);
         formatter.Add("uint32Tag", static_cast<uint32_t>(5));
     }
@@ -57,7 +57,7 @@ TEST(JsonFormatter, add_const_char_ptr)
 
     {
         const char* s = "test";
-        infra::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
+        services::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("tag", s);
     }
 
@@ -70,9 +70,22 @@ TEST(JsonFormatter, add_BoundedConstString)
 
     {
         infra::BoundedConstString s("test");
-        infra::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
+        services::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("tag", s);
     }
 
     EXPECT_EQ(R"({ "tag": "test" })", string);
 }
+TEST(JsonFormatter, output_is_truncated_on_small_output_string)
+{
+    infra::BoundedString::WithStorage<1> string;
+
+    {
+        infra::BoundedConstString s("test");
+        services::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
+        formatter.Add("tag", s);
+    }
+
+    EXPECT_EQ(R"({)", string);
+}
+
