@@ -5,7 +5,7 @@ TEST(BasicUsageTest, format_json_object)
 {
     infra::BoundedString::WithStorage<100> response;
     {
-        services::JsonFormatter::WithStringStream formatter(infra::inPlace, response);
+        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, response);
         formatter.Add("name", "Upgrade 19.2");
         formatter.Add("version", "19.2");
         formatter.Add("canupgrade", true);
@@ -14,23 +14,23 @@ TEST(BasicUsageTest, format_json_object)
     EXPECT_EQ(R"({ "name": "Upgrade 19.2", "version": "19.2", "canupgrade": true })", response);
 }
 
-TEST(JsonFormatter, construction_results_in_empty_object)
+TEST(JsonObjectFormatter, construction_results_in_empty_object)
 {
     infra::BoundedString::WithStorage<64> string;
 
     {
-        services::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
+        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
     }
 
     EXPECT_EQ("{  }", string);
 }
 
-TEST(JsonFormatter, add_bool)
+TEST(JsonObjectFormatter, add_bool)
 {
     infra::BoundedString::WithStorage<64> string;
 
     {
-        services::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
+        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("trueTag", true);
         formatter.Add("falseTag", false);
     }
@@ -38,12 +38,12 @@ TEST(JsonFormatter, add_bool)
     EXPECT_EQ(R"({ "trueTag": true, "falseTag": false })", string);
 }
 
-TEST(JsonFormatter, add_int)
+TEST(JsonObjectFormatter, add_int)
 {
     infra::BoundedString::WithStorage<64> string;
 
     {
-        services::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
+        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("intTag", 0);
         formatter.Add("uint32Tag", static_cast<uint32_t>(5));
     }
@@ -51,40 +51,40 @@ TEST(JsonFormatter, add_int)
     EXPECT_EQ(R"({ "intTag": 0, "uint32Tag": 5 })", string);
 }
 
-TEST(JsonFormatter, add_const_char_ptr)
+TEST(JsonObjectFormatter, add_const_char_ptr)
 {
     infra::BoundedString::WithStorage<64> string;
 
     {
         const char* s = "test";
-        services::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
+        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("tag", s);
     }
 
     EXPECT_EQ(R"({ "tag": "test" })", string);
 }
 
-TEST(JsonFormatter, add_BoundedConstString)
+TEST(JsonObjectFormatter, add_BoundedConstString)
 {
     infra::BoundedString::WithStorage<64> string;
 
     {
         infra::BoundedConstString s("test");
-        services::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
+        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("tag", s);
     }
 
     EXPECT_EQ(R"({ "tag": "test" })", string);
 }
 
-TEST(JsonFormatter, add_sub_object)
+TEST(JsonObjectFormatter, add_sub_object)
 {
     infra::BoundedString::WithStorage<64> string;
 
     {
-        services::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
+        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
         {
-            services::JsonFormatter subObject(formatter.SubObject("tag"));
+            services::JsonObjectFormatter subObject(formatter.SubObject("tag"));
             subObject.Add("subTagName", "value");
         }
     }
@@ -92,16 +92,107 @@ TEST(JsonFormatter, add_sub_object)
     EXPECT_EQ(R"({ "tag": { "subTagName": "value" } })", string);
 }
 
-TEST(JsonFormatter, output_is_truncated_on_small_output_string)
+TEST(JsonObjectFormatter, output_is_truncated_on_small_output_string)
 {
     infra::BoundedString::WithStorage<1> string;
 
     {
         infra::BoundedConstString s("test");
-        services::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
+        services::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("tag", s);
     }
 
     EXPECT_EQ(R"({)", string);
+}
+
+TEST(JsonArrayFormatter, construction_results_in_empty_object)
+{
+    infra::BoundedString::WithStorage<64> string;
+
+    {
+        services::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+    }
+
+    EXPECT_EQ("[  ]", string);
+}
+
+TEST(JsonArrayFormatter, add_bool)
+{
+    infra::BoundedString::WithStorage<64> string;
+
+    {
+        services::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+        formatter.Add(true);
+        formatter.Add(false);
+    }
+
+    EXPECT_EQ(R"([ true, false ])", string);
+}
+
+TEST(JsonArrayFormatter, add_int)
+{
+    infra::BoundedString::WithStorage<64> string;
+
+    {
+        services::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+        formatter.Add(0);
+        formatter.Add(static_cast<uint32_t>(5));
+    }
+
+    EXPECT_EQ(R"([ 0, 5 ])", string);
+}
+
+TEST(JsonArrayFormatter, add_const_char_ptr)
+{
+    infra::BoundedString::WithStorage<64> string;
+
+    {
+        const char* s = "test";
+        services::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+        formatter.Add(s);
+    }
+
+    EXPECT_EQ(R"([ "test" ])", string);
+}
+
+TEST(JsonArrayFormatter, add_BoundedConstString)
+{
+    infra::BoundedString::WithStorage<64> string;
+
+    {
+        infra::BoundedConstString s("test");
+        services::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+        formatter.Add(s);
+    }
+
+    EXPECT_EQ(R"([ "test" ])", string);
+}
+
+TEST(JsonArrayFormatter, add_sub_object)
+{
+    infra::BoundedString::WithStorage<64> string;
+
+    {
+        services::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+        {
+            services::JsonObjectFormatter subObject(formatter.SubObject());
+            subObject.Add("subTagName", "value");
+        }
+    }
+
+    EXPECT_EQ(R"([ { "subTagName": "value" } ])", string);
+}
+
+TEST(JsonArrayFormatter, output_is_truncated_on_small_output_string)
+{
+    infra::BoundedString::WithStorage<1> string;
+
+    {
+        infra::BoundedConstString s("test");
+        services::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+        formatter.Add(s);
+    }
+
+    EXPECT_EQ(R"([)", string);
 }
 
