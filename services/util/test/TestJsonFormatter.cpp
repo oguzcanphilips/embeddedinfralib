@@ -76,6 +76,22 @@ TEST(JsonFormatter, add_BoundedConstString)
 
     EXPECT_EQ(R"({ "tag": "test" })", string);
 }
+
+TEST(JsonFormatter, add_sub_object)
+{
+    infra::BoundedString::WithStorage<64> string;
+
+    {
+        services::JsonFormatter::WithStringStream formatter(infra::inPlace, string);
+        {
+            services::JsonFormatter subObject(formatter.SubObject("tag"));
+            subObject.Add("subTagName", "value");
+        }
+    }
+
+    EXPECT_EQ(R"({ "tag": { "subTagName": "value" } })", string);
+}
+
 TEST(JsonFormatter, output_is_truncated_on_small_output_string)
 {
     infra::BoundedString::WithStorage<1> string;

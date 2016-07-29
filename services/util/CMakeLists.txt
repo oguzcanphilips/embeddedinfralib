@@ -36,6 +36,7 @@ ccola_component(util static_library)
 	ccola_dependencies(
 		hal.interfaces
 		infra.util
+		infra.stream
 	)
 
 ccola_end_component()

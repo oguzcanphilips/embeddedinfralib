@@ -12,9 +12,11 @@ namespace services
     public:
         using WithStringStream = infra::WithStorage<JsonFormatter, infra::StringOutputStream>;
 
-        JsonFormatter(infra::TextOutputStream& stream);
+        explicit JsonFormatter(infra::TextOutputStream& stream);
         JsonFormatter(const JsonFormatter& other) = delete;
+        JsonFormatter(JsonFormatter&& other);
         JsonFormatter& operator=(const JsonFormatter& other) = delete;
+        JsonFormatter& operator=(JsonFormatter&& other);
         ~JsonFormatter();
 
         void Add(const char* tagName, bool tag);
@@ -22,6 +24,7 @@ namespace services
         void Add(const char* tagName, uint32_t tag);
         void Add(const char* tagName, const char* tag);
         void Add(const char* tagName, infra::BoundedConstString tag);
+        JsonFormatter SubObject(const char* tagName);
 
         bool HasFailed() const;
 
@@ -29,7 +32,7 @@ namespace services
         void InsertSeparation();
 
     private:
-        infra::TextOutputStream& stream;
+        infra::TextOutputStream* stream;
         bool empty = true;
     };
 }
