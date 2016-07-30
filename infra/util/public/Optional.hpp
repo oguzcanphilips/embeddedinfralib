@@ -28,6 +28,9 @@ namespace infra
     struct InPlace {};
     const InPlace inPlace;
 
+	template<class T>
+	struct InPlaceType {};
+
     template<class T>
     class Optional
     {
@@ -96,8 +99,8 @@ namespace infra
         template<class Derived, std::size_t OtherExtraSize>
             OptionalForPolymorphicObjects(const OptionalForPolymorphicObjects<Derived, OtherExtraSize>& other, typename std::enable_if<std::is_base_of<T, Derived>::value>::type* = 0);
         OptionalForPolymorphicObjects(None);
-        template<class... Args>
-            OptionalForPolymorphicObjects(InPlace, Args&&... args);
+        template<class Derived, class... Args>
+            OptionalForPolymorphicObjects(InPlaceType<Derived>, Args&&... args);
 
         ~OptionalForPolymorphicObjects();
 
@@ -138,9 +141,6 @@ namespace infra
         bool initialized;
         StaticStorageForPolymorphicObjects<T, ExtraSize> data;
     };
-
-    template<class T>
-        OptionalForPolymorphicObjects<typename std::decay<T>::type, 0> MakeOptionalForPolymorphicObjects(T&& value);
         
     ////    Implementation    ////
 
@@ -355,8 +355,8 @@ namespace infra
     {}
 
     template<class T, std::size_t ExtraSize>
-    template<class... Args>
-    OptionalForPolymorphicObjects<T, ExtraSize>::OptionalForPolymorphicObjects(InPlace, Args&&... args)
+    template<class Derived, class... Args>
+    OptionalForPolymorphicObjects<T, ExtraSize>::OptionalForPolymorphicObjects(InPlaceType<Derived>, Args&&... args)
         : initialized(false)
     {
         Emplace<T>(std::forward<Args>(args)...);
@@ -470,12 +470,6 @@ namespace infra
             data.Destruct();
             initialized = false;
         }
-    }
-
-    template<class T>
-    OptionalForPolymorphicObjects<typename std::decay<T>::type, 0> MakeOptionalForPolymorphicObjects(T&& value)
-    {
-        return OptionalForPolymorphicObjects<typename std::decay<T>::type, 0>(inPlace, std::forward<T>(value));
     }
 }
 

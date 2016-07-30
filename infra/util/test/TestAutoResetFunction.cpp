@@ -55,7 +55,7 @@ TEST(AutoResetFunctionTest, TestCopyAssign)
     infra::AutoResetFunction<void()> f([&m]() { m.callback(); });
     infra::AutoResetFunction<void()> f2;
     f2 = f;
-    EXPECT_TRUE(f);
+    EXPECT_TRUE(static_cast<bool>(f));
     EXPECT_CALL(m, callback());
     f2();
 }

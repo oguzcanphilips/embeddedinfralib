@@ -1,14 +1,12 @@
 #ifndef INFRA_VARIANT_HPP
 #define INFRA_VARIANT_HPP
 
+#include "infra/util/public/Optional.hpp"
 #include "infra/util/public/VariantDetail.hpp"
 #include <type_traits>
 
 namespace infra
 {
-    template<class T>
-    struct InPlaceType {};
-
     struct AtIndex {};
     const AtIndex atIndex;
 

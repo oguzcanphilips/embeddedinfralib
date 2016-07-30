@@ -18,7 +18,7 @@ TEST(OptionalTest, TestConstructedWithValue)
 {
     bool value(true);
     infra::Optional<bool> o(infra::inPlace, value);
-    EXPECT_TRUE(o);
+    EXPECT_TRUE(static_cast<bool>(o));
     EXPECT_TRUE(*o);
 }
 
@@ -26,7 +26,7 @@ TEST(OptionalTest, TestConstructedWithMovedValue)
 {
     bool value(true);
     infra::Optional<bool> o(infra::inPlace, std::move(value));
-    EXPECT_TRUE(o);
+    EXPECT_TRUE(static_cast<bool>(o));
     EXPECT_TRUE(*o);
 }
 
@@ -34,8 +34,8 @@ TEST(OptionalTest, TestCopyConstruction)
 {
     infra::Optional<bool> o1(infra::inPlace, true);
     infra::Optional<bool> o2(o1);
-    EXPECT_TRUE(o1);
-    EXPECT_TRUE(o2);
+    EXPECT_TRUE(static_cast<bool>(o1));
+    EXPECT_TRUE(static_cast<bool>(o2));
     EXPECT_TRUE(*o2);
 }
 
@@ -44,7 +44,7 @@ TEST(OptionalTest, TestMoveConstruction)
     infra::Optional<bool> o1(infra::inPlace, true);
     infra::Optional<bool> o2(std::move(o1));
     EXPECT_FALSE(o1);
-    EXPECT_TRUE(o2);
+    EXPECT_TRUE(static_cast<bool>(o2));
     EXPECT_TRUE(*o2);
 }
 
@@ -53,8 +53,8 @@ TEST(OptionalTest, TestCopyAssign)
     infra::Optional<bool> o1(infra::inPlace, true);
     infra::Optional<bool> o2;
     o2 = o1;
-    EXPECT_TRUE(o1);
-    EXPECT_TRUE(o2);
+    EXPECT_TRUE(static_cast<bool>(o1));
+    EXPECT_TRUE(static_cast<bool>(o2));
     EXPECT_TRUE(*o2);
 }
 
@@ -63,8 +63,8 @@ TEST(OptionalTest, TestMoveAssign)
     infra::Optional<bool> o1(infra::inPlace, true);
     infra::Optional<bool> o2;
     o2 = std::move(o1);
-    EXPECT_FALSE(o1);
-    EXPECT_TRUE(o2);
+    EXPECT_FALSE(static_cast<bool>(o1));
+    EXPECT_TRUE(static_cast<bool>(o2));
     EXPECT_TRUE(*o2);
 }
 
@@ -72,7 +72,7 @@ TEST(OptionalTest, TestAssignValue)
 {
     infra::Optional<bool> o;
     o = true;
-    EXPECT_TRUE(o);
+    EXPECT_TRUE(static_cast<bool>(o));
     EXPECT_TRUE(*o);
 }
 
@@ -124,7 +124,7 @@ TEST(OptionalTest, TestConstruct)
     bool b(true);
     infra::Optional<bool> o;
     o.Emplace(std::move(b));
-    EXPECT_TRUE(o);
+    EXPECT_TRUE(static_cast<bool>(o));
     EXPECT_TRUE(*o);
 }
 
@@ -137,7 +137,7 @@ TEST(OptionalTest, TestConstructWithInitializerList)
     };
     infra::Optional<X> o;
     o.Emplace({ true });
-    EXPECT_TRUE(o);
+    EXPECT_TRUE(static_cast<bool>(o));
 }
 
 TEST(OptionalTest, TestIndirect)
@@ -155,7 +155,7 @@ TEST(OptionalTest, TestIndirect)
 TEST(OptionalTest, TestMakeOptional)
 {
     infra::Optional<bool> o = infra::MakeOptional(true);
-    EXPECT_TRUE(o);
+    EXPECT_TRUE(static_cast<bool>(o));
     EXPECT_TRUE(*o);
 }
 
@@ -197,22 +197,22 @@ TEST(OptionalForPolymorphicObjectsTest, TestConstructedEmpty)
 TEST(OptionalForPolymorphicObjectsTest, TestConstructedEmptyWithNone)
 {
     infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o(infra::none);
-    EXPECT_FALSE(o);
+    EXPECT_FALSE(static_cast<bool>(o));
 }
 
 TEST(OptionalForPolymorphicObjectsTest, TestConstructedWithValue)
 {
     bool value(true);
-    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o(infra::inPlace, value);
-    EXPECT_TRUE(o);
+    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o(infra::InPlaceType<PolymorphicBool>(), value);
+    EXPECT_TRUE(static_cast<bool>(o));
     EXPECT_TRUE(*o);
 }
 
 TEST(OptionalForPolymorphicObjectsTest, TestConstructedWithMovedValue)
 {
     bool value(true);
-    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o(infra::inPlace, std::move(value));
-    EXPECT_TRUE(o);
+    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o(infra::InPlaceType<PolymorphicBool>(), std::move(value));
+    EXPECT_TRUE(static_cast<bool>(o));
     EXPECT_TRUE(*o);
 }
 
@@ -220,15 +220,15 @@ TEST(OptionalForPolymorphicObjectsTest, TestAssignValue)
 {
     infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o;
     o = true;
-    EXPECT_TRUE(o);
+    EXPECT_TRUE(static_cast<bool>(o));
     EXPECT_TRUE(*o);
 }
 
 TEST(OptionalForPolymorphicObjectsTest, TestAssignNone)
 {
-    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o(infra::inPlace, true);
+    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o(infra::InPlaceType<PolymorphicBool>(), true);
     o = infra::none;
-    EXPECT_FALSE(o);
+    EXPECT_FALSE(static_cast<bool>(o));
 }
 
 TEST(OptionalForPolymorphicObjectsTest, TestCompareToNone)
@@ -242,8 +242,8 @@ TEST(OptionalForPolymorphicObjectsTest, TestCompareToNone)
 
 TEST(OptionalForPolymorphicObjectsTest, TestCompare)
 {
-    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> t(infra::inPlace, true);
-    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> f(infra::inPlace, false);
+    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> t(infra::InPlaceType<PolymorphicBool>(), true);
+    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> f(infra::InPlaceType<PolymorphicBool>(), false);
     infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> u;
 
     EXPECT_TRUE(t == t);
@@ -258,7 +258,7 @@ TEST(OptionalForPolymorphicObjectsTest, TestCompare)
 
 TEST(OptionalForPolymorphicObjectsTest, TestCompareToValue)
 {
-    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> t(infra::inPlace, true);
+    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> t(infra::InPlaceType<PolymorphicBool>(), true);
 
     EXPECT_TRUE(t == true);
     EXPECT_TRUE(true == t);
@@ -272,7 +272,7 @@ TEST(OptionalForPolymorphicObjectsTest, TestConstruct)
     PolymorphicBool b(true);
     infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o;
     o.Emplace<PolymorphicBool>(std::move(b));
-    EXPECT_TRUE(o);
+    EXPECT_TRUE(static_cast<bool>(o));
     EXPECT_TRUE(*o);
 }
 
@@ -289,15 +289,8 @@ TEST(OptionalForPolymorphicObjectsTest, TestIndirect)
         bool x;
     };
 
-    infra::OptionalForPolymorphicObjects<X, 4> o(infra::inPlace, X());
+	infra::OptionalForPolymorphicObjects<X, 4> o{ infra::InPlaceType<X>(), X() };
     EXPECT_TRUE(o->x);
-}
-
-TEST(OptionalForPolymorphicObjectsTest, TestMakeOptional)
-{
-    infra::OptionalForPolymorphicObjects<PolymorphicBool, 0> o = infra::MakeOptionalForPolymorphicObjects(PolymorphicBool(true));
-    EXPECT_TRUE(o);
-    EXPECT_TRUE(*o);
 }
 
 TEST(OptionalForPolymorphicObjectsTest, ConstructDescendant)
@@ -313,6 +306,6 @@ TEST(OptionalForPolymorphicObjectsTest, ConstructDescendant)
         int ExtraStorage;
     };
 
-    infra::OptionalForPolymorphicObjects<Base, 4> optionalBase(infra::MakeOptionalForPolymorphicObjects(Derived()));
-    optionalBase = infra::MakeOptionalForPolymorphicObjects(Derived());
+    infra::OptionalForPolymorphicObjects<Base, 4> optionalBase((infra::InPlaceType<Derived>()));
+    optionalBase.Emplace<Derived>();
 }
