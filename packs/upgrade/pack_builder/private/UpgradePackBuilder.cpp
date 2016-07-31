@@ -54,7 +54,7 @@ namespace application
         prologue.errorCode = 0xffffffff;
         prologue.signedContentsLength = upgradePack.size();
         prologue.signatureMethod = signer.SignatureMethod();
-        prologue.signatureLength = signature.size();
+        prologue.signatureLength = static_cast<uint16_t>(signature.size());
 
         upgradePack.insert(upgradePack.begin(), signature.begin(), signature.end());
         upgradePack.insert(upgradePack.begin(), reinterpret_cast<const uint8_t*>(&prologue), reinterpret_cast<const uint8_t*>(&prologue + 1));

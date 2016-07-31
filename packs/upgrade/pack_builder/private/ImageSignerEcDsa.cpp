@@ -21,7 +21,7 @@ namespace application
 
     uint16_t ImageSignerEcDsa::SignatureLength() const
     {
-        return signature.size();
+        return static_cast<uint16_t>(signature.size());
     }
 
     std::vector<uint8_t> ImageSignerEcDsa::ImageSignature(const std::vector<uint8_t>& image)

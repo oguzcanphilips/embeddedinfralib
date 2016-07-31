@@ -11,8 +11,7 @@ namespace application
 
     SecureRandomNumberGenerator::~SecureRandomNumberGenerator()
     {
-        if (!::CryptReleaseContext(hProvider, 0))
-            throw std::exception("Could not release crypt context");
+		::CryptReleaseContext(hProvider, 0);
     }
 
     std::vector<uint8_t> SecureRandomNumberGenerator::Generate(std::size_t n)

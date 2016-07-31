@@ -20,7 +20,7 @@ namespace application
 
     uint16_t ImageSignerRsa::SignatureLength() const
     {
-        return signature.size();
+        return static_cast<uint16_t>(signature.size());
     }
 
     std::vector<uint8_t> ImageSignerRsa::ImageSignature(const std::vector<uint8_t>& image)

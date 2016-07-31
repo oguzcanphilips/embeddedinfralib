@@ -70,7 +70,7 @@ namespace application
         Operation operation = Operation::putProps;
         communication.SendData(infra::MakeByteRange(operation));
 
-        uint16_t size = port.size() + values.size() + 2;
+        uint16_t size = static_cast<uint16_t>(port.size() + values.size()) + 2;
         std::array<uint8_t, 2> length = { uint8_t(size >> 8), uint8_t(size) };
         communication.SendData(length);
 
@@ -134,7 +134,7 @@ namespace application
                 if (!ReceiveData(infra::ReinterpretCastByteRange(infra::MakeRangeFromContainer(values))))
                     return false;
             crcCalculator.Update(infra::ReinterpretCastByteRange(infra::MakeRangeFromContainer(values)));
-            size -= values.size();
+            size -= static_cast<uint16_t>(values.size());
             std::size_t terminatingZero = values.find('\0');
             if (terminatingZero != infra::BoundedString::npos)
                 values.erase(terminatingZero);

@@ -293,7 +293,7 @@ namespace services
         });
         sequencer.Step([this, range]()
         {
-            blockHeader.SetBlockLength(range.size());
+            blockHeader.SetBlockLength(static_cast<Length>(range.size()));
             flash.WriteBuffer(infra::MakeByteRange(blockHeader.BlockLength()), endAddress + 1, [this]() { sequencer.Continue(); });
         });
         sequencer.Step([this]()
