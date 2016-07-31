@@ -13,9 +13,11 @@ macro(ccola_subdirectories)
 	ccola_parse_selection_list(dirs)
 
     foreach(item ${dirs})
-        add_subdirectory(${item})
+		math(EXPR CCOLA_UNIQUE_BUILD_DIR_NUMBER "${CCOLA_UNIQUE_BUILD_DIR_NUMBER} + 1")
+        add_subdirectory(${item} ${CCOLA_BUILD_DIR}/build/${CCOLA_UNIQUE_BUILD_DIR_NUMBER})
     endforeach()
 
+	ccola_promote_variable(CCOLA_UNIQUE_BUILD_DIR_NUMBER)
 	ccola_promote_variable(CCOLA_COMPONENT_TYPE_DIRS)
 	ccola_promote_variable(CCOLA_PROGRAMMERS_DIRS)
 	ccola_promote_variable(CCOLA_PACK_NAMES)
