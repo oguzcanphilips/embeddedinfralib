@@ -3,6 +3,8 @@ ccola_component(util_test gmock_test)
 	ccola_sources(
 		TestAutoResetFunction.cpp
 		TestBoundedDeque.cpp
+		TestBoundedForwardList.cpp
+		TestBoundedList.cpp
 		TestBoundedPriorityQueue.cpp
 		TestBoundedString.cpp
 		TestBoundedVector.cpp

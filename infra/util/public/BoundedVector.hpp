@@ -34,6 +34,7 @@ namespace infra
 
     public:
         BoundedVector();
+        BoundedVector(const BoundedVector& other) = delete;
         explicit BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage);
         BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, size_type n, const value_type& value = value_type());
         template<class InputIterator>

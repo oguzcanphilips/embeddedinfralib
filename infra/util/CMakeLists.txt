@@ -7,6 +7,8 @@ ccola_component(util static_library)
 		public/AutoResetFunction.hpp
 		public/BitLogic.hpp
 		public/BoundedDeque.hpp
+		public/BoundedForwardList.hpp
+		public/BoundedList.hpp
 		public/BoundedPriorityQueue.hpp
 		public/BoundedString.hpp
 		public/BoundedVector.hpp
