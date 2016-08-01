@@ -31,17 +31,6 @@ TEST_F(EventDispatcherFixture, TestScheduleTwice)
     ExecuteAllActions();
 }
 
-TEST_F(EventDispatcherFixture, TestScheduleUnique)
-{
-    infra::MockCallback<void()> callback;
-    EXPECT_CALL(callback, callback());
-
-    infra::Function<void()> f([&callback, this]() { callback.callback(); });
-    infra::EventDispatcher::Instance().ScheduleUnique(f);
-    infra::EventDispatcher::Instance().ScheduleUnique(f);
-    ExecuteAllActions();
-}
-
 bool helper1turn = true;
 
 void helper1()

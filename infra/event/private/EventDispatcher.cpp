@@ -33,21 +33,6 @@ namespace infra
         RequestExecution();
     }
 
-    void EventDispatcher::ScheduleUnique(const infra::Function<void()>& action)
-    {
-        uint32_t pushIndex = scheduledActionsPushIndex;
-        for (uint32_t index = scheduledActionsPopIndex; index != pushIndex; index = (index + 1) % scheduledActions.size())
-        {
-            if (!scheduledActions[index].second)
-                break;
-
-            if (scheduledActions[index].first == action)
-                return;
-        }
-
-        Schedule(action);
-    }
-
     void EventDispatcher::ExecuteAllActions()
     {
         while (TryExecuteAction())

@@ -18,7 +18,6 @@ namespace infra
         EventDispatcher(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage);
 
         void Schedule(const infra::Function<void()>& action);
-        void ScheduleUnique(const infra::Function<void()>& action);
 
         void Run();
 
