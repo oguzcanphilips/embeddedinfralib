@@ -13,8 +13,21 @@ macro(ccola_subdirectories)
 	ccola_parse_selection_list(dirs)
 
     foreach(item ${dirs})
-		math(EXPR CCOLA_UNIQUE_BUILD_DIR_NUMBER "${CCOLA_UNIQUE_BUILD_DIR_NUMBER} + 1")
-        add_subdirectory(${item} ${CCOLA_BUILD_DIR}/build/${CCOLA_UNIQUE_BUILD_DIR_NUMBER})
+		# Each subdirectory gets its own build dir at <intermediate build dir>/build/<number> by default,
+		# so that we don't get a deep hierarchy of directories causing max path restrictions in Windows
+		# to be violated when cmake uses paths relative to those deep paths.
+		# In order to make certain make targets easily accessible, this behaviour can be overriden by
+		# appending "=absolute_build_dir" to the directory name, which causes the path to become
+		# <intermediate build dir>/<directory name>
+
+		string(FIND ${item} "=absolute_build_dir" position REVERSE)
+		if(NOT ${position} EQUAL -1)
+			string(SUBSTRING ${item} 0 ${position} subdir)
+			add_subdirectory(${subdir} "${CCOLA_BUILD_DIR}/${subdir}")
+		else()
+			math(EXPR CCOLA_UNIQUE_BUILD_DIR_NUMBER "${CCOLA_UNIQUE_BUILD_DIR_NUMBER} + 1")
+			add_subdirectory("${item}" "${CCOLA_BUILD_DIR}/build/${CCOLA_UNIQUE_BUILD_DIR_NUMBER}")
+		endif()
     endforeach()
 
 	ccola_promote_variable(CCOLA_UNIQUE_BUILD_DIR_NUMBER)
@@ -26,6 +39,7 @@ macro(ccola_subdirectories)
 	endforeach()
 
 endmacro()
+set(CCOLA_UNIQUE_BUILD_DIR_NUMBER 0)
 
 
 macro(ccola_register_parameter parameter)
