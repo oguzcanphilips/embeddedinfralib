@@ -3259,11 +3259,19 @@ void XmlUnitTestResultPrinter::OutputXmlTestInfo(::std::ostream* stream,
             << "\"";
   }
 
+  TCHAR szFileName[MAX_PATH];
+  GetModuleFileName(nullptr, szFileName, MAX_PATH);
+  char drive[_MAX_DRIVE];
+  char dir[_MAX_DIR];
+  char fname[_MAX_FNAME];
+  char ext[_MAX_EXT];
+  _splitpath(szFileName, drive, dir, fname, ext);
+
   *stream << " status=\""
           << (test_info.should_run() ? "run" : "notrun")
           << "\" time=\""
           << FormatTimeInMillisAsSeconds(result.elapsed_time())
-          << "\" classname=\"" << EscapeXmlAttribute(test_case_name).c_str()
+          << "\" classname=\"" << fname << "." << EscapeXmlAttribute(test_case_name).c_str()
           << "\"" << TestPropertiesAsXmlAttributes(result).c_str();
 
   int failures = 0;
