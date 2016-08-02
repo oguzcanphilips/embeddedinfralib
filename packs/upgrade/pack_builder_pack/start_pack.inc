@@ -51,38 +51,27 @@ macro(upgrade_pack output upgrader)
 			ccola_create_directory_on_demand("${install_destination}")
 
 			add_custom_command(
-				OUTPUT "${intermediate_destination}/${CCOLA_PACKAGE_NAME}.${output}.upg"
-				COMMAND "${upgrade_pack_builder_path}" "${intermediate_destination}/${CCOLA_PACKAGE_NAME}.${output}.upg" ${upgrade_arguments}
+				OUTPUT "${install_destination}/${CCOLA_PACKAGE_NAME}.${output}.upg"
+				COMMAND "${upgrade_pack_builder_path}" "${install_destination}/${CCOLA_PACKAGE_NAME}.${output}.upg" ${upgrade_arguments}
 				DEPENDS ${upgrade_dependencies}
-				DEPENDS "${intermediate_destination}"
+				DEPENDS "${install_destination}"
 				DEPENDS "${upgrade_pack_builder_path}"
 				WORKING_DIRECTORY "${intermediate_destination}"
 			)
 
 			add_custom_command(
 				OUTPUT "${intermediate_destination}/${CCOLA_PACKAGE_NAME}.${output}.o"
-				COMMAND ${CCOLA_OBJ_COPY_TOOL} -I binary -O elf32-littlearm -B arm --rename-section .data=.upgrade_pack "${intermediate_destination}/${CCOLA_PACKAGE_NAME}.${output}.upg" "${intermediate_destination}/${CCOLA_PACKAGE_NAME}.${output}.o"
-				DEPENDS "${intermediate_destination}/${CCOLA_PACKAGE_NAME}.${output}.upg"
+				COMMAND ${CCOLA_OBJ_COPY_TOOL} -I binary -O elf32-littlearm -B arm --rename-section .data=.upgrade_pack "${install_destination}/${CCOLA_PACKAGE_NAME}.${output}.upg" "${intermediate_destination}/${CCOLA_PACKAGE_NAME}.${output}.o"
+				DEPENDS "${install_destination}/${CCOLA_PACKAGE_NAME}.${output}.upg"
 			)
 
 			ccola_public_property(object "${intermediate_destination}/${CCOLA_PACKAGE_NAME}.${output}.o")
 
-			add_custom_command(
-				OUTPUT "${install_destination}/${CCOLA_PACKAGE_NAME}.${output}.elf"
-				COMMAND ${CCOLA_LD_TOOL} -m armelf "${intermediate_destination}/${CCOLA_PACKAGE_NAME}.${output}.o" -T "${CCOLA_PACK_DIR_pack_builder_pack}/upgrade_pack.ld" -o "${install_destination}/${CCOLA_PACKAGE_NAME}.${output}.elf"
-				DEPENDS "${intermediate_destination}/${CCOLA_PACKAGE_NAME}.${output}.o"
-				DEPENDS "${install_destination}"
-			)
-
 			add_custom_target(
-				upgrade_pack_${CCOLA_PACKAGE_NAME}_${output}
-				DEPENDS "${intermediate_destination}/${CCOLA_PACKAGE_NAME}.${output}.upg"
+				${CCOLA_COMPONENT_NAME}
+				DEPENDS "${install_destination}/${CCOLA_PACKAGE_NAME}.${output}.upg"
 				DEPENDS "${intermediate_destination}/${CCOLA_PACKAGE_NAME}.${output}.o"
-				DEPENDS "${install_destination}/${CCOLA_PACKAGE_NAME}.${output}.elf"
 			)
-
-			ccola_configure_eclipse_launch("${install_destination}/${CCOLA_PACKAGE_NAME}.${output}.elf" ${CCOLA_PACKAGE_NAME}.${output})
-		
 		endif()
 	ccola_end_component()
 
