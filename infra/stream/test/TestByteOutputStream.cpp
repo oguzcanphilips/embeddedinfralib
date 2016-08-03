@@ -7,8 +7,6 @@ TEST(ByteOutputStreamTest, StreamToRange)
     {
         uint8_t a;
         uint8_t b;
-
-        bool operator==(const From& other) const { return a == other.a && b == other.b; };
     } from = { 0, 1 };
 
     std::array<uint8_t, 4> to = { 2, 3, 4, 5 };
