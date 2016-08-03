@@ -11,7 +11,7 @@ namespace application
 
     SecureRandomNumberGenerator::~SecureRandomNumberGenerator()
     {
-		::CryptReleaseContext(hProvider, 0);
+        ::CryptReleaseContext(hProvider, 0);
     }
 
     std::vector<uint8_t> SecureRandomNumberGenerator::Generate(std::size_t n)

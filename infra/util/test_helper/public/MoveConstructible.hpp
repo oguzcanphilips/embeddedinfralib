@@ -9,8 +9,8 @@ namespace infra
         MoveConstructible(const MoveConstructible& other) = delete;
         MoveConstructible(MoveConstructible&& other): x(other.x) {}
 
-		MoveConstructible& operator=(const MoveConstructible& other) = delete;
-		MoveConstructible& operator=(MoveConstructible&& other) { x = other.x; return *this; }
+        MoveConstructible& operator=(const MoveConstructible& other) = delete;
+        MoveConstructible& operator=(MoveConstructible&& other) { x = other.x; return *this; }
 
         int x;
 

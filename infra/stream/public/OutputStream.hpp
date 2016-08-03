@@ -95,10 +95,10 @@ namespace infra
         public:
             FormatterBase() = default;
 
-		protected:
+        protected:
             FormatterBase(const FormatterBase& other) = default;
             FormatterBase& operator=(const FormatterBase& other) = default;
-			~FormatterBase() = default;
+            ~FormatterBase() = default;
 
         public:
             virtual void Stream(TextOutputStream& stream) = 0;
@@ -111,8 +111,8 @@ namespace infra
         {
         public:
             Formatter(T value);
-			Formatter(const Formatter& other) = default;
-			Formatter& operator=(const Formatter& other) = default;
+            Formatter(const Formatter& other) = default;
+            Formatter& operator=(const Formatter& other) = default;
 
             virtual void Stream(TextOutputStream& stream) override;
 

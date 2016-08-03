@@ -25,10 +25,10 @@ namespace infra
         explicit BoundedPriorityQueue(const Compare& comp = Compare());
         template <class InputIterator>
             BoundedPriorityQueue(InputIterator first, InputIterator last, const Compare& comp = Compare());
-		BoundedPriorityQueue(const BoundedPriorityQueue& other);
+        BoundedPriorityQueue(const BoundedPriorityQueue& other);
         BoundedPriorityQueue(BoundedPriorityQueue&& other);
 
-		BoundedPriorityQueue& operator=(const BoundedPriorityQueue& other);
+        BoundedPriorityQueue& operator=(const BoundedPriorityQueue& other);
         BoundedPriorityQueue& operator=(BoundedPriorityQueue&& other);
 
     public:
@@ -139,22 +139,22 @@ namespace infra
         , compare(other.compare)
     {}
 
-	template<class T, std::size_t Max, class Compare>
-	BoundedPriorityQueue<T, Max, Compare>::BoundedPriorityQueue(BoundedPriorityQueue&& other)
-		: values(std::move(other.values))
-		, compare(std::move(other.compare))
-	{}
+    template<class T, std::size_t Max, class Compare>
+    BoundedPriorityQueue<T, Max, Compare>::BoundedPriorityQueue(BoundedPriorityQueue&& other)
+        : values(std::move(other.values))
+        , compare(std::move(other.compare))
+    {}
 
-	template<class T, std::size_t Max, class Compare>
-	BoundedPriorityQueue<T, Max, Compare>& BoundedPriorityQueue<T, Max, Compare>::operator=(const BoundedPriorityQueue& other)
-	{
-		values = other.values;
-		compare = other.compare;
+    template<class T, std::size_t Max, class Compare>
+    BoundedPriorityQueue<T, Max, Compare>& BoundedPriorityQueue<T, Max, Compare>::operator=(const BoundedPriorityQueue& other)
+    {
+        values = other.values;
+        compare = other.compare;
 
-		return *this;
-	}
+        return *this;
+    }
 
-	template<class T, std::size_t Max, class Compare>
+    template<class T, std::size_t Max, class Compare>
     BoundedPriorityQueue<T, Max, Compare>& BoundedPriorityQueue<T, Max, Compare>::operator=(BoundedPriorityQueue&& other)
     {
         values = std::move(other.values);

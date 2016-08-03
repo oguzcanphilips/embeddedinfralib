@@ -28,8 +28,8 @@ namespace infra
     struct InPlace {};
     const InPlace inPlace;
 
-	template<class T>
-	struct InPlaceType {};
+    template<class T>
+        struct InPlaceType {};
 
     template<class T>
     class Optional

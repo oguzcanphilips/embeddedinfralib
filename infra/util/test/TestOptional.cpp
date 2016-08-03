@@ -289,7 +289,7 @@ TEST(OptionalForPolymorphicObjectsTest, TestIndirect)
         bool x;
     };
 
-	infra::OptionalForPolymorphicObjects<X, 4> o{ infra::InPlaceType<X>(), X() };
+    infra::OptionalForPolymorphicObjects<X, 4> o{ infra::InPlaceType<X>(), X() };
     EXPECT_TRUE(o->x);
 }
 
