@@ -176,10 +176,3 @@ TEST(BoundedPriorityQueueTest, TestClear)
     EXPECT_EQ(0, queue.size());
     EXPECT_TRUE(queue.empty());
 }
-
-TEST(BoundedPriorityQueueTest, TestUnboundedPriorityQueue)
-{
-    infra::BoundedPriorityQueue<int, -1> queue;
-    queue.push(1);
-    EXPECT_EQ(1, queue.top());
-}
