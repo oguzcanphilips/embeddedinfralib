@@ -87,6 +87,13 @@ namespace infra
         return *this;
     }
 
+    TextOutputStream& TextOutputStream::operator<<(const std::string& string)
+    {
+        Writer().Insert(ReinterpretCastByteRange(MakeRange(string.data(), string.data() + string.size())));
+
+        return *this;
+    }
+
     DataOutputStream TextOutputStream::operator<<(Data)
     {
         return DataOutputStream(Writer());

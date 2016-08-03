@@ -6,6 +6,7 @@
 #include "infra/util/public/ByteRange.hpp"
 #include "infra/util/public/Optional.hpp"
 #include <cstdlib>
+#include <string>
 #include <type_traits>
 
 namespace infra
@@ -75,6 +76,7 @@ namespace infra
 
         TextOutputStream& operator<<(const char* zeroTerminatedString);
         TextOutputStream& operator<<(BoundedConstString string);
+        TextOutputStream& operator<<(const std::string& string);
         TextOutputStream& operator<<(char c);
         TextOutputStream& operator<<(uint8_t v);
         TextOutputStream& operator<<(int32_t v);
