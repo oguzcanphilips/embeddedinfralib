@@ -83,6 +83,30 @@ TEST_F(TestSequencer, after_continue_second_step_is_executed)
     EXPECT_TRUE(sequencer.Finished());
 }
 
+TEST_F(TestSequencer, nested_steps_are_executed_in_sequence)
+{
+    EXPECT_CALL(*this, a());
+
+    sequencer.Load([this]() {
+        sequencer.Execute([this]()
+        {
+            sequencer.Step([this]() { a(); });
+            sequencer.Step([this]() { b(); });
+        });
+    });
+
+    EXPECT_FALSE(sequencer.Finished());
+    testing::Mock::VerifyAndClearExpectations(this);
+
+    EXPECT_CALL(*this, b());
+    sequencer.Continue();
+    EXPECT_FALSE(sequencer.Finished());
+    testing::Mock::VerifyAndClearExpectations(this);
+    
+    sequencer.Continue();
+    EXPECT_TRUE(sequencer.Finished());
+}
+
 TEST_F(TestSequencer, on_unsuccessful_condition_If_does_not_execute_statement)
 {
     EXPECT_CALL(*this, condition()).WillOnce(testing::Return(false));

@@ -32,11 +32,7 @@ namespace infra
         bool Finished() const;
 
     private:
-        infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> sequence;
-
-        infra::BoundedVector<uint8_t>::WithMaxSize<5> execute;
-        infra::BoundedVector<uint8_t>::WithMaxSize<5> examine;
-        bool repeat;
+        void ExecuteWithoutContext(const infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE>& action);
 
         void IncreaseCurrentStep();
         bool ExecuteCurrentStep() const;
@@ -46,7 +42,14 @@ namespace infra
 
         void PushContext();
         void PopContext();
-    };    
+
+    private:
+        infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> sequence;
+
+        infra::BoundedVector<uint8_t>::WithMaxSize<5> execute;
+        infra::BoundedVector<uint8_t>::WithMaxSize<5> examine;
+        bool repeat;
+    };
 }
 
 #endif
