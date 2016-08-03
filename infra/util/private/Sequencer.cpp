@@ -29,25 +29,21 @@ namespace infra
 
     void Sequencer::Step(const infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE>& action)
     {
-        bool executeStep = ExecuteCurrentStep();
+        if (ExecuteCurrentStep())
+            action();
 
         IncreaseCurrentStep();
-
-        if (executeStep)
-            action();
     }
 
     void Sequencer::Execute(const infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE>& action)
     {
-        bool executeStep = ExecuteCurrentStep();
+        if (ExecuteCurrentStep())
+        {
+            action();
+            ExecuteNextStep();
+        }
 
         IncreaseCurrentStep();
-
-        if (executeStep)
-        {
-            ExecuteNextStep();
-            action();
-        }
     }
 
     void Sequencer::If(const infra::Function<bool()>& condition)
