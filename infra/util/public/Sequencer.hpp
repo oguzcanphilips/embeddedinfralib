@@ -46,8 +46,8 @@ namespace infra
     private:
         infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> sequence;
 
-        infra::BoundedVector<uint8_t>::WithMaxSize<5> execute;
-        infra::BoundedVector<uint8_t>::WithMaxSize<5> examine;
+        infra::BoundedVector<uint8_t>::WithMaxSize<8> execute;
+        infra::BoundedVector<uint8_t>::WithMaxSize<8> examine;
         bool repeat;
     };
 }
