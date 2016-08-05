@@ -115,9 +115,9 @@ TEST_F(TimerTest, RepeatingTimerIsCancellable)
 TEST_F(TimerTest, RepeatingTimerTakesResolutionIntoAccount)
 {
     infra::MockCallback<void()> callback;
-    EXPECT_CALL(callback, callback()).With(After(std::chrono::seconds(2)));
-    EXPECT_CALL(callback, callback()).With(After(std::chrono::seconds(3)));
-    systemTimerService.SetResolution(std::chrono::seconds(1));
+    EXPECT_CALL(callback, callback()).With(After(std::chrono::milliseconds(1050)));
+    EXPECT_CALL(callback, callback()).With(After(std::chrono::milliseconds(2050)));
+    systemTimerService.SetResolution(std::chrono::milliseconds(50));
 
     infra::TimerRepeating timer(std::chrono::seconds(1), [&callback]() { callback.callback(); });
 

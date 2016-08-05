@@ -148,12 +148,8 @@ namespace infra
 
     void TimerRepeating::ComputeNextTriggerTime()
     {
-        TimePoint now = Now();
-
-        Duration diff = now - NextTrigger();
-        if (diff < Duration())
-            now += std::chrono::milliseconds(triggerPeriod);
-        diff %= triggerPeriod;
+        TimePoint now = std::max(Now(), NextTrigger());
+        Duration diff = (now - NextTrigger()) % triggerPeriod;
 
         SetNextTriggerTime(now - diff + std::chrono::milliseconds(triggerPeriod), Action());
     }
