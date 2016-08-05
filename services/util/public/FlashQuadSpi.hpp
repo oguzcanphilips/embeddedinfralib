@@ -39,6 +39,7 @@ namespace services
         virtual void EraseSectors(uint32_t beginIndex, uint32_t endIndex, infra::Function<void()> onDone) override;
 
     private:
+        void WriteBufferSequence();
         infra::BoundedVector<uint8_t>::WithMaxSize<4> ConvertAddress(uint32_t address) const;
 
         void WriteEnableSingleSpeed();

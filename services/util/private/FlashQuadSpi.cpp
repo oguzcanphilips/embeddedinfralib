@@ -35,15 +35,8 @@ namespace services
         this->onDone = onDone;
         this->buffer = buffer;
         this->address = address;
-        sequencer.Load([this]()
-        {
-            sequencer.While([this]() { return !this->buffer.empty(); });
-                sequencer.Step([this]() { WriteEnable(); });
-                sequencer.Step([this]() { PageProgram(); });
-                sequencer.Step([this]() { HoldWhileWriteInProgress(); });
-            sequencer.EndWhile();
-            sequencer.Execute([this]() { this->onDone(); });
-        });
+
+        WriteBufferSequence();
     }
 
     void FlashQuadSpi::ReadBuffer(infra::ByteRange buffer, uint32_t address, infra::Function<void()> onDone)
@@ -63,6 +56,19 @@ namespace services
                 sequencer.Step([this]() { WriteEnable(); });
                 sequencer.Step([this, endIndex]() { EraseSomeSectors(endIndex); });
                 sequencer.Step([this]() { HoldWhileWriteInProgress(); });
+            sequencer.EndWhile();
+            sequencer.Execute([this]() { this->onDone(); });
+        });
+    }
+
+    void FlashQuadSpi::WriteBufferSequence()
+    {
+        sequencer.Load([this]()
+        {
+            sequencer.While([this]() { return !this->buffer.empty(); });
+            sequencer.Step([this]() { WriteEnable(); });
+            sequencer.Step([this]() { PageProgram(); });
+            sequencer.Step([this]() { HoldWhileWriteInProgress(); });
             sequencer.EndWhile();
             sequencer.Execute([this]() { this->onDone(); });
         });
