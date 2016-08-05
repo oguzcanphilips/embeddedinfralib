@@ -25,6 +25,10 @@ namespace hal
         virtual void ReadBuffer(infra::ByteRange buffer, uint32_t address) override;
         virtual void EraseSectors(uint32_t beginIndex, uint32_t endIndex) override;
 
+    private:
+        void WriteBufferImpl(infra::ConstByteRange buffer, uint32_t address);
+        void ApplyBuffer(infra::ConstByteRange buffer, uint32_t address, uint32_t size);
+
     public:
         std::vector<std::vector<uint8_t>> sectors;
         infra::Optional<uint8_t> stopAfterWriteSteps;
