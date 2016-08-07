@@ -40,6 +40,7 @@ if(${CCOLA_ARCH} STREQUAL "win")
 		list(APPEND dependencies ${path})
 	endforeach()
 	configure_file(${CCOLA_PACK_DIR_cpp}/cpp_project.depend "${destination}")
+	configure_file(${CCOLA_PACK_DIR_cpp}/components/component_executable/component.vcxproj.user.conf ${CMAKE_CURRENT_BINARY_DIR}/${CCOLA_COMPONENT_NAME}.vcxproj.user)
 endif()
 
 if(${CCOLA_ARCH_FAMILY} STREQUAL cortex)
