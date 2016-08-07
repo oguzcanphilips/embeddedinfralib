@@ -83,6 +83,7 @@ namespace infra
         TextOutputStream& operator<<(uint32_t v);
 #ifndef _MSC_VER
         TextOutputStream& operator<<(int v);
+        TextOutputStream& operator<<(unsigned int v);
 #endif
         TextOutputStream& operator<<(float v);
 

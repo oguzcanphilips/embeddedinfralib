@@ -169,6 +169,16 @@ namespace infra
 
         return *this;
     }
+
+    TextOutputStream& TextOutputStream::operator<<(unsigned int v)
+    {
+        if (decimal)
+            OutputAsDecimal(v);
+        else
+            OutputAsHex(v);
+
+        return *this;
+    }
 #endif
 
     TextOutputStream& TextOutputStream::operator<<(float v)
@@ -271,7 +281,7 @@ namespace infra
     infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const AsAsciiHelper& asAsciiHelper)
     {
         for (uint8_t byte : asAsciiHelper.data)
-            if (byte < 32)
+            if (byte < 32 || byte >= 128)
                 stream << '.';
             else
                 stream << static_cast<char>(byte);
