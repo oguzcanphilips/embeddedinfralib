@@ -28,6 +28,7 @@ namespace hal
     private:
         void WriteBufferImpl(infra::ConstByteRange buffer, uint32_t address);
         void ApplyBuffer(infra::ConstByteRange buffer, uint32_t address, uint32_t size);
+        void ReadBufferPart(infra::ByteRange& buffer, uint32_t& address);
 
     public:
         std::vector<std::vector<uint8_t>> sectors;

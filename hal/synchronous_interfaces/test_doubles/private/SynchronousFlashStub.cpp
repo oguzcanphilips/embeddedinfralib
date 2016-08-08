@@ -57,13 +57,7 @@ namespace hal
     void SynchronousFlashStub::ReadBuffer(infra::ByteRange buffer, uint32_t address)
     {
         while (!buffer.empty())
-        {
-            std::size_t size = std::min<uint32_t>(buffer.size(), SizeOfSector(SectorOfAddress(address)) - AddressOffsetInSector(address));
-            std::copy(sectors[SectorOfAddress(address)].begin() + AddressOffsetInSector(address), sectors[SectorOfAddress(address)].begin() + AddressOffsetInSector(address) + size, buffer.begin());
-
-            buffer.pop_front(size);
-            address = StartOfNextSector(address);
-        }
+            ReadBufferPart(buffer, address);
     }
 
     void SynchronousFlashStub::EraseSectors(uint32_t beginIndex, uint32_t endIndex)
@@ -89,5 +83,14 @@ namespace hal
     {
         for (std::size_t i = 0; i != size; ++i)
             sectors[SectorOfAddress(address)][AddressOffsetInSector(address) + i] &= buffer[i];
+    }
+
+    void SynchronousFlashStub::ReadBufferPart(infra::ByteRange& buffer, uint32_t& address)
+    {
+        std::size_t size = std::min<uint32_t>(buffer.size(), SizeOfSector(SectorOfAddress(address)) - AddressOffsetInSector(address));
+        std::copy(sectors[SectorOfAddress(address)].begin() + AddressOffsetInSector(address), sectors[SectorOfAddress(address)].begin() + AddressOffsetInSector(address) + size, buffer.begin());
+
+        buffer.pop_front(size);
+        address = StartOfNextSector(address);
     }
 }
