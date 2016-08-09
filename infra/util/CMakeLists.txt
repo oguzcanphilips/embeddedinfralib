@@ -3,6 +3,7 @@ ccola_component(util static_library)
 	ccola_inheritable_include_directories(../..)
 
 	ccola_sources(
+		private/CrcCcittCalculator.cpp
 		private/Sequencer.cpp
 		public/AutoResetFunction.hpp
 		public/BitLogic.hpp
@@ -14,6 +15,7 @@ ccola_component(util static_library)
 		public/BoundedVector.hpp
 		public/ByteRange.hpp
 		public/CompareMembers.hpp
+		public/CrcCcittCalculator.hpp
 		public/CyclicBuffer.hpp
 		public/FixedPoint.hpp
 		public/Function.hpp

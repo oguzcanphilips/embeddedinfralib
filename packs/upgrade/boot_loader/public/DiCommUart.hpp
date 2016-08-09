@@ -43,17 +43,6 @@ namespace application
         bool ReceiveData(infra::ByteRange data);
 
     private:
-        class CrcCcittCalculator
-        {
-        public:
-            void Update(infra::ConstByteRange range);
-            uint16_t Result() const;
-
-        private:
-            uint16_t crc = 0xffff;
-        };
-
-    private:
         hal::SynchronousSerialCommunication& communication;
         hal::TimeKeeper& timeKeeper;
 
