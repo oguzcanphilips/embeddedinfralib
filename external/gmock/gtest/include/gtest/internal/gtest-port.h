@@ -692,13 +692,8 @@ class String;
 // the expression is false, most compilers will issue a warning/error
 // containing the name of the variable.
 
-template <bool>
-struct CompileAssert {
-};
-
 #define GTEST_COMPILE_ASSERT_(expr, msg) \
-  typedef ::testing::internal::CompileAssert<(bool(expr))> \
-      msg[bool(expr) ? 1 : -1]
+    static_assert(expr, #msg)
 
 // Implementation details of GTEST_COMPILE_ASSERT_:
 //
