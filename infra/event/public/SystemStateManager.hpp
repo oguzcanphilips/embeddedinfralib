@@ -10,7 +10,7 @@ namespace infra
     class SystemStateBase
     {
     protected:
-        SystemStateBase(void* aIdentifier);
+        explicit SystemStateBase(void* aIdentifier);
 
     public:
         bool operator==(const SystemStateBase& other) const;
@@ -36,7 +36,7 @@ namespace infra
         : public IntrusiveList<SystemStateParticipant>::NodeType
     {
     public:
-        SystemStateParticipant(SystemStateManager& aSystemStateManager);
+        explicit SystemStateParticipant(SystemStateManager& aSystemStateManager);
         ~SystemStateParticipant();
 
     protected:

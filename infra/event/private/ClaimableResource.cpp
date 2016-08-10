@@ -6,13 +6,13 @@ namespace infra
 {
     ClaimableResource::~ClaimableResource()
     {
-        assert(!currentClaim);
+        assert(currentClaim == nullptr);
         assert(pendingClaims.empty());
     }
 
     void ClaimableResource::ReEvaluateClaim()
     {
-        if (!currentClaim && !pendingClaims.empty())
+        if (currentClaim == nullptr && !pendingClaims.empty())
         {
             currentClaim = &pendingClaims.front();
             pendingClaims.pop_front();
@@ -24,7 +24,7 @@ namespace infra
     {
         EnqueueClaimer(claimer);
 
-        if (!currentClaim)
+        if (currentClaim == nullptr)
             infra::EventDispatcher::Instance().Schedule([this]() { ReEvaluateClaim(); });
     }
 

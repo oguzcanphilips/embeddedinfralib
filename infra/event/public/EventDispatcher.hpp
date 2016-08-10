@@ -15,13 +15,13 @@ namespace infra
         template<std::size_t StorageSize>
             using WithSize = infra::WithStorage<EventDispatcher, std::array<std::pair<infra::Function<void()>, std::atomic<bool>>, StorageSize>>;
 
-        EventDispatcher(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage);
+        explicit EventDispatcher(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage);
 
         void Schedule(const infra::Function<void()>& action);
 
         void Run();
 
-        std::size_t MinCapacity();
+        std::size_t MinCapacity() const;
 
     protected:
         virtual void RequestExecution();

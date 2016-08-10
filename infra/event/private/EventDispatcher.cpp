@@ -48,7 +48,7 @@ namespace infra
         }
     }
 
-    std::size_t EventDispatcher::MinCapacity()
+    std::size_t EventDispatcher::MinCapacity() const
     {
         return minCapacity;
     }

@@ -85,7 +85,7 @@ public:
 
 TEST_F(DiCommUartTest, InitializeSendsRequest)
 {
-    EXPECT_CALL(communication, SendDataMock(std::vector<uint8_t>{0xfe, 0xff }));
+    EXPECT_CALL(communication, SendDataMock(std::vector<uint8_t>{ 0xfe, 0xff }));
     EXPECT_CALL(communication, SendDataMock(std::vector<uint8_t>{ 1 }));     // Initialize
     EXPECT_CALL(communication, SendDataMock(std::vector<uint8_t>{ 0, 2 }));  // Length
     EXPECT_CALL(communication, SendDataMock(std::vector<uint8_t>{ 1 }));

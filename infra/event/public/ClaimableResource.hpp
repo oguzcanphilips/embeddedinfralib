@@ -39,10 +39,12 @@ namespace infra
         : public infra::IntrusiveList<ClaimerBase>::NodeType
     {
     public:
-        ClaimerBase(ClaimableResource& resource);
+        explicit ClaimerBase(ClaimableResource& resource);
         ClaimerBase(const ClaimerBase& other) = delete;
-        ~ClaimerBase();
         ClaimerBase& operator=(const ClaimerBase& other) = delete;
+
+    protected:
+        ~ClaimerBase();
 
     public:
         virtual void Release() = 0;
@@ -53,7 +55,7 @@ namespace infra
 
         virtual void ClaimGranted() = 0;
 
-    protected:
+    private:
         ClaimableResource& resource;
         bool isGranted = false;
         bool isQueued = false;
@@ -67,7 +69,7 @@ namespace infra
         template<std::size_t NewExtraSize>
             using WithSize = ClaimerWithSize<NewExtraSize>;
 
-        ClaimerWithSize(ClaimableResource& resource);
+        explicit ClaimerWithSize(ClaimableResource& resource);
 
         void Claim(const infra::Function<void(), ExtraSize>& claimedFunc);
         virtual void Release() override;
