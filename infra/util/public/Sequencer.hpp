@@ -13,10 +13,12 @@ namespace infra
     class Sequencer
     {
     public:
-        void Load(const infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE>& newSequence);
+        using Function = infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE>;
+
+        void Load(const Function& newSequence);
         
-        void Step(const infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE>& action);
-        void Execute(const infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE>& action);
+        void Step(const Function& action);
+        void Execute(const Function& action);
         void If(const infra::Function<bool()>& condition);
         void ElseIf(const infra::Function<bool()>& condition);
         void Else();
@@ -32,7 +34,7 @@ namespace infra
         bool Finished() const;
 
     private:
-        void ExecuteWithoutContext(const infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE>& action);
+        void ExecuteWithoutContext(const Function& action);
 
         void IncreaseCurrentStep();
         bool ExecuteCurrentStep() const;
@@ -44,7 +46,7 @@ namespace infra
         void PopContext();
 
     private:
-        infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE> sequence;
+        Function sequence;
 
         infra::BoundedVector<uint8_t>::WithMaxSize<8> execute;
         infra::BoundedVector<uint8_t>::WithMaxSize<8> examine;

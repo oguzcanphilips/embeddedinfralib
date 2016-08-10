@@ -2,7 +2,7 @@
 
 namespace infra
 {
-    void Sequencer::Load(const infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE>& newSequence)
+    void Sequencer::Load(const Function& newSequence)
     {
         sequence = newSequence;
         execute.clear();
@@ -27,7 +27,7 @@ namespace infra
             ExecuteNextStep();
     }
 
-    void Sequencer::Step(const infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE>& action)
+    void Sequencer::Step(const Function& action)
     {
         if (ExecuteCurrentStep())
             action();
@@ -35,7 +35,7 @@ namespace infra
         IncreaseCurrentStep();
     }
 
-    void Sequencer::Execute(const infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE>& action)
+    void Sequencer::Execute(const Function& action)
     {
         decltype(execute) executeCopy = execute;
         if (executeCopy.size() > examine.size())
@@ -188,7 +188,7 @@ namespace infra
         });
     }
 
-    void Sequencer::ExecuteWithoutContext(const infra::Function<void(), INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE>& action)
+    void Sequencer::ExecuteWithoutContext(const Function& action)
     {
         if (ExecuteCurrentStep())
         {
