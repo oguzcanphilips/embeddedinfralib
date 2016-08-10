@@ -3,9 +3,11 @@ ccola_component(event static_library)
 	ccola_sources(
 		private/ClaimableResource.cpp
 		private/EventDispatcher.cpp
+		private/QueueForOneReaderOneIrqWriter.cpp
 		private/SystemStateManager.cpp
 		public/ClaimableResource.hpp
 		public/EventDispatcher.hpp
+		public/QueueForOneReaderOneIrqWriter.hpp
 		public/SystemStateManager.hpp
 	)
 
