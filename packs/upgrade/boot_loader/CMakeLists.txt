@@ -44,7 +44,6 @@ ccola_component(boot_loader static_library)
 		crypto.tiny_aes128
 		hal.synchronous_interfaces
 		services.synchronous_util
-		di_comm.di_comm
 	)
 
 ccola_end_component()
