@@ -32,8 +32,9 @@ namespace hal
         explicit I2cAddress(uint16_t address);
 
         bool operator==(const I2cAddress& other) const;
+        bool operator!=(const I2cAddress& other) const;
 
-        uint16_t address;
+        uint16_t address;                                   //TICS !INT#002: This is a data class
     };
 
     class I2cMaster

@@ -3,7 +3,6 @@
 
 namespace hal
 {
-
     QuadSpi::Lines::Lines(uint8_t instructionLines, uint8_t addressLines, uint8_t alternateLines, uint8_t dataLines)
         : instructionLines(instructionLines)
         , addressLines(addressLines)

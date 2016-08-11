@@ -48,8 +48,8 @@ namespace hal
 
     public:
         QuadSpi() = default;
-        QuadSpi(QuadSpi& other) = delete;
-        QuadSpi& operator=(QuadSpi& other) = delete;
+        QuadSpi(const QuadSpi& other) = delete;
+        QuadSpi& operator=(const QuadSpi& other) = delete;
 
     protected:
         ~QuadSpi() = default;
