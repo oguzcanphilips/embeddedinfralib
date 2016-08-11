@@ -6,21 +6,22 @@
 
 namespace hal
 {
+    //TICS -INT_2: A mock or stub may have public data
     class FlashMock
         : public hal::Flash
     {
     public:
-        FlashMock(uint32_t numberOfSectors = 4, uint32_t sizeOfSectors = 16);
+        explicit FlashMock(uint32_t numberOfSectors = 4, uint32_t sizeOfSectors = 16);
 
-        uint32_t NumberOfSectors() const override;
-        uint32_t SizeOfSector(uint32_t sectorIndex) const override;
+        virtual uint32_t NumberOfSectors() const override;
+        virtual uint32_t SizeOfSector(uint32_t sectorIndex) const override;
 
-        uint32_t SectorOfAddress(uint32_t address) const override;
-        uint32_t AddressOfSector(uint32_t sectorIndex) const override;
+        virtual uint32_t SectorOfAddress(uint32_t address) const override;
+        virtual uint32_t AddressOfSector(uint32_t sectorIndex) const override;
 
-        void WriteBuffer(infra::ConstByteRange buffer, uint32_t address, infra::Function<void()> onDone) override;
-        void ReadBuffer(infra::ByteRange buffer, uint32_t address, infra::Function<void()> onDone) override;
-        void EraseSectors(uint32_t beginIndex, uint32_t endIndex, infra::Function<void()> onDone) override;
+        virtual void WriteBuffer(infra::ConstByteRange buffer, uint32_t address, infra::Function<void()> onDone) override;
+        virtual void ReadBuffer(infra::ByteRange buffer, uint32_t address, infra::Function<void()> onDone) override;
+        virtual void EraseSectors(uint32_t beginIndex, uint32_t endIndex, infra::Function<void()> onDone) override;
 
         uint32_t numberOfSectors;
         uint32_t sizeOfSectors;
