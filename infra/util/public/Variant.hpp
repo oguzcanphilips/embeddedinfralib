@@ -23,7 +23,7 @@ namespace infra
         template<class U>
             Variant(const U& v);
         template<class U, class... Args>
-            Variant(InPlaceType<U>, Args&&... args);
+            explicit Variant(InPlaceType<U>, Args&&... args);
         template<class... Args>
             Variant(AtIndex, std::size_t index, Args&&... args);
 

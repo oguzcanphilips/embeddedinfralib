@@ -12,7 +12,7 @@ namespace services
         , public infra::ClaimableResource
     {
     public:
-        FlashMultipleAccessMaster(hal::Flash& master);
+        explicit FlashMultipleAccessMaster(hal::Flash& master);
 
         virtual uint32_t NumberOfSectors() const override;
         virtual uint32_t SizeOfSector(uint32_t sectorIndex) const override;
@@ -30,7 +30,7 @@ namespace services
         : public hal::Flash
     {
     public:
-        FlashMultipleAccess(FlashMultipleAccessMaster& master);
+        explicit FlashMultipleAccess(FlashMultipleAccessMaster& master);
 
         virtual uint32_t NumberOfSectors() const override;
         virtual uint32_t SizeOfSector(uint32_t sectorIndex) const override;

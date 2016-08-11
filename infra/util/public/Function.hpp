@@ -99,7 +99,7 @@ namespace infra
 
     public:
         Function() = default;
-        Function(std::nullptr_t);
+        explicit Function(std::nullptr_t);
         Function(const Function& other);
 
         template<class F>

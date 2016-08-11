@@ -8,7 +8,7 @@ namespace hal
     struct CannotOpenFileException
         : std::exception
     {
-        CannotOpenFileException(const std::string& name);
+        explicit CannotOpenFileException(const std::string& name);
 
         std::string name;
     };

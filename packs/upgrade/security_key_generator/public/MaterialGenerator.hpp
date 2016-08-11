@@ -13,7 +13,7 @@ namespace application
     class MaterialGenerator
     {
     public:
-        MaterialGenerator(RandomNumberGenerator& randomNumberGenerator);
+        explicit MaterialGenerator(RandomNumberGenerator& randomNumberGenerator);
         ~MaterialGenerator();
 
         static const std::size_t rsaKeyLength = 1024;

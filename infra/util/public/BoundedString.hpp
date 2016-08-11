@@ -44,20 +44,20 @@ namespace infra
 
     public:
         BoundedStringBase();
-        BoundedStringBase(MemoryRange<NonConstT> range);
+        explicit BoundedStringBase(MemoryRange<NonConstT> range);
         BoundedStringBase(MemoryRange<NonConstT> range, size_type count, char ch);
         BoundedStringBase(MemoryRange<NonConstT> range, const BoundedStringBase& other, size_type pos, size_type count = BoundedStringBase::npos);
         BoundedStringBase(MemoryRange<NonConstT> range, const char* s, size_type count);
         BoundedStringBase(MemoryRange<NonConstT> range, const char* s);
         BoundedStringBase(MemoryRange<NonConstT> range, const std::string& s);
         BoundedStringBase(T* s, size_type count);
-        BoundedStringBase(T* s);
+        BoundedStringBase(T* s);                                                                        //TICS !INT#001
         template<class InputIterator>
             BoundedStringBase(MemoryRange<NonConstT> range, InputIterator first, InputIterator last);
         BoundedStringBase(MemoryRange<NonConstT> range, std::initializer_list<char> initializerList);
         BoundedStringBase(MemoryRange<NonConstT> range, const BoundedStringBase& other);
         BoundedStringBase(const BoundedStringBase& other);
-        template<class U>
+        template<class U>                                                                               //TICS !INT#001
             BoundedStringBase(const BoundedStringBase<U>& other);
 
         BoundedStringBase& operator=(const BoundedStringBase& other);

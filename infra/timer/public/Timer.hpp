@@ -29,7 +29,7 @@ namespace infra
         : public infra::IntrusiveForwardList<Timer>::NodeType
     {
     protected:
-        Timer(uint32_t timerServiceId);
+        explicit Timer(uint32_t timerServiceId);
         Timer(const Timer&) = delete;
         Timer& operator=(const Timer&) = delete;
         ~Timer();

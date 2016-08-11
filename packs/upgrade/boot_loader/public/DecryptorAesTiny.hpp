@@ -11,7 +11,7 @@ namespace application
     public:
         static const std::size_t blockLength = 16;
 
-        DecryptorAesTiny(infra::ConstByteRange key);
+        explicit DecryptorAesTiny(infra::ConstByteRange key);
 
         virtual infra::ByteRange StateBuffer() override;
         virtual void Reset() override;

@@ -12,7 +12,7 @@ namespace services
         , public infra::ClaimableResource
     {
     public:
-        SpiMultipleAccessMaster(hal::SpiMaster& master);
+        explicit SpiMultipleAccessMaster(hal::SpiMaster& master);
 
         virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart) override;
         virtual uint32_t Speed() const override;
@@ -28,7 +28,7 @@ namespace services
         : public hal::SpiMaster
     {
     public:
-        SpiMultipleAccess(SpiMultipleAccessMaster& master);
+        explicit SpiMultipleAccess(SpiMultipleAccessMaster& master);
 
         virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart = infra::emptyFunction) override;
         virtual uint32_t Speed() const override;

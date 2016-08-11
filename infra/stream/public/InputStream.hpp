@@ -16,7 +16,7 @@ namespace infra
     {
     public:
         StreamReader();
-        StreamReader(SoftFail);
+        explicit StreamReader(SoftFail);
         ~StreamReader();
 
         virtual void Extract(ByteRange range) = 0;
@@ -41,7 +41,7 @@ namespace infra
         bool HasFailed() const;
 
     protected:
-        InputStream(StreamReader& reader);
+        explicit InputStream(StreamReader& reader);
 
         StreamReader& Reader();
 
@@ -53,7 +53,7 @@ namespace infra
         : public InputStream
     {
     public:
-        DataInputStream(StreamReader& reader);
+        explicit DataInputStream(StreamReader& reader);
 
         TextInputStream operator>>(Text);
         DataInputStream& operator>>(ForwardStream forward);

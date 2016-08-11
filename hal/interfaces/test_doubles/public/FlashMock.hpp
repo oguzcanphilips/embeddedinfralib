@@ -6,7 +6,7 @@
 
 namespace hal
 {
-    //TICS -INT_2: A mock or stub may have public data
+    //TICS -INT#002: A mock or stub may have public data
     class FlashMock
         : public hal::Flash
     {

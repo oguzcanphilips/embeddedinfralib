@@ -10,7 +10,7 @@ namespace infra
         , public DataInputStream
     {
     public:
-        ByteInputStream(ConstByteRange range);
+        explicit ByteInputStream(ConstByteRange range);
 
         ConstByteRange Processed() const;   // Invariant: Processed() ++ Remaining() == range
         ConstByteRange Remaining() const;

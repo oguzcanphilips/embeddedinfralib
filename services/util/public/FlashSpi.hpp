@@ -27,7 +27,7 @@ namespace services
 
         static const uint8_t statusFlagWriteInProgress = 1;
 
-        FlashSpi(hal::SpiMaster& spi, uint32_t numberOfSubSectors = 512);
+        explicit FlashSpi(hal::SpiMaster& spi, uint32_t numberOfSubSectors = 512);
 
     public:
         virtual void WriteBuffer(infra::ConstByteRange buffer, uint32_t address, infra::Function<void()> onDone) override;

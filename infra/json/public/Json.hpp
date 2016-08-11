@@ -41,7 +41,7 @@ namespace infra
         class LeftBrace
         {
         public:
-            LeftBrace(std::size_t index);
+            explicit LeftBrace(std::size_t index);
 
             bool operator==(const LeftBrace& other) const;
             bool operator!=(const LeftBrace& other) const;
@@ -55,7 +55,7 @@ namespace infra
         class RightBrace
         {
         public:
-            RightBrace(std::size_t index);
+            explicit RightBrace(std::size_t index);
 
             bool operator==(const RightBrace& other) const;
             bool operator!=(const RightBrace& other) const;
@@ -69,7 +69,7 @@ namespace infra
         class LeftBracket
         {
         public:
-            LeftBracket(std::size_t index);
+            explicit LeftBracket(std::size_t index);
 
             bool operator==(const LeftBracket& other) const;
             bool operator!=(const LeftBracket& other) const;
@@ -83,7 +83,7 @@ namespace infra
         class RightBracket
         {
         public:
-            RightBracket(std::size_t index);
+            explicit RightBracket(std::size_t index);
 
             bool operator==(const RightBracket& other) const;
             bool operator!=(const RightBracket& other) const;
@@ -97,7 +97,7 @@ namespace infra
         class String
         {
         public:
-            String(infra::BoundedConstString value);
+            explicit String(infra::BoundedConstString value);
 
             bool operator==(const String& other) const;
             bool operator!=(const String& other) const;
@@ -111,7 +111,7 @@ namespace infra
         class Integer
         {
         public:
-            Integer(int32_t value);
+            explicit Integer(int32_t value);
 
             bool operator==(const Integer& other) const;
             bool operator!=(const Integer& other) const;
@@ -125,7 +125,7 @@ namespace infra
         class Boolean
         {
         public:
-            Boolean(bool value);
+            explicit Boolean(bool value);
 
             bool operator==(const Boolean& other) const;
             bool operator!=(const Boolean& other) const;
@@ -142,7 +142,7 @@ namespace infra
     class JsonTokenizer
     {
     public:
-        JsonTokenizer(infra::BoundedConstString objectString);
+        explicit JsonTokenizer(infra::BoundedConstString objectString);
 
         JsonToken::Token Token();
 
@@ -171,7 +171,7 @@ namespace infra
     {
     public:
         JsonObject() = default;
-        JsonObject(infra::BoundedConstString objectString);
+        explicit JsonObject(infra::BoundedConstString objectString);
 
         infra::BoundedConstString ObjectString() const;
 
@@ -214,7 +214,7 @@ namespace infra
     {
     public:
         JsonArray() = default;
-        JsonArray(infra::BoundedConstString objectString);
+        explicit JsonArray(infra::BoundedConstString objectString);
 
         infra::BoundedConstString ObjectString() const;
 
@@ -244,7 +244,7 @@ namespace infra
     class JsonIterator
     {
     protected:
-        JsonIterator(infra::BoundedConstString objectString);
+        explicit JsonIterator(infra::BoundedConstString objectString);
 
         infra::Optional<JsonValue> ReadValue(JsonToken::Token token);
 
@@ -311,7 +311,7 @@ namespace infra
             friend class JsonValueArrayIterator;
 
         JsonArrayIterator();
-        JsonArrayIterator(JsonArray& jsonArray);
+        explicit JsonArrayIterator(JsonArray& jsonArray);
 
     public:
         bool operator==(const JsonArrayIterator& other) const;

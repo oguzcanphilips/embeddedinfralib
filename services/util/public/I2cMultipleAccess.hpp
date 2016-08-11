@@ -12,7 +12,7 @@ namespace services
         , public infra::ClaimableResource
     {
     public:
-        I2cMultipleAccessMaster(hal::I2cMaster& master);
+        explicit I2cMultipleAccessMaster(hal::I2cMaster& master);
 
         virtual void SendData(hal::I2cAddress address, infra::ConstByteRange data, hal::Action nextAction,
             infra::Function<void(hal::Result, uint32_t numberOfBytesSent)> onSent) override;
@@ -27,7 +27,7 @@ namespace services
         : public hal::I2cMaster
     {
     public:
-        I2cMultipleAccess(I2cMultipleAccessMaster& master);
+        explicit I2cMultipleAccess(I2cMultipleAccessMaster& master);
 
         virtual void SendData(hal::I2cAddress address, infra::ConstByteRange data, hal::Action nextAction,
             infra::Function<void(hal::Result, uint32_t numberOfBytesSent)> onSent) override;

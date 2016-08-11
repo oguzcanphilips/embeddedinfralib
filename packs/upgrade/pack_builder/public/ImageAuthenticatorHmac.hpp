@@ -10,7 +10,7 @@ namespace application
     class ImageAuthenticatorHmac
     {
     public:
-        ImageAuthenticatorHmac(infra::ConstByteRange key);
+        explicit ImageAuthenticatorHmac(infra::ConstByteRange key);
 
         std::vector<uint8_t> GenerateMac(const std::vector<uint8_t>& data) const;
 

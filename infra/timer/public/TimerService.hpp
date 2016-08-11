@@ -10,7 +10,7 @@ namespace infra
         : public infra::IntrusiveForwardList<TimerService>::NodeType
     {
     public:
-        TimerService(uint32_t id);
+        explicit TimerService(uint32_t id);
         TimerService(const TimerService& other) = delete;
         ~TimerService();
         TimerService& operator=(const TimerService& other) = delete;

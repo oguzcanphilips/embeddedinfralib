@@ -17,7 +17,7 @@ namespace infra
     {
     public:
         StreamWriter();
-        StreamWriter(SoftFail);
+        explicit StreamWriter(SoftFail);
         ~StreamWriter();
 
         virtual void Insert(ConstByteRange range) = 0;
@@ -41,7 +41,7 @@ namespace infra
         bool HasFailed() const;
 
     protected:
-        OutputStream(StreamWriter& writer);
+        explicit OutputStream(StreamWriter& writer);
         StreamWriter& Writer();
 
     private:
@@ -52,7 +52,7 @@ namespace infra
         : public OutputStream
     {
     public:
-        DataOutputStream(StreamWriter& writer);
+        explicit DataOutputStream(StreamWriter& writer);
 
         TextOutputStream operator<<(Text);
         DataOutputStream& operator<<(ForwardStream forward);
@@ -111,7 +111,7 @@ namespace infra
             : public FormatterBase
         {
         public:
-            Formatter(T value);
+            explicit Formatter(T value);
             Formatter(const Formatter& other) = default;
             Formatter& operator=(const Formatter& other) = default;
 
@@ -140,7 +140,7 @@ namespace infra
     class AsAsciiHelper
     {
     public:
-        AsAsciiHelper(infra::ConstByteRange data);
+        explicit AsAsciiHelper(infra::ConstByteRange data);
 
         friend infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const AsAsciiHelper& asAsciiHelper);
 
@@ -151,7 +151,7 @@ namespace infra
     class AsHexHelper
     {
     public:
-        AsHexHelper(infra::ConstByteRange data);
+        explicit AsHexHelper(infra::ConstByteRange data);
 
         friend infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const AsHexHelper& asHexHelper);
 

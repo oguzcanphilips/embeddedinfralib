@@ -14,7 +14,7 @@ namespace services
         static const uint32_t sizeSubSector = 4096;
         static const uint32_t sizePage = 256;
 
-        SynchronousFlashQuadSpi(hal::SynchronousQuadSpi& quadSpi);
+        explicit SynchronousFlashQuadSpi(hal::SynchronousQuadSpi& quadSpi);
 
         virtual void WriteBuffer(infra::ConstByteRange buffer, uint32_t address) override;
         virtual void ReadBuffer(infra::ByteRange buffer, uint32_t address) override;

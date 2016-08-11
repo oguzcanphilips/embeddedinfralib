@@ -11,7 +11,7 @@ namespace application
     class PackUpgrader
     {
     public:
-        PackUpgrader(hal::SynchronousFlash& upgradePackFlash);
+        explicit PackUpgrader(hal::SynchronousFlash& upgradePackFlash);
 
         void UpgradeFromImages(infra::MemoryRange<ImageUpgrader*> imageUpgraders);
 

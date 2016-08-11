@@ -11,7 +11,7 @@ namespace services
     class CyclicStore
     {
     public:
-        CyclicStore(hal::Flash& flash);
+        explicit CyclicStore(hal::Flash& flash);
         CyclicStore(const CyclicStore& other) = delete;
         CyclicStore& operator=(const CyclicStore& other) = delete;
 

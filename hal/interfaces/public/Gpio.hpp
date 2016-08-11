@@ -53,7 +53,7 @@ namespace hal
     class InputPin
     {
     public:
-        InputPin(GpioPin& pin);
+        explicit InputPin(GpioPin& pin);
         InputPin(const InputPin& other) = delete;
         InputPin& operator=(const InputPin& other) = delete;
         ~InputPin();
@@ -70,7 +70,7 @@ namespace hal
     class OutputPin
     {
     public:
-        OutputPin(GpioPin& pin, bool startState = false);
+        explicit OutputPin(GpioPin& pin, bool startState = false);
         OutputPin(const OutputPin& other) = delete;
         OutputPin& operator=(const OutputPin& other) = delete;
         ~OutputPin();
@@ -85,7 +85,7 @@ namespace hal
     class TriStatePin
     {
     public:
-        TriStatePin(GpioPin& pin);
+        explicit TriStatePin(GpioPin& pin);
         TriStatePin(GpioPin& pin, bool startOutputState);
         TriStatePin(const TriStatePin& other) = delete;
         TriStatePin& operator=(const TriStatePin& other) = delete;
@@ -123,7 +123,7 @@ namespace hal
     class ScopedHigh
     {
     public:
-        ScopedHigh(OutputPin& pin);
+        explicit ScopedHigh(OutputPin& pin);
         ~ScopedHigh();
 
     private:
@@ -133,7 +133,7 @@ namespace hal
     class ScopedLow
     {
     public:
-        ScopedLow(OutputPin& pin);
+        explicit ScopedLow(OutputPin& pin);
         ~ScopedLow();
 
     private:

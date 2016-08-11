@@ -10,7 +10,7 @@ namespace services
         : public hal::GpioPin
     {
     public:
-        GpioPinInverted(hal::GpioPin& pin);
+        explicit GpioPinInverted(hal::GpioPin& pin);
 
         virtual bool Get() const override;
         virtual void Set(bool value) override;

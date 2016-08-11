@@ -17,7 +17,7 @@ namespace application
         : private fsm::CommandLineParser
     {
     public:
-        Compiler(hal::FileSystem& fileSystem);
+        explicit Compiler(hal::FileSystem& fileSystem);
 
         void AddParameter(const std::string& parameter);
         void Compile();

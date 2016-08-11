@@ -16,7 +16,7 @@ namespace infra
 
     public:
         AutoResetFunction() = default;
-        AutoResetFunction(std::nullptr_t);
+        explicit AutoResetFunction(std::nullptr_t);
         AutoResetFunction(const AutoResetFunction& other) = default;
 
         template<class F>

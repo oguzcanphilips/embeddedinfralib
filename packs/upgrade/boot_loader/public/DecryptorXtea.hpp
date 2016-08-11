@@ -12,7 +12,7 @@ namespace application
     public:
         static const std::size_t blockLength = 8;
 
-        DecryptorXtea(infra::ConstByteRange key);
+        explicit DecryptorXtea(infra::ConstByteRange key);
 
         virtual infra::ByteRange StateBuffer() override;
         virtual void Reset() override;

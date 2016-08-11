@@ -49,7 +49,7 @@ namespace infra
         struct ConstructVisitor
             : StaticVisitor<void>
         {
-            ConstructVisitor(Variant<T...>& aVariant);
+            explicit ConstructVisitor(Variant<T...>& aVariant);
 
             template<class T2>
                 void operator()(const T2& v);
@@ -62,7 +62,7 @@ namespace infra
         struct CopyVisitor
             : StaticVisitor<void>
         {
-            CopyVisitor(Variant<T...>& aVariant);
+            explicit CopyVisitor(Variant<T...>& aVariant);
 
             template<class T2>
                 void operator()(const T2& v);
@@ -103,7 +103,7 @@ namespace infra
         struct ConstructPolymorphicVisitor
             : StaticVisitor<void>
         {
-            ConstructPolymorphicVisitor(PolymorphicVariant<Base, T...>& aVariant);
+            explicit ConstructPolymorphicVisitor(PolymorphicVariant<Base, T...>& aVariant);
 
             template<class T2>
                 void operator()(const T2& v);
@@ -116,7 +116,7 @@ namespace infra
         struct CopyPolymorphicVisitor
             : StaticVisitor<void>
         {
-            CopyPolymorphicVisitor(PolymorphicVariant<Base, T...>& aVariant);
+            explicit CopyPolymorphicVisitor(PolymorphicVariant<Base, T...>& aVariant);
 
             template<class T2>
                 void operator()(const T2& v);

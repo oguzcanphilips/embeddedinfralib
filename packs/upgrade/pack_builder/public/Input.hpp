@@ -9,7 +9,7 @@ namespace application
     class Input
     {
     public:
-        Input(const std::string& targetName);
+        explicit Input(const std::string& targetName);
         virtual ~Input() = default;
 
         std::string TargetName() const;

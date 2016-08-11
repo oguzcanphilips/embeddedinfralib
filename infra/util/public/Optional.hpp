@@ -39,9 +39,9 @@ namespace infra
 
         Optional(const Optional& other);
         Optional(Optional&& other);
-        Optional(None);
+        Optional(None);                                             //TICS !INT_1
         template<class... Args>
-            Optional(InPlace, Args&&... args);
+            explicit Optional(InPlace, Args&&... args);
 
         ~Optional();
 

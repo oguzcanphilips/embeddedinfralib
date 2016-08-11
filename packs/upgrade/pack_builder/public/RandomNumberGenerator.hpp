@@ -33,7 +33,7 @@ namespace application
         : public RandomNumberGenerator
     {
     public:
-        FixedRandomNumberGenerator(const std::vector<uint8_t>& initialData);
+        explicit FixedRandomNumberGenerator(const std::vector<uint8_t>& initialData);
 
         virtual std::vector<uint8_t> Generate(std::size_t n) override;
 

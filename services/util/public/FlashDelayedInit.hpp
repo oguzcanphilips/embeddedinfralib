@@ -10,7 +10,7 @@ namespace services
         : public hal::Flash
     {
     public:
-        FlashDelayedInit(hal::Flash& master);
+        explicit FlashDelayedInit(hal::Flash& master);
 
     public:
         virtual uint32_t NumberOfSectors() const override;

@@ -9,7 +9,7 @@ namespace application
         : public Verifier
     {
     public:
-        VerifierEcDsa(infra::ConstByteRange key);
+        explicit VerifierEcDsa(infra::ConstByteRange key);
 
         virtual bool IsValid(hal::SynchronousFlash& flash, const hal::SynchronousFlash::Range& signature, const hal::SynchronousFlash::Range& data) const override;
 

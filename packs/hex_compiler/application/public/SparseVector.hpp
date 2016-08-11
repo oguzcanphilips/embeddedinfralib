@@ -12,7 +12,7 @@ namespace application
     struct OverwriteException
         : std::exception
     {
-        OverwriteException(std::size_t position);
+        explicit OverwriteException(std::size_t position);
 
         std::size_t position;
     };

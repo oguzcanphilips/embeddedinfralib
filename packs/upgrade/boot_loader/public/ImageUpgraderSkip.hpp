@@ -10,7 +10,7 @@ namespace application
         : public ImageUpgrader
     {
     public:
-        ImageUpgraderSkip(const char* targetName);
+        explicit ImageUpgraderSkip(const char* targetName);
 
         virtual bool Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress) override;
 
