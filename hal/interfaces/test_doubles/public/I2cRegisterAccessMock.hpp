@@ -6,6 +6,7 @@
 
 namespace hal
 {
+    //TICS -INT#002: A mock or stub may have public data
     class I2cMasterRegisterAccessMock
         : public hal::I2cMaster
     {
