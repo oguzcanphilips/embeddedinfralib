@@ -31,12 +31,12 @@ namespace application
     int BuildUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
         const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey)
     {
-        UpgradePackBuilderFacade builderFacade(headerInfo, supportedHexTargets, supportedBinaryTargets, argc, argv, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey);
+        UpgradePackBuilderFacade builderFacade(headerInfo);
+        builderFacade.Build(supportedHexTargets, supportedBinaryTargets, argc, argv, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey);
         return builderFacade.Result();
     }
 
-    UpgradePackBuilderFacade::UpgradePackBuilderFacade(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
-        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey)
+    UpgradePackBuilderFacade::UpgradePackBuilderFacade(const application::UpgradePackBuilder::HeaderInfo& headerInfo)
         : headerInfo(headerInfo)
     {
         // Hopefully unneeded, but just in case anyone uses the rand() function seed it with something quasi-random
@@ -45,7 +45,11 @@ namespace application
         // Initialize the MbedTLS memory pool
         unsigned char memory_buf[100000];
         mbedtls_memory_buffer_alloc_init(memory_buf, sizeof(memory_buf));
+    }
 
+    void UpgradePackBuilderFacade::Build(const std::vector<std::string>& supportedHexTargets,
+        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey)
+    {
         try
         {
             if (argc < 3)

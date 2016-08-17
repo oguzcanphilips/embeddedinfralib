@@ -31,13 +31,13 @@ namespace application
     int BuildReferenceUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
         const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey)
     {
-        ReferenceUpgradePackBuilderFacade builderFacade(headerInfo, supportedHexTargets, supportedBinaryTargets, argc, argv, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey);
+        ReferenceUpgradePackBuilderFacade builderFacade(headerInfo);
+        builderFacade.Build(supportedHexTargets, supportedBinaryTargets, argc, argv, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey);
         return builderFacade.Result();
     }
 
-    ReferenceUpgradePackBuilderFacade::ReferenceUpgradePackBuilderFacade(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
-        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey)
-        : UpgradePackBuilderFacade(headerInfo, supportedHexTargets, supportedBinaryTargets, argc, argv, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey)
+    ReferenceUpgradePackBuilderFacade::ReferenceUpgradePackBuilderFacade(const application::UpgradePackBuilder::HeaderInfo& headerInfo)
+        : UpgradePackBuilderFacade(headerInfo)
     {}
 
     void ReferenceUpgradePackBuilderFacade::ParseArgument(int& index, int argc, const char* argv[])
