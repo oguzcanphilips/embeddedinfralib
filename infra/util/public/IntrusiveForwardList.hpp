@@ -127,7 +127,7 @@ namespace infra
         public:
             IntrusiveForwardListIterator();
             explicit IntrusiveForwardListIterator(const IntrusiveForwardListNode<typename std::remove_const<T>::type>* node);
-            template<class T2>
+            template<class T2>                                                                          //TICS !INT#001
                 IntrusiveForwardListIterator(const IntrusiveForwardListIterator<T2>& other);
 
             template<class T2>

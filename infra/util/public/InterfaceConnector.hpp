@@ -63,14 +63,6 @@ namespace infra
         static DerivedClass* sInstance;
     };
 
-    template<class BaseClass, class DerivedClass>
-    class InterfaceConnectorDescendant
-        : public BaseClass
-    {
-    public:
-        static DerivedClass& Instance();
-    };
-
     ////    Implementation    ////
 
     template<class DerivedClass>
@@ -102,13 +94,6 @@ namespace infra
 
     template<class DerivedClass>
     DerivedClass* InterfaceConnector<DerivedClass>::sInstance = nullptr;
-
-    template<class BaseClass, class DerivedClass>
-    DerivedClass& InterfaceConnectorDescendant<BaseClass, DerivedClass>::Instance()
-    {
-        return static_cast<DerivedClass&>(BaseClass::Instance());
-    }
-
 }
 
 #endif

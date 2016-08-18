@@ -48,7 +48,6 @@ namespace infra
 
     namespace detail
     {
-
         template<class Signature, std::size_t ExtraSize>
         struct InvokerFunctions;
 
@@ -102,7 +101,7 @@ namespace infra
         explicit Function(std::nullptr_t);
         Function(const Function& other);
 
-        template<class F>
+        template<class F>                                                               //TICS !INT#001
             Function(F f);
 
         ~Function();
@@ -428,7 +427,6 @@ namespace infra
     {
         return !(f == nullptr);
     }
-
 }
 
 #endif

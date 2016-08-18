@@ -42,6 +42,8 @@ namespace infra
 
     protected:
         explicit OutputStream(StreamWriter& writer);
+        ~OutputStream() = default;
+
         StreamWriter& Writer();
 
     private:

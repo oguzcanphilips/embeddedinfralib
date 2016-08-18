@@ -182,7 +182,7 @@ namespace infra
                 reader.Peek(c);
             }
         }
-        v = (float)frac;
+        v = static_cast<float>(frac);
         v /= div;
         v += integer;
         return *this;
@@ -192,7 +192,7 @@ namespace infra
     {
         while (*literal)
         {
-            uint8_t c;
+            uint8_t c = 0;
             Reader().Extract(c);
             Reader().ReportResult(c == *literal);
             ++literal;
@@ -203,7 +203,7 @@ namespace infra
 
     void TextInputStream::SkipSpaces()
     {
-        uint8_t c;
+        uint8_t c = 0;
         Reader().Peek(c);
         while (c == ' ')
         {
@@ -231,7 +231,7 @@ namespace infra
     void TextInputStream::ReadAsDecimal(int32_t& v)
     {
         SkipSpaces();
-        uint8_t c;
+        uint8_t c = 0;
         Reader().Peek(c);
         if (c == '-')
         {
@@ -242,7 +242,7 @@ namespace infra
         {
             v = 1;
         }
-        uint32_t vp;
+        uint32_t vp = 0;
         ReadAsDecimal(vp);
         v *= vp;
     }
@@ -254,7 +254,7 @@ namespace infra
         v = 0;
         for (std::size_t i = 0; (i != width.ValueOr(std::numeric_limits<std::size_t>::max()) && !Reader().Empty()) || i == 0; ++i)
         {
-            uint8_t c;
+            uint8_t c = 0;
             Reader().Peek(c);
 
             if (c >= '0' && c <= '9')
@@ -271,7 +271,7 @@ namespace infra
     void TextInputStream::ReadAsHex(int32_t& v)
     {
         SkipSpaces();
-        uint8_t c;
+        uint8_t c = 0;
         Reader().Peek(c);
         if (c == '-')
         {
@@ -282,7 +282,7 @@ namespace infra
         {
             v = 1;
         }
-        uint32_t vp;
+        uint32_t vp = 0;
         ReadAsHex(vp);
         v *= vp;
     }
@@ -295,7 +295,7 @@ namespace infra
 
         for (std::size_t i = 0; (i != width.ValueOr(std::numeric_limits<std::size_t>::max()) && !Reader().Empty()) || i == 0; ++i)
         {
-            uint8_t c;
+            uint8_t c = 0;
             Reader().Peek(c);
 
             if (c >= '0' && c <= '9')

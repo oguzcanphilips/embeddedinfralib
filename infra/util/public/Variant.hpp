@@ -18,10 +18,10 @@ namespace infra
 
         Variant();
         Variant(const Variant& other);
-        template<class... T2>
+        template<class... T2>                                                                   //TICS !INT#001
             Variant(const Variant<T2...>& other);
-        template<class U>
-            Variant(const U& v);
+        template<class U>                                                                       //TICS !INT#001
+            Variant(const U& v);                                                                //TICS !INT#001
         template<class U, class... Args>
             explicit Variant(InPlaceType<U>, Args&&... args);
         template<class... Args>

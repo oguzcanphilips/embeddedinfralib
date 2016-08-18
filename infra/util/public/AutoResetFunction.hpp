@@ -19,7 +19,7 @@ namespace infra
         explicit AutoResetFunction(std::nullptr_t);
         AutoResetFunction(const AutoResetFunction& other) = default;
 
-        template<class F>
+        template<class F>                                                               //TICS !INT#001
             AutoResetFunction(F f);
 
         ~AutoResetFunction() = default;

@@ -75,9 +75,7 @@ namespace infra
     };
 
     template<class Base, class... Derived>
-    class StaticStorageForInheritanceTree
-        : public StaticStorageForPolymorphicObjects<Base, MaxSizeOfTypes<Derived...>::value - sizeof(Base), typename MaxAlignmentType<Derived...>::Type>
-    {};
+    using StaticStorageForInheritanceTree = StaticStorageForPolymorphicObjects<Base, MaxSizeOfTypes<Derived...>::value - sizeof(Base), typename MaxAlignmentType<Derived...>::Type>;
 
     ////    Implementation    ////
 

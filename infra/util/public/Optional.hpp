@@ -96,9 +96,9 @@ namespace infra
         OptionalForPolymorphicObjects();
 
         OptionalForPolymorphicObjects(const OptionalForPolymorphicObjects& other) = delete;
-        template<class Derived, std::size_t OtherExtraSize>
+        template<class Derived, std::size_t OtherExtraSize>                                             //TICS !INT#001
             OptionalForPolymorphicObjects(const OptionalForPolymorphicObjects<Derived, OtherExtraSize>& other, typename std::enable_if<std::is_base_of<T, Derived>::value>::type* = 0);
-        OptionalForPolymorphicObjects(None);
+        OptionalForPolymorphicObjects(None);                                                            //TICS !INT#001
         template<class Derived, class... Args>
             OptionalForPolymorphicObjects(InPlaceType<Derived>, Args&&... args);
 

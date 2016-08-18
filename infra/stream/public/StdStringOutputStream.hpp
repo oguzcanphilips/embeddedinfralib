@@ -8,7 +8,7 @@
 
 namespace infra
 {
-    class StdStringOutputStream
+    class StdStringOutputStream                                                         //TICS !OOP#013
         : private StreamWriter
         , public TextOutputStream
     {

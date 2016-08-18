@@ -50,7 +50,7 @@ namespace infra
 
         infra::BoundedVector<uint8_t>::WithMaxSize<8> execute;
         infra::BoundedVector<uint8_t>::WithMaxSize<8> examine;
-        bool repeat;
+        bool repeat = false;
     };
 }
 

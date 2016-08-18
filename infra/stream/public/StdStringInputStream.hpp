@@ -8,7 +8,7 @@
 
 namespace infra
 {
-    class StdStringInputStream
+    class StdStringInputStream                                                          //TICS !OOP#013
         : private StreamReader
         , public TextInputStream
     {

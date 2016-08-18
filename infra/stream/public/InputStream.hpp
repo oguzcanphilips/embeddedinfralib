@@ -42,6 +42,7 @@ namespace infra
 
     protected:
         explicit InputStream(StreamReader& reader);
+        ~InputStream() = default;
 
         StreamReader& Reader();
 

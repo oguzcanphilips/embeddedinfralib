@@ -7,13 +7,14 @@
 
 namespace infra
 {
-    class StringInputStream
+    class StringInputStream                                             //TICS !OOP#013
         : private StreamReader
         , public TextInputStream
     {
     public:
         explicit StringInputStream(const BoundedConstString& string);
         StringInputStream(const BoundedConstString& string, SoftFail);
+
     private:
         virtual void Extract(ByteRange range) override;
         virtual void Extract(uint8_t& element) override;
