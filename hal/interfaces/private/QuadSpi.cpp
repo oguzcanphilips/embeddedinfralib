@@ -50,7 +50,7 @@ namespace hal
 
         for (uint8_t i = 0; i != numberOfBytes; ++i)
         {
-            result.push_back(address);
+            result.push_back(static_cast<uint8_t>(address));
             address >>= 8;
         }
 

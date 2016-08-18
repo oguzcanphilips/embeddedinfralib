@@ -53,7 +53,7 @@ namespace application
                     result.push_back(HexLine(4, 0, std::vector<uint8_t>{ static_cast<uint8_t>(linearAddress >> 8), static_cast<uint8_t>(linearAddress) }));
                 }
 
-                result.push_back(HexLine(0, startAddress, line));
+                result.push_back(HexLine(0, static_cast<uint16_t>(startAddress), line));
             }
         }
 

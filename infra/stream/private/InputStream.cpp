@@ -121,7 +121,7 @@ namespace infra
     {
         int32_t v32;
         Read(v32);
-        v = v32;
+        v = static_cast<int8_t>(v32);
         return *this;
     }
 
@@ -129,7 +129,7 @@ namespace infra
     {
         int32_t v32;
         Read(v32);
-        v = v32;
+        v = static_cast<int16_t>(v32);
         return *this;
     }
 
@@ -143,7 +143,7 @@ namespace infra
     {
         uint32_t v32;
         Read(v32);
-        v = v32;
+        v = static_cast<uint8_t>(v32);
         return *this;
     }
 
@@ -151,7 +151,7 @@ namespace infra
     {
         uint32_t v32;
         Read(v32);
-        v = v32;
+        v = static_cast<uint16_t>(v32);
         return *this;
     }
 

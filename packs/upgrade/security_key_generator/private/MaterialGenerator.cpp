@@ -131,10 +131,10 @@ namespace application
         std::vector<uint8_t> m;
         for (uint32_t word: n)
         {
-            m.push_back(word);
-            m.push_back(word >> 8);
-            m.push_back(word >> 16);
-            m.push_back(word >> 24);
+            m.push_back(static_cast<uint8_t>(word));
+            m.push_back(static_cast<uint8_t>(word >> 8));
+            m.push_back(static_cast<uint8_t>(word >> 16));
+            m.push_back(static_cast<uint8_t>(word >> 24));
         }
 
         PrintVector(output, name, m);
@@ -144,7 +144,7 @@ namespace application
     {
         output << "const std::array<uint8_t, " << vector.size() << "> " << name << " = { {";
 
-        for (int i = 0; i != vector.size(); i++)
+        for (std::size_t i = 0; i != vector.size(); i++)
         {
             if (i % 8 == 0)
                 output << "\n    ";
