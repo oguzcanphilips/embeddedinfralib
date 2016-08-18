@@ -1,3 +1,4 @@
+#include "infra/event/public/EventDispatcher.hpp"
 #include "services/util/public/FlashQuadSpi.hpp"
 
 namespace services
@@ -26,7 +27,7 @@ namespace services
             sequencer.Step([this]() { initDelayTimer.Start(std::chrono::milliseconds(1), [this]() { sequencer.Continue(); }); });
             sequencer.Step([this]() { WriteEnableSingleSpeed(); });
             sequencer.Step([this]() { SwitchToQuadSpeed(); });
-            sequencer.Step([this]() { this->onInitialized(); });
+            sequencer.Step([this]() { infra::EventDispatcher::Instance().Schedule([this]() { this->onInitialized(); }); });
         });
     }
 
@@ -57,7 +58,7 @@ namespace services
                 sequencer.Step([this, endIndex]() { EraseSomeSectors(endIndex); });
                 sequencer.Step([this]() { HoldWhileWriteInProgress(); });
             sequencer.EndWhile();
-            sequencer.Execute([this]() { this->onDone(); });
+            sequencer.Execute([this]() { infra::EventDispatcher::Instance().Schedule([this]() { this->onDone(); }); });
         });
     }
 
@@ -70,7 +71,7 @@ namespace services
             sequencer.Step([this]() { PageProgram(); });
             sequencer.Step([this]() { HoldWhileWriteInProgress(); });
             sequencer.EndWhile();
-            sequencer.Execute([this]() { this->onDone(); });
+            sequencer.Execute([this]() { infra::EventDispatcher::Instance().Schedule([this]() { this->onDone(); }); });
         });
     }
 

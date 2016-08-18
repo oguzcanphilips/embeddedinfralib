@@ -29,7 +29,7 @@ namespace services
                 sequencer.Step([this]() { PageProgram(); });
                 HoldWhileWriteInProgress();
             sequencer.EndWhile();
-            sequencer.Execute([this]() { this->onDone(); });
+            sequencer.Execute([this]() { infra::EventDispatcher::Instance().Schedule([this]() { this->onDone(); }); });
         });
     }
 
