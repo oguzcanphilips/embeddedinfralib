@@ -8,7 +8,7 @@
 #include <type_traits>
 #include <vector>
 
-#if defined(_MSC_VER) && _MSC_VER < 1900
+#if defined(_MSC_VER) && _MSC_VER < 1900                                            //TICS !POR#021
 #define constexpr
 #endif
 

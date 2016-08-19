@@ -2,6 +2,8 @@
 
 namespace application
 {
+    DecryptorNone ImageUpgraderSkip::decryptorNone;
+
     ImageUpgraderSkip::ImageUpgraderSkip(const char* targetName)
         : ImageUpgrader(targetName, decryptorNone)
     {}

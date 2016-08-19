@@ -24,7 +24,7 @@ namespace infra
     class StaticStorage
     {
     public:
-#ifndef _MSC_VER
+#ifndef _MSC_VER                                                                                                                        //TICS !POR#021
         constexpr StaticStorage() = default;
         StaticStorage(const StaticStorage&) = delete;
         StaticStorage operator=(const StaticStorage&) = delete;
@@ -53,7 +53,7 @@ namespace infra
         static_assert(std::has_virtual_destructor<T>::value, "T needs to have a virtual destructor");
 
     public:
-#ifndef _MSC_VER
+#ifndef _MSC_VER                                                                                                                            //TICS !POR#021
         constexpr StaticStorageForPolymorphicObjects() = default;
         StaticStorageForPolymorphicObjects(const StaticStorageForPolymorphicObjects&) = delete;
         StaticStorageForPolymorphicObjects operator=(const StaticStorageForPolymorphicObjects&) = delete;

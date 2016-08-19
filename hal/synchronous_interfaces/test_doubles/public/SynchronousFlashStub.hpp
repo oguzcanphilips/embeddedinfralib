@@ -6,7 +6,7 @@
 
 namespace hal
 {
-
+    //TICS -INT#002: A mock or stub may have public data
     class SynchronousFlashStub
         : public hal::SynchronousFlash
     {
@@ -34,7 +34,6 @@ namespace hal
         std::vector<std::vector<uint8_t>> sectors;
         infra::Optional<uint8_t> stopAfterWriteSteps;
     };
-
 }
 
 #endif

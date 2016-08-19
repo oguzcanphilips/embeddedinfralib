@@ -4,8 +4,8 @@
 #include "infra/util/public/BoundedVector.hpp"
 #include "infra/util/public/Function.hpp"
 
-#ifndef INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE
-#define INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE INFRA_DEFAULT_FUNCTION_EXTRA_SIZE + 8
+#ifndef INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE                                                                     //TICS !POR#021
+#define INFRA_SEQUENCER_FUNCTION_EXTRA_SIZE (INFRA_DEFAULT_FUNCTION_EXTRA_SIZE + 8)
 #endif
 
 namespace infra

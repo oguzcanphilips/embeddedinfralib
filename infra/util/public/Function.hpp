@@ -30,11 +30,11 @@
 #include <tuple>
 #include <type_traits>
 
-#ifndef INFRA_DEFAULT_FUNCTION_EXTRA_SIZE
+#ifndef INFRA_DEFAULT_FUNCTION_EXTRA_SIZE                                                                   //TICS !POR#021
 #define INFRA_DEFAULT_FUNCTION_EXTRA_SIZE 8
 #endif
 
-#ifndef UTIL_FUNCTION_ALIGNMENT
+#ifndef UTIL_FUNCTION_ALIGNMENT                                                                             //TICS !POR#021
 #define UTIL_FUNCTION_ALIGNMENT uint32_t
 #endif
 
@@ -258,7 +258,7 @@ namespace infra
     template<std::size_t ExtraSize, class Result, class... Args>
     void Function<Result(Args...), ExtraSize>::CopyConstruct(const StorageType& from, StorageType& to)
     {
-        if (from.virtualMethodTable->copyConstruct)
+        if (from.virtualMethodTable->copyConstruct != nullptr)
             from.virtualMethodTable->copyConstruct(from, to);
         else
             Copy(MakeByteRange(from), MakeByteRange(to));
@@ -267,7 +267,7 @@ namespace infra
     template<std::size_t ExtraSize, class Result, class... Args>
     void Function<Result(Args...), ExtraSize>::Destruct(StorageType& storage)
     {
-        if (storage.virtualMethodTable->destruct)
+        if (storage.virtualMethodTable->destruct != nullptr)
             storage.virtualMethodTable->destruct(storage);
     }
 

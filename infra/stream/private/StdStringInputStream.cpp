@@ -21,22 +21,24 @@ namespace infra
         string.erase(0, range.size());
     }
 
-    void StdStringInputStream::Extract(uint8_t& element)
+    uint8_t StdStringInputStream::ExtractOne()
     {
-        Peek(element);
+        uint8_t element = Peek();
 
         if (!string.empty())
             string.erase(0, 1);
+
+        return element;
     }
 
-    void StdStringInputStream::Peek(uint8_t& element)
+    uint8_t StdStringInputStream::Peek()
     {
         Reader().ReportResult(!string.empty());
 
         if (string.empty())
-            element = 0;
+            return 0;
         else
-            element = string.front();
+            return string.front();
     }
 
     void StdStringInputStream::Forward(std::size_t amount)

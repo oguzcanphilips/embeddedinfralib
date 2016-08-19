@@ -16,7 +16,7 @@ namespace application
         : public UpgradePackBuilderFacade
     {
     public:
-        ReferenceUpgradePackBuilderFacade(const application::UpgradePackBuilder::HeaderInfo& headerInfo);
+        explicit ReferenceUpgradePackBuilderFacade(const application::UpgradePackBuilder::HeaderInfo& headerInfo);
     
     private:
         virtual void ParseArgument(int& index, int argc, const char* argv[]) override;

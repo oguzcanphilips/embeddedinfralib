@@ -3,7 +3,10 @@
 
 namespace infra
 {
-    TimerServiceManager timerServiceManager;
+    namespace
+    {
+        TimerServiceManager timerServiceManager;
+    }
     
     void TimerServiceManager::RegisterTimerService(TimerService& timerService)
     {

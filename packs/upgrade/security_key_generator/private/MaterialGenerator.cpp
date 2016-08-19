@@ -13,7 +13,7 @@ namespace application
 
     MaterialGenerator::MaterialGenerator(RandomNumberGenerator& randomNumberGenerator)
     {
-        this->randomNumberGenerator = &randomNumberGenerator;
+        MaterialGenerator::randomNumberGenerator = &randomNumberGenerator;
 
         aesKey = randomNumberGenerator.Generate(aesKeyLength / 8);
         xteaKey = randomNumberGenerator.Generate(xteaKeyLength / 8);
@@ -53,7 +53,7 @@ namespace application
         if (ret != 0)
             throw std::exception("mbedtls_rsa_gen_key returned an error");
 
-        mbedtls_rsa_context* rsaContext = (mbedtls_rsa_context*)(pk.pk_ctx);
+        mbedtls_rsa_context* rsaContext = static_cast<mbedtls_rsa_context*>(pk.pk_ctx);
         mbedtls_rsa_set_padding(rsaContext, MBEDTLS_RSA_PKCS_V21, MBEDTLS_MD_SHA256);
 
         ret = mbedtls_rsa_check_privkey(rsaContext);
@@ -76,7 +76,7 @@ namespace application
         if (!file)
             throw std::exception((std::string("Cannot open/create: ") + fileName).c_str());
 
-        mbedtls_rsa_context* rsaContext = (mbedtls_rsa_context*)(pk.pk_ctx);
+        mbedtls_rsa_context* rsaContext = static_cast<mbedtls_rsa_context*>(pk.pk_ctx);
 
         file << R"(#include "upgrade_keys/Keys.hpp"
 

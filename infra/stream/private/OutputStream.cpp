@@ -121,7 +121,7 @@ namespace infra
 
     TextOutputStream& TextOutputStream::operator<<(char c)
     {
-        Writer().Insert(c);
+        Writer().Insert(static_cast<uint8_t>(c));
         return *this;
     }
 
@@ -157,7 +157,7 @@ namespace infra
         return *this;
     }
 
-#ifndef _MSC_VER
+#ifndef _MSC_VER                                                                                                    //TICS !POR#021
     TextOutputStream& TextOutputStream::operator<<(int v)
     {
         if (v < 0)
@@ -211,12 +211,12 @@ namespace infra
         }
 
         if (width)
-          for (std::size_t i = nofDigits; i < width->width; ++i)
-                Writer().Insert(width->padding);
+            for (std::size_t i = nofDigits; i < width->width; ++i)
+                Writer().Insert(static_cast<uint8_t>(width->padding));
 
-        while (mask)
+        while (mask != 0)
         {
-            Writer().Insert(static_cast<char>(((v / mask) % 10) + '0'));
+            Writer().Insert(static_cast<uint8_t>(((v / mask) % 10) + '0'));
             mask /= 10;
         }
     }
@@ -236,21 +236,21 @@ namespace infra
 
         if (width)
             for (std::size_t i = nofDigits; i < width->width; ++i)
-                Writer().Insert(width->padding);
+                Writer().Insert(static_cast<uint8_t>(width->padding));
 
         while (mask)
         {
-            Writer().Insert(static_cast<char>(hexChars[(v / mask) % 16]));
+            Writer().Insert(static_cast<uint8_t>(hexChars[(v / mask) % 16]));
             mask /= 16;
         }
     }
 
     void TextOutputStream::FormatArgs(const char* format, infra::MemoryRange<FormatterBase*> formatters)
     {
-        while (*format)
+        while (*format != '\0')
         {
             const char* start = format;
-            while (*format && *format != '%')
+            while (*format != '\0' && *format != '%')
                 ++format;
 
             Writer().Insert(infra::ReinterpretCastByteRange(infra::MakeRange(start, format)));

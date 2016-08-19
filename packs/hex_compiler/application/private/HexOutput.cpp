@@ -9,7 +9,7 @@ namespace application
 
         result << ':' << infra::hex << infra::Width(2, '0') << data.size() << infra::Width(4, '0') << address << infra::Width(2, '0') << recordType;
 
-        uint8_t checkSum = static_cast<uint8_t>(data.size()) + (address >> 8) + (address & 0xff) + recordType;
+        uint8_t checkSum = static_cast<uint8_t>(data.size()) + static_cast<uint8_t>(address >> 8) + static_cast<uint8_t>(address & 0xff) + recordType;
 
         for (uint8_t byte : data)
         {

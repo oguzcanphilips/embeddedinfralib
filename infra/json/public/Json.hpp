@@ -349,7 +349,7 @@ namespace infra
     {
     public:
         JsonValueArrayIterator() = default;
-        JsonValueArrayIterator(JsonArrayIterator arrayIterator, JsonArrayIterator arrayEndIterator);
+        JsonValueArrayIterator(const JsonArrayIterator& arrayIterator, const JsonArrayIterator& arrayEndIterator);
 
     public:
         bool operator==(const JsonValueArrayIterator& other) const;
@@ -375,15 +375,12 @@ namespace infra
     ////    Implementation    ////
 
     template<class T>
-    JsonValueArrayIterator<T>::JsonValueArrayIterator(JsonArrayIterator arrayIterator, JsonArrayIterator arrayEndIterator)
+    JsonValueArrayIterator<T>::JsonValueArrayIterator(const JsonArrayIterator& arrayIterator, const JsonArrayIterator& arrayEndIterator)
         : arrayIterator(arrayIterator)
         , arrayEndIterator(arrayEndIterator)
     {
-        while (this->arrayIterator != arrayEndIterator && !this->arrayIterator->template Is<T>())
-        {
-            arrayIterator.SetError();
-            ++this->arrayIterator;
-        }
+        if (this->arrayIterator != arrayEndIterator && !this->arrayIterator->template Is<T>())
+            this->arrayIterator.SetError();
     }
 
     template<class T>
@@ -415,11 +412,8 @@ namespace infra
     {
         ++arrayIterator;
 
-        while (arrayIterator != arrayEndIterator && !arrayIterator->Is<T>())
-        {
+        if (arrayIterator != arrayEndIterator && !arrayIterator->Is<T>())
             arrayIterator.SetError();
-            ++this->arrayIterator;
-        }
 
         return *this;
     }

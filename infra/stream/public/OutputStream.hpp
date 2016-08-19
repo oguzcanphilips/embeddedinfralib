@@ -83,7 +83,7 @@ namespace infra
         TextOutputStream& operator<<(uint8_t v);
         TextOutputStream& operator<<(int32_t v);
         TextOutputStream& operator<<(uint32_t v);
-#ifndef _MSC_VER
+#ifndef _MSC_VER                                                                                        //TICS !POR#021
         TextOutputStream& operator<<(int v);
         TextOutputStream& operator<<(unsigned int v);
 #endif

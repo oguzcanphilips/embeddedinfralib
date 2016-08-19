@@ -113,7 +113,7 @@ namespace infra
 
     TextInputStream& TextInputStream::operator>>(char& c)
     {
-        Reader().Extract(reinterpret_cast<uint8_t&>(c));
+        c = Reader().ExtractOne();
         return *this;
     }
 
@@ -167,21 +167,22 @@ namespace infra
         operator>>(integer);
         uint32_t frac = 0;
         int32_t div = (integer < 0) ? -1 : 1;
-        uint8_t c;
         infra::StreamReader& reader = Reader();
-        reader.Peek(c);
+
+        char c = static_cast<char>(reader.Peek());
         if (c == '.')
         {
-            reader.Forward(1);
-            reader.Peek(c);
+            reader.ExtractOne();
+            c = reader.Peek();
             while (c >= '0' && c <= '9')
             {
                 div *= 10;
-                frac = frac * 10 + (c - '0');
-                reader.Forward(1);
-                reader.Peek(c);
+                frac = frac * 10 + static_cast<uint8_t>(c - '0');
+                reader.ExtractOne();
+                c = reader.Peek();
             }
         }
+
         v = static_cast<float>(frac);
         v /= div;
         v += integer;
@@ -190,10 +191,9 @@ namespace infra
 
     TextInputStream& TextInputStream::operator>>(const char* literal)
     {
-        while (*literal)
+        while (*literal != '\0')
         {
-            uint8_t c = 0;
-            Reader().Extract(c);
+            char c = static_cast<char>(Reader().ExtractOne());
             Reader().ReportResult(c == *literal);
             ++literal;
         }
@@ -203,12 +203,11 @@ namespace infra
 
     void TextInputStream::SkipSpaces()
     {
-        uint8_t c = 0;
-        Reader().Peek(c);
+        char c = static_cast<char>(Reader().Peek());
         while (c == ' ')
         {
-            Reader().Extract(c);
-            Reader().Peek(c);
+            Reader().ExtractOne();
+            c = static_cast<char>(Reader().Peek());
         }
     }
 
@@ -231,17 +230,16 @@ namespace infra
     void TextInputStream::ReadAsDecimal(int32_t& v)
     {
         SkipSpaces();
-        uint8_t c = 0;
-        Reader().Peek(c);
+        char c = Reader().Peek();
+
         if (c == '-')
         {
-            Reader().Extract(c);
+            Reader().ExtractOne();
             v = -1;
         }
         else
-        {
             v = 1;
-        }
+
         uint32_t vp = 0;
         ReadAsDecimal(vp);
         v *= vp;
@@ -254,34 +252,32 @@ namespace infra
         v = 0;
         for (std::size_t i = 0; (i != width.ValueOr(std::numeric_limits<std::size_t>::max()) && !Reader().Empty()) || i == 0; ++i)
         {
-            uint8_t c = 0;
-            Reader().Peek(c);
+            char c = static_cast<char>(Reader().Peek());
 
             if (c >= '0' && c <= '9')
                 v = v * 10 + c - '0';
             else
             {
-                Reader().ReportResult(i>0);
+                Reader().ReportResult(i > 0);
                 break;
             }
-            Reader().Extract(c);
+
+            Reader().ExtractOne();
         }
     }
 
     void TextInputStream::ReadAsHex(int32_t& v)
     {
         SkipSpaces();
-        uint8_t c = 0;
-        Reader().Peek(c);
+        char c = static_cast<char>(Reader().Peek());
         if (c == '-')
         {
-            Reader().Extract(c);
+            Reader().ExtractOne();
             v = -1;
         }
         else
-        {
             v = 1;
-        }
+
         uint32_t vp = 0;
         ReadAsHex(vp);
         v *= vp;
@@ -295,8 +291,7 @@ namespace infra
 
         for (std::size_t i = 0; (i != width.ValueOr(std::numeric_limits<std::size_t>::max()) && !Reader().Empty()) || i == 0; ++i)
         {
-            uint8_t c = 0;
-            Reader().Peek(c);
+            char c = static_cast<char>(Reader().Peek());
 
             if (c >= '0' && c <= '9')
                 v = (v << 4) + c - '0';
@@ -310,7 +305,7 @@ namespace infra
                 break;
             }
 
-            Reader().Extract(c);
+            Reader().ExtractOne();
         }
     }
 }

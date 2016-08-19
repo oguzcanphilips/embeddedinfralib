@@ -27,7 +27,7 @@ namespace infra
     {
         bool isOk = !string.full();
         if (isOk)
-            string.push_back(static_cast<uint8_t>(element));
+            string.push_back(static_cast<char>(element));
         ReportResult(isOk);
     }
 

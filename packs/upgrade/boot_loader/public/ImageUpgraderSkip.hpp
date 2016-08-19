@@ -15,7 +15,7 @@ namespace application
         virtual bool Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress) override;
 
     private:
-        DecryptorNone decryptorNone;
+        static DecryptorNone decryptorNone;
     };
 }
 

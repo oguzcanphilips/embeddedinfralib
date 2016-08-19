@@ -6,7 +6,7 @@
 #include <cassert>
 #include <cstdlib>
 
-#ifdef NDEBUG
+#ifdef NDEBUG                                                                                                       //TICS !POR#021
 #define really_assert(condition) if (!(condition)) { std::abort(); } else for (; false; )
 #else
 #define really_assert(condition) assert(condition)

@@ -21,23 +21,27 @@ namespace infra
         offset += range.size();
     }
 
-    void StringInputStream::Extract(uint8_t& element)
+    uint8_t StringInputStream::ExtractOne()
     {
-        Peek(element);
+        uint8_t element = Peek();
+
         if (offset < string.size())
             ++offset;
+
+        return element;
     }
 
-    void StringInputStream::Peek(uint8_t& element)
+    uint8_t StringInputStream::Peek()
     {
         if (offset == string.size())
         {
             Reader().ReportResult(false);
+            return 0;
         }
         else
         {
             Reader().ReportResult(true);
-            element = static_cast<uint8_t>(string.begin()[offset]);
+            return static_cast<uint8_t>(string.begin()[offset]);
         }
     }
 

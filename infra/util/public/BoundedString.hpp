@@ -292,7 +292,7 @@ namespace infra
     template<class T>
         void swap(BoundedStringBase<T>& lhs, BoundedStringBase<T>& rhs);
 
-#ifdef _MSC_VER
+#ifdef _MSC_VER                                                                                                                     //TICS !POR#021
     // gtest uses PrintTo to display the contents of BoundedStringBase<T>
     template<class T>
     void PrintTo(const BoundedStringBase<T>& string, std::ostream* os)

@@ -172,7 +172,7 @@ namespace infra
         template<class ResultType, class... Args>
             static decltype(std::declval<ResultType>()(std::declval<Args>()...), std::true_type()) f(int);
 
-        template<class ResultType, class... Args>
+        template<class ResultType, class... Args>                                                                                           //TICS !PCA#003
             static std::false_type f(...);
     };
 

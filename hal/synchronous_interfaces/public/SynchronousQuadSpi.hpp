@@ -21,8 +21,8 @@ namespace hal
 
     public:
         SynchronousQuadSpi() = default;
-        SynchronousQuadSpi(SynchronousQuadSpi& other) = delete;
-        SynchronousQuadSpi& operator=(SynchronousQuadSpi& other) = delete;
+        SynchronousQuadSpi(const SynchronousQuadSpi& other) = delete;
+        SynchronousQuadSpi& operator=(const SynchronousQuadSpi& other) = delete;
 
     protected:
         ~SynchronousQuadSpi() = default;

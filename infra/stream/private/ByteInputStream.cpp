@@ -24,16 +24,20 @@ namespace infra
         offset += dataRange.size();
     }
 
-    void ByteInputStream::Extract(uint8_t& element)
+    uint8_t ByteInputStream::ExtractOne()
     {
+        uint8_t element;
         Extract(MakeByteRange(element));
+        return element;
     }
 
-    void ByteInputStream::Peek(uint8_t& element)
+    uint8_t ByteInputStream::Peek()
     {
+        uint8_t element;
         ByteRange dataRange(MakeByteRange(element));
         ReportResult(dataRange.size() <= range.size() - offset);
         std::copy(range.begin() + offset, range.begin() + offset + dataRange.size(), dataRange.begin());
+        return element;
     }
 
     void ByteInputStream::Forward(std::size_t amount)

@@ -81,7 +81,7 @@ namespace services
 
             Length BlockLength() const
             {
-                return lengthLsb + (static_cast<Length>(lengthMsb) << 8);
+                return lengthLsb + static_cast<Length>(lengthMsb << 8);
             }
 
             void SetBlockLength(Length length)
