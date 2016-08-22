@@ -146,7 +146,7 @@ namespace infra
     template<class... T>
     Variant<T...>& Variant<T...>::operator=(const Variant& other)
     {
-        if (this != &other)
+        if (this != &other)                                                                                         //TICS !CON#007
         {
             detail::CopyVisitor<T...> visitor(*this);
             ApplyVisitor(visitor, other);
@@ -193,7 +193,7 @@ namespace infra
     template<class U>
     const U& Variant<T...>::Get() const
     {
-        really_assert((dataIndex == IndexInTypeList<U, T...>::value));
+        really_assert((dataIndex == IndexInTypeList<U, T...>::value));                                          //TICS !CON#007
         return reinterpret_cast<const U&>(data);
     }
 
@@ -201,7 +201,7 @@ namespace infra
     template<class U>
     U& Variant<T...>::Get()
     {
-        really_assert((dataIndex == IndexInTypeList<U, T...>::value));
+        really_assert((dataIndex == IndexInTypeList<U, T...>::value));                                          //TICS !CON#007
         return reinterpret_cast<U&>(data);
     }
 
@@ -229,23 +229,23 @@ namespace infra
     template<class U>
     bool Variant<T...>::Is() const
     {
-        return Which() == IndexInTypeList<U, T...>::value;
+        return Which() == IndexInTypeList<U, T...>::value;                                                      //TICS !CON#007
     }
 
     template<class... T>
     bool Variant<T...>::operator==(const Variant& other) const
     {
-        if (Which() != other.Which())
+        if (Which() != other.Which())                                                                           //TICS !CON#007
             return false;
 
         detail::EqualVisitor visitor;
-        return ApplySameTypeVisitor(visitor, *this, other);
+        return ApplySameTypeVisitor(visitor, *this, other);                                                     //TICS !CON#007
     }
 
     template<class... T>
     bool Variant<T...>::operator!=(const Variant& other) const
     {
-        return !(*this == other);
+        return !(*this == other);                                                                               //TICS !CON#007
     }
 
     template<class... T>

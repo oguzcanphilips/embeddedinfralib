@@ -7,7 +7,7 @@
 
 namespace services
 {
-    class I2cMultipleAccessMaster
+    class I2cMultipleAccessMaster                                                                               //TICS !OOP#013
         : public hal::I2cMaster
         , public infra::ClaimableResource
     {

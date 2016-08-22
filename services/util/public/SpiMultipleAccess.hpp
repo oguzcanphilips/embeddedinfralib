@@ -7,7 +7,7 @@
 
 namespace services
 {
-    class SpiMultipleAccessMaster
+    class SpiMultipleAccessMaster                                                                               //TICS !OOP#013
         : public hal::SpiMaster
         , public infra::ClaimableResource
     {

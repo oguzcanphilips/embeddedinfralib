@@ -104,7 +104,7 @@ namespace application
         char colon;
         stream >> colon;
 
-        uint8_t size;
+        uint8_t size = 0;
         stream >> infra::hex >> infra::Width(2, '0') >> size >> infra::Width(4, '0') >> address >> infra::Width(2, '0') >> recordType;
         uint8_t sum = size + static_cast<uint8_t>(address) + static_cast<uint8_t>(address >> 8) + recordType;
 
@@ -113,13 +113,13 @@ namespace application
 
         for (std::size_t i = 0; i != size; ++i)
         {
-            uint8_t byte;
+            uint8_t byte = 0;
             stream >> infra::hex >> infra::Width(2) >> byte;
             sum += byte;
             data.push_back(byte);
         }
 
-        uint8_t checksum;
+        uint8_t checksum = 0;
         stream >> infra::hex >> infra::Width(2) >> checksum;
         sum += checksum;
 

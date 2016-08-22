@@ -21,7 +21,7 @@
 
 namespace infra
 {
-    class ByteOutputStream
+    class ByteOutputStream                                                                                      //TICS !OOP#013
         : private StreamWriter
         , public DataOutputStream
     {

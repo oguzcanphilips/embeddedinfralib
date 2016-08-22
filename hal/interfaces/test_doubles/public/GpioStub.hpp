@@ -15,6 +15,8 @@ namespace hal
         : public GpioPin
     {
     public:
+        virtual ~GpioPinStub() = default;
+
         virtual bool Get() const override;
         virtual void Set(bool value) override;
         virtual bool GetOutputLatch() const override;

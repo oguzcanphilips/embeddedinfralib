@@ -7,7 +7,7 @@
 
 namespace services
 {
-    class FlashMultipleAccessMaster
+    class FlashMultipleAccessMaster                                                                             //TICS !OOP#013
         : public hal::Flash
         , public infra::ClaimableResource
     {

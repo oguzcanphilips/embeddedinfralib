@@ -5,7 +5,7 @@
 
 namespace infra
 {
-    class ByteInputStream
+    class ByteInputStream                                                                                   //TICS !OOP#013
         : private StreamReader
         , public DataInputStream
     {

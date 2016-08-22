@@ -20,7 +20,7 @@ namespace application
         communication.SendData(infra::MakeByteRange(operation));
 
         uint32_t size = 2;
-        std::array<uint8_t, 2> length = { uint8_t(size >> 8), uint8_t(size) };
+        std::array<uint8_t, 2> length = { static_cast<uint8_t>(size >> 8), static_cast<uint8_t>(size) };
         communication.SendData(length);
 
         uint8_t version = 1;
@@ -47,7 +47,7 @@ namespace application
         communication.SendData(infra::MakeByteRange(operation));
 
         uint32_t size = port.size() + 1;
-        std::array<uint8_t, 2> length = { uint8_t(size >> 8), uint8_t(size) };
+        std::array<uint8_t, 2> length = { static_cast<uint8_t>(size >> 8), static_cast<uint8_t>(size) };
         communication.SendData(length);
 
         communication.SendData(infra::ReinterpretCastByteRange(infra::MakeRangeFromContainer(port)));
@@ -72,7 +72,7 @@ namespace application
         communication.SendData(infra::MakeByteRange(operation));
 
         uint16_t size = static_cast<uint16_t>(port.size() + values.size()) + 2;
-        std::array<uint8_t, 2> length = { uint8_t(size >> 8), uint8_t(size) };
+        std::array<uint8_t, 2> length = { static_cast<uint8_t>(size >> 8), static_cast<uint8_t>(size) };
         communication.SendData(length);
 
         communication.SendData(infra::ReinterpretCastByteRange(infra::MakeRangeFromContainer(port)));
@@ -99,30 +99,30 @@ namespace application
 
         while (true)
         {
-            uint8_t firstStart;
+            uint8_t firstStart = 0;
             if (!ReceiveData(infra::MakeByteRange(firstStart)))
                 return false;
             if (firstStart != 0xfe)
                 continue;
 
-            uint8_t secondStart;
+            uint8_t secondStart = 0;
             if (!ReceiveData(infra::MakeByteRange(secondStart)))
                 return false;
             if (secondStart != 0xff)
                 continue;
 
-            Operation operation;
+            Operation operation = Operation::initialize;
             if (!ReceiveData(infra::MakeByteRange(operation)))
                 return false;
             if (operation != responseOperation)
                 continue;
 
-            uint16_t size;
+            uint16_t size = 0;
             if (!ReceiveData(infra::MakeByteRange(size)))
                 return false;
             size = (size << 8) | (size >> 8);
 
-            uint8_t status;
+            uint8_t status = 0;
             if (!ReceiveData(infra::MakeByteRange(status)))
                 return false;
             --size;
@@ -142,13 +142,13 @@ namespace application
 
             for (; size != 0; --size)
             {
-                char value;
+                char value = 0;
                 if (!ReceiveData(infra::MakeByteRange(value)))
                     return false;
                 crcCalculator.Update(infra::MakeByteRange(value));
             }
 
-            uint16_t crc;
+            uint16_t crc = 0;
             if (!ReceiveData(infra::MakeByteRange(crc)))
                 return false;
             crc = (crc << 8) | (crc >> 8);

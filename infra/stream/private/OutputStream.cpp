@@ -238,7 +238,7 @@ namespace infra
             for (std::size_t i = nofDigits; i < width->width; ++i)
                 Writer().Insert(static_cast<uint8_t>(width->padding));
 
-        while (mask)
+        while (mask != 0)
         {
             Writer().Insert(static_cast<uint8_t>(hexChars[(v / mask) % 16]));
             mask /= 16;

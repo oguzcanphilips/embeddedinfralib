@@ -260,7 +260,7 @@ namespace infra
     template<std::size_t ExtraSize, class Result, class... Args>
     void Function<Result(Args...), ExtraSize>::CopyConstruct(const StorageType& from, StorageType& to)
     {
-        if (from.virtualMethodTable->copyConstruct != nullptr)
+        if (from.virtualMethodTable->copyConstruct != nullptr)                                                      //TICS !CON#007
             from.virtualMethodTable->copyConstruct(from, to);
         else
             Copy(MakeByteRange(from), MakeByteRange(to));
@@ -269,7 +269,7 @@ namespace infra
     template<std::size_t ExtraSize, class Result, class... Args>
     void Function<Result(Args...), ExtraSize>::Destruct(StorageType& storage)
     {
-        if (storage.virtualMethodTable->destruct != nullptr)
+        if (storage.virtualMethodTable->destruct != nullptr)                                                        //TICS !CON#007
             storage.virtualMethodTable->destruct(storage);
     }
 
@@ -397,7 +397,7 @@ namespace infra
     template<std::size_t ExtraSize, class Result, class... Args>
     bool Function<Result(Args...), ExtraSize>::Initialized() const
     {
-        return invokerFunctions.virtualMethodTable != nullptr;
+        return invokerFunctions.virtualMethodTable != nullptr;                                                  //TICS !CON#007
     }
 
     template<std::size_t ExtraSize, class Result, class... Args>

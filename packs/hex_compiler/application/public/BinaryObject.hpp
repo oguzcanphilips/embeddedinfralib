@@ -72,7 +72,7 @@ namespace application
 
     private:
         SparseVector<uint8_t> memory;
-        bool endOfFile;
+        bool endOfFile = false;
         uint32_t linearAddress = 0;
         uint32_t offset = 0;
     };
