@@ -29,7 +29,7 @@ namespace services
     private:
         hal::SynchronousQuadSpi& quadSpi;
         infra::ConstByteRange buffer;
-        uint32_t address;
+        uint32_t address = 0;
     };
 }
 

@@ -18,7 +18,7 @@ namespace hal
         I2cMaster& i2cMaster;
         I2cAddress address;
 
-        uint8_t dataRegister;
+        uint8_t dataRegister = 0;
         infra::ByteRange readData;
         infra::ConstByteRange writeData;
         infra::Function<void()> onDone;

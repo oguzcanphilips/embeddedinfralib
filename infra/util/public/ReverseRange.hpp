@@ -25,13 +25,13 @@ namespace infra
         };
 
         template<class T>
-        T begin(DoublePair<T> p)
+        T begin(const DoublePair<T>& p)
         {
             return p.first;
         }
 
         template<class T>
-        T end(DoublePair<T> p)
+        T end(const DoublePair<T>& p)
         {
             return p.second;
         }

@@ -175,7 +175,8 @@ namespace infra
         void InvokerFunctions<Result(Args...), ExtraSize>::StaticCopyConstruct(const InvokerFunctionsType& from, InvokerFunctionsType& to)
         {
             new (&to.data) F(reinterpret_cast<const F&>(from.data));
-            std::memset(reinterpret_cast<char*>(&to.data) + sizeof(F), 0, ExtraSize - sizeof(F));
+            if (ExtraSize - sizeof(F) != 0)
+                std::memset(reinterpret_cast<char*>(&to.data) + sizeof(F), 0, ExtraSize - sizeof(F));
             to.virtualMethodTable = StaticVirtualMethodTable<F>();
         }
 
@@ -205,7 +206,8 @@ namespace infra
             static_assert(std::alignment_of<F>::value <= sizeof(UTIL_FUNCTION_ALIGNMENT), "Alignment of U is larger than alignment of this function");
 
             new (&invokerFunctions.data) F(std::forward<F>(f));
-            std::memset(reinterpret_cast<char*>(&invokerFunctions.data) + sizeof(F), 0, ExtraSize - sizeof(F));
+            if (ExtraSize - sizeof(F) != 0)
+                std::memset(reinterpret_cast<char*>(&invokerFunctions.data) + sizeof(F), 0, ExtraSize - sizeof(F));
             invokerFunctions.virtualMethodTable = StaticVirtualMethodTable<F>();
         }
     }

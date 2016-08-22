@@ -94,7 +94,7 @@ namespace infra
         void SetDuration(Duration duration);
 
     private:
-        uint32_t triggerPeriod;
+        uint32_t triggerPeriod = 0;
     };
 }
 

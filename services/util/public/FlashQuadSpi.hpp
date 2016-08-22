@@ -60,8 +60,8 @@ namespace services
         infra::TimerSingleShot initDelayTimer;
         infra::AutoResetFunction<void()> onDone;
         infra::ConstByteRange buffer;
-        uint32_t address;
-        uint32_t sectorIndex;
+        uint32_t address = 0;
+        uint32_t sectorIndex = 0;
     };
 }
 

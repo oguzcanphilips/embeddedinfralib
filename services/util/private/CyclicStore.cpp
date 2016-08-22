@@ -7,6 +7,7 @@ namespace services
         : flash(flash)
         , claimer(resource)
         , recoverClaimer(resource)
+        , blockHeader()
     {
         Recover();
     }

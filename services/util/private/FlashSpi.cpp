@@ -15,6 +15,7 @@ namespace services
     FlashSpi::FlashSpi(hal::SpiMaster& spi, uint32_t numberOfSubSectors)
         : hal::FlashHomogeneous(numberOfSubSectors, sizeSubSector)
         , spi(spi)
+        , instructionAndAddress()
     {}
 
     void FlashSpi::WriteBuffer(infra::ConstByteRange buffer, uint32_t address, infra::Function<void()> onDone)

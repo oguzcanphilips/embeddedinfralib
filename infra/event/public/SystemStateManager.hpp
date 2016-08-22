@@ -74,7 +74,7 @@ namespace infra
         infra::IntrusiveList<SystemStateParticipant> participantsInCurrentState;
 
         infra::MemoryRange<const SystemStateBase> runningStates;
-        const SystemStateBase* currentState;
+        const SystemStateBase* currentState = nullptr;
     };
 
     struct StateInitializing: SystemState<StateInitializing> {};

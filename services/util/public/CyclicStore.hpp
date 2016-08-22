@@ -126,7 +126,7 @@ namespace services
         BlockHeader blockHeader;
         infra::ByteRange readBuffer;
 
-        bool found;
+        bool found = false;
     };
 }
 
