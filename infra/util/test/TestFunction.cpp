@@ -164,17 +164,3 @@ TEST(FunctionTest, TestCompareToNullptr)
     EXPECT_NE(g, nullptr);
     EXPECT_NE(nullptr, g);
 }
-
-TEST(FunctionTest, TestCompareTwoFunctions)
-{
-    infra::Function<void()> f([]() {});
-    infra::Function<void()> g(f);
-    infra::Function<void()> h([]() { int x; x = 1; });
-    infra::Function<void()> empty;
-
-    EXPECT_TRUE(f == g);
-    EXPECT_FALSE(f != g);
-    EXPECT_FALSE(f == h);
-    EXPECT_FALSE(f == empty);
-    EXPECT_TRUE(empty == empty);
-}

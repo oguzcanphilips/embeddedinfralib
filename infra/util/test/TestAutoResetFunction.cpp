@@ -121,17 +121,3 @@ TEST(AutoResetFunctionTest, TestCompareToNullptr)
     EXPECT_NE(g, nullptr);
     EXPECT_NE(nullptr, g);
 }
-
-TEST(AutoResetFunctionTest, TestCompareTwoFunctions)
-{
-    infra::AutoResetFunction<void()> f([]() {});
-    infra::AutoResetFunction<void()> g(f);
-    infra::AutoResetFunction<void()> h([]() { int x; x = 1; });
-    infra::AutoResetFunction<void()> empty;
-
-    EXPECT_TRUE(f == g);
-    EXPECT_FALSE(f != g);
-    EXPECT_FALSE(f == h);
-    EXPECT_FALSE(f == empty);
-    EXPECT_TRUE(empty == empty);
-}

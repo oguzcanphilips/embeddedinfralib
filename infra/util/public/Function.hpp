@@ -116,9 +116,6 @@ namespace infra
 
         void Swap(Function& other);
 
-        bool operator==(const Function& other) const;
-        bool operator!=(const Function& other) const;
-
     private:
         template<class F>
             void Assign(F f);
@@ -144,9 +141,9 @@ namespace infra
     template<std::size_t ExtraSize, class Result, class... Args>
         bool operator==(const Function<Result(Args...), ExtraSize>& f, std::nullptr_t);
     template<std::size_t ExtraSize, class Result, class... Args>
-        bool operator!=(const Function<Result(Args...), ExtraSize>& f, std::nullptr_t);
-    template<std::size_t ExtraSize, class Result, class... Args>
         bool operator==(std::nullptr_t, const Function<Result(Args...), ExtraSize>& f);
+    template<std::size_t ExtraSize, class Result, class... Args>
+        bool operator!=(const Function<Result(Args...), ExtraSize>& f, std::nullptr_t);
     template<std::size_t ExtraSize, class Result, class... Args>
         bool operator!=(std::nullptr_t, const Function<Result(Args...), ExtraSize>& f);
 
@@ -175,8 +172,7 @@ namespace infra
         void InvokerFunctions<Result(Args...), ExtraSize>::StaticCopyConstruct(const InvokerFunctionsType& from, InvokerFunctionsType& to)
         {
             new (&to.data) F(reinterpret_cast<const F&>(from.data));
-            if (ExtraSize - sizeof(F) != 0)
-                std::memset(reinterpret_cast<char*>(&to.data) + sizeof(F), 0, ExtraSize - sizeof(F));
+            std::memset(reinterpret_cast<char*>(&to.data) + sizeof(F), 0, ExtraSize - sizeof(F));                                                   //TICS !COV_CPP_NO_EFFECT_13
             to.virtualMethodTable = StaticVirtualMethodTable<F>();
         }
 
@@ -206,8 +202,7 @@ namespace infra
             static_assert(std::alignment_of<F>::value <= sizeof(UTIL_FUNCTION_ALIGNMENT), "Alignment of U is larger than alignment of this function");
 
             new (&invokerFunctions.data) F(std::forward<F>(f));
-            if (ExtraSize - sizeof(F) != 0)
-                std::memset(reinterpret_cast<char*>(&invokerFunctions.data) + sizeof(F), 0, ExtraSize - sizeof(F));
+            std::memset(reinterpret_cast<char*>(&invokerFunctions.data) + sizeof(F), 0, ExtraSize - sizeof(F));                                     //TICS !COV_CPP_NO_EFFECT_13
             invokerFunctions.virtualMethodTable = StaticVirtualMethodTable<F>();
         }
     }
@@ -296,23 +291,6 @@ namespace infra
             Destruct(other.invokerFunctions);
             other.invokerFunctions.virtualMethodTable = nullptr;
         }
-    }
-
-    template<std::size_t ExtraSize, class Result, class... Args>
-    bool Function<Result(Args...), ExtraSize>::operator==(const Function& other) const
-    {
-        if (invokerFunctions.virtualMethodTable != other.invokerFunctions.virtualMethodTable)
-            return false;
-        else if (!invokerFunctions.virtualMethodTable && !other.invokerFunctions.virtualMethodTable)
-            return true;
-        else
-            return ContentsEqual(MakeByteRange(invokerFunctions), MakeByteRange(other.invokerFunctions));
-    }
-
-    template<std::size_t ExtraSize, class Result, class... Args>
-    bool Function<Result(Args...), ExtraSize>::operator!=(const Function& other) const
-    {
-        return !(*this == other);
     }
 
     template<std::size_t ExtraSize, class Result, class... Args>
@@ -413,15 +391,15 @@ namespace infra
     }
 
     template<std::size_t ExtraSize, class Result, class... Args>
-    bool operator!=(const Function<Result(Args...), ExtraSize>& f, std::nullptr_t)
-    {
-        return !(f == nullptr);
-    }
-
-    template<std::size_t ExtraSize, class Result, class... Args>
     bool operator==(std::nullptr_t, const Function<Result(Args...), ExtraSize>& f)
     {
         return !f;
+    }
+
+    template<std::size_t ExtraSize, class Result, class... Args>
+    bool operator!=(const Function<Result(Args...), ExtraSize>& f, std::nullptr_t)
+    {
+        return !(f == nullptr);
     }
 
     template<std::size_t ExtraSize, class Result, class... Args>

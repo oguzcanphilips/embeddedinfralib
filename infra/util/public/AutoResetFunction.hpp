@@ -34,9 +34,6 @@ namespace infra
 
         void Swap(AutoResetFunction& other);
 
-        bool operator==(const AutoResetFunction& other) const;
-        bool operator!=(const AutoResetFunction& other) const;
-
     private:
         Function<Result(Args...), ExtraSize> function;
     };
@@ -47,9 +44,9 @@ namespace infra
     template<std::size_t ExtraSize, class Result, class... Args>
         bool operator==(const AutoResetFunction<Result(Args...), ExtraSize>& f, std::nullptr_t);
     template<std::size_t ExtraSize, class Result, class... Args>
-        bool operator!=(const AutoResetFunction<Result(Args...), ExtraSize>& f, std::nullptr_t);
-    template<std::size_t ExtraSize, class Result, class... Args>
         bool operator==(std::nullptr_t, const AutoResetFunction<Result(Args...), ExtraSize>& f);
+    template<std::size_t ExtraSize, class Result, class... Args>
+        bool operator!=(const AutoResetFunction<Result(Args...), ExtraSize>& f, std::nullptr_t);
     template<std::size_t ExtraSize, class Result, class... Args>
         bool operator!=(std::nullptr_t, const AutoResetFunction<Result(Args...), ExtraSize>& f);
 
@@ -101,18 +98,6 @@ namespace infra
     }
 
     template<std::size_t ExtraSize, class Result, class... Args>
-    bool AutoResetFunction<Result(Args...), ExtraSize>::operator==(const AutoResetFunction& other) const
-    {
-        return function == other.function;
-    }
-
-    template<std::size_t ExtraSize, class Result, class... Args>
-    bool AutoResetFunction<Result(Args...), ExtraSize>::operator!=(const AutoResetFunction& other) const
-    {
-        return function != other.function;
-    }
-
-    template<std::size_t ExtraSize, class Result, class... Args>
     void swap(AutoResetFunction<Result(Args...), ExtraSize>& x, AutoResetFunction<Result(Args...), ExtraSize>& y)
     {
         x.Swap(y);
@@ -125,15 +110,15 @@ namespace infra
     }
 
     template<std::size_t ExtraSize, class Result, class... Args>
-    bool operator!=(const AutoResetFunction<Result(Args...), ExtraSize>& f, std::nullptr_t)
-    {
-        return !(f == nullptr);
-    }
-
-    template<std::size_t ExtraSize, class Result, class... Args>
     bool operator==(std::nullptr_t, const AutoResetFunction<Result(Args...), ExtraSize>& f)
     {
         return !f;
+    }
+
+    template<std::size_t ExtraSize, class Result, class... Args>
+    bool operator!=(const AutoResetFunction<Result(Args...), ExtraSize>& f, std::nullptr_t)
+    {
+        return !(f == nullptr);
     }
 
     template<std::size_t ExtraSize, class Result, class... Args>
