@@ -40,7 +40,6 @@
 
 namespace infra
 {
-
     static const auto emptyFunction = []() {};
 
     template<class F, std::size_t ExtraSize = INFRA_DEFAULT_FUNCTION_EXTRA_SIZE>

@@ -88,6 +88,13 @@ TEST(VariantTest, TestAssignmentFromVariant)
     EXPECT_EQ(5, v.Get<int>());
 }
 
+TEST(VariantTest, TestSelfAssignment)
+{
+    infra::Variant<bool, int> v(true);
+    v = v;
+    EXPECT_EQ(true, v.Get<bool>());
+}
+
 TEST(VariantTest, TestAssignmentFromNarrowVariant)
 {
     infra::Variant<bool, int> v(true);
@@ -180,6 +187,31 @@ TEST(VariantTest, TestLessThan)
     EXPECT_LE(v1, v2);
     EXPECT_LT(v1, v3);
     EXPECT_GT(v1, v4);
+}
+
+TEST(VariantTest, TestEqualValue)
+{
+    int i = 1;
+    int j = 2;
+    bool k = true;
+    const infra::Variant<bool, int> v1(i);
+
+    EXPECT_EQ(v1, i);
+    EXPECT_NE(v1, j);
+    EXPECT_NE(v1, k);
+}
+
+TEST(VariantTest, TestLessThanValue)
+{
+    int i = 1;
+    int j = 2;
+    bool k = true;
+    const infra::Variant<bool, int> v1(i);
+
+    EXPECT_GE(v1, i);
+    EXPECT_LE(v1, i);
+    EXPECT_LT(v1, j);
+    EXPECT_GT(v1, k);
 }
 
 struct DoubleVisitor
