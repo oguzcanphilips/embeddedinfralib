@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "infra/util/public/BoundedVector.hpp"
 #include "infra/util/public/ByteRange.hpp"
 #include "infra/util/public/MemoryRange.hpp"
 
@@ -39,6 +40,15 @@ TEST(MemoryRangeTest, TestConstructionWithArray)
     EXPECT_FALSE(range.empty());
     EXPECT_EQ(3, range.size());
     EXPECT_EQ(&array[0], range.begin());
+}
+
+TEST(MemoryRangeTest, TestConstructionWithEmptyArray)
+{
+    std::array<int, 0> array;
+    infra::MemoryRange<int> range(array);
+
+    EXPECT_TRUE(range.empty());
+    EXPECT_EQ(0, range.size());
 }
 
 TEST(MemoryRangeTest, TestConstructionWithVector)
@@ -190,6 +200,10 @@ TEST(MemoryRangeTest, ContentsEqual)
     EXPECT_TRUE(ContentsEqual(infra::MakeByteRange(x), infra::MakeByteRange(y)));
     EXPECT_FALSE(ContentsEqual(infra::MakeByteRange(x), infra::MakeByteRange(z)));
     EXPECT_FALSE(ContentsEqual(infra::MakeByteRange(x), infra::MakeByteRange(a)));
+
+    std::array<int, 2> a1 = { 1, 2 };
+    std::array<int, 3> a2 = { 1, 2, 3 };
+    EXPECT_FALSE(infra::ContentsEqual(infra::MakeByteRange(a1), infra::MakeByteRange(a2)));
 }
 
 TEST(MemoryRangeTest, IntersectingRange)
@@ -199,6 +213,7 @@ TEST(MemoryRangeTest, IntersectingRange)
     EXPECT_EQ(infra::ByteRange(range.data() + 2, range.data() + 4), infra::IntersectingRange(infra::ByteRange(range.data(), range.data() + 4), infra::ByteRange(range.data() + 2, range.data() + 6)));
     EXPECT_EQ(infra::ByteRange(range.data() + 2, range.data() + 2), infra::IntersectingRange(infra::ByteRange(range.data(), range.data() + 2), infra::ByteRange(range.data() + 2, range.data() + 6)));
     EXPECT_EQ(infra::ByteRange(), infra::IntersectingRange(infra::ByteRange(range.data(), range.data() + 2), infra::ByteRange(range.data() + 3, range.data() + 6)));
+    EXPECT_EQ(infra::ByteRange(), infra::IntersectingRange(infra::ByteRange(range.data() + 3, range.data() + 6), infra::ByteRange(range.data(), range.data() + 2)));
 }
 
 TEST(MemoryRangeTest, Head)
@@ -231,4 +246,30 @@ TEST(MemoryRangeTest, DiscardTail)
 
     EXPECT_EQ(infra::ByteRange(range.data(), range.data() + 6), infra::DiscardTail(infra::ByteRange(range), 4));
     EXPECT_EQ(infra::ByteRange(), infra::DiscardTail(infra::ByteRange(range), 14));
+}
+
+TEST(MemoryRangeTest, TestCompare)
+{
+    std::array<uint8_t, 3> range = { 1, 2, 3 };
+
+    EXPECT_FALSE(infra::ByteRange(range.data(), range.data() + 2) == infra::ByteRange(range.data() + 1, range.data() + 2));
+    EXPECT_FALSE(infra::ByteRange(range.data(), range.data() + 3) == infra::ByteRange(range.data(), range.data() + 2));
+    EXPECT_TRUE(infra::ByteRange(range.data(), range.data() + 3) == infra::ByteRange(range.data(), range.data() + 3));
+    EXPECT_FALSE(infra::ByteRange(range.data(), range.data() + 3) != infra::ByteRange(range.data(), range.data() + 3));
+
+    EXPECT_TRUE(infra::ByteRange(range.data(), range.data() + 3) == range);
+    EXPECT_TRUE(range == infra::ByteRange(range.data(), range.data() + 3));
+    std::array<uint8_t, 3> otherRange = { 2, 3, 4 };
+    EXPECT_FALSE(infra::ByteRange(range.data(), range.data() + 3) == otherRange);
+
+    EXPECT_TRUE(infra::ByteRange(range.data(), range.data() + 3) != otherRange);
+    EXPECT_TRUE(otherRange != infra::ByteRange(range.data(), range.data() + 3));
+}
+
+TEST(MemoryRangeTest, TestMakeRangeFromContainer)
+{
+    infra::BoundedVector<uint8_t>::WithMaxSize<3> container({ static_cast<uint8_t>(1), static_cast<uint8_t>(2), static_cast<uint8_t>(3) });
+
+    EXPECT_EQ(infra::ByteRange(&container.front(), &container.front() + 3), infra::MakeRangeFromContainer(container));
+    EXPECT_EQ(infra::ByteRange(&container.front(), &container.front() + 3), infra::MakeRangeFromContainer(static_cast<const infra::BoundedVector<uint8_t>&>(container)));
 }

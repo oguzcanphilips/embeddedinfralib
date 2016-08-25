@@ -79,6 +79,15 @@ TEST(BoundedVectorTest, TestAssignment)
     EXPECT_EQ(4, copy[0]);
 }
 
+TEST(BoundedVectorTest, TestSelfAssignment)
+{
+    infra::BoundedVector<int>::WithMaxSize<5> original(std::size_t(2), 4);
+    original = original;
+
+    EXPECT_EQ(2, original.size());
+    EXPECT_EQ(4, original[0]);
+}
+
 TEST(BoundedVectorTest, TestMove)
 {
     infra::BoundedVector<infra::MoveConstructible>::WithMaxSize<5> original;
@@ -102,6 +111,10 @@ TEST(BoundedVectorTest, TestBeginAndEnd)
 
     EXPECT_EQ(0, *vector.begin());
     EXPECT_EQ(2, *vector.rbegin());
+    EXPECT_EQ(vector.rbegin(), static_cast<const infra::BoundedVector<int>&>(vector).rbegin());
+    EXPECT_EQ(vector.rend(), static_cast<const infra::BoundedVector<int>&>(vector).rend());
+    EXPECT_EQ(vector.rbegin(), vector.crbegin());
+    EXPECT_EQ(vector.rend(), vector.crend());
 }
 
 TEST(BoundedVectorTest, TestResizeBigger)
@@ -136,6 +149,7 @@ TEST(BoundedVectorTest, TestFront)
     infra::BoundedVector<int>::WithMaxSize<5> vector(range, range + 3);
 
     EXPECT_EQ(0, vector.front());
+    EXPECT_EQ(0, static_cast<const infra::BoundedVector<int>&>(vector).front());
 }
 
 TEST(BoundedVectorTest, TestBack)
@@ -144,6 +158,7 @@ TEST(BoundedVectorTest, TestBack)
     infra::BoundedVector<int>::WithMaxSize<5> vector(range, range + 3);
 
     EXPECT_EQ(2, vector.back());
+    EXPECT_EQ(2, static_cast<const infra::BoundedVector<int>&>(vector).back());
 }
 
 TEST(BoundedVectorTest, TestData)
@@ -151,6 +166,7 @@ TEST(BoundedVectorTest, TestData)
     infra::BoundedVector<int>::WithMaxSize<5> vector(std::size_t(2), 4);
 
     EXPECT_EQ(vector.begin(), vector.data());
+    EXPECT_EQ(vector.begin(), static_cast<const infra::BoundedVector<int>&>(vector).data());
 }
 
 TEST(BoundedVectorTest, TestAssignRange)
@@ -287,7 +303,7 @@ TEST(BoundedVectorTest, TestSwap)
     int range2[3] = { 3, 4, 5};
     infra::BoundedVector<int>::WithMaxSize<5> vector2(range2, range2 + 3);
 
-    swap(vector1, vector2);
+    infra::swap(vector1, vector2);
 
     infra::BoundedVector<int>::WithMaxSize<5> expectedVector1(range2, range2 + 3);
     infra::BoundedVector<int>::WithMaxSize<5> expectedVector2(range1, range1 + 3);
@@ -295,17 +311,32 @@ TEST(BoundedVectorTest, TestSwap)
     EXPECT_EQ(expectedVector2, vector2);
 }
 
-TEST(BoundedVectorTest, TestSwapDifferentSizes)
+TEST(BoundedVectorTest, TestSwapLargerWithSmaller)
 {
     int range1[3] = { 0, 1, 2};
     infra::BoundedVector<int>::WithMaxSize<5> vector1(range1, range1 + 3);
     int range2[2] = { 3, 4};
     infra::BoundedVector<int>::WithMaxSize<5> vector2(range2, range2 + 2);
 
-    swap(vector1, vector2);
+    infra::swap(vector1, vector2);
 
     infra::BoundedVector<int>::WithMaxSize<5> expectedVector1(range2, range2 + 2);
     infra::BoundedVector<int>::WithMaxSize<5> expectedVector2(range1, range1 + 3);
+    EXPECT_EQ(expectedVector1, vector1);
+    EXPECT_EQ(expectedVector2, vector2);
+}
+
+TEST(BoundedVectorTest, TestSwapSmallerWithLarger)
+{
+    int range1[2] = { 3, 4 };
+    infra::BoundedVector<int>::WithMaxSize<5> vector1(range1, range1 + 2);
+    int range2[3] = { 0, 1, 2 };
+    infra::BoundedVector<int>::WithMaxSize<5> vector2(range2, range2 + 3);
+
+    infra::swap(vector1, vector2);
+
+    infra::BoundedVector<int>::WithMaxSize<5> expectedVector1(range2, range2 + 3);
+    infra::BoundedVector<int>::WithMaxSize<5> expectedVector2(range1, range1 + 2);
     EXPECT_EQ(expectedVector1, vector1);
     EXPECT_EQ(expectedVector2, vector2);
 }

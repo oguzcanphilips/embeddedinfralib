@@ -33,7 +33,6 @@ namespace infra
         typedef std::size_t size_type;
 
     public:
-        BoundedVector();
         BoundedVector(const BoundedVector& other) = delete;
         explicit BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage);
         BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, size_type n, const value_type& value = value_type());
@@ -128,10 +127,6 @@ namespace infra
         void swap(BoundedVector<T>& x, BoundedVector<T>& y);
 
     //// Implementation ////
-
-    template<class T>
-    BoundedVector<T>::BoundedVector()
-    {}
 
     template<class T>
     BoundedVector<T>::BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage)

@@ -39,8 +39,10 @@ namespace infra
         T* end() const;
 
         T& operator[](std::size_t index) const;
-        bool operator==(const MemoryRange<T>& rhs) const;
-        bool operator!=(const MemoryRange<T>& rhs) const;
+        template<class U>
+            bool operator==(const MemoryRange<U>& rhs) const;
+        template<class U>
+            bool operator!=(const MemoryRange<U>& rhs) const;
 
         T& front() const;
         T& back() const;
@@ -190,13 +192,15 @@ namespace infra
     }
 
     template<class T>
-    bool MemoryRange<T>::operator==(const MemoryRange<T>& rhs) const
+    template<class U>
+    bool MemoryRange<T>::operator==(const MemoryRange<U>& rhs) const
     {
-        return beginElement == rhs.beginElement && endElement == rhs.endElement;
+        return begin() == rhs.begin() && end() == rhs.end();
     }
 
     template<class T>
-    bool MemoryRange<T>::operator!=(const MemoryRange<T>& rhs) const
+    template<class U>
+    bool MemoryRange<T>::operator!=(const MemoryRange<U>& rhs) const
     {
         return !(*this == rhs);
     }
