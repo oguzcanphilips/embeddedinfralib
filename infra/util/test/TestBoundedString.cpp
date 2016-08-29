@@ -17,7 +17,7 @@ TEST(BoundedStringTest, TestConstructFromNChars)
     
     EXPECT_EQ('a', string[0]);
     EXPECT_EQ('a', string[1]);
-    EXPECT_EQ('a', string[2]);
+    EXPECT_EQ('a', static_cast<const infra::BoundedString&>(string)[2]);
     EXPECT_EQ(3, string.size());
     EXPECT_FALSE(string.empty());
 }
@@ -25,7 +25,20 @@ TEST(BoundedStringTest, TestConstructFromNChars)
 TEST(BoundedStringTest, TestConstructFromOtherString)
 {
     infra::BoundedString::WithStorage<5> string(3, 'a');
-    infra::BoundedString::WithStorage<4> copy(string, 0, 3);
+
+    infra::BoundedString::WithStorage<4> copy1(string);
+    EXPECT_EQ('a', copy1[0]);
+    EXPECT_EQ(3, copy1.size());
+
+    infra::BoundedString::WithStorage<4> copy2(string, 0, 2);
+    EXPECT_EQ('a', copy2[0]);
+    EXPECT_EQ(2, copy2.size());
+}
+
+TEST(BoundedStringTest, TestConstructFromStdString)
+{
+    std::string string(3, 'a');
+    infra::BoundedString::WithStorage<4> copy(string);
 
     EXPECT_EQ('a', copy[0]);
     EXPECT_EQ(3, copy.size());
@@ -72,7 +85,7 @@ TEST(BoundedStringTest, TestConstructFromInitializerList)
     EXPECT_EQ(3, string.size());
 }
 
-TEST(BoundedStringTest, TestAssignFromString)
+TEST(BoundedStringTest, TestCopyAssignFromString)
 {
     infra::BoundedString::WithStorage<5> string(3, 'a');
     infra::BoundedString::WithStorage<5> copy;
@@ -82,7 +95,17 @@ TEST(BoundedStringTest, TestAssignFromString)
     EXPECT_EQ(string, copy);
 }
 
-TEST(BoundedStringTest, TestAssignFromZeroTerminated)
+TEST(BoundedStringTest, TestCopyAssignFromStdString)
+{
+    std::string string(3, 'a');
+    infra::BoundedString::WithStorage<5> copy;
+
+    copy = string;
+
+    EXPECT_EQ(string, copy);
+}
+
+TEST(BoundedStringTest, TestCopyAssignFromZeroTerminated)
 {
     infra::BoundedString::WithStorage<5> string;
     string = "abc";
@@ -91,10 +114,47 @@ TEST(BoundedStringTest, TestAssignFromZeroTerminated)
     EXPECT_EQ(3, string.size());
 }
 
-TEST(BoundedStringTest, TestAssignFromChar)
+TEST(BoundedStringTest, TestCopyAssignFromChar)
 {
     infra::BoundedString::WithStorage<5> string;
     string = 'a';
+
+    EXPECT_EQ("a", string);
+}
+
+TEST(BoundedStringTest, TestAssignFromString)
+{
+    infra::BoundedString::WithStorage<5> string(3, 'a');
+    infra::BoundedString::WithStorage<5> copy;
+
+    copy.assign(string);
+
+    EXPECT_EQ(string, copy);
+}
+
+TEST(BoundedStringTest, TestAssignFromStdString)
+{
+    std::string string(3, 'a');
+    infra::BoundedString::WithStorage<5> copy;
+
+    copy.assign(string);
+
+    EXPECT_EQ(string, copy);
+}
+
+TEST(BoundedStringTest, TestAssignFromZeroTerminated)
+{
+    infra::BoundedString::WithStorage<5> string;
+    string.assign("abc");
+
+    EXPECT_EQ("abc", string);
+    EXPECT_EQ(3, string.size());
+}
+
+TEST(BoundedStringTest, TestAssignFromChar)
+{
+    infra::BoundedString::WithStorage<5> string;
+    string.assign(1, 'a');
 
     EXPECT_EQ("a", string);
 }
@@ -103,12 +163,14 @@ TEST(BoundedStringTest, TestFront)
 {
     infra::BoundedString::WithStorage<5> string("abc");
     EXPECT_EQ('a', string.front());
+    EXPECT_EQ('a', static_cast<const infra::BoundedString&>(string).front());
 }
 
 TEST(BoundedStringTest, TestBack)
 {
     infra::BoundedString::WithStorage<5> string("abc");
     EXPECT_EQ('c', string.back());
+    EXPECT_EQ('c', static_cast<const infra::BoundedString&>(string).back());
 }
 
 TEST(BoundedStringTest, TestData)
@@ -121,24 +183,30 @@ TEST(BoundedStringTest, TestBegin)
 {
     infra::BoundedString::WithStorage<5> string("abc");
     EXPECT_EQ('a', *string.begin());
+    EXPECT_EQ('a', *string.cbegin());
 }
 
 TEST(BoundedStringTest, TestEnd)
 {
     infra::BoundedString::WithStorage<5> string("abc");
     EXPECT_EQ('c', *std::prev(string.end()));
+    EXPECT_EQ('c', *std::prev(string.cend()));
 }
 
 TEST(BoundedStringTest, TestRBegin)
 {
     infra::BoundedString::WithStorage<5> string("abc");
     EXPECT_EQ('c', *string.rbegin());
+    EXPECT_EQ('c', *static_cast<const infra::BoundedString&>(string).rbegin());
+    EXPECT_EQ('c', *string.crbegin());
 }
 
 TEST(BoundedStringTest, TestREnd)
 {
     infra::BoundedString::WithStorage<5> string("abc");
     EXPECT_EQ('a', *std::prev(string.rend()));
+    EXPECT_EQ('a', *std::prev(static_cast<const infra::BoundedString&>(string).rend()));
+    EXPECT_EQ('a', *std::prev(string.crend()));
 }
 
 TEST(BoundedStringTest, TestClear)
@@ -151,18 +219,24 @@ TEST(BoundedStringTest, TestClear)
 
 TEST(BoundedStringTest, TestAppendWithChars)
 {
-    infra::BoundedString::WithStorage<5> string("abc");
+    infra::BoundedString::WithStorage<10> string("abc");
     string.append(2, 'd');
     EXPECT_EQ("abcdd", string);
     EXPECT_EQ(5, string.size());
+    string += 'e';
+    EXPECT_EQ("abcdde", string);
 }
 
 TEST(BoundedStringTest, TestAppendWithString)
 {
-    infra::BoundedString::WithStorage<5> string("abc");
-    string.append(infra::BoundedString::WithStorage<5>("de"));
+    infra::BoundedString::WithStorage<10> string("abc");
+    string += infra::BoundedConstString("de");
     EXPECT_EQ("abcde", string);
     EXPECT_EQ(5, string.size());
+    string += "fg";
+    EXPECT_EQ("abcdefg", string);
+    string += std::string("hi");
+    EXPECT_EQ("abcdefghi", string);
 }
 
 TEST(BoundedStringTest, TestAppendWithSubString)
@@ -226,11 +300,17 @@ TEST(BoundedStringTest, TestInsertCharP)
 
 TEST(BoundedStringTest, TestInsertString)
 {
-    infra::BoundedString::WithStorage<5> string("abc");
+    infra::BoundedString::WithStorage<20> string("abc");
     infra::BoundedString::WithStorage<3> other("de");
     string.insert(1, other);
     EXPECT_EQ("adebc", string);
     EXPECT_EQ(5, string.size());
+    string.insert(1, other, 0, 1);
+    EXPECT_EQ("addebc", string);
+    string.insert(1, std::string("x"));
+    EXPECT_EQ("axddebc", string);
+    string.insert(1, std::string("x"), 0, 1);
+    EXPECT_EQ("axxddebc", string);
 }
 
 TEST(BoundedStringTest, TestInsertCharAtIterator)
@@ -306,6 +386,14 @@ TEST(BoundedStringTest, TestCompareEqual)
     infra::BoundedString::WithStorage<5> string1("abcd");
     infra::BoundedString::WithStorage<10> string2("abcd");
     EXPECT_EQ(0, string1.compare(string2));
+    EXPECT_EQ(0, string1.compare(0, 4, string2));
+    EXPECT_EQ(0, string1.compare(0, 4, string2, 0, 4));
+    EXPECT_EQ(0, string1.compare("abcd"));
+    EXPECT_EQ(0, string1.compare(0, 4, "abcd"));
+    EXPECT_EQ(0, string1.compare(0, 4, "abcd", 4));
+    EXPECT_EQ(0, string1.compare(std::string("abcd")));
+    EXPECT_EQ(0, string1.compare(0, 4, std::string("abcd")));
+    EXPECT_EQ(0, string1.compare(0, 4, std::string("abcd"), 4));
 }
 
 TEST(BoundedStringTest, TestCompareLess)
@@ -336,12 +424,75 @@ TEST(BoundedStringTest, TestCompareGreaterBySize)
     EXPECT_EQ(1, string1.compare(string2));
 }
 
+TEST(BoundedStringTest, TestCompareOperators)
+{
+    infra::BoundedConstString string("abc");
+    char stringC[] = "abc";
+    std::string stringStd = "abc";
+
+    EXPECT_TRUE(string == string);
+    EXPECT_TRUE(string == stringC);
+    EXPECT_TRUE(stringC == string);
+    EXPECT_TRUE(string == stringStd);
+    EXPECT_TRUE(stringStd == string);
+
+    EXPECT_FALSE(string != string);
+    EXPECT_FALSE(string != stringC);
+    EXPECT_FALSE(stringC != string);
+    EXPECT_FALSE(string != stringStd);
+    EXPECT_FALSE(stringStd != string);
+
+    EXPECT_FALSE(string < string);
+    EXPECT_FALSE(string < stringC);
+    EXPECT_FALSE(stringC < string);
+    EXPECT_FALSE(string < stringStd);
+    EXPECT_FALSE(stringStd < string);
+
+    EXPECT_TRUE(string <= string);
+    EXPECT_TRUE(string <= stringC);
+    EXPECT_TRUE(stringC <= string);
+    EXPECT_TRUE(string <= stringStd);
+    EXPECT_TRUE(stringStd <= string);
+
+    EXPECT_FALSE(string > string);
+    EXPECT_FALSE(string > stringC);
+    EXPECT_FALSE(stringC > string);
+    EXPECT_FALSE(string > stringStd);
+    EXPECT_FALSE(stringStd > string);
+
+    EXPECT_TRUE(string >= string);
+    EXPECT_TRUE(string >= stringC);
+    EXPECT_TRUE(stringC >= string);
+    EXPECT_TRUE(string >= stringStd);
+    EXPECT_TRUE(stringStd >= string);
+}
+
 TEST(BoundedStringTest, TestReplaceByString)
 {
-    infra::BoundedString::WithStorage<5> string1("abcde");
+    infra::BoundedString::WithStorage<10> string1("abcde");
     infra::BoundedString::WithStorage<10> string2("kl");
     string1.replace(1, 3, string2);
     EXPECT_EQ("akle", string1);
+    string1.replace(string1.begin() + 1, string1.begin() + 2, std::string("xx"));
+    EXPECT_EQ("axxle", string1);
+    string1.replace(1, 1, "z");
+    EXPECT_EQ("azxle", string1);
+    string1.replace(1, 1, "mmmm", 1);
+    EXPECT_EQ("amxle", string1);
+    string1.replace(string1.begin() + 1, string1.begin() + 2, "u");
+    EXPECT_EQ("auxle", string1);
+    string1.replace(string1.begin() + 1, string1.begin() + 2, "vvv", 1);
+    EXPECT_EQ("avxle", string1);
+    string1.replace(1, 1, std::string("y"));
+    EXPECT_EQ("ayxle", string1);
+    string1.replace(string1.begin() + 1, string1.begin() + 2, std::string("aaa"), 1);
+    EXPECT_EQ("aaxle", string1);
+    string1.replace(1, 1, std::string("bbb"), 1);
+    EXPECT_EQ("abxle", string1);
+    string1.replace(string1.begin() + 1, string1.begin() + 2, infra::BoundedConstString("c"));
+    EXPECT_EQ("acxle", string1);
+    string1.replace(1, 1, infra::BoundedConstString("d"), 0, 1);
+    EXPECT_EQ("adxle", string1);
 }
 
 TEST(BoundedStringTest, TestReplaceByChars)
@@ -349,6 +500,8 @@ TEST(BoundedStringTest, TestReplaceByChars)
     infra::BoundedString::WithStorage<5> string("abcd");
     string.replace(1, 2, 3, 'k');
     EXPECT_EQ("akkkd", string);
+    string.replace(string.begin() + 1, string.begin() + 2, 1, 'x');
+    EXPECT_EQ("axkkd", string);
 }
 
 TEST(BoundedStringTest, TestSubstr)
@@ -384,8 +537,10 @@ TEST(BoundedStringTest, TestSwap)
 
 TEST(BoundedStringTest, TestFind)
 {
+    infra::BoundedString::WithStorage<10> searchString = "def";
     infra::BoundedString::WithStorage<10> string("abcdefgh");
     EXPECT_EQ(3, string.find("def"));
+    EXPECT_EQ(3, string.find(searchString));
 }
 
 TEST(BoundedStringTest, TestFindNotFound)
@@ -402,8 +557,11 @@ TEST(BoundedStringTest, TestFindEmptyReturnsPos)
 
 TEST(BoundedStringTest, TestRFind)
 {
+    infra::BoundedString::WithStorage<10> searchString("def");
     infra::BoundedString::WithStorage<10> string("abcdefgh");
     EXPECT_EQ(3, string.rfind("def"));
+    EXPECT_EQ(3, string.rfind(searchString));
+    EXPECT_EQ(3, string.rfind('d'));
 }
 
 TEST(BoundedStringTest, TestRFindNotFound)
@@ -421,22 +579,30 @@ TEST(BoundedStringTest, TestRFindEmptyReturnsPos)
 TEST(BoundedStringTest, TestFindFirstOf)
 {
     char search[] = "dcb";
+    infra::BoundedString::WithStorage<5> searchString = "dcb";
     infra::BoundedString::WithStorage<5> string("abcde");
     EXPECT_EQ(1, string.find_first_of(search));
+    EXPECT_EQ(1, string.find_first_of(searchString));
+    EXPECT_EQ(1, string.find_first_of('b'));
 }
 
 TEST(BoundedStringTest, TestFindFirstNotOf)
 {
     char search[] = "dca";
+    infra::BoundedString::WithStorage<5> searchString = "dca";
     infra::BoundedString::WithStorage<5> string("abcde");
     EXPECT_EQ(1, string.find_first_not_of(search));
+    EXPECT_EQ(1, string.find_first_not_of(searchString));
+    EXPECT_EQ(1, string.find_first_not_of('a'));
 }
 
 TEST(BoundedStringTest, TestFindLastOf)
 {
     char search[] = "cdb";
+    infra::BoundedString::WithStorage<5> searchString = "cdb";
     infra::BoundedString::WithStorage<5> string("abcde");
     EXPECT_EQ(3, string.find_last_of(search));
+    EXPECT_EQ(3, string.find_last_of(searchString));
 }
 
 TEST(BoundedStringTest, TestFindLastNotOf)
@@ -444,4 +610,21 @@ TEST(BoundedStringTest, TestFindLastNotOf)
     char search[] = "dce";
     infra::BoundedString::WithStorage<5> string("abcde");
     EXPECT_EQ(1, string.find_last_not_of(search));
+    EXPECT_EQ(3, string.find_last_not_of('e'));
+}
+
+TEST(BoundedStringTest, TestPrintTo1)
+{
+    std::ostringstream stream;
+    infra::BoundedString::WithStorage<5> string = "abc";
+    infra::PrintTo(static_cast<infra::BoundedString&>(string), &stream);
+    EXPECT_EQ(R"("abc")", stream.str());
+}
+
+TEST(BoundedStringTest, TestPrintTo2)
+{
+    std::ostringstream stream;
+    infra::BoundedString::WithStorage<5> string = "abc";
+    infra::PrintTo(string, &stream);
+    EXPECT_EQ(R"("abc")", stream.str());
 }

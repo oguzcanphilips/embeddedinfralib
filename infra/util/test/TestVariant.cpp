@@ -229,7 +229,9 @@ TEST(VariantTest, TestDoubleVisitor)
     infra::Variant<bool, int> variant1(5);
     infra::Variant<bool, int> variant2(true);
     DoubleVisitor visitor;
+    EXPECT_EQ(2, infra::ApplyVisitor(visitor, variant2, variant2));
     EXPECT_EQ(6, infra::ApplyVisitor(visitor, variant1, variant2));
+    EXPECT_EQ(10, infra::ApplyVisitor(visitor, variant1, variant1));
 }
 
 struct EmptyVisitor
@@ -248,15 +250,123 @@ struct EmptyVisitor
     {}
 };
 
-TEST(VariantTest, TestRecursiveLoopUnrolling)
-{
-    struct A {};
-    struct B {};
-    struct C {};
-    struct D {};
-    struct E {};
-    struct F {};
+struct A {};
+struct B {};
+struct C {};
+struct D {};
+struct E {};
+struct F {};
 
+TEST(VariantTest, TestRecursiveLoopUnrolling3_1)
+{
+    infra::Variant<A, B, C> v((A()));
+    EmptyVisitor visitor;
+    infra::ApplyVisitor(visitor, v);
+    infra::ApplyVisitor(visitor, v, v);
+    infra::ApplySameTypeVisitor(visitor, v, v);
+}
+
+TEST(VariantTest, TestRecursiveLoopUnrolling3_2)
+{
+    infra::Variant<A, B, C> v((B()));
+    EmptyVisitor visitor;
+    infra::ApplyVisitor(visitor, v);
+    infra::ApplyVisitor(visitor, v, v);
+    infra::ApplySameTypeVisitor(visitor, v, v);
+}
+
+TEST(VariantTest, TestRecursiveLoopUnrolling3_3)
+{
+    infra::Variant<A, B, C> v((C()));
+    EmptyVisitor visitor;
+    infra::ApplyVisitor(visitor, v);
+    infra::ApplyVisitor(visitor, v, v);
+    infra::ApplySameTypeVisitor(visitor, v, v);
+}
+
+TEST(VariantTest, TestRecursiveLoopUnrolling4_1)
+{
+    infra::Variant<A, B, C, D> v((A()));
+    EmptyVisitor visitor;
+    infra::ApplyVisitor(visitor, v);
+    infra::ApplyVisitor(visitor, v, v);
+    infra::ApplySameTypeVisitor(visitor, v, v);
+}
+
+TEST(VariantTest, TestRecursiveLoopUnrolling4_2)
+{
+    infra::Variant<A, B, C, D> v((B()));
+    EmptyVisitor visitor;
+    infra::ApplyVisitor(visitor, v);
+    infra::ApplyVisitor(visitor, v, v);
+    infra::ApplySameTypeVisitor(visitor, v, v);
+}
+
+TEST(VariantTest, TestRecursiveLoopUnrolling4_3)
+{
+    infra::Variant<A, B, C, D> v((C()));
+    EmptyVisitor visitor;
+    infra::ApplyVisitor(visitor, v);
+    infra::ApplyVisitor(visitor, v, v);
+    infra::ApplySameTypeVisitor(visitor, v, v);
+}
+
+TEST(VariantTest, TestRecursiveLoopUnrolling4_4)
+{
+    infra::Variant<A, B, C, D> v((D()));
+    EmptyVisitor visitor;
+    infra::ApplyVisitor(visitor, v);
+    infra::ApplyVisitor(visitor, v, v);
+    infra::ApplySameTypeVisitor(visitor, v, v);
+}
+
+TEST(VariantTest, TestRecursiveLoopUnrolling5_1)
+{
+    infra::Variant<A, B, C, D, E> v((A()));
+    EmptyVisitor visitor;
+    infra::ApplyVisitor(visitor, v);
+    infra::ApplyVisitor(visitor, v, v);
+    infra::ApplySameTypeVisitor(visitor, v, v);
+}
+
+TEST(VariantTest, TestRecursiveLoopUnrolling5_2)
+{
+    infra::Variant<A, B, C, D, E> v((B()));
+    EmptyVisitor visitor;
+    infra::ApplyVisitor(visitor, v);
+    infra::ApplyVisitor(visitor, v, v);
+    infra::ApplySameTypeVisitor(visitor, v, v);
+}
+
+TEST(VariantTest, TestRecursiveLoopUnrolling5_3)
+{
+    infra::Variant<A, B, C, D, E> v((C()));
+    EmptyVisitor visitor;
+    infra::ApplyVisitor(visitor, v);
+    infra::ApplyVisitor(visitor, v, v);
+    infra::ApplySameTypeVisitor(visitor, v, v);
+}
+
+TEST(VariantTest, TestRecursiveLoopUnrolling5_4)
+{
+    infra::Variant<A, B, C, D, E> v((D()));
+    EmptyVisitor visitor;
+    infra::ApplyVisitor(visitor, v);
+    infra::ApplyVisitor(visitor, v, v);
+    infra::ApplySameTypeVisitor(visitor, v, v);
+}
+
+TEST(VariantTest, TestRecursiveLoopUnrolling5_5)
+{
+    infra::Variant<A, B, C, D, E> v((E()));
+    EmptyVisitor visitor;
+    infra::ApplyVisitor(visitor, v);
+    infra::ApplyVisitor(visitor, v, v);
+    infra::ApplySameTypeVisitor(visitor, v, v);
+}
+
+TEST(VariantTest, TestRecursiveLoopUnrollingX)
+{
     infra::Variant<A, B, C, D, E, F> v((F()));
     EmptyVisitor visitor;
     infra::ApplyVisitor(visitor, v);

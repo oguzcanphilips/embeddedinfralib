@@ -159,9 +159,12 @@ namespace infra
         int compare(size_type pos1, size_type count1, const std::string& s) const;
         int compare(size_type pos1, size_type count1, const std::string& s, size_type count2) const;
 
-        BoundedStringBase& replace(size_type pos, size_type count, const BoundedStringBase& other);
-        BoundedStringBase& replace(const_iterator first, const_iterator last, const BoundedStringBase& other);
-        BoundedStringBase& replace(size_type pos, size_type count, const BoundedStringBase& other, size_type pos2, size_type count2);
+        template<class U>
+            BoundedStringBase& replace(size_type pos, size_type count, const BoundedStringBase<U>& other);
+        template<class U>
+            BoundedStringBase& replace(const_iterator first, const_iterator last, const BoundedStringBase<U>& other);
+        template<class U>
+            BoundedStringBase& replace(size_type pos, size_type count, const BoundedStringBase<U>& other, size_type pos2, size_type count2);
         template<class InputIterator>
             BoundedStringBase& replace(const_iterator first, const_iterator last, InputIterator first2, InputIterator last2);
         BoundedStringBase& replace(size_type pos, size_type count, const char* cstr, size_type count2);
@@ -695,13 +698,13 @@ namespace infra
     template<class T>
     BoundedStringBase<T>& BoundedStringBase<T>::insert(size_type index, const std::string& other)
     {
-        insert(index, other.data(), other.size());
+        return insert(index, other.data(), other.size());
     }
 
     template<class T>
     BoundedStringBase<T>& BoundedStringBase<T>::insert(size_type index, const std::string& other, size_type index_str, size_type count)
     {
-        insert(index, other.data() + index_str, count);
+        return insert(index, other.data() + index_str, count);
     }
 
     template<class T>
@@ -898,23 +901,26 @@ namespace infra
     }
 
     template<class T>
-    BoundedStringBase<T>& BoundedStringBase<T>::replace(size_type pos, size_type count, const BoundedStringBase<T>& other)
+    template<class U>
+    BoundedStringBase<T>& BoundedStringBase<T>::replace(size_type pos, size_type count, const BoundedStringBase<U>& other)
     {
         ReplaceImpl(begin() + pos, count, other.begin(), other.size());
         return *this;
     }
 
     template<class T>
-    BoundedStringBase<T>& BoundedStringBase<T>::replace(const_iterator first, const_iterator last, const BoundedStringBase<T>& other)
+    template<class U>
+    BoundedStringBase<T>& BoundedStringBase<T>::replace(const_iterator first, const_iterator last, const BoundedStringBase<U>& other)
     {
         ReplaceImpl(begin() + std::distance(cbegin(), first), std::distance(first, last), other.begin(), other.size());
         return *this;
     }
 
     template<class T>
-    BoundedStringBase<T>& BoundedStringBase<T>::replace(size_type pos, size_type count, const BoundedStringBase<T>& other, size_type pos2, size_type count2)
+    template<class U>
+    BoundedStringBase<T>& BoundedStringBase<T>::replace(size_type pos, size_type count, const BoundedStringBase<U>& other, size_type pos2, size_type count2)
     {
-        ReplaceImpl(begin() + pos, count, other.begin() + pos2, count2);
+        ReplaceImpl(begin() + pos, count, other.begin(), count2);
         return *this;
     }
 

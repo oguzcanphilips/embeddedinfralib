@@ -183,49 +183,42 @@ namespace infra
         template<std::size_t Index, class Visitor, class Variant>
         typename Visitor::ResultType ApplyVisitorHelper<Index, Visitor, Variant, typename std::enable_if<Index + 1 == Variant::size>::type>::operator()(Visitor& visitor, Variant& variant)
         {
-            if (variant.Which() == Index)
-                return visitor(variant.template GetAtIndex<Index>());
+            assert(variant.Which() == Index);
 
-            std::abort();
+            return visitor(variant.template GetAtIndex<Index>());
         }
 
         template<std::size_t Index, class Visitor, class Variant>
         typename Visitor::ResultType ApplyVisitorHelper<Index, Visitor, Variant, typename std::enable_if<Index + 2 == Variant::size>::type>::operator()(Visitor& visitor, Variant& variant)
         {
+            assert(variant.Which() >= Index && variant.Which() < Index + 2);
             if (variant.Which() == Index)
                 return visitor(variant.template GetAtIndex<Index>());
-            if (variant.Which() == Index + 1)
-                return visitor(variant.template GetAtIndex<Index + 1>());
-
-            std::abort();
+            return visitor(variant.template GetAtIndex<Index + 1>());
         }
 
         template<std::size_t Index, class Visitor, class Variant>
         typename Visitor::ResultType ApplyVisitorHelper<Index, Visitor, Variant, typename std::enable_if<Index + 3 == Variant::size>::type>::operator()(Visitor& visitor, Variant& variant)
         {
+            assert(variant.Which() >= Index && variant.Which() < Index + 3);
             if (variant.Which() == Index)
                 return visitor(variant.template GetAtIndex<Index>());
             if (variant.Which() == Index + 1)
                 return visitor(variant.template GetAtIndex<Index + 1>());
-            if (variant.Which() == Index + 2)
-                return visitor(variant.template GetAtIndex<Index + 2>());
-
-            std::abort();
+            return visitor(variant.template GetAtIndex<Index + 2>());
         }
 
         template<std::size_t Index, class Visitor, class Variant>
         typename Visitor::ResultType ApplyVisitorHelper<Index, Visitor, Variant, typename std::enable_if<Index + 4 == Variant::size>::type>::operator()(Visitor& visitor, Variant& variant)
         {
+            assert(variant.Which() >= Index && variant.Which() < Index + 4);
             if (variant.Which() == Index)
                 return visitor(variant.template GetAtIndex<Index>());
             if (variant.Which() == Index + 1)
                 return visitor(variant.template GetAtIndex<Index + 1>());
             if (variant.Which() == Index + 2)
                 return visitor(variant.template GetAtIndex<Index + 2>());
-            if (variant.Which() == Index + 3)
-                return visitor(variant.template GetAtIndex<Index + 3>());
-
-            std::abort();
+            return visitor(variant.template GetAtIndex<Index + 3>());
         }
 
         template<std::size_t Index, class Visitor, class Variant>
@@ -334,91 +327,77 @@ namespace infra
         template<class T>
         typename Visitor::ResultType ApplyVisitorHelper2<Index, Visitor, Variant, typename std::enable_if<Index + 1 == Variant::size>::type>::VisitSecond(Visitor& visitor, const T& v1, const Variant& variant2)
         {
-            if (variant2.Which() == Index)
-                return visitor(v1, variant2.template GetAtIndex<Index>());
-
-            std::abort();
+            assert(variant2.Which() == Index);
+            return visitor(v1, variant2.template GetAtIndex<Index>());
         }
 
         template<std::size_t Index, class Visitor, class Variant>
         typename Visitor::ResultType ApplyVisitorHelper2<Index, Visitor, Variant, typename std::enable_if<Index + 2 == Variant::size>::type>::operator()(Visitor& visitor, const Variant& variant1, const Variant& variant2)
         {
+            assert(variant1.Which() >= Index && variant1.Which() < Index + 2);
             if (variant1.Which() == Index)
                 return ApplyVisitorHelper2<0, Visitor, Variant>().VisitSecond(visitor, variant1.template GetAtIndex<Index>(), variant2);
-            if (variant1.Which() == Index + 1)
-                return ApplyVisitorHelper2<0, Visitor, Variant>().VisitSecond(visitor, variant1.template GetAtIndex<Index + 1>(), variant2);
-
-            std::abort();
+            return ApplyVisitorHelper2<0, Visitor, Variant>().VisitSecond(visitor, variant1.template GetAtIndex<Index + 1>(), variant2);
         }
 
         template<std::size_t Index, class Visitor, class Variant>
         template<class T>
         typename Visitor::ResultType ApplyVisitorHelper2<Index, Visitor, Variant, typename std::enable_if<Index + 2 == Variant::size>::type>::VisitSecond(Visitor& visitor, const T& v1, const Variant& variant2)
         {
+            assert(variant2.Which() >= Index && variant2.Which() < Index + 2);
             if (variant2.Which() == Index)
                 return visitor(v1, variant2.template GetAtIndex<Index>());
-            if (variant2.Which() == Index + 1)
-                return visitor(v1, variant2.template GetAtIndex<Index + 1>());
-
-            std::abort();
+            return visitor(v1, variant2.template GetAtIndex<Index + 1>());
         }
 
         template<std::size_t Index, class Visitor, class Variant>
         typename Visitor::ResultType ApplyVisitorHelper2<Index, Visitor, Variant, typename std::enable_if<Index + 3 == Variant::size>::type>::operator()(Visitor& visitor, const Variant& variant1, const Variant& variant2)
         {
+            assert(variant1.Which() >= Index && variant1.Which() < Index + 3);
             if (variant1.Which() == Index)
                 return ApplyVisitorHelper2<0, Visitor, Variant>().VisitSecond(visitor, variant1.template GetAtIndex<Index>(), variant2);
             if (variant1.Which() == Index + 1)
                 return ApplyVisitorHelper2<0, Visitor, Variant>().VisitSecond(visitor, variant1.template GetAtIndex<Index + 1>(), variant2);
-            if (variant1.Which() == Index + 2)
-                return ApplyVisitorHelper2<0, Visitor, Variant>().VisitSecond(visitor, variant1.template GetAtIndex<Index + 2>(), variant2);
-
-            std::abort();
+            return ApplyVisitorHelper2<0, Visitor, Variant>().VisitSecond(visitor, variant1.template GetAtIndex<Index + 2>(), variant2);
         }
 
         template<std::size_t Index, class Visitor, class Variant>
         template<class T>
         typename Visitor::ResultType ApplyVisitorHelper2<Index, Visitor, Variant, typename std::enable_if<Index + 3 == Variant::size>::type>::VisitSecond(Visitor& visitor, const T& v1, const Variant& variant2)
         {
+            assert(variant2.Which() >= Index && variant2.Which() < Index + 3);
             if (variant2.Which() == Index)
                 return visitor(v1, variant2.template GetAtIndex<Index>());
             if (variant2.Which() == Index + 1)
                 return visitor(v1, variant2.template GetAtIndex<Index + 1>());
-            if (variant2.Which() == Index + 2)
-                return visitor(v1, variant2.template GetAtIndex<Index + 2>());
-
-            std::abort();
+            return visitor(v1, variant2.template GetAtIndex<Index + 2>());
         }
 
         template<std::size_t Index, class Visitor, class Variant>
         typename Visitor::ResultType ApplyVisitorHelper2<Index, Visitor, Variant, typename std::enable_if<Index + 4 == Variant::size>::type>::operator()(Visitor& visitor, const Variant& variant1, const Variant& variant2)
         {
+            assert(variant1.Which() >= Index && variant1.Which() < Index + 4);
             if (variant1.Which() == Index)
                 return ApplyVisitorHelper2<0, Visitor, Variant>().VisitSecond(visitor, variant1.template GetAtIndex<Index>(), variant2);
             if (variant1.Which() == Index + 1)
                 return ApplyVisitorHelper2<0, Visitor, Variant>().VisitSecond(visitor, variant1.template GetAtIndex<Index + 1>(), variant2);
             if (variant1.Which() == Index + 2)
                 return ApplyVisitorHelper2<0, Visitor, Variant>().VisitSecond(visitor, variant1.template GetAtIndex<Index + 2>(), variant2);
-            if (variant1.Which() == Index + 3)
-                return ApplyVisitorHelper2<0, Visitor, Variant>().VisitSecond(visitor, variant1.template GetAtIndex<Index + 3>(), variant2);
-
-            std::abort();
+            return ApplyVisitorHelper2<0, Visitor, Variant>().VisitSecond(visitor, variant1.template GetAtIndex<Index + 3>(), variant2);
         }
 
         template<std::size_t Index, class Visitor, class Variant>
         template<class T>
         typename Visitor::ResultType ApplyVisitorHelper2<Index, Visitor, Variant, typename std::enable_if<Index + 4 == Variant::size>::type>::VisitSecond(Visitor& visitor, const T& v1, const Variant& variant2)
         {
+            assert(variant2.Which() >= Index && variant2.Which() < Index + 4);
             if (variant2.Which() == Index)
                 return visitor(v1, variant2.template GetAtIndex<Index>());
             if (variant2.Which() == Index + 1)
                 return visitor(v1, variant2.template GetAtIndex<Index + 1>());
             if (variant2.Which() == Index + 2)
                 return visitor(v1, variant2.template GetAtIndex<Index + 2>());
-            if (variant2.Which() == Index + 3)
-                return visitor(v1, variant2.template GetAtIndex<Index + 3>());
-
-            std::abort();
+            return visitor(v1, variant2.template GetAtIndex<Index + 3>());
         }
 
         template<std::size_t Index, class Visitor, class Variant>
@@ -477,49 +456,41 @@ namespace infra
         template<std::size_t Index, class Visitor, class Variant>
         typename Visitor::ResultType ApplySameTypeVisitorHelper<Index, Visitor, Variant, typename std::enable_if<Index + 1 == Variant::size>::type>::operator()(Visitor& visitor, const Variant& variant1, const Variant& variant2)
         {
-            if (variant1.Which() == Index)
-                return visitor(variant1.template GetAtIndex<Index>(), variant2.template GetAtIndex<Index>());
-
-            std::abort();
+            assert(variant1.Which() == Index);
+            return visitor(variant1.template GetAtIndex<Index>(), variant2.template GetAtIndex<Index>());
         }
 
         template<std::size_t Index, class Visitor, class Variant>
         typename Visitor::ResultType ApplySameTypeVisitorHelper<Index, Visitor, Variant, typename std::enable_if<Index + 2 == Variant::size>::type>::operator()(Visitor& visitor, const Variant& variant1, const Variant& variant2)
         {
+            assert(variant1.Which() >= Index && variant1.Which() < Index + 2);
             if (variant1.Which() == Index)
                 return visitor(variant1.template GetAtIndex<Index>(), variant2.template GetAtIndex<Index>());
-            if (variant1.Which() == Index + 1)
-                return visitor(variant1.template GetAtIndex<Index + 1>(), variant2.template GetAtIndex<Index + 1>());
-
-            std::abort();
+            return visitor(variant1.template GetAtIndex<Index + 1>(), variant2.template GetAtIndex<Index + 1>());
         }
 
         template<std::size_t Index, class Visitor, class Variant>
         typename Visitor::ResultType ApplySameTypeVisitorHelper<Index, Visitor, Variant, typename std::enable_if<Index + 3 == Variant::size>::type>::operator()(Visitor& visitor, const Variant& variant1, const Variant& variant2)
         {
+            assert(variant1.Which() >= Index && variant1.Which() < Index + 3);
             if (variant1.Which() == Index)
                 return visitor(variant1.template GetAtIndex<Index>(), variant2.template GetAtIndex<Index>());
             if (variant1.Which() == Index + 1)
                 return visitor(variant1.template GetAtIndex<Index + 1>(), variant2.template GetAtIndex<Index + 1>());
-            if (variant1.Which() == Index + 2)
-                return visitor(variant1.template GetAtIndex<Index + 2>(), variant2.template GetAtIndex<Index + 2>());
-
-            std::abort();
+            return visitor(variant1.template GetAtIndex<Index + 2>(), variant2.template GetAtIndex<Index + 2>());
         }
 
         template<std::size_t Index, class Visitor, class Variant>
         typename Visitor::ResultType ApplySameTypeVisitorHelper<Index, Visitor, Variant, typename std::enable_if<Index + 4 == Variant::size>::type>::operator()(Visitor& visitor, const Variant& variant1, const Variant& variant2)
         {
+            assert(variant1.Which() >= Index && variant1.Which() < Index + 4);
             if (variant1.Which() == Index)
                 return visitor(variant1.template GetAtIndex<Index>(), variant2.template GetAtIndex<Index>());
             if (variant1.Which() == Index + 1)
                 return visitor(variant1.template GetAtIndex<Index + 1>(), variant2.template GetAtIndex<Index + 1>());
             if (variant1.Which() == Index + 2)
                 return visitor(variant1.template GetAtIndex<Index + 2>(), variant2.template GetAtIndex<Index + 2>());
-            if (variant1.Which() == Index + 3)
-                return visitor(variant1.template GetAtIndex<Index + 3>(), variant2.template GetAtIndex<Index + 3>());
-
-            std::abort();
+            return visitor(variant1.template GetAtIndex<Index + 3>(), variant2.template GetAtIndex<Index + 3>());
         }
 
         template<class T>
