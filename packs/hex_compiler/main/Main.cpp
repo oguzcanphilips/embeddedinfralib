@@ -5,11 +5,11 @@
 
 int main(int argc, const char* argv[])
 {
-    hal::FileSystemWin fileSystem;
-    application::Compiler compiler(fileSystem);
-
     try
     {
+        hal::FileSystemWin fileSystem;
+        application::Compiler compiler(fileSystem);
+
         for (int i = 1; i != argc; ++i)
             compiler.AddParameter(argv[i]);
 
@@ -51,6 +51,14 @@ int main(int argc, const char* argv[])
     catch (hal::CannotOpenFileException& exception)
     {
         std::cout << "Cannot open file " << exception.name << std::endl;
+    }
+    catch (std::ios::failure& exception)
+    {
+        std::cout << "I/O failure: " << exception.what() << std::endl;
+    }
+    catch (std::runtime_error& exception)
+    {
+        std::cout << "Runtime error: " << exception.what() << std::endl;
     }
 
     return EXIT_FAILURE;

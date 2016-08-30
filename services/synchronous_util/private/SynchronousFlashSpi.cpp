@@ -14,7 +14,6 @@ namespace services
         : SynchronousFlashHomogeneous(config.numberOfSubSectors, sizeSubSector)
         , spi(spi)
         , config(config)
-        , instructionAndAddress()
     {}
 
     void SynchronousFlashSpi::WriteBuffer(infra::ConstByteRange buffer_, uint32_t address_)

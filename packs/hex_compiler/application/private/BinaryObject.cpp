@@ -66,15 +66,13 @@ namespace application
 
     void BinaryObject::AddLine(const std::string& line, const std::string& fileName, int lineNumber)
     {
-        if (endOfFile)
-            throw DataAfterEndOfFileException(fileName, lineNumber);
+        VerifyNotEndOfFile(fileName, lineNumber);
 
         LineContents lineContents(line, fileName, lineNumber);
         switch (lineContents.recordType)
         {
             case 0:
-                for (std::size_t i = 0; i != lineContents.data.size(); ++i)
-                    memory.Insert(lineContents.data[i], linearAddress + offset + lineContents.address + i);
+                InsertLineContents(lineContents);
                 break;
             case 1:
                 endOfFile = true;
@@ -97,6 +95,18 @@ namespace application
         }
     }
     
+    void BinaryObject::VerifyNotEndOfFile(const std::string& fileName, int lineNumber) const
+    {
+        if (endOfFile)
+            throw DataAfterEndOfFileException(fileName, lineNumber);
+    }
+
+    void BinaryObject::InsertLineContents(const LineContents& lineContents)
+    {
+        for (std::size_t i = 0; i != lineContents.data.size(); ++i)
+            memory.Insert(lineContents.data[i], linearAddress + offset + lineContents.address + i);
+    }
+
     BinaryObject::LineContents::LineContents(std::string line, const std::string& fileName, int lineNumber)
     {
         infra::StdStringInputStream stream(line, infra::softFail);

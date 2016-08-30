@@ -5,6 +5,7 @@ namespace application
     DeployPackToExternal::DeployPackToExternal(hal::Flash& from_, hal::Flash& to_, hal::GpioPin& statusLedPin)
         : from(from_)
         , to(to_)
+        , header()
         , statusLed(statusLedPin, std::chrono::milliseconds(100))
     {
         statusLed.Set(0x01, 16);

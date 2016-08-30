@@ -59,8 +59,8 @@ namespace services
 
         struct InstructionAndAddress
         {
-            uint8_t instruction;
-            std::array<uint8_t, 3> address;
+            uint8_t instruction = 0;
+            std::array<uint8_t, 3> address = {};
         } instructionAndAddress;
     };
 }

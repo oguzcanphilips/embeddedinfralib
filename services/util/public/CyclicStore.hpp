@@ -76,8 +76,8 @@ namespace services
         struct BlockHeader
         {
             BlockStatus status;
-            uint8_t lengthLsb;
-            uint8_t lengthMsb;
+            uint8_t lengthLsb = 0;
+            uint8_t lengthMsb = 0;
 
             Length BlockLength() const
             {

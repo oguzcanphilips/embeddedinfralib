@@ -56,13 +56,13 @@ namespace services
         infra::ConstByteRange writeBuffer;
         infra::ByteRange readBuffer;
         uint32_t address;
-        uint32_t sectorIndex;
+        uint32_t sectorIndex = 0;
         uint8_t statusRegister = 0;
 
         struct InstructionAndAddress
         {
-            uint8_t instruction;
-            std::array<uint8_t, 3> address;
+            uint8_t instruction = 0;
+            std::array<uint8_t, 3> address = {};
         } instructionAndAddress;
     };
 }

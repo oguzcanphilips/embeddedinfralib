@@ -142,6 +142,9 @@ namespace application
 
     void MaterialGenerator::PrintVector(std::ostream& output, const char* name, const std::vector<uint8_t>& vector)
     {
+        std::ios oldState(nullptr);
+        oldState.copyfmt(output);
+
         output << "const std::array<uint8_t, " << vector.size() << "> " << name << " = { {";
 
         for (std::size_t i = 0; i != vector.size(); i++)
@@ -155,5 +158,7 @@ namespace application
         }
 
         output << "\n} };\n\n";
+
+        output.copyfmt(oldState);
     }
 }

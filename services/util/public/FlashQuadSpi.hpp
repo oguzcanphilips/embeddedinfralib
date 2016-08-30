@@ -55,7 +55,7 @@ namespace services
     private:
         hal::QuadSpi& spi;
         infra::Function<void()> onInitialized;
-        uint32_t numberOfSubSectors;
+        uint32_t numberOfSubSectors = 0;
         infra::Sequencer sequencer;
         infra::TimerSingleShot initDelayTimer;
         infra::AutoResetFunction<void()> onDone;

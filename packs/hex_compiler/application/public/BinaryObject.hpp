@@ -69,6 +69,8 @@ namespace application
 
     private:
         void AddLine(const std::string& line, const std::string& fileName, int lineNumber);
+        void VerifyNotEndOfFile(const std::string& fileName, int lineNumber) const;
+        void InsertLineContents(const LineContents& lineContents);
 
     private:
         SparseVector<uint8_t> memory;
