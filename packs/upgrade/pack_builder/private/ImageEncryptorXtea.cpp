@@ -48,7 +48,6 @@ namespace application
 
         std::vector<uint8_t> decrypted(encrypted.size() - blockLength, 0);
 
-        size_t remDataLen = decrypted.size();
         int ret = mbedtls_xtea_crypt_cbc(&ctx, MBEDTLS_XTEA_DECRYPT, decrypted.size(), iv.data(), encrypted.data() + blockLength, decrypted.data());    //TICS !INT#030
 
         return ret == 0 && mbedtls_xtea_self_test(0) == 0 && decrypted == original;

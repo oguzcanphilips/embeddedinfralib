@@ -41,7 +41,7 @@ namespace infra
 
     void EventDispatcher::Run()
     {
-        while (true)
+        while (true)                                                                                            //TICS !CPP4127
         {
             ExecuteAllActions();
             Idle();

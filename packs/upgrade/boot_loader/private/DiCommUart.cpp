@@ -97,7 +97,7 @@ namespace application
     {
         timeKeeper.Reset();
 
-        while (true)
+        while (true)                                                                                            //TICS !CPP4127
         {
             uint8_t firstStart = 0;
             if (!ReceiveData(infra::MakeByteRange(firstStart)))

@@ -40,7 +40,7 @@ namespace infra
         typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
     public:
-        static const size_type npos = -1;
+        static const size_type npos = std::numeric_limits<size_type>::max();
 
     public:
         BoundedStringBase();
