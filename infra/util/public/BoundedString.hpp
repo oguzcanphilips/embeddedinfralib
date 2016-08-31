@@ -40,7 +40,7 @@ namespace infra
         typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
     public:
-        static const size_type npos = std::numeric_limits<size_type>::max();
+        static const size_type npos;
 
     public:
         BoundedStringBase();
@@ -1333,6 +1333,9 @@ namespace infra
         ReplaceImpl(begin() + count, last - first, first2, replacementSize);
         return *this;
     }
+
+    template<class T>
+    const typename BoundedStringBase<T>::size_type BoundedStringBase<T>::npos = std::numeric_limits<size_type>::max();
 
     template<class T, class U>
     bool operator==(const BoundedStringBase<T>& lhs, const BoundedStringBase<U>& rhs)
