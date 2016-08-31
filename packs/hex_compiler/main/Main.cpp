@@ -3,17 +3,28 @@
 #include <iostream>
 #include <iomanip>
 
+namespace
+{
+    void AddParameters(application::Compiler& compiler, int argc, const char* argv[])
+    {
+        for (int i = 1; i != argc; ++i)
+            compiler.AddParameter(argv[i]);
+    }
+
+    void Compile(int argc, const char* argv[])
+    {
+        hal::FileSystemWin fileSystem;
+        application::Compiler compiler(fileSystem);
+        AddParameters(compiler, argc, argv);
+        compiler.Compile();
+    }
+}
+
 int main(int argc, const char* argv[])
 {
     try
     {
-        hal::FileSystemWin fileSystem;
-        application::Compiler compiler(fileSystem);
-
-        for (int i = 1; i != argc; ++i)
-            compiler.AddParameter(argv[i]);
-
-        compiler.Compile();
+        Compile(argc, argv);
         return EXIT_SUCCESS;
     }
     catch (application::IncorrectUsageException&)
