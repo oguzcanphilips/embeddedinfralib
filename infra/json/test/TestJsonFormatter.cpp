@@ -11,7 +11,7 @@ TEST(BasicUsageTest, format_json_object)
         formatter.Add("canupgrade", true);
     }
 
-    EXPECT_EQ(R"({ "name": "Upgrade 19.2", "version": "19.2", "canupgrade": true })", response);
+    EXPECT_EQ(R"({ "name":"Upgrade 19.2", "version":"19.2", "canupgrade":true })", response);
 }
 
 TEST(JsonObjectFormatter, construction_results_in_empty_object)
@@ -35,7 +35,7 @@ TEST(JsonObjectFormatter, add_bool)
         formatter.Add("falseTag", false);
     }
 
-    EXPECT_EQ(R"({ "trueTag": true, "falseTag": false })", string);
+    EXPECT_EQ(R"({ "trueTag":true, "falseTag":false })", string);
 }
 
 TEST(JsonObjectFormatter, add_int)
@@ -48,7 +48,7 @@ TEST(JsonObjectFormatter, add_int)
         formatter.Add("uint32Tag", static_cast<uint32_t>(5));
     }
 
-    EXPECT_EQ(R"({ "intTag": 0, "uint32Tag": 5 })", string);
+    EXPECT_EQ(R"({ "intTag":0, "uint32Tag":5 })", string);
 }
 
 TEST(JsonObjectFormatter, add_const_char_ptr)
@@ -61,7 +61,7 @@ TEST(JsonObjectFormatter, add_const_char_ptr)
         formatter.Add("tag", s);
     }
 
-    EXPECT_EQ(R"({ "tag": "test" })", string);
+    EXPECT_EQ(R"({ "tag":"test" })", string);
 }
 
 TEST(JsonObjectFormatter, add_BoundedConstString)
@@ -74,7 +74,7 @@ TEST(JsonObjectFormatter, add_BoundedConstString)
         formatter.Add("tag", s);
     }
 
-    EXPECT_EQ(R"({ "tag": "test" })", string);
+    EXPECT_EQ(R"({ "tag":"test" })", string);
 }
 
 TEST(JsonObjectFormatter, add_sub_object)
@@ -89,7 +89,7 @@ TEST(JsonObjectFormatter, add_sub_object)
         }
     }
 
-    EXPECT_EQ(R"({ "tag": { "subTagName": "value" } })", string);
+    EXPECT_EQ(R"({ "tag":{ "subTagName":"value" } })", string);
 }
 
 TEST(JsonObjectFormatter, output_is_truncated_on_small_output_string)
@@ -180,7 +180,7 @@ TEST(JsonArrayFormatter, add_sub_object)
         }
     }
 
-    EXPECT_EQ(R"([ { "subTagName": "value" } ])", string);
+    EXPECT_EQ(R"([ { "subTagName":"value" } ])", string);
 }
 
 TEST(JsonArrayFormatter, output_is_truncated_on_small_output_string)

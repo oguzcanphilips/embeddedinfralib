@@ -29,37 +29,37 @@ namespace infra
     void JsonObjectFormatter::Add(const char* tagName, bool tag)
     {
         InsertSeparation();
-        *stream << '"' << tagName << R"(": )" << (tag ? "true" : "false");
+        *stream << '"' << tagName << R"(":)" << (tag ? "true" : "false");
     }
 
     void JsonObjectFormatter::Add(const char* tagName, int32_t tag)
     {
         InsertSeparation();
-        *stream << '"' << tagName << R"(": )" << tag;
+        *stream << '"' << tagName << R"(":)" << tag;
     }
 
     void JsonObjectFormatter::Add(const char* tagName, uint32_t tag)
     {
         InsertSeparation();
-        *stream << '"' << tagName << R"(": )" << tag;
+        *stream << '"' << tagName << R"(":)" << tag;
     }
 
     void JsonObjectFormatter::Add(const char* tagName, const char* tag)
     {
         InsertSeparation();
-        *stream << '"' << tagName << R"(": ")" << tag << '"';
+        *stream << '"' << tagName << R"(":")" << tag << '"';
     }
 
     void JsonObjectFormatter::Add(const char* tagName, infra::BoundedConstString tag)
     {
         InsertSeparation();
-        *stream << '"' << tagName << R"(": ")" << tag << '"';
+        *stream << '"' << tagName << R"(":")" << tag << '"';
     }
 
     JsonObjectFormatter JsonObjectFormatter::SubObject(const char* tagName)
     {
         InsertSeparation();
-        *stream << '"' << tagName << R"(": )";
+        *stream << '"' << tagName << R"(":)";
 
         return JsonObjectFormatter(*stream);
     }
