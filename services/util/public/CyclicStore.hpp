@@ -75,7 +75,7 @@ namespace services
 
         struct BlockHeader
         {
-            BlockStatus status;
+            BlockStatus status = BlockStatus::empty;
             uint8_t lengthLsb = 0;
             uint8_t lengthMsb = 0;
 
@@ -91,7 +91,7 @@ namespace services
             }
         };
 
-        SectorStatus sectorStatus;
+        SectorStatus sectorStatus = SectorStatus::empty;
         BlockHeader blockHeader;
         RecoverPhase recoverPhase = RecoverPhase::searchingStartOrEmpty;
 

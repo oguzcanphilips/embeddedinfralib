@@ -48,14 +48,14 @@ namespace services
 
     private:
         hal::SpiMaster& spi;
-        uint32_t numberOfSubSectors;
+        uint32_t numberOfSubSectors = 0;
         infra::Sequencer sequencer;
         infra::TimerSingleShot delayTimer;
         infra::AutoResetFunction<void()> onDone;
         infra::ConstByteRange buffer;
         infra::ConstByteRange writeBuffer;
         infra::ByteRange readBuffer;
-        uint32_t address;
+        uint32_t address = 0;
         uint32_t sectorIndex = 0;
         uint8_t statusRegister = 0;
 
