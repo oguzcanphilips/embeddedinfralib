@@ -3,6 +3,7 @@ Debug/
 *.sdf
 *.opensdf
 Release/
+RelWithDebInfo/
 scripts/__pycache__/
 *.vcxproj.user
 packs/fsm/test/Generated/*.*
