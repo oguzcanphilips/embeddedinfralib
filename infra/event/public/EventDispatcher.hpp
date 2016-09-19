@@ -20,15 +20,13 @@ namespace infra
         void Schedule(const infra::Function<void()>& action);
 
         void Run();
+        void ExecuteAllActions();
 
         std::size_t MinCapacity() const;
 
     protected:
         virtual void RequestExecution();
         virtual void Idle();
-
-    protected:
-        void ExecuteAllActions();
 
     private:
         bool TryExecuteAction();

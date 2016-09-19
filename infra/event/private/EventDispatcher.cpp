@@ -33,12 +33,6 @@ namespace infra
         RequestExecution();
     }
 
-    void EventDispatcher::ExecuteAllActions()
-    {
-        while (TryExecuteAction())
-        {}
-    }
-
     void EventDispatcher::Run()
     {
         while (true)                                                                                            //TICS !CPP4127
@@ -46,6 +40,12 @@ namespace infra
             ExecuteAllActions();
             Idle();
         }
+    }
+
+    void EventDispatcher::ExecuteAllActions()
+    {
+        while (TryExecuteAction())
+        {}
     }
 
     std::size_t EventDispatcher::MinCapacity() const
