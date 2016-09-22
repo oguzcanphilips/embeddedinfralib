@@ -21,6 +21,7 @@ namespace infra
 
         void Run();
         void ExecuteAllActions();
+        bool IsIdle() const;
 
         std::size_t MinCapacity() const;
 
