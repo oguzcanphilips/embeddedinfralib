@@ -239,6 +239,14 @@ TEST(BoundedList, TestInsert)
     EXPECT_EQ(2, list.front());
 }
 
+TEST(BoundedList, TestErase)
+{
+    infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(3), 4);
+    list.erase(std::next(list.begin()));
+    EXPECT_EQ(2, list.size());
+    EXPECT_EQ(2, std::distance(list.begin(), list.end()));
+}
+
 TEST(BoundedList, TestEraseAllAfter)
 {
     infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(3), 4);

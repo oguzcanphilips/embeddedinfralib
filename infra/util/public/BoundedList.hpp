@@ -105,6 +105,7 @@ namespace infra
         template<class InputIterator>
             void move_from_range(InputIterator first, InputIterator last);
 
+        void erase(iterator position);
         void erase_all_after(iterator position);
 
         void swap(BoundedList& other);
@@ -546,6 +547,29 @@ namespace infra
             push_back(std::move(*first));
             ++first;
         }
+    }
+
+    template<class T>
+    void BoundedList<T>::erase(iterator position)
+    {
+        NodeType* node = &position.node();
+        NodeType* next = node->next;
+        NodeType* previous = node->previous;
+
+        if (next)
+            next->previous = previous;
+        else
+            lastNode = previous;
+
+        if (previous)
+            previous->next = next;
+        else
+            firstNode = next;
+
+        node->next = freeList;
+        freeList = node;
+
+        --numAllocated;
     }
 
     template<class T>
