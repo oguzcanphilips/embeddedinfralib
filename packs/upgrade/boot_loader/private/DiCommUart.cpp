@@ -93,7 +93,7 @@ namespace application
         return ReceiveResponse(Operation::response, result);
     }
 
-    bool DiCommUart::ReceiveResponse(Operation responseOperation, infra::BoundedString& values)
+    bool DiCommUart::ReceiveResponse(Operation responseOperation, infra::BoundedString& values)                 //TICS !CFL#016
     {
         timeKeeper.Reset();
 

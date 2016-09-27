@@ -1,5 +1,5 @@
-#ifndef INFRA_STRING_STREAM_HPP
-#define INFRA_STRING_STREAM_HPP
+#ifndef INFRA_STRING_INPUT_STREAM_HPP
+#define INFRA_STRING_INPUT_STREAM_HPP
 
 #include "infra/stream/public/InputStream.hpp"
 #include "infra/util/public/BoundedString.hpp"

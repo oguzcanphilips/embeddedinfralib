@@ -3,9 +3,9 @@
 namespace application
 {
     ImageUpgraderInternalFlash::ImageUpgraderInternalFlash(infra::ByteRange buffer, const char* targetName, Decryptor& decryptor, hal::SynchronousFlash& internalFlash, uint32_t destinationAddressOffset)
-        : buffer(buffer)
-        , ImageUpgrader(targetName, decryptor)
-        , internalFlash(&internalFlash)
+        : ImageUpgrader(targetName, decryptor)
+        , buffer(buffer)
+        ,internalFlash(&internalFlash)
         , destinationAddressOffset(destinationAddressOffset)
     {}
 

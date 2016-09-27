@@ -7,8 +7,8 @@
 namespace application
 {
     ImageEncryptorXtea::ImageEncryptorXtea(RandomNumberGenerator& randomNumberGenerator, infra::ConstByteRange key)
-        : key(key)
-        , randomNumberGenerator(randomNumberGenerator)
+        : randomNumberGenerator(randomNumberGenerator)
+        , key(key)
     {}
 
     std::vector<uint8_t> ImageEncryptorXtea::Secure(const std::vector<uint8_t>& unalignedData) const

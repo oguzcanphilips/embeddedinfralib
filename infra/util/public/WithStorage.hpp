@@ -20,7 +20,7 @@ namespace infra
     public:
         template<class StorageArg, class... Args>
             WithStorage(InPlace, StorageArg&& storageArg, Args&&... args);
-        template<class... Args>
+        template<class... Args>                                                                                             //TICS !INT#001
             WithStorage(Args&&... args);
         template<class T, class... Args>
             WithStorage(std::initializer_list<T> initializerList, Args&&... args);

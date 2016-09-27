@@ -332,7 +332,7 @@ namespace infra
     void Variant<T...>::ConstructInEmptyVariant(Args&&... args)
     {
         dataIndex = IndexInTypeList<U, T...>::value;
-        new(&data) U(std::forward<Args>(args)...);
+        new(&data) U(std::forward<Args>(args)...);                                                                  //TICS !OAL#011: This is placement-new
     }
 
     template<class... T>
