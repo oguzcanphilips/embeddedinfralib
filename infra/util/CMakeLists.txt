@@ -4,6 +4,7 @@ ccola_component(util static_library)
 
 	ccola_sources(
 		private/CrcCcittCalculator.cpp
+		private/Optional.cpp
 		private/Sequencer.cpp
 		public/AutoResetFunction.hpp
 		public/BitLogic.hpp

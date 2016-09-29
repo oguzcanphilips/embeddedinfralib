@@ -21,12 +21,8 @@
 
 namespace infra
 {
-
-    struct None {};
-    const None none;
-
-    struct InPlace {};
-    const InPlace inPlace;
+    extern const struct None {} none;
+    extern const struct InPlace {} inPlace;
 
     template<class T>
         struct InPlaceType {};
