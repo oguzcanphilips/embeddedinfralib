@@ -11,7 +11,7 @@ namespace hal
     public:
         SynchronousFlashHomogeneous(uint32_t numberOfSectors, uint32_t sizeOfEachSector);
 
-    public:
+    protected:
         ~SynchronousFlashHomogeneous() = default;
 
     public:

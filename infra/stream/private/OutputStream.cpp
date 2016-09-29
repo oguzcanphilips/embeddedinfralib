@@ -259,9 +259,9 @@ namespace infra
             {
                 if (format[1] >= '1' && format[1] <= '9')
                 {
-                    uint8_t index = format[1] - '1';
                     if (format[2] == '%')
                     {
+                        uint8_t index = format[1] - '1';
                         if (index < formatters.size())
                             formatters[index]->Stream(*this);
                         ++format;
