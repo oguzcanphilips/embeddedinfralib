@@ -282,6 +282,7 @@ namespace infra
         JsonObjectIterator operator++(int);
 
     private:
+        void ParseNextToken();
         void SetError();
 
     private:

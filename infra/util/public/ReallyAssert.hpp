@@ -7,7 +7,7 @@
 #include <cstdlib>
 
 #ifdef NDEBUG                                                                                                       //TICS !POR#021
-#define really_assert(condition) if (!(condition)) { std::abort(); } else for (; false; )
+#define really_assert(condition) if (!(condition)) { std::abort(); } else for (; false; )                           //TICS !PRE#004
 #else
 #define really_assert(condition) assert(condition)
 #endif

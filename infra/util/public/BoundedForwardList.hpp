@@ -98,6 +98,7 @@ namespace infra
         template<class InputIterator>
             void move_from_range(InputIterator first, InputIterator last);
 
+        void erase_slow(iterator position);
         void erase_all_after(iterator position);
 
         void swap(BoundedForwardList& other);
@@ -125,7 +126,7 @@ namespace infra
         infra::MemoryRange<infra::StaticStorage<detail::BoundedForwardListNode<T>>> storage;
         size_type numAllocated = 0;
         size_type numInitialized = 0;
-        NodeType* start = nullptr;
+        NodeType* firstNode = nullptr;
         NodeType* freeList = nullptr;
     };
 
@@ -262,13 +263,13 @@ namespace infra
     template<class T>
     typename BoundedForwardList<T>::iterator BoundedForwardList<T>::begin()
     {
-        return iterator(start);
+        return iterator(firstNode);
     }
 
     template<class T>
     typename BoundedForwardList<T>::const_iterator BoundedForwardList<T>::begin() const
     {
-        return iterator(start);
+        return iterator(firstNode);
     }
 
     template<class T>
@@ -286,7 +287,7 @@ namespace infra
     template<class T>
     typename BoundedForwardList<T>::const_iterator BoundedForwardList<T>::cbegin() const
     {
-        return const_iterator(start);
+        return const_iterator(firstNode);
     }
 
     template<class T>
@@ -322,13 +323,13 @@ namespace infra
     template<class T>
     typename BoundedForwardList<T>::value_type& BoundedForwardList<T>::front()
     {
-        return *start->storage;
+        return *firstNode->storage;
     }
 
     template<class T>
     const typename BoundedForwardList<T>::value_type& BoundedForwardList<T>::front() const
     {
-        return *start->storage;
+        return *firstNode->storage;
     }
 
     template<class T>
@@ -337,8 +338,8 @@ namespace infra
         NodeType* node = AllocateNode();
         node->storage.Construct(value);
 
-        node->next = start;
-        start = node;
+        node->next = firstNode;
+        firstNode = node;
 
         ++numAllocated;
     }
@@ -349,8 +350,8 @@ namespace infra
         NodeType* node = AllocateNode();
         node->storage.Construct(std::move(value));
 
-        node->next = start;
-        start = node;
+        node->next = firstNode;
+        firstNode = node;
 
         ++numAllocated;
     }
@@ -358,10 +359,10 @@ namespace infra
     template<class T>
     void BoundedForwardList<T>::pop_front()
     {
-        start->storage.Destruct();
+        firstNode->storage.Destruct();
             
-        NodeType* oldStart = start;
-        start = start->next;
+        NodeType* oldStart = firstNode;
+        firstNode = firstNode->next;
         oldStart->next = freeList;
         freeList = oldStart;
 
@@ -448,6 +449,28 @@ namespace infra
     }
 
     template<class T>
+    void BoundedForwardList<T>::erase_slow(iterator position)
+    {
+        NodeType* node = &position.node();
+
+        if (firstNode == node)
+            firstNode = node->next;
+        else
+        {
+            NodeType* previous = firstNode;
+            while (previous->next != node)
+                previous = previous->next;
+
+            previous->next = node->next;
+        }
+
+        node->next = freeList;
+        freeList = node;
+
+        --numAllocated;
+    }
+
+    template<class T>
     void BoundedForwardList<T>::erase_all_after(iterator position)
     {
         NodeType* node = position.node().next;
@@ -516,7 +539,7 @@ namespace infra
     template<class T>
     void BoundedForwardList<T>::clear()
     {
-        while (start)
+        while (firstNode)
         {
             pop_front();
         }
@@ -529,8 +552,8 @@ namespace infra
         NodeType* node = AllocateNode();
         node->storage.Construct(std::forward<Args>(args)...);
 
-        node->next = start;
-        start = node;
+        node->next = firstNode;
+        firstNode = node;
 
         ++numAllocated;
     }

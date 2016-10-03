@@ -48,6 +48,11 @@ namespace infra
         {}
     }
 
+    bool EventDispatcher::IsIdle() const
+    {
+        return !scheduledActions[scheduledActionsPopIndex].second;
+    }
+
     std::size_t EventDispatcher::MinCapacity() const
     {
         return minCapacity;

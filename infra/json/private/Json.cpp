@@ -617,59 +617,64 @@ namespace infra
     {
         do
         {
-            JsonToken::Token token = tokenizer.Token();
-            switch (state)
-            {
-                case readObjectStart:
-                    state = readKeyOrEnd;
-                    if (!token.Is<JsonToken::LeftBrace>())
-                        SetError();
-                    break;
-                case readKeyOrEnd:
-                    state = readColon;
-                    if (token.Is<JsonToken::RightBrace>())
-                        state = end;
-                    else if (token.Is<JsonToken::String>())
-                        keyValue.key = token.Get<JsonToken::String>().Value();
-                    else
-                        SetError();
-                    break;
-                case readKey:
-                    state = readColon;
-                    if (token.Is<JsonToken::String>())
-                        keyValue.key = token.Get<JsonToken::String>().Value();
-                    else
-                        SetError();
-                    break;
-                case readColon:
-                    state = readValue;
-                    if (!token.Is<JsonToken::Colon>())
-                        SetError();
-                    break;
-                case readValue:
-                    {
-                        state = readCommaOrObjectEnd;
-                        infra::Optional<JsonValue> readValue = ReadValue(token);
-                        if (readValue)
-                            keyValue.value = *readValue;
-                        else
-                            SetError();
-                    }
-                    break;
-                case readCommaOrObjectEnd:
-                    if (token.Is<JsonToken::Comma>())
-                        state = readKey;
-                    else if (token.Is<JsonToken::RightBrace>())
-                        state = end;
-                    else
-                        SetError();
-                    break;
-                case end:
-                    std::abort();
-            }
+            ParseNextToken();
         } while (state != readCommaOrObjectEnd && state != end);
 
         return *this;
+    }
+
+    void JsonObjectIterator::ParseNextToken()
+    {
+        JsonToken::Token token = tokenizer.Token();
+        switch (state)
+        {
+            case readObjectStart:
+                state = readKeyOrEnd;
+                if (!token.Is<JsonToken::LeftBrace>())
+                    SetError();
+                break;
+            case readKeyOrEnd:
+                state = readColon;
+                if (token.Is<JsonToken::RightBrace>())
+                    state = end;
+                else if (token.Is<JsonToken::String>())
+                    keyValue.key = token.Get<JsonToken::String>().Value();
+                else
+                    SetError();
+                break;
+            case readKey:
+                state = readColon;
+                if (token.Is<JsonToken::String>())
+                    keyValue.key = token.Get<JsonToken::String>().Value();
+                else
+                    SetError();
+                break;
+            case readColon:
+                state = readValue;
+                if (!token.Is<JsonToken::Colon>())
+                    SetError();
+                break;
+            case readValue:
+                {
+                    state = readCommaOrObjectEnd;
+                    infra::Optional<JsonValue> readValue = ReadValue(token);
+                    if (readValue)
+                        keyValue.value = *readValue;
+                    else
+                        SetError();
+                }
+                break;
+            case readCommaOrObjectEnd:
+                if (token.Is<JsonToken::Comma>())
+                    state = readKey;
+                else if (token.Is<JsonToken::RightBrace>())
+                    state = end;
+                else
+                    SetError();
+                break;
+            case end:
+                std::abort();
+        }
     }
 
     void JsonObjectIterator::SetError()

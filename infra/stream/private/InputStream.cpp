@@ -255,7 +255,7 @@ namespace infra
             char c = static_cast<char>(Reader().Peek());
 
             if (c >= '0' && c <= '9')
-                v = v * 10 + c - '0';
+                v = static_cast<uint32_t>(v * 10 + c - '0');
             else
             {
                 Reader().ReportResult(i > 0);
@@ -294,11 +294,11 @@ namespace infra
             char c = static_cast<char>(Reader().Peek());
 
             if (c >= '0' && c <= '9')
-                v = (v << 4) + c - '0';
+                v = static_cast<uint32_t>((v << 4) + c - '0');
             else if (c >= 'a' && c <= 'f')
-                v = (v << 4) + c - 'a' + 10;
+                v = static_cast<uint32_t>((v << 4) + c - 'a' + 10);
             else if (c >= 'A' && c <= 'F')
-                v = (v << 4) + c - 'A' + 10;
+                v = static_cast<uint32_t>((v << 4) + c - 'A' + 10);
             else
             {
                 Reader().ReportResult(i > 0);

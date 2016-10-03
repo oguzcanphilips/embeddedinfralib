@@ -221,6 +221,15 @@ TEST(BoundedForwardListTest, TestInsertAfter)
     EXPECT_EQ(2, *std::next(list.begin()));
 }
 
+TEST(BoundedForwardList, TestErase)
+{
+    infra::BoundedForwardList<int>::WithMaxSize<5> list(std::size_t(3), 4);
+
+    list.erase_slow(std::next(list.begin()));
+    EXPECT_EQ(2, list.size());
+    EXPECT_EQ(2, std::distance(list.begin(), list.end()));
+}
+
 TEST(BoundedForwardListTest, TestEraseAllAfter)
 {
     infra::BoundedForwardList<int>::WithMaxSize<5> list(std::size_t(3), 4);

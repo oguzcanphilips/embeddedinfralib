@@ -52,28 +52,7 @@ namespace application
     {
         try
         {
-            if (argc < 3)
-                throw UsageException();
-
-            std::string outputFilename = argv[1];
-            std::cout << "Creating upgrade pack " << outputFilename << "..." << std::endl;
-
-            for (int i = 2; i < argc; ++i)
-                ParseArgument(i, argc, argv);
-
-            application::SecureRandomNumberGenerator randomNumberGenerator;
-            hal::FileSystemWin fileSystem;
-            application::ImageEncryptorAes imageEncryptorAes(randomNumberGenerator, aesKey);
-            application::UpgradePackInputFactory inputFactory(supportedHexTargets, supportedBinaryTargets, fileSystem, imageEncryptorAes);
-            application::ImageSignerEcDsa signer(randomNumberGenerator, ecDsa224PublicKey, ecDsa224PrivateKey);
-
-            PreBuilder();
-            application::UpgradePackBuilder builder(targetAndFiles, this->headerInfo, inputFactory, signer);
-            PostBuilder(builder, signer);
-
-            builder.WriteUpgradePack(outputFilename, fileSystem);
-
-            std::cout << "Done" << std::endl;
+            TryBuild(supportedHexTargets, supportedBinaryTargets, argc, argv, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey);
         }
         catch (UsageException&)
         {
@@ -138,6 +117,33 @@ namespace application
             std::cout << e.what() << std::endl;
             result = 1;
         }
+    }
+
+    void UpgradePackBuilderFacade::TryBuild(const std::vector<std::string>& supportedHexTargets,
+        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey)
+    {
+        if (argc < 3)
+            throw UsageException();
+
+        std::string outputFilename = argv[1];
+        std::cout << "Creating upgrade pack " << outputFilename << "..." << std::endl;
+
+        for (int i = 2; i < argc; ++i)
+            ParseArgument(i, argc, argv);
+
+        application::SecureRandomNumberGenerator randomNumberGenerator;
+        hal::FileSystemWin fileSystem;
+        application::ImageEncryptorAes imageEncryptorAes(randomNumberGenerator, aesKey);
+        application::UpgradePackInputFactory inputFactory(supportedHexTargets, supportedBinaryTargets, fileSystem, imageEncryptorAes);
+        application::ImageSignerEcDsa signer(randomNumberGenerator, ecDsa224PublicKey, ecDsa224PrivateKey);
+
+        PreBuilder();
+        application::UpgradePackBuilder builder(targetAndFiles, this->headerInfo, inputFactory, signer);
+        PostBuilder(builder, signer);
+
+        builder.WriteUpgradePack(outputFilename, fileSystem);
+
+        std::cout << "Done" << std::endl;
     }
 
     int UpgradePackBuilderFacade::Result() const

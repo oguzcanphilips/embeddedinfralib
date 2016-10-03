@@ -75,7 +75,7 @@ namespace application
             infra::StdStringOutputStream::WithStorage result;
 
             result << ':' << infra::hex << infra::Width(2, '0') << data.size() << infra::Width(4, '0') << address << infra::Width(2, '0') << recordType;
-            uint8_t checkSum = static_cast<uint8_t>(data.size()) + static_cast<uint8_t>(address >> 8) + static_cast<uint8_t>(address & 0xff) + recordType;
+            uint8_t checkSum = static_cast<uint8_t>(data.size() + static_cast<uint8_t>(address >> 8) + static_cast<uint8_t>(address & 0xff) + recordType);
             OutputHexBytes(result, data, checkSum);
             result << infra::hex << infra::Width(2, '0') << static_cast<uint8_t>(256 - checkSum);
 
