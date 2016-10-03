@@ -33,6 +33,16 @@ namespace infra
         bool failed = false;
         mutable bool checkedFail = true;
     };
+    
+    class StreamWriterDummy
+      : public StreamWriter
+    {
+      public:
+        virtual void Insert(ConstByteRange range) {}
+        virtual void Insert(uint8_t element) {}
+        virtual void Forward(std::size_t amount) {}
+    };
+    
 
     class OutputStream
     {
@@ -138,7 +148,7 @@ namespace infra
         bool decimal = true;
         infra::Optional<Width> width;
     };
-
+    
     class AsAsciiHelper
     {
     public:
