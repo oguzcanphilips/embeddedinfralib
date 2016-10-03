@@ -6,6 +6,9 @@ ccola_component(util static_library)
 		private/CrcCcittCalculator.cpp
 		private/Optional.cpp
 		private/Sequencer.cpp
+		public/Allocator.hpp
+		public/AllocatorFixedSpace.hpp
+		public/AllocatorHeap.hpp
 		public/AutoResetFunction.hpp
 		public/BitLogic.hpp
 		public/BoundedDeque.hpp

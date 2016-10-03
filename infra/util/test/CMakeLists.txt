@@ -1,6 +1,8 @@
 ccola_component(util_test gmock_test)
 
 	ccola_sources(
+		TestAllocatorFixedSpace.cpp
+		TestAllocatorHeap.cpp
 		TestAutoResetFunction.cpp
 		TestBoundedDeque.cpp
 		TestBoundedForwardList.cpp
