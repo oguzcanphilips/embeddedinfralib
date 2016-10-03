@@ -38,11 +38,10 @@ namespace infra
       : public StreamWriter
     {
       public:
-        virtual void Insert(ConstByteRange range) {}
-        virtual void Insert(uint8_t element) {}
-        virtual void Forward(std::size_t amount) {}
-    };
-    
+        virtual void Insert(ConstByteRange range);
+        virtual void Insert(uint8_t element);
+        virtual void Forward(std::size_t amount);
+    };    
 
     class OutputStream
     {

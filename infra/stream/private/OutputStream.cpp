@@ -36,6 +36,15 @@ namespace infra
         checkedFail = !softFail;
     }
 
+    void StreamWriter::Insert(ConstByteRange range)
+    {}
+    
+    void StreamWriter::Insert(uint8_t element)
+    {}
+
+    void StreamWriter::Forward(std::size_t amount)
+    {}
+
     OutputStream::OutputStream(StreamWriter& writer)
         : writer(writer)
     {}
