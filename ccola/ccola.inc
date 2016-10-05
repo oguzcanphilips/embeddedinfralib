@@ -29,6 +29,7 @@ else()
 endif()
 
 include(${CCOLA_DIR}/project.inc)
+include(${CCOLA_DIR}/version.inc)
 include(${CCOLA_DIR}/platforms/platform-${CCOLA_SYSTEM_CONFIGURATION}.inc)
 
 set(CCOLA_COMPONENT_INFO_INSTALL_DIR ${CCOLA_BUILD_DIR}/component_info)
