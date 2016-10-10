@@ -39,7 +39,7 @@ namespace application
         this->offset = offset;
 
         int lineNumber = 0;
-        for (auto& line : data)
+        for (auto line : data)
         {
             ++lineNumber;
             if (!line.empty())
@@ -137,7 +137,7 @@ namespace application
             throw RecordTooShortException(fileName, lineNumber);
         if (sum != 0)
             throw IncorrectCrcException(fileName, lineNumber);
-        if (!line.empty())
+        if (!stream.IsEmpty())
             throw RecordTooLongException(fileName, lineNumber);
     }
 }

@@ -2,12 +2,12 @@
 
 namespace infra
 {
-    StdStringInputStream::StdStringInputStream(std::string& string)
+    StdStringInputStream::StdStringInputStream(const std::string& string)
         : TextInputStream(static_cast<StreamReader&>(*this))
         , string(string)
     {}
 
-    StdStringInputStream::StdStringInputStream(std::string& string, SoftFail)
+    StdStringInputStream::StdStringInputStream(const std::string& string, SoftFail)
         : StreamReader(infra::softFail)
         , TextInputStream(static_cast<StreamReader&>(*this), infra::softFail)
         , string(string)
@@ -15,41 +15,52 @@ namespace infra
 
     void StdStringInputStream::Extract(ByteRange range)
     {
-        Reader().ReportResult(range.size() <= string.size());
-        range.shrink_from_back_to(string.size());
-        std::copy(string.begin(), string.begin() + range.size(), range.begin());
-        string.erase(0, range.size());
+        Reader().ReportResult(offset + range.size() <= string.size());
+        range.shrink_from_back_to(string.size() - offset);
+        std::copy(string.begin() + offset, string.begin() + offset + range.size(), range.begin());
+        offset += range.size();
     }
 
     uint8_t StdStringInputStream::ExtractOne()
     {
         uint8_t element = Peek();
 
-        if (!string.empty())
-            string.erase(0, 1);
+        if (offset < string.size())
+            ++offset;
 
         return element;
     }
 
     uint8_t StdStringInputStream::Peek()
     {
-        Reader().ReportResult(!string.empty());
-
-        if (string.empty())
+        if (offset == string.size())
+        {
+            Reader().ReportResult(false);
             return 0;
+        }
         else
-            return string.front();
+        {
+            Reader().ReportResult(true);
+            return static_cast<uint8_t>(string.begin()[offset]);
+        }
     }
 
     void StdStringInputStream::Forward(std::size_t amount)
     {
-        Reader().ReportResult(amount <= string.size());
-        amount = std::min(amount, string.size());
-        string.erase(0, amount);
+        offset += amount;
+        if (offset > string.size())
+        {
+            Reader().ReportResult(false);
+            offset = string.size();
+        }
+        else
+        {
+            Reader().ReportResult(true);
+        }
     }
 
     bool StdStringInputStream::Empty() const
     {
-        return string.empty();
+        return offset == string.size();
     }
 }

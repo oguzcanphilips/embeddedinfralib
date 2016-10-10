@@ -15,8 +15,8 @@ namespace infra
     public:
         using WithStorage = infra::WithStorage<StdStringInputStream, std::string>;
 
-        explicit StdStringInputStream(std::string& string);
-        StdStringInputStream(std::string& string, SoftFail);
+        explicit StdStringInputStream(const std::string& string);
+        StdStringInputStream(const std::string& string, SoftFail);
 
     private:
         virtual void Extract(ByteRange range) override;
@@ -26,7 +26,8 @@ namespace infra
         virtual bool Empty() const override;
 
     private:
-        std::string& string;
+        uint32_t offset = 0;
+        const std::string& string;
     };
 }
 

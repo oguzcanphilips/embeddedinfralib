@@ -2,7 +2,17 @@
 #include "infra/stream/public/StdStringInputStream.hpp"
 #include <cstdint>
 
-TEST(StringInputStreamTest, StdStringInputStream)
+TEST(StdStringInputStreamTest, ExtractHex)
+{
+    std::string string("ab");
+    infra::StdStringInputStream stream(string);
+
+    uint8_t value;
+    stream >> infra::hex >> value;
+    EXPECT_EQ(0xab, value);
+}
+
+TEST(StdStringInputStreamTest, StdStringInputStream)
 {
     std::string string("abcd");
     infra::StdStringInputStream stream(string);
@@ -12,7 +22,7 @@ TEST(StringInputStreamTest, StdStringInputStream)
     EXPECT_EQ(0xa, value);
 }
 
-TEST(StringInputStreamTest, ExtractHexFrowStdStringInputStreamWithOverflow)
+TEST(StdStringInputStreamTest, ExtractHexFrowStdStringInputStreamWithOverflow)
 {
     infra::StdStringInputStream::WithStorage stream(infra::inPlace, "", infra::softFail);
 
@@ -22,7 +32,7 @@ TEST(StringInputStreamTest, ExtractHexFrowStdStringInputStreamWithOverflow)
     EXPECT_TRUE(stream.HasFailed());
 }
 
-TEST(StringInputStreamTest, ExtractStringLiteral)
+TEST(StdStringInputStreamTest, ExtractStringLiteral)
 {
     infra::StdStringInputStream::WithStorage stream(infra::inPlace, "abcd");
 
