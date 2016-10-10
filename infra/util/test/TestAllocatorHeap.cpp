@@ -7,36 +7,51 @@ class HeapAllocatorTest
 public:
     struct TestObject
     {
-        TestObject()
+        void* operator new(size_t size, std::nothrow_t)
         {
-            ++numObjects;
+            if (allocated)
+                return nullptr;
+
+            allocated = true;
+
+            return malloc(size);
         }
 
-        ~TestObject()
+        void operator delete(void* object)
         {
-            --numObjects;
+            allocated = false;
+
+            free(object);
         }
 
-        static int numObjects;
+        static bool allocated;
     };
 
     infra::AllocatorHeap<TestObject> allocator;
 };
 
-int HeapAllocatorTest::TestObject::numObjects = 0;
+bool HeapAllocatorTest::TestObject::allocated = false;
 
-TEST_F(HeapAllocatorTest, Allocate)
+TEST_F(HeapAllocatorTest, allocate_one_object)
 {
     infra::UniquePtr<TestObject> object = allocator.Allocate();
 
-    EXPECT_EQ(1, TestObject::numObjects);
+    EXPECT_TRUE(TestObject::allocated);
 }
 
-TEST_F(HeapAllocatorTest, DeallocatedAfterDestructionOfPointer)
+TEST_F(HeapAllocatorTest, after_object_goes_out_of_scope_object_is_released)
 {
     {
         infra::UniquePtr<TestObject> object = allocator.Allocate();
     }
 
-    EXPECT_EQ(0, TestObject::numObjects);
+    EXPECT_FALSE(TestObject::allocated);
+}
+
+TEST_F(HeapAllocatorTest, when_allocating_more_than_capacity_nullptr_is_returned)
+{
+    infra::UniquePtr<TestObject> firstObject = allocator.Allocate();
+    infra::UniquePtr<TestObject> secondObject = allocator.Allocate();
+
+    EXPECT_EQ(nullptr, secondObject);
 }

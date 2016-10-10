@@ -3,7 +3,6 @@
 
 #include "infra/util/public/Allocator.hpp"
 #include "infra/util/public/BoundedVector.hpp"
-#include "infra/util/public/ReallyAssert.hpp"
 #include "infra/util/public/StaticStorage.hpp"
 
 namespace infra
@@ -70,7 +69,9 @@ namespace infra
         }
         else
         {
-            really_assert(!elements.full());
+            if (elements.full())
+                return nullptr;
+
             elements.emplace_back();
             return &elements.back();
         }

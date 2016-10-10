@@ -23,7 +23,7 @@ namespace infra
         if (object)
             return MakeUnique(object, *this);
         else
-            return UniquePtr<T>();
+            return nullptr;
     }
 
     template<class T, class... ConstructionArgs>
