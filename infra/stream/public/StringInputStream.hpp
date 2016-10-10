@@ -7,13 +7,13 @@
 
 namespace infra
 {
-    class StringInputStream                                             //TICS !OOP#013
+    class StringInputStream                                                             //TICS !OOP#013
         : private StreamReader
         , public TextInputStream
     {
     public:
-        explicit StringInputStream(const BoundedConstString& string);
-        StringInputStream(const BoundedConstString& string, SoftFail);
+        explicit StringInputStream(BoundedConstString string);
+        StringInputStream(BoundedConstString string, SoftFail);
 
     private:
         virtual void Extract(ByteRange range) override;
@@ -21,9 +21,10 @@ namespace infra
         virtual uint8_t Peek() override;
         virtual void Forward(std::size_t amount) override;
         virtual bool Empty() const override;
+
     private:
         uint32_t offset = 0;
-        const BoundedConstString& string;
+        BoundedConstString string;
     };
 }
 

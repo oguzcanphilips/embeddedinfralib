@@ -2,12 +2,12 @@
 
 namespace infra
 {
-    StringInputStream::StringInputStream(const BoundedConstString& string)
+    StringInputStream::StringInputStream(BoundedConstString string)
         : TextInputStream(static_cast<StreamReader&>(*this))
         , string(string)
     {}
 
-    StringInputStream::StringInputStream(const BoundedConstString& string, SoftFail)
+    StringInputStream::StringInputStream(BoundedConstString string, SoftFail)
         : StreamReader(infra::softFail)
         , TextInputStream(static_cast<StreamReader&>(*this), infra::softFail)
         , string(string)
