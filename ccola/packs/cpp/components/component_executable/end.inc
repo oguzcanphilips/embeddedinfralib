@@ -30,7 +30,7 @@ ccola_set_component_properties_for_all_configurations(${CCOLA_COMPONENT_NAME} PD
 if(${CCOLA_ARCH} STREQUAL "win")
     set_target_properties(${CCOLA_COMPONENT_NAME} PROPERTIES ccola_location "${CCOLA_EXE_INSTALL_DIR}/${CCOLA_COMPONENT_NAME}.exe")
 
-	get_target_property(executable_path ${CCOLA_COMPONENT_NAME} RUNTIME_OUTPUT_DIRECTORY_DEBUG)
+	get_target_property(executable_path ${CCOLA_COMPONENT_NAME} RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO)
 	set(executable_path ${executable_path}/${CCOLA_COMPONENT_NAME}${CMAKE_EXECUTABLE_SUFFIX})
 	ccola_translate_generator_expression(destination_dir "${CCOLA_COMPONENT_INSTALL_DIR}")
 	set(destination "${destination_dir}/${CCOLA_COMPONENT_NAME}.depend")
