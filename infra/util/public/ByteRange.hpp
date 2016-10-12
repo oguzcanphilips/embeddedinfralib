@@ -3,10 +3,11 @@
 
 #include "infra/util/public/MemoryRange.hpp"
 #include <cstdint>
+#include <cstring>
+#include <vector>
 
 namespace infra
 {
-
     typedef MemoryRange<uint8_t> ByteRange;
     typedef MemoryRange<const uint8_t> ConstByteRange;
 
@@ -22,6 +23,8 @@ namespace infra
         ConstByteRange MakeConstByteRange(T& v);
     template<class T>
         ConstByteRange MakeByteRange(const T& v);
+    ConstByteRange MakeStringByteRange(const char* string);
+    std::vector<uint8_t> StringToByteVector(const char* string);
 
     ////    Implementation    ////
 
@@ -60,6 +63,15 @@ namespace infra
         return ReinterpretCastByteRange(MakeRange(&v, &v + 1));
     }
 
+    inline ConstByteRange MakeStringByteRange(const char* string)
+    {
+        return ReinterpretCastByteRange(MakeRange(string, string + std::strlen(string)));
+    }
+
+    inline std::vector<uint8_t> StringToByteVector(const char* string)
+    {
+        return std::vector<uint8_t>(reinterpret_cast<const uint8_t*>(string), reinterpret_cast<const uint8_t*>(string + std::strlen(string)));
+    }
 }
 
 #endif
