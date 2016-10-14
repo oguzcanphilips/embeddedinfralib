@@ -27,7 +27,7 @@ public:
         static bool allocated;
     };
 
-    infra::AllocatorHeap<TestObject> allocator;
+    infra::AllocatorHeap<TestObject, void()> allocator;
 };
 
 bool HeapAllocatorTest::TestObject::allocated = false;

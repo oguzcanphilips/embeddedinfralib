@@ -8,19 +8,14 @@ public:
     struct TestObject
     {};
 
-    infra::AllocatorFixedSpace<TestObject, 1> allocator;
+    infra::AllocatorFixedSpace<TestObject, 1, void()> allocator;
 };
-
-TEST_F(FixedSpaceAllocatorTest, allocator_is_constructed_not_empty)
-{
-    EXPECT_FALSE(allocator.Empty());
-}
 
 TEST_F(FixedSpaceAllocatorTest, allocate_one_object)
 {
     infra::UniquePtr<TestObject> object = allocator.Allocate();
 
-    EXPECT_TRUE(allocator.Empty());
+    EXPECT_NE(nullptr, object);
 }
 
 TEST_F(FixedSpaceAllocatorTest, after_object_goes_out_of_scope_object_is_released)
@@ -29,7 +24,9 @@ TEST_F(FixedSpaceAllocatorTest, after_object_goes_out_of_scope_object_is_release
         infra::UniquePtr<TestObject> object = allocator.Allocate();
     }
 
-    EXPECT_FALSE(allocator.Empty());
+    infra::UniquePtr<TestObject> object = allocator.Allocate();
+
+    EXPECT_NE(nullptr, object);
 }
 
 TEST_F(FixedSpaceAllocatorTest, when_allocating_more_than_capacity_nullptr_is_returned)

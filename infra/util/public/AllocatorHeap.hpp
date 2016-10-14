@@ -5,9 +5,12 @@
 
 namespace infra
 {
+    template<class T, class ConstructionArgs>
+    class AllocatorHeap;
+
     template<class T, class... ConstructionArgs>
-    class AllocatorHeap
-        : public Allocator<T, ConstructionArgs...>
+    class AllocatorHeap<T, void(ConstructionArgs...)>
+        : public Allocator<T, void(ConstructionArgs...)>
     {
     public:
         virtual UniquePtr<T> Allocate(ConstructionArgs... args) override;
@@ -17,7 +20,7 @@ namespace infra
     ////    Implementation    ////
 
     template<class T, class... ConstructionArgs>
-    UniquePtr<T> AllocatorHeap<T, ConstructionArgs...>::Allocate(ConstructionArgs... args)
+    UniquePtr<T> AllocatorHeap<T, void(ConstructionArgs...)>::Allocate(ConstructionArgs... args)
     {
         T* object = new (std::nothrow) T(args...);
         if (object)
@@ -27,7 +30,7 @@ namespace infra
     }
 
     template<class T, class... ConstructionArgs>
-    void AllocatorHeap<T, ConstructionArgs...>::Deallocate(void* object)
+    void AllocatorHeap<T, void(ConstructionArgs...)>::Deallocate(void* object)
     {
         delete static_cast<T*>(object);
     }

@@ -29,8 +29,11 @@ namespace infra
     template<class T>
         UniquePtr<T> MakeUnique(T* object, AllocatorBase& allocator);
 
+    template<class T, class ConstructionArgs>
+    class Allocator;
+
     template<class T, class... ConstructionArgs>
-    class Allocator
+    class Allocator<T, void(ConstructionArgs...)>
         : public AllocatorBase
     {
     public:

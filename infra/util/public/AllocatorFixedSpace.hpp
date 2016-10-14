@@ -7,15 +7,19 @@
 
 namespace infra
 {
+    template<class T, std::size_t NumberOfElements, class ConstructionArgs>
+    class AllocatorFixedSpace;
+
     template<class T, std::size_t NumberOfElements, class... ConstructionArgs>
-    class AllocatorFixedSpace
-        : public Allocator<T, ConstructionArgs...>
+    class AllocatorFixedSpace<T, NumberOfElements, void(ConstructionArgs...)>
+        : public Allocator<T, void(ConstructionArgs...)>
     {
         static_assert(sizeof(T) == sizeof(StaticStorage<T>), "sizeof(StaticStorage) must be equal to sizeof(T) else reinterpret_cast will fail");
     public:
+        ~AllocatorFixedSpace();
+
         virtual UniquePtr<T> Allocate(ConstructionArgs... args) override;
         virtual void Deallocate(void* object) override;
-        bool Empty() const;
 
     private:
         struct Node
@@ -24,6 +28,7 @@ namespace infra
             Node* next;
         };
 
+        std::size_t FreeListSize() const;
         Node* AllocateNode();
 
     private:
@@ -34,7 +39,13 @@ namespace infra
     ////    Implementation    ////
 
     template<class T, std::size_t NumberOfElements, class... ConstructionArgs>
-    UniquePtr<T> AllocatorFixedSpace<T, NumberOfElements, ConstructionArgs...>::Allocate(ConstructionArgs... args)
+    AllocatorFixedSpace<T, NumberOfElements, void(ConstructionArgs...)>::~AllocatorFixedSpace()
+    {
+        assert(FreeListSize() == elements.size());
+    }
+        
+    template<class T, std::size_t NumberOfElements, class... ConstructionArgs>
+    UniquePtr<T> AllocatorFixedSpace<T, NumberOfElements, void(ConstructionArgs...)>::Allocate(ConstructionArgs... args)
     {
         Node* node = AllocateNode();
         node->Construct(std::forward<ConstructionArgs>(args)...);
@@ -43,7 +54,7 @@ namespace infra
     }
 
     template<class T, std::size_t NumberOfElements, class... ConstructionArgs>
-    void AllocatorFixedSpace<T, NumberOfElements, ConstructionArgs...>::Deallocate(void* object)
+    void AllocatorFixedSpace<T, NumberOfElements, void(ConstructionArgs...)>::Deallocate(void* object)
     {
         Node* node = static_cast<Node*>(reinterpret_cast<StaticStorage<T>*>(static_cast<T*>(object)));
         node->Destruct();
@@ -53,13 +64,22 @@ namespace infra
     }
 
     template<class T, std::size_t NumberOfElements, class... ConstructionArgs>
-    bool AllocatorFixedSpace<T, NumberOfElements, ConstructionArgs...>::Empty() const
+    std::size_t AllocatorFixedSpace<T, NumberOfElements, void(ConstructionArgs...)>::FreeListSize() const
     {
-        return freeList == nullptr && elements.full();
+        Node* node = freeList;
+        std::size_t result = 0;
+
+        while (node)
+        {
+            node = node->next;
+            ++result;
+        }
+
+        return result;
     }
 
     template<class T, std::size_t NumberOfElements, class... ConstructionArgs>
-    typename AllocatorFixedSpace<T, NumberOfElements, ConstructionArgs...>::Node* AllocatorFixedSpace<T, NumberOfElements, ConstructionArgs...>::AllocateNode()
+    typename AllocatorFixedSpace<T, NumberOfElements, void(ConstructionArgs...)>::Node* AllocatorFixedSpace<T, NumberOfElements, void(ConstructionArgs...)>::AllocateNode()
     {
         if (freeList)
         {
