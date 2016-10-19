@@ -24,6 +24,7 @@ namespace infra
     template<class T>
         ConstByteRange MakeByteRange(const T& v);
     ConstByteRange MakeStringByteRange(const char* string);
+    ConstByteRange MakeStringByteRange(const std::string& string);
     std::vector<uint8_t> StringToByteVector(const char* string);
 
     ////    Implementation    ////
@@ -66,6 +67,11 @@ namespace infra
     inline ConstByteRange MakeStringByteRange(const char* string)
     {
         return ReinterpretCastByteRange(MakeRange(string, string + std::strlen(string)));
+    }
+
+    inline ConstByteRange MakeStringByteRange(const std::string& string)
+    {
+        return ReinterpretCastByteRange(MakeRange(string.data(), string.data() + string.size()));
     }
 
     inline std::vector<uint8_t> StringToByteVector(const char* string)
