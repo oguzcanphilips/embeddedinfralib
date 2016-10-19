@@ -179,7 +179,7 @@ namespace infra
         BoundedStringBase& replace(const_iterator first, const_iterator last, size_type count2, char ch);
 
     public:
-        BoundedStringBase substr(size_type pos = 0, size_type count = npos);
+        BoundedStringBase substr(size_type pos = 0, size_type count = npos) const;
         size_type copy(char* dest, size_type count, size_type pos = 0);
         void resize(size_type count);
         void resize(size_type count, char ch);
@@ -995,7 +995,7 @@ namespace infra
     }
 
     template<class T>
-    BoundedStringBase<T> BoundedStringBase<T>::substr(size_type pos, size_type count)
+    BoundedStringBase<T> BoundedStringBase<T>::substr(size_type pos, size_type count) const
     {
         assert(pos <= length);
         count = std::min(count, length - pos);
