@@ -22,29 +22,29 @@ namespace infra
     class BoundedStringBase
     {
     public:
-        typedef typename std::remove_const<T>::type NonConstT;
+        using NonConstT = typename std::remove_const<T>::type;
 
         template<std::size_t Max>
             using WithStorage = infra::WithStorage<BoundedStringBase, std::array<NonConstT, Max>>;
 
-        typedef T value_type;
-        typedef std::size_t size_type;
-        typedef std::ptrdiff_t difference_type;
-        typedef T& reference;
-        typedef const T& const_reference;
-        typedef T* pointer;
-        typedef const T* const_pointer;
-        typedef T* iterator;
-        typedef const T* const_iterator;
-        typedef std::reverse_iterator<iterator> reverse_iterator;
-        typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+        using value_type = T;
+        using size_type = std::size_t;
+        using difference_type = std::ptrdiff_t;
+        using reference = T&;
+        using const_reference = const T&;
+        using pointer = T*;
+        using const_pointer = const T*;
+        using iterator = T*;
+        using const_iterator = const T*;
+        using reverse_iterator = std::reverse_iterator<iterator>;
+        using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
     public:
         static const size_type npos;
 
     public:
         BoundedStringBase();
-        explicit BoundedStringBase(MemoryRange<NonConstT> range);
+        explicit BoundedStringBase(MemoryRange<T> range);
         BoundedStringBase(MemoryRange<NonConstT> range, size_type count, char ch);
         BoundedStringBase(MemoryRange<NonConstT> range, const BoundedStringBase& other, size_type pos, size_type count = BoundedStringBase::npos);
         BoundedStringBase(MemoryRange<NonConstT> range, const char* s, size_type count);
@@ -55,7 +55,8 @@ namespace infra
         template<class InputIterator>
             BoundedStringBase(MemoryRange<NonConstT> range, InputIterator first, InputIterator last);
         BoundedStringBase(MemoryRange<NonConstT> range, std::initializer_list<char> initializerList);
-        BoundedStringBase(MemoryRange<NonConstT> range, const BoundedStringBase& other);
+        template<class U>
+        BoundedStringBase(MemoryRange<NonConstT> range, const BoundedStringBase<U>& other);
         BoundedStringBase(const BoundedStringBase& other);
         template<class U>                                                                               //TICS !INT#001
             BoundedStringBase(const BoundedStringBase<U>& other);
@@ -179,7 +180,8 @@ namespace infra
         BoundedStringBase& replace(const_iterator first, const_iterator last, size_type count2, char ch);
 
     public:
-        BoundedStringBase substr(size_type pos = 0, size_type count = npos) const;
+        BoundedStringBase substr(size_type pos = 0, size_type count = npos);
+        BoundedStringBase<const T> substr(size_type pos = 0, size_type count = npos) const;
         size_type copy(char* dest, size_type count, size_type pos = 0);
         void resize(size_type count);
         void resize(size_type count, char ch);
@@ -217,6 +219,18 @@ namespace infra
         size_type find_last_not_of(char ch, size_type pos = npos) const;
 
     private:
+        static void AssignToRange(MemoryRange<NonConstT> range, size_type& length, size_type count, char ch);
+        template<class U>
+            static void AssignToRange(MemoryRange<NonConstT> range, size_type& length, const BoundedStringBase<U>& other);
+        template<class U>
+            static void AssignToRange(MemoryRange<NonConstT> range, size_type& length, const BoundedStringBase<U>& other, size_type pos, size_type count);
+        static void AssignToRange(MemoryRange<NonConstT> range, size_type& length, const char* s, size_type count);
+        static void AssignToRange(MemoryRange<NonConstT> range, size_type& length, const char* s);
+        static void AssignToRange(MemoryRange<NonConstT> range, size_type& length, const std::string& s);
+        template<class InputIterator>
+            static void AssignToRange(MemoryRange<NonConstT> range, size_type& length, InputIterator first, InputIterator last);
+
+    private:
         void MoveUp(size_type start, size_type count);
         void MoveDown(size_type start, size_type count);
         int CompareImpl(const char* begin1, const char* end1, const char* begin2, const char* end2) const;
@@ -227,7 +241,7 @@ namespace infra
         template<class U>
             friend class BoundedStringBase;
 
-        MemoryRange<NonConstT> range;
+        MemoryRange<T> range;
         size_type length = 0;
     };
 
@@ -323,7 +337,7 @@ namespace infra
     {}
 
     template<class T>
-    BoundedStringBase<T>::BoundedStringBase(MemoryRange<NonConstT> range)
+    BoundedStringBase<T>::BoundedStringBase(MemoryRange<T> range)
         : range(range)
     {}
 
@@ -331,46 +345,46 @@ namespace infra
     BoundedStringBase<T>::BoundedStringBase(MemoryRange<NonConstT> range, size_type count, char ch)
         : range(range)
     {
-        assign(count, ch);
+        AssignToRange(range, length, count, ch);
     }
 
     template<class T>
     BoundedStringBase<T>::BoundedStringBase(MemoryRange<NonConstT> range, const BoundedStringBase<T>& other, size_type pos, size_type count)
         : range(range)
     {
-        assign(other, pos, count);
+        AssignToRange(range, length, other, pos, count);
     }
 
     template<class T>
     BoundedStringBase<T>::BoundedStringBase(MemoryRange<NonConstT> range, const char* s, size_type count)
         : range(range)
     {
-        assign(s, count);
+        AssignToRange(range, length, s, count);
     }
 
     template<class T>
     BoundedStringBase<T>::BoundedStringBase(MemoryRange<NonConstT> range, const char* s)
         : range(range)
     {
-        assign(s);
+        AssignToRange(range, length, s);
     }
 
     template<class T>
     BoundedStringBase<T>::BoundedStringBase(MemoryRange<NonConstT> range, const std::string& s)
         : range(range)
     {
-        assign(s);
+        AssignToRange(range, length, s);
     }
 
     template<class T>
     BoundedStringBase<T>::BoundedStringBase(T* s, size_type count)
-        : range(const_cast<char*>(s), const_cast<char*>(s) + count)
+        : range(s, s + count)
         , length(count)
     {}
 
     template<class T>
     BoundedStringBase<T>::BoundedStringBase(T* s)
-        : range(const_cast<char*>(s), const_cast<char*>(s) + std::strlen(s))
+        : range(s, s + std::strlen(s))
         , length(range.size())
     {}
 
@@ -378,14 +392,15 @@ namespace infra
     BoundedStringBase<T>::BoundedStringBase(MemoryRange<NonConstT> range, std::initializer_list<char> initializerList)
         : range(range)
     {
-        assign(initializerList.begin(), initializerList.end());
+        AssignToRange(range, length, initializerList.begin(), initializerList.end());
     }
 
     template<class T>
-    BoundedStringBase<T>::BoundedStringBase(MemoryRange<NonConstT> range, const BoundedStringBase<T>& other)
+    template<class U>
+    BoundedStringBase<T>::BoundedStringBase(MemoryRange<NonConstT> range, const BoundedStringBase<U>& other)
         : range(range)
     {
-        assign(other);
+        AssignToRange(range, length, other);
     }
 
     template<class T>
@@ -448,9 +463,7 @@ namespace infra
     template<class T>
     BoundedStringBase<T>& BoundedStringBase<T>::assign(size_type count, char ch)
     {
-        assert(count <= max_size());
-        length = count;
-        std::fill(range.begin(), range.begin() + length, ch);
+        AssignToRange(range, length, count, ch);
 
         return *this;
     }
@@ -459,9 +472,7 @@ namespace infra
     template<class U>
     BoundedStringBase<T>& BoundedStringBase<T>::assign(const BoundedStringBase<U>& other)
     {
-        assert(other.size() <= max_size());
-        length = other.length;
-        std::copy(other.begin(), other.begin() + length, range.begin());
+        AssignToRange(range, length, other);
 
         return *this;
     }
@@ -470,10 +481,7 @@ namespace infra
     template<class U>
     BoundedStringBase<T>& BoundedStringBase<T>::assign(const BoundedStringBase<U>& other, size_type pos, size_type count)
     {
-        count = std::min(count, other.size());
-        assert(count <= max_size());
-        length = count;
-        std::copy(other.range.begin() + pos, other.range.begin() + pos + length, range.begin());
+        AssignToRange(range, length, other, pos, count);
 
         return *this;
     }
@@ -481,9 +489,7 @@ namespace infra
     template<class T>
     BoundedStringBase<T>& BoundedStringBase<T>::assign(const char* s, size_type count)
     {
-        assert(count <= max_size());
-        length = count;
-        std::copy(s, s + length, range.begin());
+        AssignToRange(range, length, s, count);
 
         return *this;
     }
@@ -491,13 +497,26 @@ namespace infra
     template<class T>
     BoundedStringBase<T>& BoundedStringBase<T>::assign(const char* s)
     {
-        return assign(s, std::strlen(s));
+        AssignToRange(range, length, s);
+
+        return *this;
     }
 
     template<class T>
     BoundedStringBase<T>& BoundedStringBase<T>::assign(const std::string& s)
     {
-        return assign(s.data(), s.size());
+        AssignToRange(range, length, s);
+
+        return *this;
+    }
+
+    template<class T>
+    template<class InputIterator>
+    BoundedStringBase<T>& BoundedStringBase<T>::assign(InputIterator first, InputIterator last)
+    {
+        AssignToRange(range, length, first, last);
+
+        return *this;
     }
 
     template<class T>
@@ -995,14 +1014,19 @@ namespace infra
     }
 
     template<class T>
-    BoundedStringBase<T> BoundedStringBase<T>::substr(size_type pos, size_type count) const
+    BoundedStringBase<T> BoundedStringBase<T>::substr(size_type pos, size_type count)
     {
         assert(pos <= length);
         count = std::min(count, length - pos);
-        BoundedStringBase<T> result(*this);
-        result.range = MemoryRange<char>(const_cast<char*>(begin()) + pos, const_cast<char*>(begin()) + pos + count);
-        result.length = result.range.size();
-        return result;
+        return BoundedStringBase<T>(begin() + pos, count);
+    }
+
+    template<class T>
+    BoundedStringBase<const T> BoundedStringBase<T>::substr(size_type pos, size_type count) const
+    {
+        assert(pos <= length);
+        count = std::min(count, length - pos);
+        return BoundedStringBase<const T>(begin() + pos, count);
     }
 
     template<class T>
@@ -1223,6 +1247,61 @@ namespace infra
     }
 
     template<class T>
+    void BoundedStringBase<T>::AssignToRange(infra::MemoryRange<NonConstT> range, size_type& length, size_type count, char ch)
+    {
+        assert(count <= range.size());
+        length = count;
+        std::fill(range.begin(), range.begin() + length, ch);
+    }
+
+    template<class T>
+    template<class U>
+    void BoundedStringBase<T>::AssignToRange(infra::MemoryRange<NonConstT> range, size_type& length, const BoundedStringBase<U>& other)
+    {
+        assert(other.size() <= range.size());
+        length = other.length;
+        std::copy(other.begin(), other.begin() + length, range.begin());
+    }
+
+    template<class T>
+    template<class U>
+    void BoundedStringBase<T>::AssignToRange(infra::MemoryRange<NonConstT> range, size_type& length, const BoundedStringBase<U>& other, size_type pos, size_type count)
+    {
+        count = std::min(count, other.size());
+        assert(count <= range.size());
+        length = count;
+        std::copy(other.range.begin() + pos, other.range.begin() + pos + length, range.begin());
+    }
+
+    template<class T>
+    void BoundedStringBase<T>::AssignToRange(infra::MemoryRange<NonConstT> range, size_type& length, const char* s, size_type count)
+    {
+        assert(count <= range.size());
+        length = count;
+        std::copy(s, s + length, range.begin());
+    }
+
+    template<class T>
+    void BoundedStringBase<T>::AssignToRange(infra::MemoryRange<NonConstT> range, size_type& length, const char* s)
+    {
+        AssignToRange(range, length, s, std::strlen(s));
+    }
+
+    template<class T>
+    void BoundedStringBase<T>::AssignToRange(infra::MemoryRange<NonConstT> range, size_type& length, const std::string& s)
+    {
+        AssignToRange(range, length, s.data(), s.size());
+    }
+
+    template<class T>
+    template<class InputIterator>
+    void BoundedStringBase<T>::AssignToRange(infra::MemoryRange<NonConstT> range, size_type& length, InputIterator first, InputIterator last)
+    {
+        for (length = 0; length != range.size() && first != last; ++length, ++first)
+            range[length] = *first;
+    }
+
+    template<class T>
     void BoundedStringBase<T>::MoveUp(size_type start, size_type count)
     {
         std::memmove(range.begin() + start + count, range.begin() + start, length - start);
@@ -1287,17 +1366,7 @@ namespace infra
     BoundedStringBase<T>::BoundedStringBase(MemoryRange<NonConstT> range, InputIterator first, InputIterator last)
         : range(range)
     {
-        assign(first, last);
-    }
-
-    template<class T>
-    template<class InputIterator>
-    BoundedStringBase<T>& BoundedStringBase<T>::assign(InputIterator first, InputIterator last)
-    {
-        for (length = 0; length != max_size() && first != last; ++length, ++first)
-            range[length] = *first;
-
-        return *this;
+        AssignToRange(range, length, first, last);
     }
 
     template<class T>
