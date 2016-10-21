@@ -8,14 +8,13 @@
 
 namespace infra
 {
-    class EventDispatcher
-        : public infra::InterfaceConnector<EventDispatcher>
+    class EventDispatcherWorker
     {
     public:
-        template<std::size_t StorageSize>
-            using WithSize = infra::WithStorage<EventDispatcher, std::array<std::pair<infra::Function<void()>, std::atomic<bool>>, StorageSize>>;
+        template<std::size_t StorageSize, class T = EventDispatcherWorker>
+            using WithSize = infra::WithStorage<T, std::array<std::pair<infra::Function<void()>, std::atomic<bool>>, StorageSize>>;
 
-        explicit EventDispatcher(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage);
+        explicit EventDispatcherWorker(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage);
 
         void Schedule(const infra::Function<void()>& action);
 
@@ -38,6 +37,27 @@ namespace infra
         uint32_t scheduledActionsPopIndex;
         uint32_t minCapacity;
     };
+
+    template<class T>
+    class EventDispatcherConnector
+        : public infra::InterfaceConnector<EventDispatcherConnector<T>>
+        , public T
+    {
+    public:
+        template<std::size_t StorageSize>
+            using WithSize = typename T::template WithSize<StorageSize, T>;
+
+        explicit EventDispatcherConnector(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage);
+    };
+
+    using EventDispatcher = EventDispatcherConnector<EventDispatcherWorker>;
+
+    ////    Implementation    ////
+
+    template<class T>
+    EventDispatcherConnector<T>::EventDispatcherConnector(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage)
+        : T(scheduledActionsStorage)
+    {}
 }
 
 #endif

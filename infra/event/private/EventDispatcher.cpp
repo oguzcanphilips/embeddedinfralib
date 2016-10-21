@@ -3,17 +3,17 @@
 
 namespace infra
 {
-    EventDispatcher::EventDispatcher(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage)
+    EventDispatcherWorker::EventDispatcherWorker(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage)
         : scheduledActions(scheduledActionsStorage)
         , scheduledActionsPushIndex(0)
         , scheduledActionsPopIndex(0)
         , minCapacity(scheduledActions.size())
     {
-        for (auto& action: scheduledActions)
+        for (auto& action : scheduledActions)
             action.second = false;
     }
 
-    void EventDispatcher::Schedule(const infra::Function<void()>& action)
+    void EventDispatcherWorker::Schedule(const infra::Function<void()>& action)
     {
         uint32_t pushIndex = scheduledActionsPushIndex;
         uint32_t newPushIndex;
@@ -33,7 +33,7 @@ namespace infra
         RequestExecution();
     }
 
-    void EventDispatcher::Run()
+    void EventDispatcherWorker::Run()
     {
         while (true)                                                                                            //TICS !CPP4127
         {
@@ -42,29 +42,30 @@ namespace infra
         }
     }
 
-    void EventDispatcher::ExecuteAllActions()
+    void EventDispatcherWorker::ExecuteAllActions()
     {
         while (TryExecuteAction())
-        {}
+        {
+        }
     }
 
-    bool EventDispatcher::IsIdle() const
+    bool EventDispatcherWorker::IsIdle() const
     {
         return !scheduledActions[scheduledActionsPopIndex].second;
     }
 
-    std::size_t EventDispatcher::MinCapacity() const
+    std::size_t EventDispatcherWorker::MinCapacity() const
     {
         return minCapacity;
     }
 
-    void EventDispatcher::RequestExecution()
+    void EventDispatcherWorker::RequestExecution()
     {}
 
-    void EventDispatcher::Idle()
+    void EventDispatcherWorker::Idle()
     {}
 
-    bool EventDispatcher::TryExecuteAction()
+    bool EventDispatcherWorker::TryExecuteAction()
     {
         if (scheduledActions[scheduledActionsPopIndex].second)
         {
