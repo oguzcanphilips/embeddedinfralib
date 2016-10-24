@@ -2,6 +2,7 @@
 #include "infra/stream/public/StringOutputStream.hpp"
 #include "infra/util/public/BoundedString.hpp"
 #include <cstdint>
+#include <limits>
 
 namespace
 {
@@ -107,6 +108,33 @@ TEST(StringOutputStreamTest, stream_int8_with_smaller_width)
     stream << infra::Width(2) << int8_t(127);
 
     EXPECT_EQ("127", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, stream_uint64_max)
+{
+    infra::StringOutputStream::WithStorage<20> stream;
+
+    stream << std::numeric_limits<uint64_t>::max();
+
+    EXPECT_EQ("18446744073709551615", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, stream_int64_max)
+{
+    infra::StringOutputStream::WithStorage<20> stream;
+
+    stream << std::numeric_limits<int64_t>::max();
+
+    EXPECT_EQ("9223372036854775807", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, stream_int64_min)
+{
+    infra::StringOutputStream::WithStorage<20> stream;
+
+    stream << std::numeric_limits<int64_t>::min();
+
+    EXPECT_EQ("-9223372036854775808", stream.Storage());
 }
 
 TEST(StringOutputStreamTest, stream_short_hex)

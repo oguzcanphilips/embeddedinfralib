@@ -166,6 +166,28 @@ namespace infra
         return *this;
     }
 
+    TextOutputStream& TextOutputStream::operator<<(int64_t v)
+    {
+        if (v < 0)
+            Writer().Insert('-');
+        if (decimal)
+            OutputAsDecimal(std::abs(v));
+        else
+            OutputAsHex(std::abs(v));
+
+        return *this;
+    }
+
+    TextOutputStream& TextOutputStream::operator<<(uint64_t v)
+    {
+        if (decimal)
+            OutputAsDecimal(v);
+        else
+            OutputAsHex(v);
+
+        return *this;
+    }
+
 #ifndef _MSC_VER                                                                                                    //TICS !POR#021
     TextOutputStream& TextOutputStream::operator<<(int v)
     {
@@ -208,10 +230,10 @@ namespace infra
         return *this;
     }
 
-    void TextOutputStream::OutputAsDecimal(uint32_t v)
+    void TextOutputStream::OutputAsDecimal(uint64_t v)
     {
-        uint32_t nofDigits = 1;
-        uint32_t mask = 1;
+        uint64_t nofDigits = 1;
+        uint64_t mask = 1;
 
         while (v / mask >= 10)
         {
@@ -220,7 +242,7 @@ namespace infra
         }
 
         if (width)
-            for (std::size_t i = nofDigits; i < width->width; ++i)
+            for (uint64_t i = nofDigits; i < width->width; ++i)
                 Writer().Insert(static_cast<uint8_t>(width->padding));
 
         while (mask != 0)
@@ -230,12 +252,12 @@ namespace infra
         }
     }
 
-    void TextOutputStream::OutputAsHex(uint32_t v)
+    void TextOutputStream::OutputAsHex(uint64_t v)
     {
         static const char hexChars[] = "0123456789abcdef";
 
-        uint32_t nofDigits = 1;
-        uint32_t mask = 1;
+        uint64_t nofDigits = 1;
+        uint64_t mask = 1;
 
         while (v / mask >= 16)
         {
@@ -244,7 +266,7 @@ namespace infra
         }
 
         if (width)
-            for (std::size_t i = nofDigits; i < width->width; ++i)
+            for (uint64_t i = nofDigits; i < width->width; ++i)
                 Writer().Insert(static_cast<uint8_t>(width->padding));
 
         while (mask != 0)
