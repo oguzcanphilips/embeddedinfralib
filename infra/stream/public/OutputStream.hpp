@@ -92,6 +92,8 @@ namespace infra
         TextOutputStream& operator<<(uint8_t v);
         TextOutputStream& operator<<(int32_t v);
         TextOutputStream& operator<<(uint32_t v);
+        TextOutputStream& operator<<(int64_t v);
+        TextOutputStream& operator<<(uint64_t v);
 #ifndef _MSC_VER                                                                                        //TICS !POR#021
         TextOutputStream& operator<<(int v);
         TextOutputStream& operator<<(unsigned int v);
@@ -136,8 +138,8 @@ namespace infra
             Formatter<T> MakeFormatter(T&& argument);
 
     private:
-        void OutputAsDecimal(uint32_t v);
-        void OutputAsHex(uint32_t v);
+        void OutputAsDecimal(uint64_t v);
+        void OutputAsHex(uint64_t v);
 
         template<class... Formatters>
             void FormatHelper(const char* format, Formatters&&... formatters);

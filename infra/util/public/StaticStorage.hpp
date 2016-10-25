@@ -71,6 +71,7 @@ namespace infra
         const T* operator->() const;
 
     private:
+        T* dataPtr;
         typename std::aligned_storage<sizeof(T) + ExtraSize, std::alignment_of<AlignAs>::value>::type data;
     };
 
@@ -130,37 +131,37 @@ namespace infra
         static_assert(std::is_base_of<T, U>::value, "Constructed type needs to be derived from T");
         static_assert(std::alignment_of<U>::value <= sizeof(AlignAs), "Alignment of U is larger than alignment of this function");
         static_assert(sizeof(U) <= sizeof(T) + ExtraSize, "Not enough static storage availabe for construction of derived type");
-        new(&data) U(std::forward<Args>(args)...);
+        dataPtr = new(&data) U(std::forward<Args>(args)...);
     }
 
     template<class T, std::size_t ExtraSize, class AlignAs>
     void StaticStorageForPolymorphicObjects<T, ExtraSize, AlignAs>::Destruct()
     {
-        reinterpret_cast<T&>(data).~T();
+        dataPtr->~T();
     }
 
     template<class T, std::size_t ExtraSize, class AlignAs>
     T& StaticStorageForPolymorphicObjects<T, ExtraSize, AlignAs>::operator*()
     {
-        return reinterpret_cast<T&>(data);
+        return *dataPtr;
     }
 
     template<class T, std::size_t ExtraSize, class AlignAs>
     const T& StaticStorageForPolymorphicObjects<T, ExtraSize, AlignAs>::operator*() const
     {
-        return reinterpret_cast<const T&>(data);
+        return *dataPtr;
     }
 
     template<class T, std::size_t ExtraSize, class AlignAs>
     T* StaticStorageForPolymorphicObjects<T, ExtraSize, AlignAs>::operator->()
     {
-        return reinterpret_cast<T*>(&data);
+        return dataPtr;
     }
 
     template<class T, std::size_t ExtraSize, class AlignAs>
     const T* StaticStorageForPolymorphicObjects<T, ExtraSize, AlignAs>::operator->() const
     {
-        return reinterpret_cast<const T*>(&data);
+        return dataPtr;
     }
 }
 
