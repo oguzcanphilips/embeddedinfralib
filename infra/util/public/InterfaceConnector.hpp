@@ -50,6 +50,7 @@ namespace infra
     {
     protected:
         InterfaceConnector();
+        InterfaceConnector(DerivedClass* instance);
         InterfaceConnector(const InterfaceConnector&) = delete;
         ~InterfaceConnector();
 
@@ -70,6 +71,13 @@ namespace infra
     {
         assert(sInstance == nullptr);
         sInstance = static_cast<DerivedClass*>(this);
+    }
+
+    template<class DerivedClass>
+    InterfaceConnector<DerivedClass>::InterfaceConnector(DerivedClass* instance)
+    {
+        assert(sInstance == nullptr);
+        sInstance = instance;
     }
 
     template<class DerivedClass>
