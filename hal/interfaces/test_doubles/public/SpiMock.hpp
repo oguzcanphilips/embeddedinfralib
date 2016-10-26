@@ -52,6 +52,7 @@ namespace hal
 
         uint32_t speed = 100;
         uint8_t spiMode = 0;
+        bool scheduleActionCompleteAutomatically = true;
     };
 }
 
