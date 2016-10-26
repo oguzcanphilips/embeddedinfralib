@@ -51,7 +51,8 @@ namespace hal
             std::copy(result.second.begin(), result.second.end(), receiveData.begin());
 
             actionOnStart();
-            infra::EventDispatcher::Instance().Schedule(actionOnCompletion);
+            if (scheduleActionCompleteAutomatically)
+                infra::EventDispatcher::Instance().Schedule(actionOnCompletion);
         }
     }
 
