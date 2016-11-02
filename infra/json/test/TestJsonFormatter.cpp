@@ -46,9 +46,10 @@ TEST(JsonObjectFormatter, add_int)
         infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add("intTag", 0);
         formatter.Add("uint32Tag", static_cast<uint32_t>(5));
+        formatter.Add("int64Tag", static_cast<int64_t>(-10));
     }
 
-    EXPECT_EQ(R"({ "intTag":0, "uint32Tag":5 })", string);
+    EXPECT_EQ(R"({ "intTag":0, "uint32Tag":5, "int64Tag":-10 })", string);
 }
 
 TEST(JsonObjectFormatter, add_const_char_ptr)
@@ -137,9 +138,10 @@ TEST(JsonArrayFormatter, add_int)
         infra::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
         formatter.Add(0);
         formatter.Add(static_cast<uint32_t>(5));
+        formatter.Add(static_cast<int64_t>(-10));
     }
 
-    EXPECT_EQ(R"([ 0, 5 ])", string);
+    EXPECT_EQ(R"([ 0, 5, -10 ])", string);
 }
 
 TEST(JsonArrayFormatter, add_const_char_ptr)

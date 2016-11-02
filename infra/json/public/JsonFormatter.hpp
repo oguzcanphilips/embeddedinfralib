@@ -22,6 +22,7 @@ namespace infra
         void Add(const char* tagName, bool tag);
         void Add(const char* tagName, int32_t tag);
         void Add(const char* tagName, uint32_t tag);
+        void Add(const char* tagName, int64_t tag);
         void Add(const char* tagName, const char* tag);
         void Add(const char* tagName, infra::BoundedConstString tag);
         JsonObjectFormatter SubObject(const char* tagName);
@@ -51,6 +52,7 @@ namespace infra
         void Add(bool tag);
         void Add(int32_t tag);
         void Add(uint32_t tag);
+        void Add(int64_t tag);
         void Add(const char* tag);
         void Add(infra::BoundedConstString tag);
         JsonObjectFormatter SubObject();
