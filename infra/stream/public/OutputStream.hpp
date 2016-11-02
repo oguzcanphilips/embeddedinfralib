@@ -18,8 +18,13 @@ namespace infra
     public:
         StreamWriter();
         explicit StreamWriter(SoftFail);
+        StreamWriter(const StreamWriter&) = delete;
+        StreamWriter& operator=(const StreamWriter&) = delete;
+
+    protected:
         ~StreamWriter();
 
+    public:
         virtual void Insert(ConstByteRange range) = 0;
         virtual void Insert(uint8_t element) = 0;
         virtual void Forward(std::size_t amount) = 0;
@@ -37,7 +42,7 @@ namespace infra
     class StreamWriterDummy
       : public StreamWriter
     {
-      public:
+    public:
         virtual void Insert(ConstByteRange range);
         virtual void Insert(uint8_t element);
         virtual void Forward(std::size_t amount);
