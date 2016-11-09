@@ -53,13 +53,15 @@ namespace infra
         void UnregisterSelf(TimePoint oldTriggerTime);
         void UpdateTriggerTime(TimePoint oldTriggerTime);
 
-        uint32_t Convert(TimePoint point) const;
-        TimePoint Convert(uint32_t point) const;
+        using UnalignedTimePoint = std::array<uint32_t, 2>;
+        static_assert(sizeof(UnalignedTimePoint) == sizeof(TimePoint), "Incorrect size of UnalignedPoint");
+        UnalignedTimePoint Convert(TimePoint point) const;
+        TimePoint Convert(UnalignedTimePoint point) const;
 
     private:
         TimerService& timerService;
         infra::Function<void()> action;
-        uint32_t nextTriggerTime = 0;
+        UnalignedTimePoint nextTriggerTime = Convert(TimePoint());
     };
 
     class TimerSingleShot
@@ -94,7 +96,7 @@ namespace infra
         void SetDuration(Duration duration);
 
     private:
-        uint32_t triggerPeriod = 0;
+        Duration triggerPeriod = Duration();
     };
 }
 

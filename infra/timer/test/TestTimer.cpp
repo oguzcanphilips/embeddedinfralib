@@ -171,18 +171,3 @@ TEST_F(TimerTest, TestTimerIsNotArmedAfterCancel)
 
     EXPECT_FALSE(timer.Armed());
 }
-
-TEST_F(TimerTest, set_timer_before_roll_over_to_trigger_after_roll_over)
-{
-    ForwardTime(std::chrono::milliseconds(std::numeric_limits<uint32_t>::max() - 10));
-
-    testing::StrictMock<infra::MockCallback<void()>> callback;
-    infra::TimerSingleShot timer(std::chrono::milliseconds(20), [&callback]() { callback.callback();  });
-    EXPECT_EQ(infra::TimePoint() + std::chrono::milliseconds(static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()) + 10), timer.NextTrigger());
-
-    ForwardTime(std::chrono::milliseconds(15));
-    testing::Mock::VerifyAndClearExpectations(&callback);
-
-    EXPECT_CALL(callback, callback());
-    ForwardTime(std::chrono::milliseconds(5));
-}

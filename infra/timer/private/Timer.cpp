@@ -52,27 +52,25 @@ namespace infra
         timerService.UpdateTriggerTime(*this, oldTriggerTime);
     }
 
-    uint32_t Timer::Convert(TimePoint point) const
+    Timer::UnalignedTimePoint Timer::Convert(TimePoint point) const
     {
-        return static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(point - TimePoint()).count());
+        UnalignedTimePoint result;
+        std::copy(reinterpret_cast<const uint32_t*>(&point), reinterpret_cast<const uint32_t*>(&point + 1), result.begin());
+        return result;
     }
 
-    TimePoint Timer::Convert(uint32_t point) const
+    TimePoint Timer::Convert(UnalignedTimePoint point) const
     {
-        uint64_t nowInMilliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(Now() - TimePoint()).count();
-        uint64_t milliSecondsSinceStart = ((nowInMilliSeconds >> 32) << 32);
-
-        if (static_cast<uint32_t>(nowInMilliSeconds) > (static_cast<uint32_t>(1) << 31))
-            milliSecondsSinceStart += static_cast<uint64_t>(1) << 32;
-
-        return TimePoint() + std::chrono::milliseconds(milliSecondsSinceStart + point);
+        TimePoint result;
+        std::copy(point.begin(), point.end(), reinterpret_cast<uint32_t*>(&result));
+        return result;
     }
 
     void Timer::SetNextTriggerTime(TimePoint time, const infra::Function<void()>& action)
     {
+        assert(action);
         TimePoint oldTriggerTime = Convert(nextTriggerTime);
 
-        assert(std::chrono::duration_cast<std::chrono::milliseconds>(time - Now()).count() < (static_cast<uint32_t>(1) << 31));
         nextTriggerTime = Convert(time);
 
         if (!this->action)
@@ -151,13 +149,12 @@ namespace infra
         TimePoint now = std::max(Now(), NextTrigger());
         Duration diff = (now - NextTrigger()) % triggerPeriod;
 
-        SetNextTriggerTime(now - diff + std::chrono::milliseconds(triggerPeriod), Action());
+        SetNextTriggerTime(now - diff + triggerPeriod, Action());
     }
 
     void TimerRepeating::SetDuration(Duration duration)
     {
-        assert(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() < std::numeric_limits<uint32_t>::max());
-        triggerPeriod = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count());
+        triggerPeriod = duration;
 
         ComputeNextTriggerTime();
     }
