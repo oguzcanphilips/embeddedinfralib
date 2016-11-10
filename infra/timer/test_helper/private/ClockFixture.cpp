@@ -5,14 +5,12 @@
 namespace infra
 {
     ClockFixture::ClockFixture()
-        : systemTimerService(systemTimerServiceId, std::chrono::seconds(0))  // Tests have a perfect resolution
-    {
-        systemTimerService.EnterTestMode();
+        : systemTimerService(systemTimerServiceId)  // Tests have a perfect resolution
+    {	
     }
 
     ClockFixture::~ClockFixture()
     {
-        systemTimerService.LeaveTestMode();
     }
 
     void ClockFixture::ForwardTime(Duration amount)
@@ -24,15 +22,15 @@ namespace infra
         {
             TimePoint minimumTriggerTime = std::min(newSystemTime, systemTimerService.NextTrigger());
 
-            systemTimerService.SetTestSystemTime(minimumTriggerTime);
+			systemTimerService.SetTestSystemTime(minimumTriggerTime);
             ExecuteAllActions();
         } while (systemTimerService.Now() != newSystemTime);
     }
 
-    testing::Matcher<const std::tuple<>&> ClockFixture::After(Duration duration) const
-    {
-        return testing::Matcher<const std::tuple<>&>(new TimeMatcher(systemTimerService.Now() + duration));
-    }
+	testing::Matcher<const std::tuple<>&> ClockFixture::After(Duration duration) const
+	{
+		return testing::Matcher<const std::tuple<>&>(new TimeMatcher(systemTimerService.Now() + duration));
+	}
 
     std::string ClockFixture::TimeToString(TimePoint time)
     {

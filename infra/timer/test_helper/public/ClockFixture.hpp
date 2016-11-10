@@ -3,7 +3,7 @@
 
 #include "gmock/gmock.h"
 #include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
-#include "infra/timer/public/BaseTimerService.hpp"
+#include "infra/timer/test_helper/public/PerfectTimerService.hpp"
 #include "infra/timer/public/TimerService.hpp"
 
 namespace infra
@@ -24,7 +24,7 @@ namespace infra
 
         static std::string TimeToString(TimePoint time);
 
-        BaseTimerService systemTimerService;
+        PerfectTimerService systemTimerService;
 
     private:
         class TimeMatcher

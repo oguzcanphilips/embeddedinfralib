@@ -15,13 +15,12 @@ namespace infra
 
     void BaseTimerService::NextTriggerChanged()
     {
-        nextNotification = static_cast<uint32_t>(std::max<std::chrono::milliseconds::rep>(
-            std::chrono::duration_cast<std::chrono::milliseconds>(NextTrigger() - previousTrigger).count(), 0));
+        nextNotification = std::max(NextTrigger() - previousTrigger, Duration()) / resolution;
     }
 
     TimePoint BaseTimerService::Now() const
     {
-        return systemTime + std::chrono::milliseconds(ticksProgressed);
+        return systemTime + ticksProgressed.load() * resolution;
     }
 
     Duration BaseTimerService::Resolution() const
@@ -50,15 +49,20 @@ namespace infra
 
     void BaseTimerService::ProcessTicks()
     {
-        while (notificationScheduled)
+    	bool continueLoop = notificationScheduled;
+        while (continueLoop)
         {
-            TimeProgressed(std::chrono::milliseconds(ticksProgressed.exchange(0)));
+            TimeProgressed(ticksProgressed.exchange(0) * resolution);
+
             previousTrigger = Now();
-            nextNotification = static_cast<uint32_t>(std::max<std::chrono::milliseconds::rep>(
-                std::chrono::duration_cast<std::chrono::milliseconds>(NextTrigger() - previousTrigger).count(), 0));
+            nextNotification = std::max(NextTrigger() - previousTrigger, Duration()) / resolution;
+
             // If in the meantime ticksProgressed has been increased beyond nextNotification,
             // do not wait until the next timer tick, but immediately process this new amount
-            notificationScheduled = ticksProgressed >= nextNotification;
+            // Use the result of the assign to notificationScheduled, in order to avoid notificationScheduled
+            // being set to false, then receiving an interrupt setting it to true, and not handling the newly scheduled
+            // event immediately.
+            continueLoop = notificationScheduled = ticksProgressed >= nextNotification;
         }
     }
 
