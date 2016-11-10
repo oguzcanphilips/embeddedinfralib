@@ -1,8 +1,6 @@
-#ifndef INFRA_PERFECT_TIMER_SERVICE_HPP
-#define INFRA_PREFECT_TIMER_SERVICE_HPP
+#pragma once
 
 #include "infra/timer/public/TimerService.hpp"
-#include <atomic>
 
 namespace infra
 {
@@ -31,11 +29,9 @@ namespace infra
 		TimePoint systemTime = TimePoint();
 		Duration resolution;
 
-		std::atomic<uint32_t> nextNotification;
-		std::atomic<uint32_t> ticksProgressed;
-		std::atomic_bool notificationScheduled;
+		uint32_t nextNotification;
+		uint32_t ticksProgressed;
+		bool notificationScheduled;
 		infra::TimePoint previousTrigger;
 	};
 }
-
-#endif

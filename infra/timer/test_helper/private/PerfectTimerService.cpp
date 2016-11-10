@@ -22,7 +22,7 @@ namespace infra
 
 	TimePoint PerfectTimerService::Now() const
 	{
-		return systemTime + ticksProgressed.load() * resolution;
+		return systemTime + ticksProgressed * resolution;
 	}
 
 	Duration PerfectTimerService::Resolution() const
@@ -38,22 +38,24 @@ namespace infra
 	void PerfectTimerService::TimeProgressed(Duration amount)
 	{
 		systemTime += amount;
-
 		Progressed(systemTime);
 	}
 
 	void PerfectTimerService::SystemTickInterrupt()
 	{
 		++ticksProgressed;
-		if (ticksProgressed >= nextNotification && !notificationScheduled.exchange(true))
+		if (ticksProgressed >= nextNotification && !notificationScheduled)
+		{
+			notificationScheduled = true;
 			infra::EventDispatcher::Instance().Schedule([this]() { ProcessTicks(); });
+		}
 	}
 
 	void PerfectTimerService::ProcessTicks()
 	{		
 		while (notificationScheduled)
 		{
-			TimeProgressed(std::chrono::milliseconds(ticksProgressed.exchange(0)));			
+			TimeProgressed(std::chrono::milliseconds(ticksProgressed));			
 
 			previousTrigger = Now();
 
