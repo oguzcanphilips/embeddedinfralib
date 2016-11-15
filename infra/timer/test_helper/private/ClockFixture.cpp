@@ -4,8 +4,8 @@
 
 namespace infra
 {
-    ClockFixture::ClockFixture()
-        : systemTimerService(systemTimerServiceId)  // Tests have a perfect resolution
+    ClockFixture::ClockFixture(uint32_t timerSericeId)
+        : systemTimerService(timerSericeId)
     {	
     }
 

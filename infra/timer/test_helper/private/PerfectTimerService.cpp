@@ -5,72 +5,42 @@
 
 namespace infra
 {
-	PerfectTimerService::PerfectTimerService(uint32_t id)
-		: TimerService(id)
-		, resolution(std::chrono::milliseconds(0))
-		, systemTime(TimePoint())
-	{
-		ticksProgressed = 0;
-		notificationScheduled = false;
-	}
+    PerfectTimerService::PerfectTimerService(uint32_t id)
+        : TimerService(id)
+        , resolution(std::chrono::milliseconds(0))
+        , systemTime(TimePoint())
+    {}
 
-	void PerfectTimerService::NextTriggerChanged()
-	{		
-		nextNotification = static_cast<uint32_t>(std::max<std::chrono::milliseconds::rep>(
-		                std::chrono::duration_cast<std::chrono::milliseconds>(NextTrigger() - previousTrigger).count(), 0));
-	}
+    void PerfectTimerService::NextTriggerChanged()
+    {               
+        nextNotification = static_cast<uint32_t>(std::max<std::chrono::milliseconds::rep>(
+                        std::chrono::duration_cast<std::chrono::milliseconds>(NextTrigger() - previousTrigger).count(), 0));    
+    }
 
-	TimePoint PerfectTimerService::Now() const
-	{
-		return systemTime + ticksProgressed * resolution;
-	}
+    TimePoint PerfectTimerService::Now() const
+    {
+        return systemTime;
+    }
 
-	Duration PerfectTimerService::Resolution() const
-	{
-		return resolution;
-	}
+    Duration PerfectTimerService::Resolution() const
+    {
+        return resolution;
+    }
 
-	void PerfectTimerService::SetResolution(Duration resolution)
-	{
-		this->resolution = resolution;
-	}
+    void PerfectTimerService::SetResolution(Duration resolution)
+    {
+        this->resolution = resolution;
+    }
 
-	void PerfectTimerService::TimeProgressed(Duration amount)
-	{
-		systemTime += amount;
-		Progressed(systemTime);
-	}
+    void PerfectTimerService::TimeProgressed(Duration amount)
+    {
+        systemTime += amount;
+        Progressed(systemTime);
+    }
 
-	void PerfectTimerService::SystemTickInterrupt()
-	{
-		++ticksProgressed;
-		if (ticksProgressed >= nextNotification && !notificationScheduled)
-		{
-			notificationScheduled = true;
-			infra::EventDispatcher::Instance().Schedule([this]() { ProcessTicks(); });
-		}
-	}
-
-	void PerfectTimerService::ProcessTicks()
-	{		
-		while (notificationScheduled)
-		{
-			TimeProgressed(std::chrono::milliseconds(ticksProgressed));			
-
-			previousTrigger = Now();
-
-			nextNotification = static_cast<uint32_t>(std::max<std::chrono::milliseconds::rep>(
-			    std::chrono::duration_cast<std::chrono::milliseconds>(NextTrigger() - previousTrigger).count(), 0));			
-
-			// If in the meantime ticksProgressed has been increased beyond nextNotification,
-			// do not wait until the next timer tick, but immediately process this new amount			
-			notificationScheduled = ticksProgressed >= nextNotification;
-		}
-	}
-
-	void PerfectTimerService::SetTestSystemTime(TimePoint time)
-	{
-		systemTime = time;
-		Progressed(systemTime);
-	}
+    void PerfectTimerService::SetTestSystemTime(TimePoint time)
+    {
+        systemTime = time;
+        Progressed(systemTime);
+    }
 }
