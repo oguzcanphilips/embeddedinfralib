@@ -15,7 +15,7 @@ namespace infra
 
     void BaseTimerService::NextTriggerChanged()
     {
-        nextNotification = std::max(NextTrigger() - previousTrigger, Duration()) / resolution;
+        nextNotification = static_cast<uint32_t>(std::max(NextTrigger() - previousTrigger, Duration()) / resolution);
     }
 
     TimePoint BaseTimerService::Now() const
@@ -49,19 +49,19 @@ namespace infra
 
     void BaseTimerService::ProcessTicks()
     {
-		TimeProgressed(ticksProgressed.exchange(0) * resolution);
+        TimeProgressed(ticksProgressed.exchange(0) * resolution);
 
-		previousTrigger = Now();
-		nextNotification = std::max(NextTrigger() - previousTrigger, Duration()) / resolution;
+        previousTrigger = Now();
+        nextNotification = static_cast<uint32_t>(std::max(NextTrigger() - previousTrigger, Duration()) / resolution);
 
-		// If in the meantime ticksProgressed has been increased beyond nextNotification,
-		// the event has not been scheduled by the interrupt, so schedule the event here.
-		// Use the result of the assign to notificationScheduled, in order to avoid notificationScheduled
-		// being set to false, then receiving an interrupt setting it to true, and not handling the newly scheduled
-		// event immediately.
-		bool reschedule = notificationScheduled = ticksProgressed >= nextNotification;
-		if (reschedule)
-			infra::EventDispatcher::Instance().Schedule([this]() { ProcessTicks(); });
+        // If in the meantime ticksProgressed has been increased beyond nextNotification,
+        // the event has not been scheduled by the interrupt, so schedule the event here.
+        // Use the result of the assign to notificationScheduled, in order to avoid notificationScheduled
+        // being set to false, then receiving an interrupt setting it to true, and not handling the newly scheduled
+        // event immediately.
+        bool reschedule = notificationScheduled = ticksProgressed >= nextNotification;
+        if (reschedule)
+            infra::EventDispatcher::Instance().Schedule([this]() { ProcessTicks(); });
     }
 
     void BaseTimerService::EnterTestMode()
