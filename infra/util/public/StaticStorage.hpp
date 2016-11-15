@@ -36,7 +36,7 @@ namespace infra
         template<class U, class... Args>
             void Construct(std::initializer_list<U> list, Args&&... args);
 
-        void Destruct();
+        void Destruct() const;
 
         T& operator*();
         const T& operator*() const;
@@ -95,9 +95,9 @@ namespace infra
     }
 
     template<class T>
-    void StaticStorage<T>::Destruct()
+    void StaticStorage<T>::Destruct() const
     {
-        reinterpret_cast<T&>(data).~T();
+        reinterpret_cast<const T&>(data).~T();
     }
 
     template<class T>

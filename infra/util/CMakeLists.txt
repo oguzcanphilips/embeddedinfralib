@@ -40,6 +40,7 @@ ccola_component(util static_library)
 		public/ReverseRange.hpp
 		public/Sequencer.hpp
 		public/SequencerIdiom.hpp
+		public/SharedPtr.hpp
 		public/StaticStorage.hpp
 		public/Unit.hpp
 		public/VariadicTemplates.hpp
