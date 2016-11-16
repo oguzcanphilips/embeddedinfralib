@@ -501,7 +501,7 @@ namespace infra
         , tokenizer(objectString)
     {}
 
-    infra::Optional<JsonValue> JsonIterator::ReadValue(JsonToken::Token token)
+    infra::Optional<JsonValue> JsonIterator::ConvertValue(JsonToken::Token token)
     {
         if (token.Is<JsonToken::String>())
             return infra::MakeOptional(JsonValue(token.Get<JsonToken::String>().Value()));
@@ -639,52 +639,80 @@ namespace infra
         switch (state)
         {
             case readObjectStart:
-                state = readKeyOrEnd;
-                if (!token.Is<JsonToken::LeftBrace>())
-                    SetError();
+                ReadObjectStart(token);
                 break;
             case readKeyOrEnd:
-                state = readColon;
-                if (token.Is<JsonToken::RightBrace>())
-                    state = end;
-                else if (token.Is<JsonToken::String>())
-                    keyValue.key = token.Get<JsonToken::String>().Value();
-                else
-                    SetError();
+                ReadKeyOrEnd(token);
                 break;
             case readKey:
-                state = readColon;
-                if (token.Is<JsonToken::String>())
-                    keyValue.key = token.Get<JsonToken::String>().Value();
-                else
-                    SetError();
+                ReadKey(token);
                 break;
             case readColon:
-                state = readValue;
-                if (!token.Is<JsonToken::Colon>())
-                    SetError();
+                ReadColon(token);
                 break;
             case readValue:
-                {
-                    state = readCommaOrObjectEnd;
-                    infra::Optional<JsonValue> readValue = ReadValue(token);
-                    if (readValue)
-                        keyValue.value = *readValue;
-                    else
-                        SetError();
-                }
+                ReadValue(token);
                 break;
             case readCommaOrObjectEnd:
-                if (token.Is<JsonToken::Comma>())
-                    state = readKey;
-                else if (token.Is<JsonToken::RightBrace>())
-                    state = end;
-                else
-                    SetError();
+                ReadCommaOrObjectEnd(token);
                 break;
             case end:
                 std::abort();
         }
+    }
+
+    void JsonObjectIterator::ReadObjectStart(JsonToken::Token token)
+    {
+        state = readKeyOrEnd;
+        if (!token.Is<JsonToken::LeftBrace>())
+            SetError();
+    }
+
+    void JsonObjectIterator::ReadKeyOrEnd(JsonToken::Token token)
+    {
+        state = readColon;
+        if (token.Is<JsonToken::RightBrace>())
+            state = end;
+        else if (token.Is<JsonToken::String>())
+            keyValue.key = token.Get<JsonToken::String>().Value();
+        else
+            SetError();
+    }
+
+    void JsonObjectIterator::ReadKey(JsonToken::Token token)
+    {
+        state = readColon;
+        if (token.Is<JsonToken::String>())
+            keyValue.key = token.Get<JsonToken::String>().Value();
+        else
+            SetError();
+    }
+
+    void JsonObjectIterator::ReadColon(JsonToken::Token token)
+    {
+        state = readValue;
+        if (!token.Is<JsonToken::Colon>())
+            SetError();
+    }
+
+    void JsonObjectIterator::ReadValue(JsonToken::Token token)
+    {
+        state = readCommaOrObjectEnd;
+        infra::Optional<JsonValue> readValue = ConvertValue(token);
+        if (readValue)
+            keyValue.value = *readValue;
+        else
+            SetError();
+    }
+
+    void JsonObjectIterator::ReadCommaOrObjectEnd(JsonToken::Token token)
+    {
+        if (token.Is<JsonToken::Comma>())
+            state = readKey;
+        else if (token.Is<JsonToken::RightBrace>())
+            state = end;
+        else
+            SetError();
     }
 
     void JsonObjectIterator::SetError()
@@ -763,11 +791,11 @@ namespace infra
                     if (token.Is<JsonToken::RightBracket>())
                         state = end;
                     else
-                        TryReadValue(token);
+                        ReadValue(token);
                     break;
                 case readValue:
                     state = readCommaOrArrayEnd;
-                    TryReadValue(token);
+                    ReadValue(token);
                     break;
                 case readCommaOrArrayEnd:
                     if (token.Is<JsonToken::Comma>())
@@ -792,9 +820,9 @@ namespace infra
         return result;
     }
 
-    void JsonArrayIterator::TryReadValue(JsonToken::Token token)
+    void JsonArrayIterator::ReadValue(JsonToken::Token token)
     {
-        infra::Optional<JsonValue> readValue = ReadValue(token);
+        infra::Optional<JsonValue> readValue = ConvertValue(token);
         if (readValue)
             value = *readValue;
         else

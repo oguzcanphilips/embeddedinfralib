@@ -71,7 +71,7 @@ namespace infra
         const T* operator->() const;
 
     private:
-        T* dataPtr;
+        T* dataPtr = nullptr;
         typename std::aligned_storage<sizeof(T) + ExtraSize, std::alignment_of<AlignAs>::value>::type data;
     };
 

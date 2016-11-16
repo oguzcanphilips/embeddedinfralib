@@ -248,7 +248,7 @@ namespace infra
     protected:
         explicit JsonIterator(infra::BoundedConstString objectString);
 
-        infra::Optional<JsonValue> ReadValue(JsonToken::Token token);
+        infra::Optional<JsonValue> ConvertValue(JsonToken::Token token);
 
     private:
         infra::Optional<JsonValue> ReadObjectValue(JsonToken::Token token);
@@ -286,6 +286,13 @@ namespace infra
     private:
         void ParseNextToken();
         void SetError();
+
+        void ReadObjectStart(JsonToken::Token token);
+        void ReadKeyOrEnd(JsonToken::Token token);
+        void ReadKey(JsonToken::Token token);
+        void ReadColon(JsonToken::Token token);
+        void ReadValue(JsonToken::Token token);
+        void ReadCommaOrObjectEnd(JsonToken::Token token);
 
     private:
         JsonObject* object = nullptr;
@@ -329,7 +336,7 @@ namespace infra
         JsonArrayIterator operator++(int);
 
     private:
-        void TryReadValue(JsonToken::Token token);
+        void ReadValue(JsonToken::Token token);
         void SetError();
 
     private:

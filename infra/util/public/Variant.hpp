@@ -344,7 +344,7 @@ namespace infra
     }
 
     template<class... T>
-    void Variant<T...>::Destruct()
+    void Variant<T...>::Destruct()                                                                                  //TICS !INT#006
     {
         detail::DestroyVisitor visitor;
         ApplyVisitor(visitor, *this);
