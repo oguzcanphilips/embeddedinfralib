@@ -4,15 +4,15 @@
 #include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
 #include "infra/util/test_helper/public/MockCallback.hpp"
 
-class EventDispatcherFixture
+class EventDispatcherTest
     : public testing::Test
     , public infra::EventDispatcherFixture
 {};
 
-TEST_F(EventDispatcherFixture, TestConstruction)
+TEST_F(EventDispatcherTest, TestConstruction)
 {}
 
-TEST_F(EventDispatcherFixture, TestSchedule)
+TEST_F(EventDispatcherTest, TestSchedule)
 {
     infra::MockCallback<void()> callback;
     EXPECT_CALL(callback, callback());
@@ -21,7 +21,7 @@ TEST_F(EventDispatcherFixture, TestSchedule)
     ExecuteAllActions();
 }
 
-TEST_F(EventDispatcherFixture, TestScheduleTwice)
+TEST_F(EventDispatcherTest, TestScheduleTwice)
 {
     infra::MockCallback<void()> callback;
     EXPECT_CALL(callback, callback()).Times(2);
@@ -45,7 +45,7 @@ void helper2()
     helper1turn = true;
 }
 
-TEST_F(EventDispatcherFixture, TestPerformance)
+TEST_F(EventDispatcherTest, TestPerformance)
 {
     for (int j = 0; j != 10; ++j)
     {

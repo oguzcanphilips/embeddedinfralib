@@ -1,6 +1,7 @@
 ccola_component(timer_test gmock_test)
 
 	ccola_sources(
+		TestBaseTimerService.cpp
 		TestScalableDerivedTimerService.cpp
 		TestTimer.cpp
 		TestTimerAlternating.cpp

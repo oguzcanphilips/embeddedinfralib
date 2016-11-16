@@ -31,6 +31,7 @@ namespace infra
     void BaseTimerService::SetResolution(Duration resolution)
     {
         this->resolution = resolution;
+        NextTriggerChanged();
     }
 
     void BaseTimerService::TimeProgressed(Duration amount)
@@ -62,24 +63,5 @@ namespace infra
         bool reschedule = notificationScheduled = ticksProgressed >= nextNotification;
         if (reschedule)
             infra::EventDispatcher::Instance().Schedule([this]() { ProcessTicks(); });
-    }
-
-    void BaseTimerService::EnterTestMode()
-    {
-        testMode = true;
-        systemTime = TimePoint();  // epoch value
-    }
-
-    void BaseTimerService::LeaveTestMode()
-    {
-        testMode = false;
-    }
-
-    void BaseTimerService::SetTestSystemTime(TimePoint time)
-    {
-        assert(testMode);
-        systemTime = time;
-
-        Progressed(systemTime);
     }
 }

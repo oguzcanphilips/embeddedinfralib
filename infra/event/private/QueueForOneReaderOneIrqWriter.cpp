@@ -56,12 +56,6 @@ namespace infra
             infra::EventDispatcher::Instance().Schedule([this]() { DataAvailable(); });
     }
 
-    void QueueForOneReaderOneIrqWriter::NotifyDataAvailableFromInterrupt()
-    {
-        if (!notificationScheduled.exchange(true))
-            infra::EventDispatcher::Instance().Schedule([this]() { DataAvailable(); });
-    }
-
     void QueueForOneReaderOneIrqWriter::DataAvailable()
     {
         onDataAvailable();

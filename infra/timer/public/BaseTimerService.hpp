@@ -21,12 +21,6 @@ namespace infra
         void TimeProgressed(Duration amount);
         void SystemTickInterrupt();
 
-    public:
-        // Test mode functions
-        void EnterTestMode();
-        void LeaveTestMode();
-        void SetTestSystemTime(TimePoint time);
-
     private:
         void ProcessTicks();
 

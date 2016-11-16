@@ -1,6 +1,16 @@
 #include "gtest/gtest.h"
 #include "infra/util/public/Optional.hpp"
 
+namespace infra
+{
+    void OptionalCoverageDummy();
+}
+
+TEST(OptionalTest, OptionalCoverageDummy)
+{
+    infra::OptionalCoverageDummy();
+}
+
 TEST(OptionalTest, TestConstructedEmpty)
 {
     infra::Optional<bool> o;

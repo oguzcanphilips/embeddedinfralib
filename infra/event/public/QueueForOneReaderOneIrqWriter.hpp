@@ -25,7 +25,6 @@ namespace infra
         uint8_t Get();
 
     private:
-        void NotifyDataAvailableFromInterrupt();
         void NotifyDataAvailable();
         void DataAvailable();
 
