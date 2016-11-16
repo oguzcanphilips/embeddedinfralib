@@ -14,6 +14,7 @@ namespace infra
 
     public:
         bool operator==(const SystemStateBase& other) const;
+        bool operator!=(const SystemStateBase& other) const;
 
     private:
         void* identifier;

@@ -12,7 +12,7 @@ namespace hal
         if (!receiveData.empty())
         {
             std::vector<uint8_t> dataToBeReceived = ReceiveDataMock(nextAction);
-            EXPECT_EQ(dataToBeReceived.size(), receiveData.size());
+            EXPECT_EQ(dataToBeReceived.size(), receiveData.size());                                                     //TICS !CFL#001
             std::copy(dataToBeReceived.begin(), dataToBeReceived.end(), receiveData.begin());
         }
 
@@ -47,7 +47,7 @@ namespace hal
         std::pair<bool, std::vector<uint8_t>> result = SendAndReceiveMock(std::vector<uint8_t>(sendData.begin(), sendData.end()), nextAction);
         if (result.first)
         {
-            EXPECT_EQ(receiveData.size(), result.second.size());
+            EXPECT_EQ(receiveData.size(), result.second.size());                                                        //TICS !CFL#001
             std::copy(result.second.begin(), result.second.end(), receiveData.begin());
 
             actionOnStart();

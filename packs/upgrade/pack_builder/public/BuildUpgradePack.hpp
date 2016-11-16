@@ -33,7 +33,7 @@ namespace application
             int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey);
 
     protected:
-        UpgradePackBuilder::HeaderInfo headerInfo;
+        UpgradePackBuilder::HeaderInfo headerInfo;                                                                      //TICS !INT#002
 
     private:
         int result = 0;

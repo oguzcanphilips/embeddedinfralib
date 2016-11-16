@@ -160,7 +160,7 @@ namespace application
             encodedByte |= chunkByte >> bitIndex;
             base64EncodedChunk.push_back(encodeTable[encodedByte]);
 
-            encodedByte = static_cast<uint8_t>(chunkByte << (8 - bitIndex)) >> 2;
+            encodedByte = static_cast<uint8_t>(static_cast<uint8_t>(chunkByte << (8 - bitIndex)) >> 2);
 
             bitIndex += 2;
 

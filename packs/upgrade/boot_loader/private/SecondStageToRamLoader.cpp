@@ -31,7 +31,7 @@ namespace application
 
         if (headerEpilogue.headerVersion != 1)
             MarkAsError(upgradeErrorCodeUnknownHeaderVersion);
-        else if (strcmp(product, headerEpilogue.productName))
+        else if (std::strcmp(product, headerEpilogue.productName) != 0)
             MarkAsError(upgradeErrorCodeUnknownProductName);
         else if (!verifier.IsValid(upgradePackFlash, signature, signedContents))
             MarkAsError(upgradeErrorCodeInvalidSignature);

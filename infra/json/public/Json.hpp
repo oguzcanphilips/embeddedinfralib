@@ -194,6 +194,7 @@ namespace infra
         infra::Optional<JsonArray> GetOptionalArray(infra::BoundedConstString key);
 
         bool operator==(const JsonObject& other) const;
+        bool operator!=(const JsonObject& other) const;
 
     public:
         void SetError();
@@ -222,6 +223,7 @@ namespace infra
         JsonArrayIterator end();
 
         bool operator==(const JsonArray& other) const;
+        bool operator!=(const JsonArray& other) const;
 
     public:
         void SetError();

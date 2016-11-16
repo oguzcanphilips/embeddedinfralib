@@ -9,12 +9,13 @@ namespace infra
     class TimerService
         : public infra::IntrusiveForwardList<TimerService>::NodeType
     {
-    public:
+    protected:
         explicit TimerService(uint32_t id);
         TimerService(const TimerService& other) = delete;
         ~TimerService();
         TimerService& operator=(const TimerService& other) = delete;
 
+    public:
         uint32_t Id() const;
         
         void RegisterTimer(Timer& timer);

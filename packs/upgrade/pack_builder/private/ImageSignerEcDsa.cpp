@@ -10,7 +10,7 @@ namespace application
         : publicKey(publicKey)
         , privateKey(privateKey)
     {
-        this->randomNumberGenerator = &randomNumberGenerator;
+        ImageSignerEcDsa::randomNumberGenerator = &randomNumberGenerator;
         uECC_set_rng(MyRandom);
     }
 
@@ -40,7 +40,7 @@ namespace application
         if (publicKey.size() != signature.size())
             return false;
 
-        return uECC_verify(publicKey.begin(), hash, sizeof(hash), signature.data(), uECC_secp224r1()) == 1;
+        return uECC_verify(publicKey.begin(), hash.data(), hash.size(), signature.data(), uECC_secp224r1()) == 1;
     }
 
     void ImageSignerEcDsa::CalculateSha256(const std::vector<uint8_t>& image)
@@ -49,7 +49,7 @@ namespace application
         mbedtls_sha256_init(&ctx);
         mbedtls_sha256_starts(&ctx, 0);
         mbedtls_sha256_update(&ctx, image.data(), image.size());
-        mbedtls_sha256_finish(&ctx, hash);
+        mbedtls_sha256_finish(&ctx, hash.data());
         mbedtls_sha256_free(&ctx);
     }
 
@@ -66,7 +66,7 @@ namespace application
         if (!std::equal(publicKey.begin(), publicKey.end(), publicKeyForVerification.begin()))
             throw std::exception("Inconsistent public/private key pair");
 
-        int ret = uECC_sign(privateKey.begin(), hash, sizeof(hash), signature.data(), uECC_secp224r1());
+        int ret = uECC_sign(privateKey.begin(), hash.data(), hash.size(), signature.data(), uECC_secp224r1());
         if (ret != 1)
             throw std::exception("Failed to calculate signature");
     }

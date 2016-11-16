@@ -173,13 +173,13 @@ namespace infra
         if (c == '.')
         {
             reader.ExtractOne();
-            c = reader.Peek();
+            c = static_cast<char>(reader.Peek());
             while (c >= '0' && c <= '9')
             {
                 div *= 10;
                 frac = frac * 10 + static_cast<uint8_t>(c - '0');
                 reader.ExtractOne();
-                c = reader.Peek();
+                c = static_cast<char>(reader.Peek());
             }
         }
 
@@ -255,7 +255,7 @@ namespace infra
             char c = static_cast<char>(Reader().Peek());
 
             if (c >= '0' && c <= '9')
-                v = static_cast<uint32_t>(v * 10 + c - '0');
+                v = v * 10 + static_cast<uint32_t>(c - '0');
             else
             {
                 Reader().ReportResult(i > 0);
@@ -294,11 +294,11 @@ namespace infra
             char c = static_cast<char>(Reader().Peek());
 
             if (c >= '0' && c <= '9')
-                v = static_cast<uint32_t>((v << 4) + c - '0');
+                v = (v << 4) + static_cast<uint32_t>(c - '0');
             else if (c >= 'a' && c <= 'f')
-                v = static_cast<uint32_t>((v << 4) + c - 'a' + 10);
+                v = (v << 4) + static_cast<uint32_t>(c - 'a') + 10;
             else if (c >= 'A' && c <= 'F')
-                v = static_cast<uint32_t>((v << 4) + c - 'A' + 10);
+                v = (v << 4) + static_cast<uint32_t>(c - 'A') + 10;
             else
             {
                 Reader().ReportResult(i > 0);

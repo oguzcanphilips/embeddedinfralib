@@ -35,7 +35,7 @@ namespace application
         const RsaPrivateKey& privateKey;
         static RandomNumberGenerator* randomNumberGenerator;
         std::string keyFileName;
-        uint8_t hash[32];
+        std::array<uint8_t, 32> hash;
         std::array<uint8_t, keyLength / 8> signature;
     };
 }

@@ -16,7 +16,7 @@ namespace application
     std::vector<uint8_t> InputHex::Image() const
     {
         std::vector<uint8_t> binary;
-        uint32_t startAddress;
+        uint32_t startAddress = 0;
         std::tie(binary, startAddress) = Linearize(contents.Memory());
         InputBinary inputBinary(TargetName(), binary, startAddress, imageSecurity);
 

@@ -193,30 +193,30 @@ namespace infra
     template<class U>
     const U& Variant<T...>::Get() const
     {
-        really_assert((dataIndex == IndexInTypeList<U, T...>::value));                                          //TICS !CON#007
-        return reinterpret_cast<const U&>(data);
+        really_assert((dataIndex == IndexInTypeList<U, T...>::value));
+        return reinterpret_cast<const U&>(data);                                                                        //TICS !CON#007
     }
 
     template<class... T>
     template<class U>
     U& Variant<T...>::Get()
     {
-        really_assert((dataIndex == IndexInTypeList<U, T...>::value));                                          //TICS !CON#007
-        return reinterpret_cast<U&>(data);
+        really_assert((dataIndex == IndexInTypeList<U, T...>::value));
+        return reinterpret_cast<U&>(data);                                                                              //TICS !CON#007
     }
 
     template<class... T>
     template<std::size_t Index>
     const typename TypeAtIndex<Index, T...>::Type& Variant<T...>::GetAtIndex() const
     {
-        return Get<typename TypeAtIndex<Index, T...>::Type>();
+        return Get<typename TypeAtIndex<Index, T...>::Type>();                                                          //TICS !CON#007
     }
 
     template<class... T>
     template<std::size_t Index>
     typename TypeAtIndex<Index, T...>::Type& Variant<T...>::GetAtIndex()
     {
-        return Get<typename TypeAtIndex<Index, T...>::Type>();
+        return Get<typename TypeAtIndex<Index, T...>::Type>();                                                          //TICS !CON#007
     }
 
     template<class... T>
@@ -369,7 +369,7 @@ namespace infra
     {
         really_assert(variant1.Which() == variant2.Which());
         detail::ApplySameTypeVisitorHelper<0, Visitor, Variant> helper;
-        return helper(visitor, variant1, variant2);
+        return helper(visitor, variant1, variant2);                                                                     //TICS !CON#007
     }
 
     template<class... T>

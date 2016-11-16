@@ -10,7 +10,7 @@ namespace application
         : publicKey(publicKey)
         , privateKey(privateKey)
     {
-        this->randomNumberGenerator = &randomNumberGenerator;
+        ImageSignerRsa::randomNumberGenerator = &randomNumberGenerator;
     }
 
     uint16_t ImageSignerRsa::SignatureMethod() const
@@ -50,7 +50,7 @@ namespace application
         if (mbedtls_rsa_check_pubkey(&rsaCtx) != 0)
             return false;
 
-        bool success = mbedtls_rsa_rsassa_pss_verify(&rsaCtx, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, sizeof(hash), hash, signature.data()) == 0
+        bool success = mbedtls_rsa_rsassa_pss_verify(&rsaCtx, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, hash.size(), hash.data(), signature.data()) == 0
             && mbedtls_rsa_self_test(0) == 0;
 
         rsaCtx.N.p = nullptr;
@@ -72,7 +72,7 @@ namespace application
         mbedtls_sha256_init(&ctx);
         mbedtls_sha256_starts(&ctx, 0);
         mbedtls_sha256_update(&ctx, image.data(), image.size());
-        mbedtls_sha256_finish(&ctx, hash);
+        mbedtls_sha256_finish(&ctx, hash.data());
         mbedtls_sha256_free(&ctx);
     }
 
@@ -116,7 +116,7 @@ namespace application
         if (ret != 0)
             throw std::exception("Public key is invalid");
 
-        ret = mbedtls_rsa_rsassa_pss_sign(&rsaCtx, MyRandom, NULL, MBEDTLS_RSA_PRIVATE, MBEDTLS_MD_SHA256, sizeof(hash), hash, signature.data());
+        ret = mbedtls_rsa_rsassa_pss_sign(&rsaCtx, MyRandom, NULL, MBEDTLS_RSA_PRIVATE, MBEDTLS_MD_SHA256, hash.size(), hash.data(), signature.data());
         if (ret != 0)
             throw std::exception("Failed to calculate signature");
 

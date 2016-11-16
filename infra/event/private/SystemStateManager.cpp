@@ -12,6 +12,11 @@ namespace infra
         return identifier == other.identifier;
     }
 
+    bool SystemStateBase::operator!=(const SystemStateBase& other) const
+    {
+        return !(*this == other);
+    }
+
     SystemStateParticipant::SystemStateParticipant(SystemStateManager& aSystemStateManager)
         : systemStateManager(aSystemStateManager)
     {

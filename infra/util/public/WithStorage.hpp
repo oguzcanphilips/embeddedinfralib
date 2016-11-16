@@ -49,7 +49,7 @@ namespace infra
             template<class Arg0, class... Args>
                 StorageHolder(Arg0&& arg0, Args&&... args);
 
-            StorageType storage;
+            StorageType storage;                                                                                        //TICS !INT#002
         };
     }
 

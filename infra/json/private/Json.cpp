@@ -229,9 +229,9 @@ namespace infra
                 return JsonToken::LeftBracket(parseIndex++);
             else if (objectString[parseIndex] == ']')
                 return JsonToken::RightBracket(parseIndex++);
-            else if (std::isdigit(objectString[parseIndex]))
+            else if (std::isdigit(objectString[parseIndex]) != 0)
                 return TryCreateIntegerToken();
-            else if (std::isalpha(objectString[parseIndex]))
+            else if (std::isalpha(objectString[parseIndex]) != 0)
                 return TryCreateIdentifierToken();
             else
                 return JsonToken::Error();
@@ -403,6 +403,11 @@ namespace infra
         return result && !left.Error() && !right.Error();
     }
 
+    bool JsonObject::operator!=(const JsonObject& other) const
+    {
+        return !(*this == other);
+    }
+
     void JsonObject::SetError()
     {
         error = true;
@@ -474,6 +479,11 @@ namespace infra
 
         bool result = Equal(left.begin(), left.end(), right.begin(), right.end());
         return result && !left.Error() && !right.Error();
+    }
+
+    bool JsonArray::operator!=(const JsonArray& other) const
+    {
+        return !(*this == other);
     }
 
     bool JsonKeyValue::operator==(const JsonKeyValue& other) const

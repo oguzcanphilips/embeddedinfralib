@@ -50,7 +50,7 @@ namespace infra
     {
     protected:
         InterfaceConnector();
-        InterfaceConnector(DerivedClass* instance);
+        explicit InterfaceConnector(DerivedClass* instance);
         InterfaceConnector(const InterfaceConnector&) = delete;
         ~InterfaceConnector();
 
