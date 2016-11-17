@@ -1,9 +1,6 @@
 #ifndef INFRA_SHARED_PTR_HPP
 #define INFRA_SHARED_PTR_HPP
 
-#include "infra/util/public/BoundedVector.hpp"
-#include "infra/util/public/StaticStorage.hpp"
-#include "infra/util/public/WithStorage.hpp"
 #include <type_traits>
 
 namespace infra
@@ -65,62 +62,6 @@ namespace infra
 
         SharedPtrControl* control = nullptr;
         T* object = nullptr;
-    };
-
-    class SharedObjectAllocatorBase
-    {
-    protected:
-        SharedObjectAllocatorBase() = default;
-        SharedObjectAllocatorBase(const SharedObjectAllocatorBase& other) = delete;
-        SharedObjectAllocatorBase& operator=(const SharedObjectAllocatorBase& other) = delete;
-        ~SharedObjectAllocatorBase() = default;
-
-    public:
-        virtual void Destruct(const void* object) = 0;
-        virtual void Deallocate(void* control) = 0;
-    };
-
-    template<class T, class ConstructionArgs>
-    class SharedObjectAllocator;
-
-    template<class T, class... ConstructionArgs>
-    class SharedObjectAllocator<T, void(ConstructionArgs...)>
-        : public SharedObjectAllocatorBase
-    {
-    public:
-        virtual SharedPtr<T> Allocate(ConstructionArgs... args) = 0;
-    };
-
-    template<class T, std::size_t NumberOfElements, class ConstructionArgs>
-    class SharedObjectAllocatorFixedSize;
-
-    template<class T, std::size_t NumberOfElements, class... ConstructionArgs>
-    class SharedObjectAllocatorFixedSize<T, NumberOfElements, void(ConstructionArgs...)>
-        : public SharedObjectAllocator<T, void(ConstructionArgs...)>
-    {
-        static_assert(sizeof(T) == sizeof(StaticStorage<T>), "sizeof(StaticStorage) must be equal to sizeof(T) else reinterpret_cast will fail");
-    public:
-        SharedObjectAllocatorFixedSize() = default;
-        ~SharedObjectAllocatorFixedSize();
-
-        virtual SharedPtr<T> Allocate(ConstructionArgs... args) override;
-        virtual void Destruct(const void* object) override;
-        virtual void Deallocate(void* control) override;
-
-    private:
-        struct Node
-            : public SharedPtrControl
-        {
-            Node* next;
-            infra::StaticStorage<T> object;
-        };
-
-        std::size_t FreeListSize() const;
-        Node* AllocateNode();
-
-    private:
-        typename infra::BoundedVector<Node>::template WithMaxSize<NumberOfElements> elements;
-        Node* freeList = nullptr;
     };
 
     ////    Implementation    ////
@@ -290,76 +231,6 @@ namespace infra
         sharedPtr.Reset(nullptr, nullptr);
         return result;
     }
-
-    template<class T, std::size_t NumberOfElements, class... ConstructionArgs>
-    SharedObjectAllocatorFixedSize<T, NumberOfElements, void(ConstructionArgs...)>::~SharedObjectAllocatorFixedSize()
-    {
-        assert(FreeListSize() == elements.size());
-    }
-
-    template<class T, std::size_t NumberOfElements, class... ConstructionArgs>
-    SharedPtr<T> SharedObjectAllocatorFixedSize<T, NumberOfElements, void(ConstructionArgs...)>::Allocate(ConstructionArgs... args)
-    {
-        Node* node = AllocateNode();
-        if (node)
-        {
-            node->object.Construct(args...);
-            node->allocator = this;
-            return SharedPtr<T>(node, &*node->object);
-        }
-        else
-            return SharedPtr<T>();
-    }
-
-    template<class T, std::size_t NumberOfElements, class... ConstructionArgs>
-    void SharedObjectAllocatorFixedSize<T, NumberOfElements, void(ConstructionArgs...)>::Destruct(const void* object)
-    {
-        reinterpret_cast<const StaticStorage<T>*>(object)->Destruct();
-    }
-
-    template<class T, std::size_t NumberOfElements, class... ConstructionArgs>
-    void SharedObjectAllocatorFixedSize<T, NumberOfElements, void(ConstructionArgs...)>::Deallocate(void* control)
-    {
-        Node* node = static_cast<Node*>(control);
-
-        node->next = freeList;
-        freeList = node;
-    }
-
-    template<class T, std::size_t NumberOfElements, class... ConstructionArgs>
-    std::size_t SharedObjectAllocatorFixedSize<T, NumberOfElements, void(ConstructionArgs...)>::FreeListSize() const
-    {
-        Node* node = freeList;
-        std::size_t result = 0;
-
-        while (node)
-        {
-            node = node->next;
-            ++result;
-        }
-
-        return result;
-    }
-
-    template<class T, std::size_t NumberOfElements, class... ConstructionArgs>
-    typename SharedObjectAllocatorFixedSize<T, NumberOfElements, void(ConstructionArgs...)>::Node* SharedObjectAllocatorFixedSize<T, NumberOfElements, void(ConstructionArgs...)>::AllocateNode()
-    {
-        if (freeList)
-        {
-            Node* result = freeList;
-            freeList = freeList->next;
-            return result;
-        }
-        else
-        {
-            if (elements.full())
-                return nullptr;
-
-            elements.emplace_back();
-            return &elements.back();
-        }
-    }
-
 }
 
 #endif

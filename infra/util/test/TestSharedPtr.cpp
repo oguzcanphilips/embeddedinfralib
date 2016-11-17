@@ -1,5 +1,6 @@
 #include <gmock/gmock.h>
 #include "infra/util/public/SharedPtr.hpp"
+#include "infra/util/public/SharedObjectAllocatorFixedSize.hpp"
 
 class ObjectConstructionMock
 {
@@ -46,7 +47,7 @@ class SharedPtrTest
 {
 public:
     ObjectConstructionMock objectConstructionMock;
-    infra::SharedObjectAllocatorFixedSize<MySharedObject, 2, void(ObjectConstructionMock&)> allocator;
+    infra::SharedObjectAllocatorFixedSize<MySharedObject, void(ObjectConstructionMock&)>::WithStorage<2> allocator;
 };
 
 TEST_F(SharedPtrTest, allocate_one_object)
@@ -59,7 +60,7 @@ TEST_F(SharedPtrTest, allocate_one_object)
 
 TEST_F(SharedPtrTest, when_allocation_fails_empty_SharedPtr_is_returned)
 {
-    infra::SharedObjectAllocatorFixedSize<MySharedObject, 0, void(ObjectConstructionMock&)> allocator;
+    infra::SharedObjectAllocatorFixedSize<MySharedObject, void(ObjectConstructionMock&)>::WithStorage<0> allocator;
 
     infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
     EXPECT_FALSE(static_cast<bool>(object));
