@@ -69,16 +69,16 @@ namespace infra
         template<class U>
             friend class SharedPtr;
 
-        template<class U, class T>
-            friend SharedPtr<U> StaticPointerCast(const SharedPtr<T>& sharedPtr);
-        template<class U, class T>
-            friend SharedPtr<U> StaticPointerCast(SharedPtr<T>&& sharedPtr);
-        template<class T>
-            friend SharedPtr<typename std::remove_const<T>::type> ConstCast(const SharedPtr<T>& sharedPtr);
-        template<class T>
-            friend SharedPtr<typename std::remove_const<T>::type> ConstCast(SharedPtr<T>&& sharedPtr);
+        template<class U, class V>
+            friend SharedPtr<U> StaticPointerCast(const SharedPtr<V>& sharedPtr);
+        template<class U, class V>
+            friend SharedPtr<U> StaticPointerCast(SharedPtr<V>&& sharedPtr);
+        template<class U>
+            friend SharedPtr<typename std::remove_const<T>::type> ConstCast(const SharedPtr<U>& sharedPtr);
+        template<class U>
+            friend SharedPtr<typename std::remove_const<T>::type> ConstCast(SharedPtr<U>&& sharedPtr);
 
-        template<class T>
+        template<class U>
             friend class WeakPtr;
 
     private:
@@ -104,7 +104,7 @@ namespace infra
     private:
         void Reset(detail::SharedPtrControl* newControl, T* newObject);
 
-        template<class T>
+        template<class U>
             friend class SharedPtr;
 
     private:
