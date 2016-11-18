@@ -18,15 +18,17 @@ namespace infra
         static_assert(sizeof(T) == sizeof(StaticStorage<T>), "sizeof(StaticStorage) must be equal to sizeof(T) else reinterpret_cast will fail");
     private:
         struct Node
-            : public SharedPtrControl
+            : public detail::SharedPtrControl
         {
+            Node(SharedObjectAllocatorBase* allocator);
+
             Node* next;
             infra::StaticStorage<T> object;
         };
 
     public:
         template<std::size_t NumberOfElements>
-            using WithStorage = infra::WithStorage<SharedObjectAllocatorFixedSize, typename infra::BoundedVector<Node>::template WithMaxSize<NumberOfElements>>;
+        using WithStorage = infra::WithStorage<SharedObjectAllocatorFixedSize, typename infra::BoundedVector<Node>::template WithMaxSize<NumberOfElements>>;
 
         SharedObjectAllocatorFixedSize(infra::BoundedVector<Node>& elements);
         ~SharedObjectAllocatorFixedSize();
@@ -64,7 +66,6 @@ namespace infra
         if (node)
         {
             node->object.Construct(args...);
-            node->allocator = this;
             return SharedPtr<T>(node, &*node->object);
         }
         else
@@ -115,10 +116,15 @@ namespace infra
             if (elements.full())
                 return nullptr;
 
-            elements.emplace_back();
+            elements.emplace_back(this);
             return &elements.back();
         }
     }
+
+    template<class T, class... ConstructionArgs>
+    SharedObjectAllocatorFixedSize<T, void(ConstructionArgs...)>::Node::Node(SharedObjectAllocatorBase* allocator)
+        : detail::SharedPtrControl(allocator)
+    {}
 }
 
 #endif

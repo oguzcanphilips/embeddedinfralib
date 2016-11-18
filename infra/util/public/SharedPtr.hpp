@@ -1,6 +1,7 @@
 #ifndef INFRA_SHARED_PTR_HPP
 #define INFRA_SHARED_PTR_HPP
 
+#include <cstdint>
 #include <type_traits>
 
 namespace infra
@@ -10,20 +11,33 @@ namespace infra
     template<class T>
     class WeakPtr;
 
-    class SharedPtrControl
+    namespace detail
     {
-    public:
-        uint16_t sharedPtrCount = 0;
-        uint16_t weakPtrCount = 0;
-        SharedObjectAllocatorBase* allocator = nullptr;
-    };
+        class SharedPtrControl
+        {
+        public:
+            SharedPtrControl(SharedObjectAllocatorBase* allocator);
+
+            void IncreaseSharedCount();
+            void DecreaseSharedCount(const void* object);
+            void IncreaseWeakCount();
+            void DecreaseWeakCount();
+
+            bool Expired() const;
+
+        private:
+            uint16_t sharedPtrCount = 0;
+            uint16_t weakPtrCount = 0;
+            SharedObjectAllocatorBase* allocator = nullptr;
+        };
+    }
 
     template<class T>
     class SharedPtr
     {
     public:
         SharedPtr() = default;
-        SharedPtr(SharedPtrControl* control, T* object);
+        SharedPtr(detail::SharedPtrControl* control, T* object);
         SharedPtr(const SharedPtr& other);
         SharedPtr(SharedPtr&& other);
         SharedPtr(const WeakPtr<T>& other);
@@ -49,7 +63,7 @@ namespace infra
         friend bool operator!=(std::nullptr_t, const SharedPtr& ptr) { return ptr != nullptr; }
 
     private:
-        void Reset(SharedPtrControl* newControl, T* object);
+        void Reset(detail::SharedPtrControl* newControl, T* object);
 
     private:
         template<class U>
@@ -68,7 +82,7 @@ namespace infra
             friend class WeakPtr;
 
     private:
-        SharedPtrControl* control = nullptr;
+        detail::SharedPtrControl* control = nullptr;
         T* object = nullptr;
     };
 
@@ -88,20 +102,20 @@ namespace infra
         SharedPtr<T> lock() const;
 
     private:
-        void Reset(SharedPtrControl* control, T* object);
+        void Reset(detail::SharedPtrControl* newControl, T* newObject);
 
         template<class T>
             friend class SharedPtr;
 
     private:
-        SharedPtrControl* control = nullptr;
+        detail::SharedPtrControl* control = nullptr;
         T* object = nullptr;
     };
 
     ////    Implementation    ////
 
     template<class T>
-    SharedPtr<T>::SharedPtr(SharedPtrControl* control, T* object)
+    SharedPtr<T>::SharedPtr(detail::SharedPtrControl* control, T* object)
     {
         Reset(control, object);
     }
@@ -122,7 +136,8 @@ namespace infra
     template<class T>
     SharedPtr<T>::SharedPtr(const WeakPtr<T>& other)
     {
-        Reset(other.control, other.object);
+        if (other.control && !other.control->Expired())
+            Reset(other.control, other.object);
     }
 
     template<class T>
@@ -224,28 +239,16 @@ namespace infra
     }
 
     template<class T>
-    void SharedPtr<T>::Reset(SharedPtrControl* newControl, T* newObject)
+    void SharedPtr<T>::Reset(detail::SharedPtrControl* newControl, T* newObject)
     {
         if (control)
-        {
-            --control->sharedPtrCount;
-            --control->weakPtrCount;
-
-            if (control->sharedPtrCount == 0)
-                control->allocator->Destruct(object);
-
-            if (control->weakPtrCount == 0)
-                control->allocator->Deallocate(control);
-        }
+            control->DecreaseSharedCount(object);
 
         control = newControl;
         object = newObject;
 
         if (control)
-        {
-            ++control->sharedPtrCount;
-            ++control->weakPtrCount;
-        }
+            control->IncreaseSharedCount();
     }
 
     template<class U, class T>
@@ -329,25 +332,20 @@ namespace infra
     template<class T>
     SharedPtr<T> WeakPtr<T>::lock() const
     {
-        return SharedPtr<T>(control, object);
+        return SharedPtr<T>(*this);
     }
 
     template<class T>
-    void WeakPtr<T>::Reset(SharedPtrControl* control,T* object)
+    void WeakPtr<T>::Reset(detail::SharedPtrControl* newControl,T* newObject)
     {
-        if (this->control)
-        {
-            --this->control->weakPtrCount;
+        if (control)
+            control->DecreaseWeakCount();
 
-            if (this->control->weakPtrCount == 0)
-                this->control->allocator->Deallocate(this->object);
-        }
+        control = newControl;
+        object = newObject;
 
-        this->control = control;
-        this->object = object;
-
-        if (this->control)
-            ++this->control->weakPtrCount;
+        if (control)
+            control->IncreaseWeakCount();
     }
 }
 

@@ -25,6 +25,9 @@ namespace infra
     class SharedObjectAllocator<T, void(ConstructionArgs...)>
         : public SharedObjectAllocatorBase
     {
+    protected:
+        ~SharedObjectAllocator() = default;
+
     public:
         virtual SharedPtr<T> Allocate(ConstructionArgs... args) = 0;
     };
