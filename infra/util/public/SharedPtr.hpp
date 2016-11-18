@@ -74,9 +74,9 @@ namespace infra
         template<class U, class V>
             friend SharedPtr<U> StaticPointerCast(SharedPtr<V>&& sharedPtr);
         template<class U>
-            friend SharedPtr<typename std::remove_const<T>::type> ConstCast(const SharedPtr<U>& sharedPtr);
+            friend SharedPtr<typename std::remove_const<U>::type> ConstCast(const SharedPtr<U>& sharedPtr);
         template<class U>
-            friend SharedPtr<typename std::remove_const<T>::type> ConstCast(SharedPtr<U>&& sharedPtr);
+            friend SharedPtr<typename std::remove_const<U>::type> ConstCast(SharedPtr<U>&& sharedPtr);
 
         template<class U>
             friend class WeakPtr;
