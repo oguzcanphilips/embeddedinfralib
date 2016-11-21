@@ -70,6 +70,14 @@ namespace infra
         return JsonObjectFormatter(*stream);
     }
 
+    JsonArrayFormatter JsonObjectFormatter::SubArray(const char* tagName)
+    {
+        InsertSeparation();
+        *stream << '"' << tagName << R"(":)";
+
+        return JsonArrayFormatter(*stream);
+    }
+
     bool JsonObjectFormatter::HasFailed() const
     {
         return stream->HasFailed();
@@ -148,6 +156,13 @@ namespace infra
         InsertSeparation();
 
         return JsonObjectFormatter(*stream);
+    }
+
+    JsonArrayFormatter JsonArrayFormatter::SubArray()
+    {
+        InsertSeparation();
+
+        return JsonArrayFormatter(*stream);
     }
 
     bool JsonArrayFormatter::HasFailed() const

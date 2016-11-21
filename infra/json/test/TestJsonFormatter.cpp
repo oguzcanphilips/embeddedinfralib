@@ -93,6 +93,21 @@ TEST(JsonObjectFormatter, add_sub_object)
     EXPECT_EQ(R"({ "tag":{ "subTagName":"value" } })", string);
 }
 
+TEST(JsonObjectFormatter, add_sub_array)
+{
+    infra::BoundedString::WithStorage<64> string;
+
+    {
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
+        {
+            infra::JsonArrayFormatter subArray(formatter.SubArray("tag"));
+            subArray.Add("value");
+        }
+    }
+
+    EXPECT_EQ(R"({ "tag":[ "value" ] })", string);
+}
+
 TEST(JsonObjectFormatter, output_is_truncated_on_small_output_string)
 {
     infra::BoundedString::WithStorage<1> string;
@@ -183,6 +198,21 @@ TEST(JsonArrayFormatter, add_sub_object)
     }
 
     EXPECT_EQ(R"([ { "subTagName":"value" } ])", string);
+}
+
+TEST(JsonArrayFormatter, add_sub_array)
+{
+    infra::BoundedString::WithStorage<64> string;
+
+    {
+        infra::JsonArrayFormatter::WithStringStream formatter(infra::inPlace, string);
+        {
+            infra::JsonArrayFormatter subArray(formatter.SubArray());
+            subArray.Add("value");
+        }
+    }
+
+    EXPECT_EQ(R"([ [ "value" ] ])", string);
 }
 
 TEST(JsonArrayFormatter, output_is_truncated_on_small_output_string)

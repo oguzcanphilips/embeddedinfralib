@@ -7,6 +7,8 @@
 
 namespace infra
 {
+    class JsonArrayFormatter;
+
     class JsonObjectFormatter
     {
     public:
@@ -26,6 +28,7 @@ namespace infra
         void Add(const char* tagName, const char* tag);
         void Add(const char* tagName, infra::BoundedConstString tag);
         JsonObjectFormatter SubObject(const char* tagName);
+        JsonArrayFormatter SubArray(const char* tagName);
 
         bool HasFailed() const;
 
@@ -56,6 +59,7 @@ namespace infra
         void Add(const char* tag);
         void Add(infra::BoundedConstString tag);
         JsonObjectFormatter SubObject();
+        JsonArrayFormatter SubArray();
 
         bool HasFailed() const;
 
