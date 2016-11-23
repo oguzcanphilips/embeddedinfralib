@@ -5,8 +5,8 @@
 class ObjectConstructionMock
 {
 public:
-    MOCK_METHOD0(Construct, void());
-    MOCK_METHOD0(Destruct, void());
+    MOCK_METHOD1(Construct, void(void* object));
+    MOCK_METHOD1(Destruct, void(void* object));
 };
 
 class MySharedObjectBase
@@ -25,12 +25,12 @@ public:
     MySharedObject(ObjectConstructionMock& mock)
         : mock(mock)
     {
-        mock.Construct();
+        mock.Construct(this);
     }
 
     ~MySharedObject()
     {
-        mock.Destruct();
+        mock.Destruct(this);
     }
 
     int Value() const
@@ -40,6 +40,22 @@ public:
 
 private:
     ObjectConstructionMock& mock;
+};
+
+class OtherBase
+{
+public:
+    int x;
+};
+
+class MultiInheritedClass
+    : public OtherBase
+    , public MySharedObject
+{
+public:
+    MultiInheritedClass(ObjectConstructionMock& mock)
+        : MySharedObject(mock)
+    {}
 };
 
 class SharedPtrTest
@@ -52,10 +68,11 @@ public:
 
 TEST_F(SharedPtrTest, allocate_one_object)
 {
-    EXPECT_CALL(objectConstructionMock, Construct());
+    void* savedObject;
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_)).WillOnce(testing::SaveArg<0>(&savedObject));
     infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
     EXPECT_TRUE(static_cast<bool>(object));
-    EXPECT_CALL(objectConstructionMock, Destruct());
+    EXPECT_CALL(objectConstructionMock, Destruct(savedObject));
 }
 
 TEST_F(SharedPtrTest, when_allocation_fails_empty_SharedPtr_is_returned)
@@ -68,7 +85,7 @@ TEST_F(SharedPtrTest, when_allocation_fails_empty_SharedPtr_is_returned)
 
 TEST_F(SharedPtrTest, share_one_object_by_copy_construction)
 {
-    EXPECT_CALL(objectConstructionMock, Construct());
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
     infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
 
     {
@@ -76,12 +93,12 @@ TEST_F(SharedPtrTest, share_one_object_by_copy_construction)
         EXPECT_TRUE(static_cast<bool>(object2));
     }
 
-    EXPECT_CALL(objectConstructionMock, Destruct());
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 }
 
 TEST_F(SharedPtrTest, share_one_object_by_assignment)
 {
-    EXPECT_CALL(objectConstructionMock, Construct());
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
     infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
 
     {
@@ -90,45 +107,45 @@ TEST_F(SharedPtrTest, share_one_object_by_assignment)
         EXPECT_TRUE(static_cast<bool>(object2));
     }
 
-    EXPECT_CALL(objectConstructionMock, Destruct());
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 }
 
 TEST_F(SharedPtrTest, reset_SharedPtr_by_assigning_nullptr)
 {
-    EXPECT_CALL(objectConstructionMock, Construct());
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
     infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
 
-    EXPECT_CALL(objectConstructionMock, Destruct());
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
     object = nullptr;
     testing::Mock::VerifyAndClearExpectations(&objectConstructionMock);
 }
 
 TEST_F(SharedPtrTest, move_construct_SharedPtr)
 {
-    EXPECT_CALL(objectConstructionMock, Construct());
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
     infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
 
     infra::SharedPtr<MySharedObject> object2(std::move(object));
     EXPECT_FALSE(static_cast<bool>(object));
 
-    EXPECT_CALL(objectConstructionMock, Destruct());
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 }
 
 TEST_F(SharedPtrTest, move_copy_SharedPtr)
 {
-    EXPECT_CALL(objectConstructionMock, Construct());
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
     infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
 
     infra::SharedPtr<MySharedObject> object2;
     object2 = std::move(object);
     EXPECT_FALSE(static_cast<bool>(object));
 
-    EXPECT_CALL(objectConstructionMock, Destruct());
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 }
 
 TEST_F(SharedPtrTest, convert_SharedPtr_to_and_from_const)
 {
-    EXPECT_CALL(objectConstructionMock, Construct());
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
     infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
 
     infra::SharedPtr<const MySharedObject> constObject(object);
@@ -143,12 +160,12 @@ TEST_F(SharedPtrTest, convert_SharedPtr_to_and_from_const)
     EXPECT_FALSE(static_cast<bool>(constObject));
     EXPECT_TRUE(static_cast<bool>(movedNonConstObject));
 
-    EXPECT_CALL(objectConstructionMock, Destruct());
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 }
 
 TEST_F(SharedPtrTest, convert_SharedPtr_to_and_from_base)
 {
-    EXPECT_CALL(objectConstructionMock, Construct());
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
     infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
 
     infra::SharedPtr<MySharedObjectBase> baseObject(object);
@@ -163,23 +180,23 @@ TEST_F(SharedPtrTest, convert_SharedPtr_to_and_from_base)
     EXPECT_FALSE(static_cast<bool>(baseObject));
     EXPECT_TRUE(static_cast<bool>(movedDerivedObject));
 
-    EXPECT_CALL(objectConstructionMock, Destruct());
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 }
 
 TEST_F(SharedPtrTest, dereference_SharedPtr)
 {
-    EXPECT_CALL(objectConstructionMock, Construct());
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
     const infra::SharedPtr<const MySharedObject> object = allocator.Allocate(objectConstructionMock);
 
     EXPECT_EQ(5, object->Value());
     EXPECT_EQ(5, (*object).Value());
 
-    EXPECT_CALL(objectConstructionMock, Destruct());
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 }
 
 TEST_F(SharedPtrTest, test_equality)
 {
-    EXPECT_CALL(objectConstructionMock, Construct()).Times(2);
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_)).Times(2);
     infra::SharedPtr<MySharedObject> object1 = allocator.Allocate(objectConstructionMock);
     infra::SharedPtr<MySharedObject> object2 = allocator.Allocate(objectConstructionMock);
     infra::SharedPtr<MySharedObject> objectEmpty;
@@ -203,40 +220,40 @@ TEST_F(SharedPtrTest, test_equality)
     EXPECT_FALSE(objectEmpty != nullptr);
     EXPECT_FALSE(nullptr != objectEmpty);
 
-    EXPECT_CALL(objectConstructionMock, Destruct()).Times(2);
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_)).Times(2);
 }
 
 TEST_F(SharedPtrTest, construct_WeakPtr)
 {
-    EXPECT_CALL(objectConstructionMock, Construct());
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
     infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
     infra::WeakPtr<MySharedObject> weakObject(object);
     infra::WeakPtr<MySharedObject> weakObject2 = object;
-    EXPECT_CALL(objectConstructionMock, Destruct());
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 }
 
 TEST_F(SharedPtrTest, construct_SharedPtr_from_WeakPtr)
 {
     infra::SharedPtr<MySharedObject> sharedObject;
     {
-        EXPECT_CALL(objectConstructionMock, Construct());
+        EXPECT_CALL(objectConstructionMock, Construct(testing::_));
         infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
         infra::WeakPtr<MySharedObject> weakObject(object);
         sharedObject = weakObject.lock();
     }
 
-    EXPECT_CALL(objectConstructionMock, Destruct());
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 }
 
 TEST_F(SharedPtrTest, convert_WeakPtr_to_SharedPtr)
 {
-    EXPECT_CALL(objectConstructionMock, Construct());
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
     infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
     infra::WeakPtr<MySharedObject> weakObject(object);
     infra::SharedPtr<MySharedObject> sharedObject(weakObject);
     infra::SharedPtr<MySharedObject> sharedObject2;
     sharedObject2 = weakObject;
-    EXPECT_CALL(objectConstructionMock, Destruct());
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 }
 
 TEST_F(SharedPtrTest, object_is_destructed_but_not_deallocated_while_WeakPtr_has_a_reference)
@@ -246,10 +263,10 @@ TEST_F(SharedPtrTest, object_is_destructed_but_not_deallocated_while_WeakPtr_has
     infra::WeakPtr<MySharedObject> weakObject;
 
     {
-        EXPECT_CALL(objectConstructionMock, Construct());
+        EXPECT_CALL(objectConstructionMock, Construct(testing::_));
         infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
         weakObject = object;
-        EXPECT_CALL(objectConstructionMock, Destruct());
+        EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
     }
     testing::Mock::VerifyAndClearExpectations(&objectConstructionMock);
 
@@ -263,15 +280,15 @@ TEST_F(SharedPtrTest, move_construct_WeakPtr)
     infra::WeakPtr<MySharedObject> weakObject;
 
     {
-        EXPECT_CALL(objectConstructionMock, Construct());
+        EXPECT_CALL(objectConstructionMock, Construct(testing::_));
         infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
         weakObject = object;
-        EXPECT_CALL(objectConstructionMock, Destruct());
+        EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 
         infra::WeakPtr<MySharedObject> weakObject2(std::move(weakObject));
     }
-    EXPECT_CALL(objectConstructionMock, Construct());
-    EXPECT_CALL(objectConstructionMock, Destruct());
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
     EXPECT_NE(nullptr, allocator.Allocate(objectConstructionMock));
 }
 
@@ -282,16 +299,16 @@ TEST_F(SharedPtrTest, move_assign_WeakPtr)
     infra::WeakPtr<MySharedObject> weakObject;
 
     {
-        EXPECT_CALL(objectConstructionMock, Construct());
+        EXPECT_CALL(objectConstructionMock, Construct(testing::_));
         infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
         weakObject = object;
-        EXPECT_CALL(objectConstructionMock, Destruct());
+        EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 
         infra::WeakPtr<MySharedObject> weakObject2;
         weakObject2 = std::move(weakObject);
     }
-    EXPECT_CALL(objectConstructionMock, Construct());
-    EXPECT_CALL(objectConstructionMock, Destruct());
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
     EXPECT_NE(nullptr, allocator.Allocate(objectConstructionMock));
 }
 
@@ -302,12 +319,22 @@ TEST_F(SharedPtrTest, converting_WeakPtr_to_SharedPtr_for_expired_object_results
     infra::WeakPtr<MySharedObject> weakObject;
 
     {
-        EXPECT_CALL(objectConstructionMock, Construct());
+        EXPECT_CALL(objectConstructionMock, Construct(testing::_));
         infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
         weakObject = object;
-        EXPECT_CALL(objectConstructionMock, Destruct());
+        EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
     }
 
     infra::SharedPtr<MySharedObject> object(weakObject);
     EXPECT_EQ(nullptr, object);
+}
+
+TEST_F(SharedPtrTest, allocate_multiple_inherited_class)
+{
+    infra::SharedObjectAllocatorFixedSize<MultiInheritedClass, void(ObjectConstructionMock&)>::WithStorage<2> allocator;
+    void* savedObject;
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_)).WillOnce(testing::SaveArg<0>(&savedObject));
+    infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
+    EXPECT_TRUE(static_cast<bool>(object));
+    EXPECT_CALL(objectConstructionMock, Destruct(savedObject));
 }

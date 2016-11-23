@@ -16,10 +16,10 @@ namespace infra
         class SharedPtrControl
         {
         public:
-            SharedPtrControl(SharedObjectAllocatorBase* allocator);
+            SharedPtrControl(const void* object, SharedObjectAllocatorBase* allocator);
 
             void IncreaseSharedCount();
-            void DecreaseSharedCount(const void* object);
+            void DecreaseSharedCount();
             void IncreaseWeakCount();
             void DecreaseWeakCount();
 
@@ -28,6 +28,7 @@ namespace infra
         private:
             uint16_t sharedPtrCount = 0;
             uint16_t weakPtrCount = 0;
+            const void* object = nullptr;
             SharedObjectAllocatorBase* allocator = nullptr;
         };
     }
@@ -242,7 +243,7 @@ namespace infra
     void SharedPtr<T>::Reset(detail::SharedPtrControl* newControl, T* newObject)
     {
         if (control)
-            control->DecreaseSharedCount(object);
+            control->DecreaseSharedCount();
 
         control = newControl;
         object = newObject;

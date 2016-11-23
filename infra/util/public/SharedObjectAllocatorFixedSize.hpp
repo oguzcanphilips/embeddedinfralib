@@ -123,7 +123,7 @@ namespace infra
 
     template<class T, class... ConstructionArgs>
     SharedObjectAllocatorFixedSize<T, void(ConstructionArgs...)>::Node::Node(SharedObjectAllocatorBase* allocator)
-        : detail::SharedPtrControl(allocator)
+        : detail::SharedPtrControl(&*object, allocator)
     {}
 }
 
