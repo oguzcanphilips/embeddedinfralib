@@ -2,7 +2,7 @@ include(CMakeForceCompiler)
 
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-set(CCOLA_GCCARM_VERSION "4.9 2014q4")
+set(CCOLA_GCCARM_VERSION "5.4 2016q3")
 set(CMAKE_C_COMPILER "C:/Program Files (x86)/GNU Tools ARM Embedded/${CCOLA_GCCARM_VERSION}/bin/arm-none-eabi-gcc.exe")
 set(CMAKE_CXX_COMPILER "C:/Program Files (x86)/GNU Tools ARM Embedded/${CCOLA_GCCARM_VERSION}/bin/arm-none-eabi-g++.exe")
 
