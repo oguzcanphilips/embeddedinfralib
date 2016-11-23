@@ -1,9 +1,10 @@
 include(CMakeForceCompiler)
 
 set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 set(CCOLA_GCCARM_VERSION "4.9 2014q4")
-cmake_force_c_compiler("C:/Program Files (x86)/GNU Tools ARM Embedded/${CCOLA_GCCARM_VERSION}/bin/arm-none-eabi-gcc.exe" GNU)
-cmake_force_cxx_compiler("C:/Program Files (x86)/GNU Tools ARM Embedded/${CCOLA_GCCARM_VERSION}/bin/arm-none-eabi-g++.exe" GNU)
+set(CMAKE_C_COMPILER "C:/Program Files (x86)/GNU Tools ARM Embedded/${CCOLA_GCCARM_VERSION}/bin/arm-none-eabi-gcc.exe")
+set(CMAKE_CXX_COMPILER "C:/Program Files (x86)/GNU Tools ARM Embedded/${CCOLA_GCCARM_VERSION}/bin/arm-none-eabi-g++.exe")
 
 set(CMAKE_ASM_COMPILER "C:/Program Files (x86)/GNU Tools ARM Embedded/${CCOLA_GCCARM_VERSION}/bin/arm-none-eabi-as.exe" CACHE FILEPATH as)
 set(CMAKE_AR "C:/Program Files (x86)/GNU Tools ARM Embedded/${CCOLA_GCCARM_VERSION}/bin/arm-none-eabi-gcc-ar.exe" CACHE FILEPATH ar)
