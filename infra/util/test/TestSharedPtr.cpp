@@ -338,3 +338,50 @@ TEST_F(SharedPtrTest, allocate_multiple_inherited_class)
     EXPECT_TRUE(static_cast<bool>(object));
     EXPECT_CALL(objectConstructionMock, Destruct(savedObject));
 }
+
+TEST_F(SharedPtrTest, test_WeakPtr_equality)
+{
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_)).Times(2);
+    infra::SharedPtr<MySharedObject> object1 = allocator.Allocate(objectConstructionMock);
+    infra::SharedPtr<MySharedObject> object2 = allocator.Allocate(objectConstructionMock);
+    infra::SharedPtr<MySharedObject> objectEmpty;
+    infra::SharedPtr<MySharedObject> object1Same = object1;
+
+    infra::WeakPtr<MySharedObject> weak1 = object1;
+    infra::WeakPtr<MySharedObject> weak2 = object2;
+    infra::WeakPtr<MySharedObject> weakEmpty = objectEmpty;
+    infra::WeakPtr<MySharedObject> weak1Same = object1Same;
+
+    EXPECT_TRUE(weak1 == weak1Same);
+    EXPECT_FALSE(weak1 != weak1Same);
+    EXPECT_FALSE(weak1 == weak2);
+    EXPECT_TRUE(weak1 != weak2);
+    EXPECT_FALSE(weak1 == weakEmpty);
+    EXPECT_TRUE(weak1 != weakEmpty);
+
+    EXPECT_FALSE(weak1 == nullptr);
+    EXPECT_FALSE(nullptr == weak1);
+    EXPECT_TRUE(weak1 != nullptr);
+    EXPECT_TRUE(nullptr != weak1);
+
+    EXPECT_TRUE(weakEmpty == nullptr);
+    EXPECT_TRUE(nullptr == weakEmpty);
+    EXPECT_FALSE(weakEmpty != nullptr);
+    EXPECT_FALSE(nullptr != weakEmpty);
+
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_)).Times(2);
+}
+
+TEST_F(SharedPtrTest, test_WeakPtr_vs_SharedPtr_equality)
+{
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
+    infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
+    infra::WeakPtr<MySharedObject> weak = object;
+
+    EXPECT_TRUE(weak == object);
+    EXPECT_FALSE(weak != object);
+    EXPECT_TRUE(object == weak);
+    EXPECT_FALSE(object != weak);
+
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
+}

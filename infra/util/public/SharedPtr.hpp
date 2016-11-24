@@ -102,6 +102,17 @@ namespace infra
 
         SharedPtr<T> lock() const;
 
+        bool operator==(const WeakPtr& other) const;
+        bool operator!=(const WeakPtr& other) const;
+        bool operator==(std::nullptr_t) const;
+        bool operator!=(std::nullptr_t) const;
+        friend bool operator==(std::nullptr_t, const WeakPtr& ptr) { return ptr == nullptr; }
+        friend bool operator!=(std::nullptr_t, const WeakPtr& ptr) { return ptr != nullptr; }
+        bool operator==(const SharedPtr<T>& other) const;
+        bool operator!=(const SharedPtr<T>& other) const;
+        friend bool operator==(const SharedPtr<T>& left, const WeakPtr& right) { return right == left; }
+        friend bool operator!=(const SharedPtr<T>& left, const WeakPtr& right) { return right != left; }
+
     private:
         void Reset(detail::SharedPtrControl* newControl, T* newObject);
 
@@ -334,6 +345,42 @@ namespace infra
     SharedPtr<T> WeakPtr<T>::lock() const
     {
         return SharedPtr<T>(*this);
+    }
+
+    template<class T>
+    bool WeakPtr<T>::operator==(const WeakPtr& other) const
+    {
+        return object == other.object;
+    }
+
+    template<class T>
+    bool WeakPtr<T>::operator!=(const WeakPtr& other) const
+    {
+        return !(*this == other);
+    }
+
+    template<class T>
+    bool WeakPtr<T>::operator==(std::nullptr_t) const
+    {
+        return object == nullptr;
+    }
+
+    template<class T>
+    bool WeakPtr<T>::operator!=(std::nullptr_t) const
+    {
+        return !(*this == nullptr);
+    }
+
+    template<class T>
+    bool WeakPtr<T>::operator==(const SharedPtr<T>& other) const
+    {
+        return object == other.object;
+    }
+
+    template<class T>
+    bool WeakPtr<T>::operator!=(const SharedPtr<T>& other) const
+    {
+        return !(*this == other);
     }
 
     template<class T>
