@@ -5,7 +5,7 @@
 namespace infra
 {
     Timer::Timer(uint32_t timerServiceId)
-        : timerService(static_cast<TimerService&>(TimerServiceManager::Instance().GetTimerService(timerServiceId)))
+        : timerService(TimerServiceManager::Instance().GetTimerService(timerServiceId))
     {}
 
     Timer::~Timer()
