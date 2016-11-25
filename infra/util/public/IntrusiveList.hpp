@@ -185,7 +185,7 @@ namespace infra
         numberOfElements = other.numberOfElements;
         beginNode = other.beginNode;
         endNode.previous = other.endNode.previous;
-        if (endNode.previous)
+        if (endNode.previous != nullptr)
             endNode.previous->next = &endNode;
         other.clear();
 
@@ -321,7 +321,7 @@ namespace infra
         node.next = beginNode;
         node.previous = nullptr;
 
-        if (node.next)
+        if (node.next != nullptr)
             node.next->previous = &node;
 
         beginNode = &node;
@@ -335,7 +335,7 @@ namespace infra
         node.next = &endNode;
         node.previous = endNode.previous;
 
-        if (node.previous)
+        if (node.previous != nullptr)
             node.previous->next = &node;
         else
             beginNode = &node;
@@ -356,7 +356,7 @@ namespace infra
     void IntrusiveList<T>::pop_back()
     {
         endNode.previous = endNode.previous->previous;
-        if (endNode.previous)
+        if (endNode.previous != nullptr)
             endNode.previous->next = &endNode;
         --numberOfElements;
     }
@@ -368,7 +368,7 @@ namespace infra
         node.previous = position.node->previous;
         node.next = const_cast<NodeType*>(position.node);
         const_cast<NodeType*>(position.node)->previous = &node;
-        if (node.previous)
+        if (node.previous != nullptr)
             node.previous->next = &node;
         else
             beginNode = &node;
@@ -379,7 +379,7 @@ namespace infra
     void IntrusiveList<T>::erase(const_reference value)
     {
         NodeType& node = const_cast<reference>(value);
-        if (node.previous)
+        if (node.previous != nullptr)
             node.previous->next = node.next;
         else
             beginNode = node.next;

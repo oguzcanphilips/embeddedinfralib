@@ -108,11 +108,10 @@ public:
         , secondStageToRamLoader(upgradePackFlash, "test product")
     {}
 
-    template<std::size_t Size>
-    void AssignZeroFilledString(const std::string& from, char (&to)[Size]) const
+    void AssignZeroFilledString(const std::string& from, infra::MemoryRange<char> to) const
     {
-        std::copy(from.begin(), from.begin() + std::min(from.size(), Size), to);
-        std::fill(to + std::min(from.size(), Size), to + Size, 0);
+        std::copy(from.begin(), from.begin() + std::min(from.size(), to.size()), to.begin());
+        std::fill(to.begin() + std::min(from.size(), to.size()), to.end(), 0);
     }
 
     struct UpgradePackHeaderNoSecurity
@@ -128,7 +127,7 @@ public:
         header.prologue.magic = application::upgradePackMagic;
         header.prologue.errorCode = 0xffffffff;
         header.prologue.signedContentsLength = sizeof(application::UpgradePackHeaderEpilogue);
-        strcpy(header.epilogue.productName, "test product");
+        strcpy(header.epilogue.productName.data(), "test product");
         header.epilogue.headerVersion = 1;
         header.epilogue.numberOfImages = numberOfImages;
 
@@ -364,7 +363,7 @@ TEST_F(SecondStageToRamLoaderTest, UpgradeFailsWhenVerificationFails)
 TEST_F(SecondStageToRamLoaderTest, WhenProductNameIsIncorrectPackIsMarkedAsError)
 {
     UpgradePackHeaderNoSecurity header(CreateReadyToDeployHeader(1));
-    strcpy(header.epilogue.productName, "incorrect product");
+    strcpy(header.epilogue.productName.data(), "incorrect product");
 
     const std::vector<uint8_t> secondStageImage{ 1, 1, 2, 3, 5, 8, 13, 21 };
     application::ImageHeaderPrologue secondStageImageHeader(CreateImageHeader("boot2nd", secondStageImage.size()));

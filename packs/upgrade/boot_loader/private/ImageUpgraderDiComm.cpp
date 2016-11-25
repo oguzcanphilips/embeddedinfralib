@@ -152,7 +152,7 @@ namespace application
 
         base64EncodedChunk.clear();
 
-        uint8_t bitIndex = 2;
+        uint8_t bitIndex = 2;                                                                                           //TICS !OLC#006
         uint8_t encodedByte = 0;
 
         for (uint8_t chunkByte : chunk)

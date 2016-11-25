@@ -45,14 +45,14 @@ namespace application
 
     struct UpgradePackHeaderEpilogue
     {
-        uint16_t headerVersion;         // Indicates the structure of the UpgradePackHeaders and ImageHeaderPrologue
-        uint16_t headerLength;          // sizeof(UpgradePackHeaderPrologue) + signatureLength + sizeof(UpgradePackHeaderEpilogue)
+        uint16_t headerVersion;                 // Indicates the structure of the UpgradePackHeaders and ImageHeaderPrologue
+        uint16_t headerLength;                  // sizeof(UpgradePackHeaderPrologue) + signatureLength + sizeof(UpgradePackHeaderEpilogue)
         uint32_t numberOfImages;
-        char productName[64];           // Product-specific name, checked by bootloader in order to avoid
-                                        // flashing a multicooker with air purifier firmware
-        char productVersion[64];        // Product-specific version string
-        char componentName[64];         // HSDP component name
-        uint32_t componentVersion;      // HSDP component version
+        std::array<char, 64> productName;       // Product-specific name, checked by bootloader in order to avoid
+                                                // flashing a multicooker with air purifier firmware
+        std::array<char, 64> productVersion;    // Product-specific version string
+        std::array<char, 64> componentName;     // HSDP component name
+        uint32_t componentVersion;              // HSDP component version
     };
 
     static_assert(sizeof(UpgradePackHeaderEpilogue) == 204, "Incorrect size");
@@ -61,7 +61,7 @@ namespace application
     {
         uint32_t lengthOfHeaderAndImage;    // sizeof(ImageHeaderPrologue) + binaryLength rounded up to multiple of 4,
                                             // filled out with zeros.
-        char targetName[8];                 // Indication for which upgrader to use. Some targetNames may be product-specific.
+        std::array<char, 8> targetName;     // Indication for which upgrader to use. Some targetNames may be product-specific.
                                             // Generic: "boot1st", "boot2nd", "wifi", filled out with zeros.
         uint32_t encryptionAndMacMethod;    // Identifier that indicates the encryption and MAC method chosen. 1 = aes, 2 = xtea/hmac.
         //uint8_t[depends on encryptionAndMacMethod] macAndIV;

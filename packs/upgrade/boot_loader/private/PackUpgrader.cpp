@@ -47,7 +47,7 @@ namespace application
 
         for (auto& imageUpgrader: imageUpgraders)
         {
-            if (std::strncmp(imageHeader.targetName, imageUpgrader->TargetName(), sizeof(ImageHeaderPrologue().targetName)) == 0)
+            if (std::strncmp(imageHeader.targetName.data(), imageUpgrader->TargetName(), imageHeader.targetName.size()) == 0)
             {
                 imageAddress += sizeof(imageHeader);
 

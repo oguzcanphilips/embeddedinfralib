@@ -32,11 +32,10 @@ public:
         , singleUpgraderMock({ &imageUpgraderMock })
     {}
 
-    template<std::size_t Size>
-    void AssignZeroFilledString(const std::string& from, char(&to)[Size]) const
+    void AssignZeroFilledString(const std::string& from, infra::MemoryRange<char> to) const
     {
-        std::copy(from.begin(), from.begin() + std::min(from.size(), Size), to);
-        std::fill(to + std::min(from.size(), Size), to + Size, 0);
+        std::copy(from.begin(), from.begin() + std::min(from.size(), to.size()), to.begin());
+        std::fill(to.begin() + std::min(from.size(), to.size()), to.end(), 0);
     }
 
     struct UpgradePackHeaderNoSecurity

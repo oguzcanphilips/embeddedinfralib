@@ -52,7 +52,7 @@ TEST_F(TestInputBinary, TargetName)
     std::vector<uint8_t> image = input.Image();
     application::ImageHeaderPrologue& header = reinterpret_cast<application::ImageHeaderPrologue&>(image.front());
 
-    EXPECT_EQ(ZeroFilledString(8, "main"), header.targetName);
+    EXPECT_EQ(ZeroFilledString(8, "main"), header.targetName.data());
 }
 
 TEST_F(TestInputBinary, EncryptionAndMacMethod)
@@ -140,5 +140,5 @@ TEST(TestInputBinaryConstructionWithVector, Construction)
     std::vector<uint8_t> image = input.Image();
     application::ImageHeaderPrologue& header = reinterpret_cast<application::ImageHeaderPrologue&>(image.front());
 
-    EXPECT_EQ(ZeroFilledString(8, "main"), header.targetName);
+    EXPECT_EQ(ZeroFilledString(8, "main"), header.targetName.data());
 }

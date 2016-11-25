@@ -31,7 +31,7 @@ namespace application
 
         if (headerEpilogue.headerVersion != 1)
             MarkAsError(upgradeErrorCodeUnknownHeaderVersion);
-        else if (std::strcmp(product, headerEpilogue.productName) != 0)
+        else if (std::strcmp(product, headerEpilogue.productName.data()) != 0)
             MarkAsError(upgradeErrorCodeUnknownProductName);
         else if (!verifier.IsValid(upgradePackFlash, signature, signedContents))
             MarkAsError(upgradeErrorCodeInvalidSignature);
@@ -52,7 +52,7 @@ namespace application
         ImageHeaderPrologue imageHeader;
         upgradePackFlash.ReadBuffer(infra::MakeByteRange(imageHeader), address);
 
-        if (std::strncmp(imageHeader.targetName, "boot2nd", sizeof(ImageHeaderPrologue().targetName)) == 0)
+        if (std::strncmp(imageHeader.targetName.data(), "boot2nd", ImageHeaderPrologue().targetName.size()) == 0)
         {
             address += sizeof(imageHeader);
 

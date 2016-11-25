@@ -67,9 +67,9 @@ namespace application
         epilogue.headerLength = sizeof(UpgradePackHeaderPrologue) + signer.SignatureLength() + sizeof(UpgradePackHeaderEpilogue);
         epilogue.numberOfImages = inputs.size();
 
-        AssignZeroFilled(headerInfo.productName, epilogue.productName, sizeof(epilogue.productName));
-        AssignZeroFilled(headerInfo.productVersion, epilogue.productVersion, sizeof(epilogue.productName));
-        AssignZeroFilled(headerInfo.componentName, epilogue.componentName, sizeof(epilogue.productName));
+        AssignZeroFilled(headerInfo.productName, epilogue.productName);
+        AssignZeroFilled(headerInfo.productVersion, epilogue.productVersion);
+        AssignZeroFilled(headerInfo.componentName, epilogue.componentName);
         epilogue.componentVersion = headerInfo.componentVersion;
 
         upgradePack.assign(reinterpret_cast<const uint8_t*>(&epilogue), reinterpret_cast<const uint8_t*>(&epilogue + 1));
@@ -84,9 +84,9 @@ namespace application
         }
     }
 
-    void UpgradePackBuilder::AssignZeroFilled(const std::string& data, char* destination, std::size_t size) const
+    void UpgradePackBuilder::AssignZeroFilled(const std::string& data, infra::MemoryRange<char> destination) const
     {
-        std::copy(data.begin(), data.begin() + std::min(data.size(), size), destination);
+        std::copy(data.begin(), data.begin() + std::min(data.size(), destination.size()), destination.begin());
     }
 
     void UpgradePackBuilder::CheckSignature()

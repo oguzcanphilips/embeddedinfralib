@@ -2,6 +2,7 @@
 #define UPGRADE_PACK_BUILD_LIBRARY_UPGRADE_PACK_BUILDER_HPP
 
 #include "hal/interfaces/public/FileSystem.hpp"
+#include "infra/util/public/MemoryRange.hpp"
 #include "packs/upgrade/pack/public/UpgradePackHeader.hpp"
 #include "packs/upgrade/pack_builder/public/Input.hpp"
 #include "packs/upgrade/pack_builder/public/InputFactory.hpp"
@@ -38,7 +39,7 @@ namespace application
         void AddPrologueAndSignature();
         void AddEpilogue();
         void AddImages();
-        void AssignZeroFilled(const std::string& data, char* destination, std::size_t size) const;
+        void AssignZeroFilled(const std::string& data, infra::MemoryRange<char> destination) const;
         void CheckSignature();
 
     private:

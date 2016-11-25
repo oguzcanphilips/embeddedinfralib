@@ -42,9 +42,9 @@ namespace infra
         SharedPtr(const SharedPtr& other);
         SharedPtr(SharedPtr&& other);
         SharedPtr(const WeakPtr<T>& other);
-        template<class U>
+        template<class U>                                                                                               //TICS !INT#001
             SharedPtr(const SharedPtr<U>& other);
-        template<class U>
+        template<class U>                                                                                               //TICS !INT#001
             SharedPtr(SharedPtr<U>&& other);
         SharedPtr& operator=(const SharedPtr& other);
         SharedPtr& operator=(SharedPtr&& other);
