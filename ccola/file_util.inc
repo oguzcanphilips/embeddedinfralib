@@ -22,6 +22,18 @@ macro(ccola_make_absolute absolute_path_var path)
 endmacro()
 
 
+macro(ccola_make_absolute_from_source absolute_path_var path)
+
+	get_filename_component(absolute "${path}" ABSOLUTE)
+	if("${absolute}" STREQUAL "${path}")
+		set(${absolute_path_var} "${path}")
+	else()
+		get_filename_component(${absolute_path_var} "${CMAKE_CURRENT_SOURCE_DIR}/${path}" ABSOLUTE)
+	endif()
+
+endmacro()
+
+
 macro(ccola_require_file file purpose)
 
     if(NOT EXISTS ${file})
