@@ -135,9 +135,7 @@ namespace infra
     constexpr MemoryRange<T>::MemoryRange(const std::array<T2, N>& array)
         : beginElement(N != 0 ? &array.front() : nullptr)
         , endElement(N != 0 ? &array.front() + array.size() : nullptr)
-    {
-        static_assert(N != 0, "");
-    }
+    {}
 
     template<class T>
     template<class T2, std::size_t N>
