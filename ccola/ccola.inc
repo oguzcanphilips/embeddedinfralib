@@ -49,6 +49,7 @@ set(workaround_for_warning ${CMAKE_TOOLCHAIN_FILE})
 
 ccola_pack_directory(${CCOLA_DIR}/packs/cpp)
 ccola_pack_directory(${CCOLA_DIR}/packs/csharp)
+ccola_pack_directory(${CCOLA_DIR}/../external/xsltproc)
 
 ccola_programmer(
 lpc17xx:
