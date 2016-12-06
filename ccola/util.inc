@@ -296,7 +296,7 @@ macro(ccola_parse_selection_list_with_params list_selected combinations list)
 			string(REGEX REPLACE "\\?.*" "" condition ${item})
 			string(REGEX REPLACE ".*\\?" "" property ${item})
 
-			if("${condition}" STREQUAL "all" OR "${condition}" STREQUAL "${CCOLA_ARCH_FAMILY}" OR "${condition}" STREQUAL "${CCOLA_ARCH}" OR "${condition}" STREQUAL "${CORE}" OR "${condition}" STREQUAL "${PROCESSOR}"  OR "${condition}" STREQUAL "${PROCESSOR_FAMILY}")
+			if("${condition}" STREQUAL "all" OR "${condition}" STREQUAL "${CCOLA_ARCH_FAMILY}" OR "${condition}" STREQUAL "${CCOLA_ARCH}" OR "${condition}" STREQUAL "${CCOLA_CORE}" OR "${condition}" STREQUAL "${CCOLA_PROCESSOR}"  OR "${condition}" STREQUAL "${CCOLA_PROCESSOR_FAMILY}")
 				string(REGEX REPLACE "=.*" "" key ${property})
 				string(REGEX REPLACE ".*=" "" value ${property})
 
