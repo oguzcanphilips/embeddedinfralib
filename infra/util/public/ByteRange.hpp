@@ -43,7 +43,7 @@ namespace infra
 
     inline ByteRange ConstCastByteRange(ConstByteRange byteRange)
     {
-        return ByteRange(const_cast<uint8_t*>(byteRange.begin()), const_cast<uint8_t*>(byteRange.end()));
+        return ByteRange(const_cast<uint8_t*>(byteRange.begin()), const_cast<uint8_t*>(byteRange.end()));               //TICS !CON#002
     }
         
     template<class T>
