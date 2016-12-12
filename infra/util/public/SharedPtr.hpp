@@ -38,6 +38,7 @@ namespace infra
     {
     public:
         SharedPtr() = default;
+        SharedPtr(std::nullptr_t);                                                                                      //TICS !INT#001
         SharedPtr(detail::SharedPtrControl* control, T* object);
         SharedPtr(const SharedPtr& other);
         SharedPtr(SharedPtr&& other);
@@ -54,7 +55,7 @@ namespace infra
 
         explicit operator bool() const;
         T* operator->() const;
-        T& operator*() const;
+        typename std::add_lvalue_reference<T>::type operator*() const;
 
         bool operator==(const SharedPtr& other) const;
         bool operator!=(const SharedPtr& other) const;
@@ -125,6 +126,10 @@ namespace infra
     };
 
     ////    Implementation    ////
+
+    template<class T>
+    SharedPtr<T>::SharedPtr(std::nullptr_t)
+    {}
 
     template<class T>
     SharedPtr<T>::SharedPtr(detail::SharedPtrControl* control, T* object)
@@ -220,7 +225,7 @@ namespace infra
     }
 
     template<class T>
-    T& SharedPtr<T>::operator*() const
+    typename std::add_lvalue_reference<T>::type SharedPtr<T>::operator*() const
     {
         assert(object != nullptr);
         return *object;

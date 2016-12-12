@@ -75,6 +75,21 @@ TEST_F(SharedPtrTest, allocate_one_object)
     EXPECT_CALL(objectConstructionMock, Destruct(savedObject));
 }
 
+TEST_F(SharedPtrTest, construct_empty_SharedPtr)
+{
+    infra::SharedPtr<MySharedObject> object;
+    EXPECT_FALSE(static_cast<bool>(object));
+}
+
+TEST_F(SharedPtrTest, convert_nullptr_to_empty_SharedPtr)
+{
+    infra::SharedPtr<MySharedObject> object(nullptr);
+    EXPECT_FALSE(static_cast<bool>(object));
+
+    infra::SharedPtr<MySharedObject> object2 = nullptr;
+    EXPECT_FALSE(static_cast<bool>(object2));
+}
+
 TEST_F(SharedPtrTest, when_allocation_fails_empty_SharedPtr_is_returned)
 {
     infra::SharedObjectAllocatorFixedSize<MySharedObject, void(ObjectConstructionMock&)>::WithStorage<0> allocator;
