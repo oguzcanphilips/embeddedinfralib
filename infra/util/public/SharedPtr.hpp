@@ -258,14 +258,16 @@ namespace infra
     template<class T>
     void SharedPtr<T>::Reset(detail::SharedPtrControl* newControl, T* newObject)
     {
-        if (control)
-            control->DecreaseSharedCount();
+        detail::SharedPtrControl* oldControl = control;
 
         control = newControl;
         object = newObject;
 
         if (control)
             control->IncreaseSharedCount();
+
+        if (oldControl)
+            oldControl->DecreaseSharedCount();
     }
 
     template<class U, class T>

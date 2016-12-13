@@ -1,5 +1,6 @@
 #include "infra/util/public/SharedPtr.hpp"
 #include "infra/util/public/SharedObjectAllocator.hpp"
+#include <cassert>
 
 namespace infra
 {
@@ -18,6 +19,8 @@ namespace infra
 
         void SharedPtrControl::DecreaseSharedCount()
         {
+            assert(sharedPtrCount != 0);
+                
             --sharedPtrCount;
             if (sharedPtrCount == 0)
                 allocator->Destruct(object);
@@ -32,6 +35,8 @@ namespace infra
 
         void SharedPtrControl::DecreaseWeakCount()
         {
+            assert(weakPtrCount != 0);
+
             --weakPtrCount;
             if (weakPtrCount == 0)
                 allocator->Deallocate(this);

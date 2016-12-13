@@ -400,3 +400,18 @@ TEST_F(SharedPtrTest, test_WeakPtr_vs_SharedPtr_equality)
 
     EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 }
+
+TEST_F(SharedPtrTest, destroy_self_reference)
+{
+    struct SelfReference
+    {
+        infra::SharedPtr<SelfReference> self;
+    };
+
+    infra::SharedObjectAllocatorFixedSize<SelfReference, void()>::WithStorage<1> allocator;
+    infra::SharedPtr<SelfReference> sharedObject = allocator.Allocate();
+    sharedObject->self = sharedObject;
+    SelfReference& object = *sharedObject;
+    sharedObject = nullptr;
+    object.self = nullptr;
+}
