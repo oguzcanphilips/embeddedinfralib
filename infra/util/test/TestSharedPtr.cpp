@@ -415,3 +415,43 @@ TEST_F(SharedPtrTest, destroy_self_reference)
     sharedObject = nullptr;
     object.self = nullptr;
 }
+
+TEST_F(SharedPtrTest, construct_non_owning_SharedPtr)
+{
+    struct Object
+    {
+        Object()
+            : self(infra::UnOwnedSharedPtr(*this))
+        {}
+
+        infra::SharedPtr<Object> self;
+    };
+
+    infra::WeakPtr<Object> weakObject;
+
+    {
+        Object object;
+        weakObject = object.self;
+
+        infra::SharedPtr<Object> sharedObject(weakObject);
+        EXPECT_TRUE(sharedObject != nullptr);
+    }
+
+    infra::SharedPtr<Object> sharedObject(weakObject);
+    EXPECT_FALSE(sharedObject != nullptr);
+}
+
+TEST_F(SharedPtrTest, enable_shared_from_this)
+{
+    struct Object
+        : public infra::EnableSharedFromThis<Object>
+    {};
+
+    infra::SharedObjectAllocatorFixedSize<Object, void()>::WithStorage<1> allocator;
+    infra::SharedPtr<Object> object = allocator.Allocate();
+
+    EXPECT_EQ(object, object->SharedFromThis());
+    EXPECT_EQ(object, const_cast<const Object&>(*object).SharedFromThis());
+    EXPECT_EQ(object, object->WeakFromThis());
+    EXPECT_EQ(object, const_cast<const Object&>(*object).WeakFromThis());
+}

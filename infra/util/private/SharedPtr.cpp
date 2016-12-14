@@ -20,7 +20,7 @@ namespace infra
         void SharedPtrControl::DecreaseSharedCount()
         {
             assert(sharedPtrCount != 0);
-                
+
             --sharedPtrCount;
             if (sharedPtrCount == 0)
                 allocator->Destruct(object);
@@ -46,5 +46,11 @@ namespace infra
         {
             return sharedPtrCount == 0;
         }
+
+        void NullAllocator::Destruct(const void* object)
+        {}
+
+        void NullAllocator::Deallocate(void* control)
+        {}
     }
 }

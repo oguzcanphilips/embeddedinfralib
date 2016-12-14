@@ -3,13 +3,28 @@
 
 #include <cstdint>
 #include <type_traits>
+#include <memory>
 
 namespace infra
 {
-    class SharedObjectAllocatorBase;
+    template<class T>
+    class SharedPtr;
 
     template<class T>
     class WeakPtr;
+
+    class SharedObjectAllocatorBase
+    {
+    protected:
+        SharedObjectAllocatorBase() = default;
+        SharedObjectAllocatorBase(const SharedObjectAllocatorBase& other) = delete;
+        SharedObjectAllocatorBase& operator=(const SharedObjectAllocatorBase& other) = delete;
+        ~SharedObjectAllocatorBase() = default;
+
+    public:
+        virtual void Destruct(const void* object) = 0;
+        virtual void Deallocate(void* control) = 0;
+    };
 
     namespace detail
     {
@@ -17,6 +32,8 @@ namespace infra
         {
         public:
             SharedPtrControl(const void* object, SharedObjectAllocatorBase* allocator);
+            SharedPtrControl(const SharedPtrControl& other) = delete;
+            SharedPtrControl& operator=(const SharedPtrControl& other) = delete;
 
             void IncreaseSharedCount();
             void DecreaseSharedCount();
@@ -31,7 +48,38 @@ namespace infra
             const void* object = nullptr;
             SharedObjectAllocatorBase* allocator = nullptr;
         };
+
+        class NullAllocator
+            : public SharedObjectAllocatorBase
+        {
+        public:
+            virtual void Destruct(const void* object) override;
+            virtual void Deallocate(void* control) override;
+        };
+
+        template<class T>
+            void MakeSharedFromThis(SharedPtr<T>* object, typename T::EnableSharedFromThisType* = nullptr);
+        inline void MakeSharedFromThis(void* object);
     }
+
+    template<class T>
+    class EnableSharedFromThis
+    {
+    public:
+        SharedPtr<T> SharedFromThis();
+        SharedPtr<const T> SharedFromThis() const;
+        WeakPtr<T> WeakFromThis();
+        WeakPtr<const T> WeakFromThis() const;
+
+    public:
+        using EnableSharedFromThisType = T;
+
+    private:
+        template<class U>
+            friend void detail::MakeSharedFromThis(SharedPtr<U>* object, typename U::EnableSharedFromThisType*);
+
+        WeakPtr<T> weakPtr;
+    };
 
     template<class T>
     class SharedPtr
@@ -57,8 +105,10 @@ namespace infra
         T* operator->() const;
         typename std::add_lvalue_reference<T>::type operator*() const;
 
-        bool operator==(const SharedPtr& other) const;
-        bool operator!=(const SharedPtr& other) const;
+        template<class U>
+            bool operator==(const SharedPtr<U>& other) const;
+        template<class U>
+            bool operator!=(const SharedPtr<U>& other) const;
         bool operator==(std::nullptr_t) const;
         bool operator!=(std::nullptr_t) const;
         friend bool operator==(std::nullptr_t, const SharedPtr& ptr) { return ptr == nullptr; }
@@ -70,6 +120,8 @@ namespace infra
     private:
         template<class U>
             friend class SharedPtr;
+        template<class U>
+            friend class WeakPtr;
 
         template<class U, class V>
             friend SharedPtr<U> StaticPointerCast(const SharedPtr<V>& sharedPtr);
@@ -79,9 +131,6 @@ namespace infra
             friend SharedPtr<typename std::remove_const<U>::type> ConstCast(const SharedPtr<U>& sharedPtr);
         template<class U>
             friend SharedPtr<typename std::remove_const<U>::type> ConstCast(SharedPtr<U>&& sharedPtr);
-
-        template<class U>
-            friend class WeakPtr;
 
     private:
         detail::SharedPtrControl* control = nullptr;
@@ -95,6 +144,10 @@ namespace infra
         WeakPtr() = default;
         WeakPtr(const WeakPtr<T>& other);
         WeakPtr(WeakPtr<T>&& other);
+        template<class U>
+            WeakPtr(const WeakPtr<U>& other);
+        template<class U>
+            WeakPtr(WeakPtr<U>&& other);
         WeakPtr(const SharedPtr<T>& sharedPtr);                                                                         //TICS !INT#001
         WeakPtr& operator=(const WeakPtr<T>& other);
         WeakPtr& operator=(WeakPtr<T>&& other);
@@ -103,27 +156,38 @@ namespace infra
 
         SharedPtr<T> lock() const;
 
-        bool operator==(const WeakPtr& other) const;
-        bool operator!=(const WeakPtr& other) const;
+        template<class U>
+            bool operator==(const WeakPtr<U>& other) const;
+        template<class U>
+            bool operator!=(const WeakPtr<U>& other) const;
         bool operator==(std::nullptr_t) const;
         bool operator!=(std::nullptr_t) const;
         friend bool operator==(std::nullptr_t, const WeakPtr& ptr) { return ptr == nullptr; }
         friend bool operator!=(std::nullptr_t, const WeakPtr& ptr) { return ptr != nullptr; }
-        bool operator==(const SharedPtr<T>& other) const;
-        bool operator!=(const SharedPtr<T>& other) const;
-        friend bool operator==(const SharedPtr<T>& left, const WeakPtr& right) { return right == left; }
-        friend bool operator!=(const SharedPtr<T>& left, const WeakPtr& right) { return right != left; }
+        template<class U>
+            bool operator==(const SharedPtr<U>& other) const;
+        template<class U>
+            bool operator!=(const SharedPtr<U>& other) const;
+        template<class U>
+            friend bool operator==(const SharedPtr<U>& left, const WeakPtr& right) { return right == left; }
+        template<class U>
+            friend bool operator!=(const SharedPtr<U>& left, const WeakPtr& right) { return right != left; }
 
     private:
         void Reset(detail::SharedPtrControl* newControl, T* newObject);
 
         template<class U>
             friend class SharedPtr;
+        template<class U>
+            friend class WeakPtr;
 
     private:
         detail::SharedPtrControl* control = nullptr;
         T* object = nullptr;
     };
+
+    template<class T>
+    SharedPtr<T> UnOwnedSharedPtr(T& object);
 
     ////    Implementation    ////
 
@@ -135,6 +199,7 @@ namespace infra
     SharedPtr<T>::SharedPtr(detail::SharedPtrControl* control, T* object)
     {
         Reset(control, object);
+        detail::MakeSharedFromThis(this);
     }
 
     template<class T>
@@ -197,7 +262,7 @@ namespace infra
 
         return *this;
     }
-    
+
     template<class T>
     SharedPtr<T>& SharedPtr<T>::operator=(std::nullptr_t)
     {
@@ -232,13 +297,15 @@ namespace infra
     }
 
     template<class T>
-    bool SharedPtr<T>::operator==(const SharedPtr& other) const
+    template<class U>
+    bool SharedPtr<T>::operator==(const SharedPtr<U>& other) const
     {
         return object == other.object;
     }
 
     template<class T>
-    bool SharedPtr<T>::operator!=(const SharedPtr& other) const
+    template<class U>
+    bool SharedPtr<T>::operator!=(const SharedPtr<U>& other) const
     {
         return !(*this == other);
     }
@@ -312,6 +379,21 @@ namespace infra
     }
 
     template<class T>
+    template<class U>
+    WeakPtr<T>::WeakPtr(const WeakPtr<U>& other)
+    {
+        Reset(other.control, other.object);
+    }
+
+    template<class T>
+    template<class U>
+    WeakPtr<T>::WeakPtr(WeakPtr<U>&& other)
+    {
+        Reset(other.control, other.object);
+        other.Reset(nullptr, nullptr);
+    }
+
+    template<class T>
     WeakPtr<T>::WeakPtr(const SharedPtr<T>& sharedPtr)
     {
         Reset(sharedPtr.control, sharedPtr.object);
@@ -355,13 +437,15 @@ namespace infra
     }
 
     template<class T>
-    bool WeakPtr<T>::operator==(const WeakPtr& other) const
+    template<class U>
+    bool WeakPtr<T>::operator==(const WeakPtr<U>& other) const
     {
         return object == other.object;
     }
 
     template<class T>
-    bool WeakPtr<T>::operator!=(const WeakPtr& other) const
+    template<class U>
+    bool WeakPtr<T>::operator!=(const WeakPtr<U>& other) const
     {
         return !(*this == other);
     }
@@ -379,13 +463,15 @@ namespace infra
     }
 
     template<class T>
-    bool WeakPtr<T>::operator==(const SharedPtr<T>& other) const
+    template<class U>
+    bool WeakPtr<T>::operator==(const SharedPtr<U>& other) const
     {
         return object == other.object;
     }
 
     template<class T>
-    bool WeakPtr<T>::operator!=(const SharedPtr<T>& other) const
+    template<class U>
+    bool WeakPtr<T>::operator!=(const SharedPtr<U>& other) const
     {
         return !(*this == other);
     }
@@ -401,6 +487,50 @@ namespace infra
 
         if (control)
             control->IncreaseWeakCount();
+    }
+
+    namespace detail
+    {
+        template<class T>
+        void MakeSharedFromThis(SharedPtr<T>* object, typename T::EnableSharedFromThisType*)
+        {
+            static_cast<EnableSharedFromThis<typename T::EnableSharedFromThisType>&>(**object).weakPtr = *object;
+        }
+
+        inline void MakeSharedFromThis(void* object)
+        {}
+    }
+
+    template<class T>
+    SharedPtr<T> EnableSharedFromThis<T>::SharedFromThis()
+    {
+        return weakPtr;
+    }
+
+    template<class T>
+    SharedPtr<const T> EnableSharedFromThis<T>::SharedFromThis() const
+    {
+        return weakPtr;
+    }
+
+    template<class T>
+    WeakPtr<T> EnableSharedFromThis<T>::WeakFromThis()
+    {
+        return weakPtr;
+    }
+
+    template<class T>
+    WeakPtr<const T> EnableSharedFromThis<T>::WeakFromThis() const
+    {
+        return weakPtr;
+    }
+
+    template<class T>
+    SharedPtr<T> UnOwnedSharedPtr(T& object)
+    {
+        static detail::NullAllocator nullAllocator;
+        static detail::SharedPtrControl control(nullptr, &nullAllocator);
+        return SharedPtr<T>(&control, &object);
     }
 }
 

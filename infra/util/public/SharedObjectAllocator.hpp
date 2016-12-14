@@ -5,19 +5,6 @@
 
 namespace infra
 {
-    class SharedObjectAllocatorBase
-    {
-    protected:
-        SharedObjectAllocatorBase() = default;
-        SharedObjectAllocatorBase(const SharedObjectAllocatorBase& other) = delete;
-        SharedObjectAllocatorBase& operator=(const SharedObjectAllocatorBase& other) = delete;
-        ~SharedObjectAllocatorBase() = default;
-
-    public:
-        virtual void Destruct(const void* object) = 0;
-        virtual void Deallocate(void* control) = 0;
-    };
-
     template<class T, class ConstructionArgs>
     class SharedObjectAllocator;
 
