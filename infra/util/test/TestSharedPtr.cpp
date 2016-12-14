@@ -455,3 +455,21 @@ TEST_F(SharedPtrTest, enable_shared_from_this)
     EXPECT_EQ(object, object->WeakFromThis());
     EXPECT_EQ(object, const_cast<const Object&>(*object).WeakFromThis());
 }
+
+TEST_F(SharedPtrTest, create_contained_SharedPtr)
+{
+    int x = 0;
+    infra::SharedPtr<int> containedObject;
+
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
+    infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
+
+    containedObject = infra::MakeContainedSharedObject(x, object);
+
+    object = nullptr;
+    testing::Mock::VerifyAndClearExpectations(&objectConstructionMock);
+
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
+    containedObject = nullptr;
+    testing::Mock::VerifyAndClearExpectations(&objectConstructionMock);
+}

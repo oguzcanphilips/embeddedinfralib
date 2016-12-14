@@ -131,6 +131,8 @@ namespace infra
             friend SharedPtr<typename std::remove_const<U>::type> ConstCast(const SharedPtr<U>& sharedPtr);
         template<class U>
             friend SharedPtr<typename std::remove_const<U>::type> ConstCast(SharedPtr<U>&& sharedPtr);
+        template<class U, class V>
+            friend SharedPtr<U> MakeContainedSharedObject(U& object, const SharedPtr<V>& container);
 
     private:
         detail::SharedPtrControl* control = nullptr;
@@ -187,7 +189,10 @@ namespace infra
     };
 
     template<class T>
-    SharedPtr<T> UnOwnedSharedPtr(T& object);
+        SharedPtr<T> UnOwnedSharedPtr(T& object);
+
+    template<class T, class U>
+        SharedPtr<T> MakeContainedSharedObject(T& object, const SharedPtr<U>& container);
 
     ////    Implementation    ////
 
@@ -531,6 +536,12 @@ namespace infra
         static detail::NullAllocator nullAllocator;
         static detail::SharedPtrControl control(nullptr, &nullAllocator);
         return SharedPtr<T>(&control, &object);
+    }
+
+    template<class T, class U>
+    SharedPtr<T> MakeContainedSharedObject(T& object, const SharedPtr<U>& container)
+    {
+        return SharedPtr<T>(container.control, &object);
     }
 }
 
