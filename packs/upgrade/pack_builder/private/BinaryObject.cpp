@@ -1,4 +1,4 @@
-#include "packs/hex_compiler/application/public/BinaryObject.hpp"
+#include "packs/upgrade/pack_builder/public/BinaryObject.hpp"
 #include "infra/stream/public/StdStringInputStream.hpp"
 
 namespace application

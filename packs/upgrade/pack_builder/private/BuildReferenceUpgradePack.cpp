@@ -1,5 +1,5 @@
 #include "hal/windows/public/FileSystemWin.hpp"
-#include "packs/hex_compiler/application/public/BinaryObject.hpp"
+#include "packs/upgrade/pack_builder/public/BinaryObject.hpp"
 #include "mbedtls/memory_buffer_alloc.h"
 #include "packs/upgrade/pack_builder/public/BuildReferenceUpgradePack.hpp"
 #include "packs/upgrade/pack_builder/public/ImageEncryptorAes.hpp"

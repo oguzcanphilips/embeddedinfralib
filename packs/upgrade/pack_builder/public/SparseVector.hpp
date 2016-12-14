@@ -1,5 +1,5 @@
-#ifndef HEX_COMPILER_SPARSE_VECTOR_HPP
-#define HEX_COMPILER_SPARSE_VECTOR_HPP
+#ifndef UPGRADE_SPARSE_VECTOR_HPP
+#define UPGRADE_SPARSE_VECTOR_HPP
 
 #include <cstdint>
 #include <cstdlib>

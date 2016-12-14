@@ -3,6 +3,7 @@ ccola_component(pack_builder_test gmock_test)
 	ccola_sources(
 		ImageSecurityNone.cpp
 		ImageSecurityNone.hpp
+		TestBinaryObject.cpp
 		TestImageAuthenticatorHmac.cpp
 		TestImageEncryptorAes.cpp
 		TestImageSecurityXteaHmac.cpp
@@ -10,6 +11,7 @@ ccola_component(pack_builder_test gmock_test)
 		TestImageSignerRsa.cpp
 		TestInputBinary.cpp
 		TestInputHex.cpp
+		TestSparseVector.cpp
 		TestUpgradePackBuilder.cpp
 	)
 

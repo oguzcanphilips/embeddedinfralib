@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "hex_compiler_application/SparseVector.hpp"
+#include "packs/upgrade/pack_builder/public/SparseVector.hpp"
 
 class SparseVectorTest
     : public testing::Test

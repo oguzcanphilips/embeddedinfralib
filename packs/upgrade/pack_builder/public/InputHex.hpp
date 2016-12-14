@@ -1,7 +1,7 @@
 #ifndef UPGRADE_PACK_BUILDER_LIBRARY_INPUT_HEX_HPP
 #define UPGRADE_PACK_BUILDER_LIBRARY_INPUT_HEX_HPP
 
-#include "packs/hex_compiler/application/public/BinaryObject.hpp"
+#include "packs/upgrade/pack_builder/public/BinaryObject.hpp"
 #include "hal/interfaces/public/FileSystem.hpp"
 #include "packs/upgrade/pack_builder/public/ImageSecurity.hpp"
 #include "packs/upgrade/pack_builder/public/Input.hpp"

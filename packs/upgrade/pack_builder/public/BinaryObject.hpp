@@ -1,7 +1,7 @@
-#ifndef HEX_COMPILER_BINARY_OBJECT_HPP
-#define HEX_COMPILER_BINARY_OBJECT_HPP
+#ifndef UPGRADE_BINARY_OBJECT_HPP
+#define UPGRADE_BINARY_OBJECT_HPP
 
-#include "packs/hex_compiler/application/public/SparseVector.hpp"
+#include "packs/upgrade/pack_builder/public/SparseVector.hpp"
 
 namespace application
 {

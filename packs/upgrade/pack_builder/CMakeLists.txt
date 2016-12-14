@@ -1,6 +1,7 @@
 ccola_component(pack_builder win: static_library other: noncompile)
 
 	ccola_sources(
+		private/BinaryObject.cpp
 		private/BuildReferenceUpgradePack.cpp
 		private/BuildUpgradePack.cpp
 		private/ImageAuthenticatorHmac.cpp
@@ -16,6 +17,7 @@ ccola_component(pack_builder win: static_library other: noncompile)
 		private/RandomNumberGenerator.cpp
 		private/UpgradePackBuilder.cpp
 		private/UpgradePackInputFactory.cpp
+		public/BinaryObject.hpp
 		public/BuildReferenceUpgradePack.hpp
 		public/BuildUpgradePack.hpp
 		public/ImageAUthenticatorHmac.hpp
@@ -32,6 +34,7 @@ ccola_component(pack_builder win: static_library other: noncompile)
 		public/InputFactory.hpp
 		public/InputHex.hpp
 		public/RandomNumberGenerator.hpp
+		public/SparseVector.hpp
 		public/UpgradePackBuilder.hpp
 		public/UpgradePackInputFactory.hpp
 	)
@@ -43,7 +46,6 @@ ccola_component(pack_builder win: static_library other: noncompile)
 		crypto.mbed_tls
 		crypto.micro_ecc
 		crypto.tiny_aes128
-		hex_compiler.application
 	)
 
 ccola_end_component()

@@ -1,4 +1,4 @@
-#include "hex_compiler_application/BinaryObject.hpp"
+#include "packs/upgrade/pack_builder/public/BinaryObject.hpp"
 #include "gtest/gtest.h"
 
 TEST(BinaryObjectTest, AddByte)
