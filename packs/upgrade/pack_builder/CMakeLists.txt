@@ -42,6 +42,7 @@ ccola_component(pack_builder win: static_library other: noncompile)
 	ccola_dependencies(
 		pack
 		infra.util
+		infra.stream
 		hal.interfaces
 		crypto.mbed_tls
 		crypto.micro_ecc
