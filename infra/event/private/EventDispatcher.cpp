@@ -45,8 +45,7 @@ namespace infra
     void EventDispatcherWorker::ExecuteAllActions()
     {
         while (TryExecuteAction())
-        {
-        }
+        {}
     }
 
     bool EventDispatcherWorker::IsIdle() const
@@ -70,6 +69,7 @@ namespace infra
         if (scheduledActions[scheduledActionsPopIndex].second)
         {
             scheduledActions[scheduledActionsPopIndex].first();
+            scheduledActions[scheduledActionsPopIndex].first = nullptr;
             scheduledActions[scheduledActionsPopIndex].second = false;
             scheduledActionsPopIndex = (scheduledActionsPopIndex + 1) % scheduledActions.size();
             return true;
