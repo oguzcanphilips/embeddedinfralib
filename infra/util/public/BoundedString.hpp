@@ -185,6 +185,7 @@ namespace infra
         size_type copy(char* dest, size_type count, size_type pos = 0);
         void resize(size_type count);
         void resize(size_type count, char ch);
+        void shrink(size_type count);
         void swap(BoundedStringBase& other);
 
     public:
@@ -1052,6 +1053,13 @@ namespace infra
             std::fill(end(), begin() + count, ch);
 
         length = count;
+    }
+
+    template<class T>
+    void BoundedStringBase<T>::shrink(size_type count)
+    {
+        if (count < length)
+            length = count;
     }
 
     template<class T>

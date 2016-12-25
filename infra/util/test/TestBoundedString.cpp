@@ -526,6 +526,14 @@ TEST(BoundedStringTest, TestResize)
     EXPECT_EQ(5, string.size());
 }
 
+TEST(BoundedStringTest, TestShrink)
+{
+    infra::BoundedConstString::WithStorage<5> string("abc");
+    string.shrink(2);
+    EXPECT_EQ("ab", string);
+    EXPECT_EQ(2, string.size());
+}
+
 TEST(BoundedStringTest, TestSwap)
 {
     infra::BoundedString::WithStorage<4> string1("abc");
