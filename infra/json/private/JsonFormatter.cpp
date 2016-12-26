@@ -5,7 +5,7 @@ namespace infra
     JsonObjectFormatter::JsonObjectFormatter(infra::TextOutputStream& stream)
         : stream(&stream)
     {
-        stream.SetSoftFail(true);
+        stream.SetNoFail();
         stream << "{ ";
     }
 
@@ -23,7 +23,6 @@ namespace infra
     JsonObjectFormatter::~JsonObjectFormatter()
     {
         *stream << " }";
-        stream->HasFailed();
     }
 
     void JsonObjectFormatter::Add(const char* tagName, bool tag)
@@ -94,7 +93,7 @@ namespace infra
     JsonArrayFormatter::JsonArrayFormatter(infra::TextOutputStream& stream)
         : stream(&stream)
     {
-        stream.SetSoftFail(true);
+        stream.SetNoFail();
         stream << "[ ";
     }
 
@@ -112,7 +111,6 @@ namespace infra
     JsonArrayFormatter::~JsonArrayFormatter()
     {
         *stream << " ]";
-        stream->HasFailed();
     }
 
     void JsonArrayFormatter::Add(bool tag)

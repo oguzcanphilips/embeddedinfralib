@@ -7,6 +7,18 @@ namespace infra
         , string(string)
     {}
 
+    StdStringOutputStream::StdStringOutputStream(std::string& string, SoftFail)
+        : StreamWriter(infra::softFail)
+        , TextOutputStream(static_cast<StreamWriter&>(*this))
+        , string(string)
+    {}
+
+    StdStringOutputStream::StdStringOutputStream(std::string& string, NoFail)
+        : StreamWriter(infra::noFail)
+        , TextOutputStream(static_cast<StreamWriter&>(*this))
+        , string(string)
+    {}
+
     StdStringOutputStream::~StdStringOutputStream()
     {}
 

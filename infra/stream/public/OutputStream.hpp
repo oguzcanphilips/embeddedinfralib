@@ -16,8 +16,9 @@ namespace infra
     class StreamWriter
     {
     public:
-        StreamWriter();
+        StreamWriter() = default;
         explicit StreamWriter(SoftFail);
+        explicit StreamWriter(NoFail);
         StreamWriter(const StreamWriter&) = delete;
         StreamWriter& operator=(const StreamWriter&) = delete;
 
@@ -29,12 +30,19 @@ namespace infra
         virtual void Insert(uint8_t element) = 0;
         virtual void Forward(std::size_t amount) = 0;
 
-        void SetSoftFail(bool enabled);
+        void SetNoFail();
         bool Failed() const;
         void ReportResult(bool ok);
 
     private:
-        bool softFail = false;
+        enum class FailureMode
+        {
+            assertion,
+            soft,
+            no
+        };
+
+        FailureMode failureMode = FailureMode::assertion;
         bool failed = false;
         mutable bool checkedFail = true;
     };
@@ -51,7 +59,7 @@ namespace infra
     class OutputStream
     {
     public:
-        void SetSoftFail(bool enabled);
+        void SetNoFail();
         bool HasFailed() const;
 
     protected:

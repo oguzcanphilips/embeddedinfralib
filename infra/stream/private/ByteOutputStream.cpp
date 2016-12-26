@@ -13,6 +13,12 @@ namespace infra
         , range(range)
     {}
 
+    ByteOutputStream::ByteOutputStream(ByteRange range, NoFail)
+        : StreamWriter(infra::noFail)
+        , DataOutputStream(static_cast<StreamWriter&>(*this))
+        , range(range)
+    {}
+
     ByteRange ByteOutputStream::Processed() const
     {
         return MakeRange(range.begin(), range.begin() + offset);

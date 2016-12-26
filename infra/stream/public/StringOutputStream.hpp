@@ -18,6 +18,7 @@ namespace infra
 
         explicit StringOutputStream(BoundedString& string);
         StringOutputStream(BoundedString& string, SoftFail);
+        StringOutputStream(BoundedString& string, NoFail);
         ~StringOutputStream() = default;
 
     private:

@@ -13,6 +13,12 @@ namespace infra
         , string(string)
     {}
 
+    StringOutputStream::StringOutputStream(BoundedString& string, NoFail)
+        : StreamWriter(infra::noFail)
+        , TextOutputStream(static_cast<StreamWriter&>(*this))
+        , string(string)
+    {}
+
     void StringOutputStream::Insert(ConstByteRange range)
     {
         std::size_t spaceLeft = string.max_size() - string.size();

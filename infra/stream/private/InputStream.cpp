@@ -76,10 +76,6 @@ namespace infra
         : InputStream(reader)
     {}
 
-    TextInputStream::TextInputStream(StreamReader& reader, SoftFail)
-        : InputStream(reader)
-    {}
-
     DataInputStream TextInputStream::operator>>(Data)
     {
         return DataInputStream(Reader());

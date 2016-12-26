@@ -179,6 +179,14 @@ TEST(StringOutputStreamTest, overflow)
     EXPECT_TRUE(stream.HasFailed());
 }
 
+TEST(StringOutputStreamTest, overflow_with_noFail)
+{
+    infra::StringOutputStream::WithStorage<2> stream(infra::noFail);
+
+    stream << "abc";
+    EXPECT_EQ("ab", stream.Storage());
+}
+
 TEST(StringOutputStreamTest, overflow_twice)
 {
     infra::StringOutputStream::WithStorage<2> stream(infra::softFail);

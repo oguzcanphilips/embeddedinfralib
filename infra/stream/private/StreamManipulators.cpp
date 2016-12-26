@@ -2,6 +2,9 @@
 
 namespace infra
 {
+    const SoftFail softFail;
+    const NoFail noFail;
+
     Width::Width(std::size_t width, char padding)
         : width(width)
         , padding(padding)

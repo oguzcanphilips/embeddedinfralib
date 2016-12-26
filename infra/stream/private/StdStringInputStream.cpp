@@ -9,7 +9,7 @@ namespace infra
 
     StdStringInputStream::StdStringInputStream(const std::string& string, SoftFail)
         : StreamReader(infra::softFail)
-        , TextInputStream(static_cast<StreamReader&>(*this), infra::softFail)
+        , TextInputStream(static_cast<StreamReader&>(*this))
         , string(string)
     {}
 

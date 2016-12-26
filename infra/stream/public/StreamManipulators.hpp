@@ -5,7 +5,8 @@
 
 namespace infra
 {
-    const struct SoftFail {} softFail;
+    extern const struct SoftFail {} softFail;
+    extern const struct NoFail {} noFail;
 
     const struct Text {} text;
     const struct Hex {} hex;

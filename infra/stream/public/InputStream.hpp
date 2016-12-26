@@ -68,7 +68,6 @@ namespace infra
     {
     public:
         explicit TextInputStream(StreamReader& reader);
-        TextInputStream(StreamReader& reader, SoftFail);
 
         DataInputStream operator>>(Data);
         TextInputStream operator>>(Hex);

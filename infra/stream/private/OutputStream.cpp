@@ -2,12 +2,12 @@
 
 namespace infra
 {
-    StreamWriter::StreamWriter()
-        : softFail(false)
+    StreamWriter::StreamWriter(SoftFail)
+        : failureMode(FailureMode::soft)
     {}
 
-    StreamWriter::StreamWriter(SoftFail)
-        : softFail(true)
+    StreamWriter::StreamWriter(NoFail)
+        : failureMode(FailureMode::no)
     {}
 
     StreamWriter::~StreamWriter()
@@ -15,9 +15,9 @@ namespace infra
         assert(checkedFail);
     }
 
-    void StreamWriter::SetSoftFail(bool enabled)
+    void StreamWriter::SetNoFail()
     {
-        softFail = enabled;
+        failureMode = FailureMode::no;
     }
 
     bool StreamWriter::Failed() const
@@ -31,9 +31,9 @@ namespace infra
         if (!ok)
         {
             failed = true;
-            assert(softFail);
+            assert(failureMode != FailureMode::assertion);
         }
-        checkedFail = !softFail;
+        checkedFail = failureMode != FailureMode::soft;
     }
 
     void StreamWriterDummy::Insert(ConstByteRange range)
@@ -49,9 +49,9 @@ namespace infra
         : writer(writer)
     {}
     
-    void OutputStream::SetSoftFail(bool enabled)
+    void OutputStream::SetNoFail()
     {
-        writer.SetSoftFail(enabled);
+        writer.SetNoFail();
     }
 
     bool OutputStream::HasFailed() const

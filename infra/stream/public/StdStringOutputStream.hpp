@@ -17,6 +17,7 @@ namespace infra
 
         explicit StdStringOutputStream(std::string& string);
         StdStringOutputStream(std::string& string, SoftFail);
+        StdStringOutputStream(std::string& string, NoFail);
         ~StdStringOutputStream();
 
     private:
