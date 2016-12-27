@@ -111,7 +111,14 @@ namespace infra
     TextOutputStream TextOutputStream::operator<<(Hex)
     {
         TextOutputStream result(*this);
-        result.decimal = false;
+        result.radix = Radix::hex;
+        return result;
+    }
+
+    TextOutputStream TextOutputStream::operator<<(Bin)
+    {
+        TextOutputStream result(*this);
+        result.radix = Radix::bin;
         return result;
     }
 
@@ -136,10 +143,20 @@ namespace infra
 
     TextOutputStream& TextOutputStream::operator<<(uint8_t v)
     {
-        if (decimal)
-            OutputAsDecimal(v);
-        else
-            OutputAsHex(v);
+        switch (radix)
+        {
+            case Radix::dec:
+                OutputAsDecimal(v);
+                break;
+            case Radix::bin:
+                OutputAsBinary(v);
+                break;
+            case Radix::hex:
+                OutputAsHexadecimal(v);
+                break;
+            default:
+                std::abort();
+        }
 
         return *this;
     }
@@ -148,20 +165,40 @@ namespace infra
     {
         if (v < 0)
             Writer().Insert('-');
-        if (decimal)
-            OutputAsDecimal(std::abs(v));
-        else
-            OutputAsHex(std::abs(v));
+        switch (radix)
+        {
+            case Radix::dec:
+                OutputAsDecimal(std::abs(v));
+                break;
+            case Radix::bin:
+                OutputAsBinary(std::abs(v));
+                break;
+            case Radix::hex:
+                OutputAsHexadecimal(std::abs(v));
+                break;
+            default:
+                std::abort();
+        }
 
         return *this;
     }
 
     TextOutputStream& TextOutputStream::operator<<(uint32_t v)
     {
-        if (decimal)
-            OutputAsDecimal(v);
-        else
-            OutputAsHex(v);
+        switch (radix)
+        {
+            case Radix::dec:
+                OutputAsDecimal(v);
+                break;
+            case Radix::bin:
+                OutputAsBinary(v);
+                break;
+            case Radix::hex:
+                OutputAsHexadecimal(v);
+                break;
+            default:
+                std::abort();
+        }
 
         return *this;
     }
@@ -170,20 +207,40 @@ namespace infra
     {
         if (v < 0)
             Writer().Insert('-');
-        if (decimal)
-            OutputAsDecimal(std::abs(v));
-        else
-            OutputAsHex(std::abs(v));
+        switch (radix)
+        {
+            case Radix::dec:
+                OutputAsDecimal(std::abs(v));
+                break;
+            case Radix::bin:
+                OutputAsBinary(std::abs(v));
+                break;
+            case Radix::hex:
+                OutputAsHexadecimal(std::abs(v));
+                break;
+            default:
+                std::abort();
+        }
 
         return *this;
     }
 
     TextOutputStream& TextOutputStream::operator<<(uint64_t v)
     {
-        if (decimal)
-            OutputAsDecimal(v);
-        else
-            OutputAsHex(v);
+        switch (radix)
+        {
+            case Radix::dec:
+                OutputAsDecimal(v);
+                break;
+            case Radix::bin:
+                OutputAsBinary(v);
+                break;
+            case Radix::hex:
+                OutputAsHexadecimal(v);
+                break;
+            default:
+                std::abort();
+        }
 
         return *this;
     }
@@ -193,20 +250,40 @@ namespace infra
     {
         if (v < 0)
             Writer().Insert('-');
-        if (decimal)
-            OutputAsDecimal(std::abs(v));
-        else
-            OutputAsHex(std::abs(v));
+        switch (radix)
+        {
+            case Radix::dec:
+                OutputAsDecimal(std::abs(v));
+                break;
+            case Radix::bin:
+                OutputAsBinary(std::abs(v));
+                break;
+            case Radix::hex:
+                OutputAsHexadecimal(std::abs(v));
+                break;
+            default:
+                std::abort();
+        }
 
         return *this;
     }
 
     TextOutputStream& TextOutputStream::operator<<(unsigned int v)
     {
-        if (decimal)
-            OutputAsDecimal(v);
-        else
-            OutputAsHex(v);
+        switch (radix)
+        {
+            case Radix::dec:
+                OutputAsDecimal(v);
+                break;
+            case Radix::bin:
+                OutputAsBinary(v);
+                break;
+            case Radix::hex:
+                OutputAsHexadecimal(v);
+                break;
+            default:
+                std::abort();
+        }
 
         return *this;
     }
@@ -252,7 +329,29 @@ namespace infra
         }
     }
 
-    void TextOutputStream::OutputAsHex(uint64_t v)
+    void TextOutputStream::OutputAsBinary(uint64_t v)
+    {
+        uint64_t nofDigits = 1;
+        uint64_t mask = 1;
+
+        while (v / mask >= 2)
+        {
+            mask *= 2;
+            ++nofDigits;
+        }
+
+        if (width)
+            for (uint64_t i = nofDigits; i < width->width; ++i)
+                Writer().Insert(static_cast<uint8_t>(width->padding));
+
+        while (mask != 0)
+        {
+            Writer().Insert('0' + ((v / mask) & 1));
+            mask /= 2;
+        }
+    }
+
+    void TextOutputStream::OutputAsHexadecimal(uint64_t v)
     {
         static const char hexChars[] = "0123456789abcdef";
 

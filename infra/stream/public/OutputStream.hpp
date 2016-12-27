@@ -94,6 +94,7 @@ namespace infra
         explicit TextOutputStream(StreamWriter& stream);
 
         TextOutputStream operator<<(Hex);
+        TextOutputStream operator<<(Bin);
         TextOutputStream operator<<(Width width);
         DataOutputStream operator<<(Data);
         TextOutputStream& operator<<(Endl);
@@ -152,14 +153,20 @@ namespace infra
 
     private:
         void OutputAsDecimal(uint64_t v);
-        void OutputAsHex(uint64_t v);
+        void OutputAsBinary(uint64_t v);
+        void OutputAsHexadecimal(uint64_t v);
 
         template<class... Formatters>
             void FormatHelper(const char* format, Formatters&&... formatters);
         void FormatArgs(const char* format, infra::MemoryRange<FormatterBase*> formatters);
 
     private:
-        bool decimal = true;
+        enum class Radix
+        {
+            dec, bin, hex
+        };
+
+        Radix radix = Radix::dec;
         infra::Optional<Width> width;
     };
     

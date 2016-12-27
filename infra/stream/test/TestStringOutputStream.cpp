@@ -56,6 +56,15 @@ TEST(StringOutputStreamTest, stream_literal_in_hex_stream)
     EXPECT_EQ("abcd", stream.Storage());
 }
 
+TEST(StringOutputStreamTest, stream_literal_in_bin_stream)
+{
+    infra::StringOutputStream::WithStorage<10> stream;
+
+    stream << infra::bin << "abcd";
+
+    EXPECT_EQ("abcd", stream.Storage());
+}
+
 TEST(StringOutputStreamTest, stream_character)
 {
     infra::StringOutputStream::WithStorage<10> stream;
@@ -168,6 +177,39 @@ TEST(StringOutputStreamTest, stream_hex_with_leading_zeroes)
 
     stream << infra::hex << infra::Width(4,'0') << uint8_t(0x1A);
     EXPECT_EQ("001a", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, stream_short_bin)
+{
+    infra::StringOutputStream::WithStorage<10> stream;
+
+    stream << infra::bin << uint8_t(1);
+
+    EXPECT_EQ("1", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, stream_longer_bin)
+{
+    infra::StringOutputStream::WithStorage<10> stream;
+
+    stream << infra::bin << uint8_t(0x1A);
+    EXPECT_EQ("11010", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, stream_negative_bin)
+{
+    infra::StringOutputStream::WithStorage<10> stream;
+
+    stream << infra::bin << int8_t(-0x1A);
+    EXPECT_EQ("-11010", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, stream_bin_with_leading_zeroes)
+{
+    infra::StringOutputStream::WithStorage<10> stream;
+
+    stream << infra::bin << infra::Width(8, '0') << uint8_t(0x1A);
+    EXPECT_EQ("00011010", stream.Storage());
 }
 
 TEST(StringOutputStreamTest, overflow)
