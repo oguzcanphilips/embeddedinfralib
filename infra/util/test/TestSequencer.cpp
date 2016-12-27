@@ -1,7 +1,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "infra/util/public/Sequencer.hpp"
-#include "infra/util/public/SequencerIdiom.hpp"
 
 class TestSequencer
     : public testing::StrictMock<testing::Test>
@@ -512,32 +511,6 @@ TEST_F(TestSequencer, ForEach_iterates_twice)
     EXPECT_FALSE(sequencer.Finished());
     sequencer.Continue();
     EXPECT_FALSE(sequencer.Finished());
-    sequencer.Continue();
-    EXPECT_TRUE(sequencer.Finished());
-}
-
-TEST_F(TestSequencer, idiom)
-{
-    EXPECT_CALL(*this, condition())
-        .WillOnce(testing::Return(true))
-        .WillOnce(testing::Return(true))
-        .WillOnce(testing::Return(false));
-    EXPECT_CALL(*this, a()).Times(1);
-   
-    SEQ_START();
-        SEQ_WHILE(condition(););
-            SEQ_IF(condition(););
-                SEQ_STEP(a();); 
-            SEQ_ELSE(); 
-                SEQ_IF(condition(););
-                    SEQ_STEP(b(););
-                SEQ_ELSE();
-                    SEQ_STEP(c(););
-                SEQ_ENDIF();
-            SEQ_ENDIF();
-        SEQ_ENDWHILE();
-    SEQ_END();
-
     sequencer.Continue();
     EXPECT_TRUE(sequencer.Finished());
 }
