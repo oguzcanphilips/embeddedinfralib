@@ -8,7 +8,7 @@
 namespace infra
 {
     template<class T>
-    typename std::remove_cv<T>::type Bit(uint8_t index)
+    constexpr typename std::remove_cv<T>::type Bit(uint8_t index)
     {
         return static_cast<typename std::remove_cv<T>::type>(1) << index;
     }
@@ -44,13 +44,13 @@ namespace infra
     }
 
     template<class T>
-    bool IsBitSet(T& dataRegister, uint8_t index)
+    bool IsBitSet(T dataRegister, uint8_t index)
     {
         return (dataRegister & Bit<T>(index)) != 0;
     }
 
     template<class T>
-    T GetBits(T& dataRegister, uint8_t size, uint8_t position)
+    T GetBits(T dataRegister, uint8_t size, uint8_t position)
     {
         return dataRegister & (~(std::numeric_limits<typename std::remove_cv<T>::type>::max() << size) << (position * size));
     }
