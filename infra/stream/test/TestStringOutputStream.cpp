@@ -320,3 +320,22 @@ TEST(StringOutputStreamTest, stream_byte_range_as_hex)
     stream << infra::AsHex(infra::ByteRange(data));
     EXPECT_EQ("01023040", stream.Storage());
 }
+
+TEST(StringOutputStreamTest, stream_byte_range_as_base64)
+{
+    infra::StringOutputStream::WithStorage<64> stream1;
+    stream1 << infra::AsBase64(std::array<uint8_t, 1>{ 'a' });
+    EXPECT_EQ("YQ==", stream1.Storage());
+
+    infra::StringOutputStream::WithStorage<64> stream2;
+    stream2 << infra::AsBase64(std::array<uint8_t, 2>{ 'a', 'b' });
+    EXPECT_EQ("YWI=", stream2.Storage());
+
+    infra::StringOutputStream::WithStorage<64> stream3;
+    stream3 << infra::AsBase64(std::array<uint8_t, 3>{ 'a', 'b', 'c' });
+    EXPECT_EQ("YWJj", stream3.Storage());
+
+    infra::StringOutputStream::WithStorage<64> stream4;
+    stream4 << infra::AsBase64(std::array<uint8_t, 4>{ 'a', 'b', 'c', 'd' });
+    EXPECT_EQ("YWJjZA==", stream4.Storage());
+}

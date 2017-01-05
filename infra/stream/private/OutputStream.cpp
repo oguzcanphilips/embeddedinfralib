@@ -433,6 +433,56 @@ namespace infra
         return stream;
     }
 
+    AsBase64Helper::AsBase64Helper(infra::ConstByteRange data)
+        : data(data)
+    {}
+
+    infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const AsBase64Helper& asHexHelper)
+    {
+        static const char* encodeTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+        uint8_t bitIndex = 2;                                                                                           //TICS !OLC#006
+        uint8_t encodedByte = 0;
+        uint32_t size = 0;
+
+        for (uint8_t byte : asHexHelper.data)
+        {
+            encodedByte |= byte >> bitIndex;
+            stream << encodeTable[encodedByte];
+            ++size;
+
+            encodedByte = static_cast<uint8_t>(byte << (8 - bitIndex)) >> 2;                                            //TICS !POR#006
+
+            bitIndex += 2;
+
+            if (bitIndex == 8)
+            {
+                stream << encodeTable[encodedByte];
+                ++size;
+                encodedByte = 0;
+                bitIndex = 2;
+            }
+        }
+
+        if ((size & 3) != 0)
+        {
+            stream << encodeTable[encodedByte];
+            ++size;
+        }
+        if ((size & 3) != 0)
+        {
+            stream << '=';
+            ++size;
+        }
+        if ((size & 3) != 0)
+        {
+            stream << '=';
+            ++size;
+        }
+
+        return stream;
+    }
+
     AsAsciiHelper AsAscii(infra::ConstByteRange data)
     {
         return AsAsciiHelper(data);
@@ -441,5 +491,10 @@ namespace infra
     AsHexHelper AsHex(infra::ConstByteRange data)
     {
         return AsHexHelper(data);
+    }
+
+    AsBase64Helper AsBase64(infra::ConstByteRange data)
+    {
+        return AsBase64Helper(data);
     }
 }

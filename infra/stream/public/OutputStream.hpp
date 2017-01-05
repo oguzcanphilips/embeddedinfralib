@@ -192,8 +192,20 @@ namespace infra
         infra::ConstByteRange data;
     };
 
+    class AsBase64Helper
+    {
+    public:
+        explicit AsBase64Helper(infra::ConstByteRange data);
+
+        friend infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const AsBase64Helper& asBase64Helper);
+
+    private:
+        infra::ConstByteRange data;
+    };
+
     AsAsciiHelper AsAscii(infra::ConstByteRange data);
     AsHexHelper AsHex(infra::ConstByteRange data);
+    AsBase64Helper AsBase64(infra::ConstByteRange data);
 
     ////    Implementation    ////
 
