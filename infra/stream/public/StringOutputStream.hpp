@@ -21,6 +21,9 @@ namespace infra
         StringOutputStream(BoundedString& string, NoFail);
         ~StringOutputStream() = default;
 
+        template<class T>
+            ReservedProxy<T> Reserve();
+
     private:
         virtual void Insert(ConstByteRange range) override;
         virtual void Insert(uint8_t element) override;
@@ -29,6 +32,23 @@ namespace infra
     private:
         BoundedString& string;
     };
+
+    ////    Implementation    ////
+
+    template<class T>
+    ReservedProxy<T> StringOutputStream::Reserve()
+    {
+        ByteRange range(ReinterpretCastByteRange(MemoryRange<char>(string.end(), string.end() + sizeof(T))));
+        std::size_t spaceLeft = string.max_size() - string.size();
+        bool spaceOk = range.size() <= spaceLeft;
+        ReportResult(spaceOk);
+        if (!spaceOk)
+            range.shrink_from_back_to(spaceLeft);
+
+        string.append(range.size(), 0);
+
+        return ReservedProxy<T>(range);
+    }
 }
 
 #endif

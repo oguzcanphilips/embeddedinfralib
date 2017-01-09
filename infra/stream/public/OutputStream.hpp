@@ -207,6 +207,18 @@ namespace infra
     AsHexHelper AsHex(infra::ConstByteRange data);
     AsBase64Helper AsBase64(infra::ConstByteRange data);
 
+    template<class T>
+    class ReservedProxy
+    {
+    public:
+        ReservedProxy(ByteRange range);
+
+        ReservedProxy& operator=(const T& data);
+
+    private:
+        ByteRange range;
+    };
+
     ////    Implementation    ////
 
     template<class Data>
@@ -253,6 +265,20 @@ namespace infra
     {
         std::array<FormatterBase*, sizeof...(Args)> formatters = { &arguments... };
         FormatArgs(format, formatters);
+    }
+
+    template<class T>
+    ReservedProxy<T>::ReservedProxy(ByteRange range)
+        : range(range)
+    {}
+
+    template<class T>
+    ReservedProxy<T>& ReservedProxy<T>::operator=(const T& data)
+    {
+        if (range.size() == sizeof(data))
+            Copy(infra::MakeByteRange(data), range);
+
+        return *this;
     }
 }
 

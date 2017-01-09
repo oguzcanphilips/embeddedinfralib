@@ -50,3 +50,24 @@ TEST(ByteOutputStreamTest, WithStorage)
 
     EXPECT_EQ((std::array<uint8_t, 3>{{ 1, 2, 3 }}), stream.Processed());
 }
+
+TEST(ByteOutputStreamTest, reserve_type)
+{
+    infra::ByteOutputStream::WithStorage<5> stream;
+    stream << uint8_t(1);
+    auto reservedSpace = stream.Reserve<uint8_t>();
+    stream << uint8_t(3);
+    reservedSpace = uint8_t(2);
+
+    EXPECT_EQ((std::array<uint8_t, 3>{ { 1, 2, 3 }}), stream.Processed());
+}
+
+TEST(ByteOutputStreamTest, reserve_type_without_space)
+{
+    infra::ByteOutputStream::WithStorage<2> stream(infra::softFail);
+    stream << uint8_t(1);
+    auto reservedSpace = stream.Reserve<uint32_t>();
+    reservedSpace = uint32_t(32);
+
+    EXPECT_TRUE(stream.HasFailed());
+}

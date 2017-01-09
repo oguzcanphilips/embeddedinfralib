@@ -26,6 +26,9 @@ namespace infra
         , public DataOutputStream
     {
     public:
+        template<std::size_t Size>
+            using WithStorage = infra::WithStorage<ByteOutputStream, std::array<uint8_t, Size>>;
+
         explicit ByteOutputStream(ByteRange range);
         ByteOutputStream(ByteRange range, SoftFail);
         ByteOutputStream(ByteRange range, NoFail);
@@ -35,8 +38,8 @@ namespace infra
 
         void Reset();
 
-        template<std::size_t Size>
-            using WithStorage = infra::WithStorage<ByteOutputStream, std::array<uint8_t, Size>>;
+        template<class T>
+            ReservedProxy<T> Reserve();
 
     private:
         virtual void Insert(ConstByteRange range) override;
@@ -47,6 +50,23 @@ namespace infra
         ByteRange range;
         std::size_t offset = 0;
     };
+
+    ////    Implementation    ////
+
+    template<class T>
+    ReservedProxy<T> ByteOutputStream::Reserve()
+    {
+        ByteRange reservedRange(range.begin() + offset, range.begin() + offset + sizeof(T));
+        std::size_t spaceLeft = range.size() - offset;
+        bool spaceOk = reservedRange.size() <= spaceLeft;
+        ReportResult(spaceOk);
+        if (!spaceOk)
+            reservedRange.shrink_from_back_to(spaceLeft);
+
+        offset += reservedRange.size();
+
+        return ReservedProxy<T>(reservedRange);
+    }
 }
 
 #endif

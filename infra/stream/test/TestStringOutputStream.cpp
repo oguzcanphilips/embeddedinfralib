@@ -339,3 +339,24 @@ TEST(StringOutputStreamTest, stream_byte_range_as_base64)
     stream4 << infra::AsBase64(std::array<uint8_t, 4>{ 'a', 'b', 'c', 'd' });
     EXPECT_EQ("YWJjZA==", stream4.Storage());
 }
+
+TEST(StringOutputStreamTest, reserve_type)
+{
+    infra::StringOutputStream::WithStorage<64> stream;
+    stream << "a";
+    auto reservedSpace = stream.Reserve<uint8_t>();
+    stream << "c";
+    reservedSpace = 'b';
+
+    EXPECT_EQ("abc", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, reserve_type_without_space)
+{
+    infra::StringOutputStream::WithStorage<2> stream(infra::softFail);
+    stream << "a";
+    auto reservedSpace = stream.Reserve<uint32_t>();
+    reservedSpace = uint32_t(32);
+
+    EXPECT_TRUE(stream.HasFailed());
+}
