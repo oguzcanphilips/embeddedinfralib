@@ -38,11 +38,11 @@ namespace infra
         MOCK_CONST_METHOD3_T(callback, T(P1, P2, P3));
     };
 
-    template<class T>
+    template<class T, std::size_t ExtraSize = INFRA_DEFAULT_FUNCTION_EXTRA_SIZE>
     class VerifyingFunctionMock;
 
-    template<class T>
-    class VerifyingFunctionMock<T()>
+    template<class T, std::size_t ExtraSize>
+    class VerifyingFunctionMock<T(), ExtraSize>
     {
     public:
         VerifyingFunctionMock()
@@ -52,14 +52,14 @@ namespace infra
 
         MOCK_CONST_METHOD0_T(callback, T());
 
-        operator infra::Function<T()>()
+        operator infra::Function<T(), ExtraSize>()
         {
             return [this]() { return callback(); };
         }
     };
 
-    template<class T, class P1>
-    class VerifyingFunctionMock<T(P1)>
+    template<class T, class P1, std::size_t ExtraSize>
+    class VerifyingFunctionMock<T(P1), ExtraSize>
     {
     public:
         VerifyingFunctionMock(P1 p1)
@@ -69,14 +69,14 @@ namespace infra
 
         MOCK_CONST_METHOD1_T(callback, T(P1));
 
-        operator infra::Function<T(P1)>()
+        operator infra::Function<T(P1), ExtraSize>()
         {
             return [this](P1 p1) { return callback(p1); };
         }
     };
 
-    template<class T, class P1, class P2>
-    class VerifyingFunctionMock<T(P1, P2)>
+    template<class T, class P1, class P2, std::size_t ExtraSize>
+    class VerifyingFunctionMock<T(P1, P2), ExtraSize>
     {
     public:
         VerifyingFunctionMock(P1 p1, P2 p2)
@@ -86,7 +86,7 @@ namespace infra
 
         MOCK_CONST_METHOD2_T(callback, T(P1, P2));
 
-        operator infra::Function<T(P1, P2)>()
+        operator infra::Function<T(P1, P2), ExtraSize>()
         {
             return [this](P1 p1, P2 p2) { return callback(p1, p2); };
         }
