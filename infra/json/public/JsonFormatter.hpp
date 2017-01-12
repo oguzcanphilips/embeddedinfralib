@@ -1,5 +1,5 @@
-#ifndef SERVICES_JSON_FORMATTER_HPP
-#define SERVICES_JSON_FORMATTER_HPP
+#ifndef INFRA_JSON_FORMATTER_HPP
+#define INFRA_JSON_FORMATTER_HPP
 
 #include "infra/stream/public/StringOutputStream.hpp"
 #include "infra/util/public/BoundedString.hpp"

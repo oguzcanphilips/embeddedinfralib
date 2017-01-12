@@ -1,5 +1,5 @@
-#ifndef SERVICES_JSON_HPP
-#define SERVICES_JSON_HPP
+#ifndef INFRA_JSON_HPP
+#define INFRA_JSON_HPP
 
 #include "infra/util/public/BoundedString.hpp"
 #include "infra/util/public/Optional.hpp"
