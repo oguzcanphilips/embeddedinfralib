@@ -46,8 +46,12 @@ namespace infra
         virtual void Insert(uint8_t element) override;
         virtual void Forward(std::size_t amount) override;
 
+        virtual const uint8_t* ConstructSaveMarker() const override;
+        virtual infra::ByteRange SaveState(const uint8_t* marker) override;
+        virtual void RestoreState(infra::ByteRange range) override;
+
     private:
-        ByteRange range;
+        ByteRange streamRange;
         std::size_t offset = 0;
     };
 
@@ -56,8 +60,8 @@ namespace infra
     template<class T>
     ReservedProxy<T> ByteOutputStream::Reserve()
     {
-        ByteRange reservedRange(range.begin() + offset, range.begin() + offset + sizeof(T));
-        std::size_t spaceLeft = range.size() - offset;
+        ByteRange reservedRange(streamRange.begin() + offset, streamRange.begin() + offset + sizeof(T));
+        std::size_t spaceLeft = streamRange.size() - offset;
         bool spaceOk = reservedRange.size() <= spaceLeft;
         ReportResult(spaceOk);
         if (!spaceOk)

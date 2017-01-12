@@ -29,6 +29,10 @@ namespace infra
         virtual void Insert(uint8_t element) override;
         virtual void Forward(std::size_t amount) override;
 
+        virtual const uint8_t* ConstructSaveMarker() const override;
+        virtual infra::ByteRange SaveState(const uint8_t* marker) override;
+        virtual void RestoreState(infra::ByteRange range) override;
+
     private:
         BoundedString& string;
     };

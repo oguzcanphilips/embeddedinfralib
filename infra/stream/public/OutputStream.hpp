@@ -30,6 +30,10 @@ namespace infra
         virtual void Insert(uint8_t element) = 0;
         virtual void Forward(std::size_t amount) = 0;
 
+        virtual const uint8_t* ConstructSaveMarker() const;
+        virtual infra::ByteRange SaveState(const uint8_t* marker);
+        virtual void RestoreState(infra::ByteRange range);
+
         void SetNoFail();
         bool Failed() const;
         void ReportResult(bool ok);
@@ -58,13 +62,14 @@ namespace infra
 
     class OutputStream
     {
-    public:
-        void SetNoFail();
-        bool HasFailed() const;
-
     protected:
         explicit OutputStream(StreamWriter& writer);
         ~OutputStream() = default;
+
+    public:
+        void SetNoFail();
+        bool HasFailed() const;
+        const uint8_t* SaveMarker() const;
 
         StreamWriter& Writer();
 

@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "infra/stream/public/SavedMarkerStream.hpp"
 #include "infra/stream/public/StringOutputStream.hpp"
 #include "infra/util/public/BoundedString.hpp"
 #include <cstdint>
@@ -359,4 +360,41 @@ TEST(StringOutputStreamTest, reserve_type_without_space)
     reservedSpace = uint32_t(32);
 
     EXPECT_TRUE(stream.HasFailed());
+}
+
+TEST(StringOutputStreamTest, stream_to_saved_point)
+{
+    infra::StringOutputStream::WithStorage<64> stream;
+    stream << "a";
+    auto marker = stream.SaveMarker();
+    stream << "c";
+
+    {
+        infra::SavedMarkerTextStream savedStream(stream, marker);
+        savedStream << 12345;
+    }
+
+    EXPECT_EQ("a12345c", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, stream_to_nested_saved_point)
+{
+    infra::StringOutputStream::WithStorage<64> stream;
+    stream << "a";
+    auto marker = stream.SaveMarker();
+    stream << "c";
+
+    {
+        infra::SavedMarkerTextStream savedStream(stream, marker);
+        savedStream << 1;
+        auto nestedMarker = savedStream.SaveMarker();
+        savedStream << 56;
+
+        {
+            infra::SavedMarkerTextStream nestedSavedStream(savedStream, nestedMarker);
+            nestedSavedStream << 234;
+        }
+    }
+
+    EXPECT_EQ("a123456c", stream.Storage());
 }
