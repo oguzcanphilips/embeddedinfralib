@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "infra/asn1/public/Asn1Formatter.hpp"
+#include "infra/stream/public/ByteOutputStream.hpp"
 
 TEST(Asn1ObjectFormatter, construction_results_in_empty_object)
 {

@@ -1,7 +1,7 @@
 #ifndef INFRA_ASN1_FORMATTER_HPP
 #define INFRA_ASN1_FORMATTER_HPP
 
-#include "infra/stream/public/ByteOutputStream.hpp"
+#include "infra/stream/public/OutputStream.hpp"
 #include "infra/util/public/WithStorage.hpp"
 
 namespace infra
@@ -9,11 +9,7 @@ namespace infra
     class Asn1Formatter
     {
     public:
-        explicit Asn1Formatter(infra::ByteOutputStream& stream);
-        Asn1Formatter(const Asn1Formatter& other) = delete;
-        Asn1Formatter(Asn1Formatter&& other);
-        Asn1Formatter& operator=(const Asn1Formatter& other) = delete;
-        Asn1Formatter& operator=(Asn1Formatter&& other);
+        explicit Asn1Formatter(infra::DataOutputStream& stream);
 
         void Add(uint8_t value);
         void Add(uint32_t value);
@@ -50,7 +46,7 @@ namespace infra
         void AddLength(uint32_t length);
 
     private:
-        infra::ByteOutputStream* stream;
+        infra::DataOutputStream stream;
     };
 
     template<typename T>
@@ -66,7 +62,7 @@ namespace infra
     void Asn1Formatter::AddTag(uint8_t type, uint32_t length, T data)
     {
         AddTag(type, length);
-        *stream << data;
+        stream << data;
     }
 }
 
