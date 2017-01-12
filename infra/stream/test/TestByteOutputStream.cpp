@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "infra/stream/public/ByteOutputStream.hpp"
+#include "infra/stream/public/SavedMarkerStream.hpp"
 
 TEST(ByteOutputStreamTest, StreamToRange)
 {
@@ -70,4 +71,41 @@ TEST(ByteOutputStreamTest, reserve_type_without_space)
     reservedSpace = uint32_t(32);
 
     EXPECT_TRUE(stream.HasFailed());
+}
+
+TEST(ByteOutputStreamTest, stream_to_saved_point)
+{
+    infra::ByteOutputStream::WithStorage<64> stream;
+    stream << uint8_t(1);
+    auto marker = stream.SaveMarker();
+    stream << uint8_t(3);
+
+    {
+        infra::SavedMarkerDataStream savedStream(stream, marker);
+        savedStream << uint8_t(2);
+    }
+
+    EXPECT_EQ((std::array<uint8_t, 3>{{ 1, 2, 3 }}), stream.Processed());
+}
+
+TEST(ByteOutputStreamTest, stream_to_nested_saved_point)
+{
+    infra::ByteOutputStream::WithStorage<64> stream;
+    stream << uint8_t(1);
+    auto marker = stream.SaveMarker();
+    stream << uint8_t(5);
+
+    {
+        infra::SavedMarkerDataStream savedStream(stream, marker);
+        savedStream << uint8_t(2);
+        auto nestedMarker = savedStream.SaveMarker();
+        savedStream << uint8_t(4);
+
+        {
+            infra::SavedMarkerDataStream nestedSavedStream(savedStream, nestedMarker);
+            nestedSavedStream << uint8_t(3);
+        }
+    }
+
+    EXPECT_EQ((std::array<uint8_t, 5>{{ 1, 2, 3, 4, 5 }}), stream.Processed());
 }

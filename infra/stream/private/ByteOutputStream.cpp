@@ -2,31 +2,31 @@
 
 namespace infra
 {
-    ByteOutputStream::ByteOutputStream(ByteRange range)
+    ByteOutputStream::ByteOutputStream(ByteRange streamRange)
         : DataOutputStream(static_cast<StreamWriter&>(*this))
-        , range(range)
+        , streamRange(streamRange)
     {}
 
-    ByteOutputStream::ByteOutputStream(ByteRange range, SoftFail)
+    ByteOutputStream::ByteOutputStream(ByteRange streamRange, SoftFail)
         : StreamWriter(infra::softFail)
         , DataOutputStream(static_cast<StreamWriter&>(*this))
-        , range(range)
+        , streamRange(streamRange)
     {}
 
-    ByteOutputStream::ByteOutputStream(ByteRange range, NoFail)
+    ByteOutputStream::ByteOutputStream(ByteRange streamRange, NoFail)
         : StreamWriter(infra::noFail)
         , DataOutputStream(static_cast<StreamWriter&>(*this))
-        , range(range)
+        , streamRange(streamRange)
     {}
 
     ByteRange ByteOutputStream::Processed() const
     {
-        return MakeRange(range.begin(), range.begin() + offset);
+        return MakeRange(streamRange.begin(), streamRange.begin() + offset);
     }
 
     ByteRange ByteOutputStream::Remaining() const
     {
-        return MakeRange(range.begin() + offset, range.end());
+        return MakeRange(streamRange.begin() + offset, streamRange.end());
     }
 
     void ByteOutputStream::Reset()
@@ -36,23 +36,43 @@ namespace infra
 
     void ByteOutputStream::Insert(ConstByteRange dataRange)
     {
-        ReportResult(dataRange.size() <= range.size() - offset);
-        std::copy(dataRange.begin(), dataRange.begin() + dataRange.size(), range.begin() + offset);
+        ReportResult(dataRange.size() <= streamRange.size() - offset);
+        std::copy(dataRange.begin(), dataRange.begin() + dataRange.size(), streamRange.begin() + offset);
         offset += dataRange.size();
     }
 
     void ByteOutputStream::Insert(uint8_t element)
     {
-        ReportResult(range.size() - offset > 0);
-        *(range.begin() + offset) = element;
+        ReportResult(streamRange.size() - offset > 0);
+        *(streamRange.begin() + offset) = element;
         ++offset;
     }
 
     void ByteOutputStream::Forward(std::size_t amount)
     {
-        ReportResult(amount <= range.size() - offset);
+        ReportResult(amount <= streamRange.size() - offset);
         offset += amount;
-        if (offset > range.size())
-            offset = range.size();
+        if (offset > streamRange.size())
+            offset = streamRange.size();
+    }
+
+    const uint8_t* ByteOutputStream::ConstructSaveMarker() const
+    {
+        return streamRange.begin() + offset;
+    }
+
+    infra::ByteRange ByteOutputStream::SaveState(const uint8_t* marker)
+    {
+        uint8_t* copyBegin = const_cast<uint8_t*>(marker);
+        uint8_t* copyEnd = streamRange.begin() + offset;
+        std::copy_backward(copyBegin, copyEnd, streamRange.end());
+
+        return infra::ByteRange(copyBegin, streamRange.end() - std::distance(copyBegin, copyEnd));
+    }
+
+    void ByteOutputStream::RestoreState(infra::ByteRange range)
+    {
+        std::copy(range.end(), streamRange.end(), range.begin());
+        offset += std::distance(streamRange.begin() + offset, range.begin()) + std::distance(range.end(), streamRange.end());
     }
 }

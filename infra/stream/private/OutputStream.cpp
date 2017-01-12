@@ -15,6 +15,21 @@ namespace infra
         assert(checkedFail);
     }
 
+    const uint8_t* StreamWriter::ConstructSaveMarker() const
+    {
+        std::abort();
+    }
+
+    infra::ByteRange StreamWriter::SaveState(const uint8_t* marker)
+    {
+        std::abort();
+    }
+
+    void StreamWriter::RestoreState(infra::ByteRange range)
+    {
+        std::abort();
+    }
+
     void StreamWriter::SetNoFail()
     {
         failureMode = FailureMode::no;
@@ -57,6 +72,11 @@ namespace infra
     bool OutputStream::HasFailed() const
     {
         return writer.Failed();
+    }
+
+    const uint8_t* OutputStream::SaveMarker() const
+    {
+        return writer.ConstructSaveMarker();
     }
 
     StreamWriter& OutputStream::Writer()

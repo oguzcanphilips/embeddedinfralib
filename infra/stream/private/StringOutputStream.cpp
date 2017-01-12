@@ -45,5 +45,26 @@ namespace infra
             amount = spaceLeft;
         string.append(amount, ' ');
     }
+
+    const uint8_t* StringOutputStream::ConstructSaveMarker() const
+    {
+        return reinterpret_cast<const uint8_t*>(string.end());
+    }
+
+    infra::ByteRange StringOutputStream::SaveState(const uint8_t* marker)
+    {
+        char* copyBegin = string.begin() + std::distance(string.cbegin(), reinterpret_cast<const char*>(marker));
+        char* copyEnd = string.end();
+        string.resize(string.max_size());
+        std::copy_backward(copyBegin, copyEnd, string.end());
+
+        return infra::ByteRange(reinterpret_cast<uint8_t*>(copyBegin), reinterpret_cast<uint8_t*>(string.end() - std::distance(copyBegin, copyEnd)));
+    }
+
+    void StringOutputStream::RestoreState(infra::ByteRange range)
+    {
+        std::copy(reinterpret_cast<char*>(range.end()), string.end(), reinterpret_cast<char*>(range.begin()));
+        string.resize(string.size() - range.size());
+    }
 }
 

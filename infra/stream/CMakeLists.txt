@@ -5,6 +5,7 @@ ccola_component(stream static_library)
 		private/ByteOutputStream.cpp
 		private/InputStream.cpp
 		private/OutputStream.cpp
+		private/SavedMarkerStream.cpp
 		private/StdStringInputStream.cpp
 		private/StdStringOutputStream.cpp
 		private/StreamManipulators.cpp
@@ -14,6 +15,7 @@ ccola_component(stream static_library)
 		public/ByteOutputStream.hpp
 		public/InputStream.hpp
 		public/OutputStream.hpp
+		public/SavedMarkerStream.hpp
 		public/StdStringInputStream.hpp
 		public/StdStringOutputStream.hpp
 		public/StreamManipulators.hpp
