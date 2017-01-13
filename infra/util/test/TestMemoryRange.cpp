@@ -67,6 +67,7 @@ TEST(MemoryRangeTest, TestEnd)
     infra::MemoryRange<int> range(array);
 
     EXPECT_EQ(range.begin() + 3, range.end());
+    EXPECT_EQ(range.cbegin() + 3, range.cend());
 }
 
 TEST(MemoryRangeTest, TestIndex)

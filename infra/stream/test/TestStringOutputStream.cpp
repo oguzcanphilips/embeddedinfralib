@@ -370,6 +370,7 @@ TEST(StringOutputStreamTest, stream_to_saved_point)
     stream << "c";
 
     {
+        EXPECT_EQ(1, stream.ProcessedBytesSince(marker));
         infra::SavedMarkerTextStream savedStream(stream, marker);
         savedStream << 12345;
     }
@@ -391,6 +392,7 @@ TEST(StringOutputStreamTest, stream_to_nested_saved_point)
         savedStream << 56;
 
         {
+            EXPECT_EQ(2, savedStream.ProcessedBytesSince(nestedMarker));
             infra::SavedMarkerTextStream nestedSavedStream(savedStream, nestedMarker);
             nestedSavedStream << 234;
         }

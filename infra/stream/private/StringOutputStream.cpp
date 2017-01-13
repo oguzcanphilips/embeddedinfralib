@@ -51,6 +51,11 @@ namespace infra
         return reinterpret_cast<const uint8_t*>(string.end());
     }
 
+    std::size_t StringOutputStream::GetProcessedBytesSince(const uint8_t* marker) const
+    {
+        return std::distance(reinterpret_cast<const char*>(marker), string.cend());
+    }
+
     infra::ByteRange StringOutputStream::SaveState(const uint8_t* marker)
     {
         char* copyBegin = string.begin() + std::distance(string.cbegin(), reinterpret_cast<const char*>(marker));

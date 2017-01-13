@@ -20,6 +20,11 @@ namespace infra
         std::abort();
     }
 
+    std::size_t StreamWriter::GetProcessedBytesSince(const uint8_t* marker) const
+    {
+        std::abort();
+    }
+
     infra::ByteRange StreamWriter::SaveState(const uint8_t* marker)
     {
         std::abort();
@@ -77,6 +82,11 @@ namespace infra
     const uint8_t* OutputStream::SaveMarker() const
     {
         return writer.ConstructSaveMarker();
+    }
+
+    std::size_t OutputStream::ProcessedBytesSince(const uint8_t* marker) const
+    {
+        return writer.GetProcessedBytesSince(marker);
     }
 
     StreamWriter& OutputStream::Writer()

@@ -36,7 +36,9 @@ namespace infra
 
         // MemoryRange does not own its elements, so accessing an element is a const operation that returns a non-const element
         T* begin() const;
+        const T* cbegin() const;
         T* end() const;
+        const T* cend() const;
 
         T& operator[](std::size_t index) const;
         template<class U>
@@ -177,7 +179,19 @@ namespace infra
     }
 
     template<class T>
+    const T* MemoryRange<T>::cbegin() const
+    {
+        return beginElement;
+    }
+
+    template<class T>
     T* MemoryRange<T>::end() const
+    {
+        return endElement;
+    }
+
+    template<class T>
+    const T* MemoryRange<T>::cend() const
     {
         return endElement;
     }

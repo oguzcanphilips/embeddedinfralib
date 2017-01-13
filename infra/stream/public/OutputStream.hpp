@@ -31,6 +31,7 @@ namespace infra
         virtual void Forward(std::size_t amount) = 0;
 
         virtual const uint8_t* ConstructSaveMarker() const;
+        virtual std::size_t GetProcessedBytesSince(const uint8_t* marker) const;
         virtual infra::ByteRange SaveState(const uint8_t* marker);
         virtual void RestoreState(infra::ByteRange range);
 
@@ -70,6 +71,7 @@ namespace infra
         void SetNoFail();
         bool HasFailed() const;
         const uint8_t* SaveMarker() const;
+        std::size_t ProcessedBytesSince(const uint8_t* marker) const;
 
         StreamWriter& Writer();
 

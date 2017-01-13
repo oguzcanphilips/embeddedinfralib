@@ -36,6 +36,11 @@ namespace infra
         return streamRange.begin();
     }
 
+    std::size_t SavedMarkerTextStream::GetProcessedBytesSince(const uint8_t* marker) const
+    {
+        return std::distance(marker, streamRange.cbegin());
+    }
+
     infra::ByteRange SavedMarkerTextStream::SaveState(const uint8_t* marker)
     {
         uint8_t* copyBegin = const_cast<uint8_t*>(marker);
@@ -83,6 +88,11 @@ namespace infra
     const uint8_t* SavedMarkerDataStream::ConstructSaveMarker() const
     {
         return streamRange.begin();
+    }
+
+    std::size_t SavedMarkerDataStream::GetProcessedBytesSince(const uint8_t* marker) const
+    {
+        return std::distance(marker, streamRange.cbegin());
     }
 
     infra::ByteRange SavedMarkerDataStream::SaveState(const uint8_t* marker)

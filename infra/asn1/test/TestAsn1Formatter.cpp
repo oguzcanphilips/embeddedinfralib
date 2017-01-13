@@ -53,9 +53,10 @@ TEST(Asn1ObjectFormatter, start_sequence)
 {
     infra::ByteOutputStream::WithStorage<8> stream;
     infra::Asn1Formatter formatter(stream);
-
-    auto sequence = formatter.StartSequence(6);
-    sequence.Add(0xFFFFFFFF);
+    {
+        auto sequence = formatter.StartSequence();
+        sequence.Add(0xFFFFFFFF);
+    }
 
     EXPECT_EQ(false, formatter.HasFailed());
     ASSERT_THAT(stream.Storage(), testing::ElementsAre(0x20 | 0x10, 0x06, 0x02, 0x04, 0xFF, 0xFF, 0xFF, 0xFF));

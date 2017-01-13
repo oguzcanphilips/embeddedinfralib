@@ -47,6 +47,7 @@ namespace infra
         virtual void Forward(std::size_t amount) override;
 
         virtual const uint8_t* ConstructSaveMarker() const override;
+        virtual std::size_t GetProcessedBytesSince(const uint8_t* marker) const override;
         virtual infra::ByteRange SaveState(const uint8_t* marker) override;
         virtual void RestoreState(infra::ByteRange range) override;
 

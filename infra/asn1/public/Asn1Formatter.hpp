@@ -2,10 +2,13 @@
 #define INFRA_ASN1_FORMATTER_HPP
 
 #include "infra/stream/public/OutputStream.hpp"
+#include "infra/stream/public/SavedMarkerStream.hpp"
 #include "infra/util/public/WithStorage.hpp"
 
 namespace infra
 {
+    class Asn1SequenceFormatter;
+
     class Asn1Formatter
     {
     public:
@@ -19,7 +22,7 @@ namespace infra
         void AddContextSpecific(infra::ConstByteRange data);
         void AddObjectId(infra::ConstByteRange oid);
 
-        Asn1Formatter StartSequence(uint32_t size);
+        Asn1SequenceFormatter StartSequence();
 
         template<typename T>
         void AddOptional(infra::Optional<T> value);
@@ -45,7 +48,7 @@ namespace infra
         void AddTag(uint8_t type, uint32_t length);
         void AddLength(uint32_t length);
 
-    private:
+    protected:
         infra::DataOutputStream stream;
     };
 
@@ -64,6 +67,21 @@ namespace infra
         AddTag(type, length);
         stream << data;
     }
+
+    class Asn1SequenceFormatter
+        : public Asn1Formatter
+    {
+    public:
+        Asn1SequenceFormatter(infra::DataOutputStream& stream, const uint8_t* sizeMarker);
+        Asn1SequenceFormatter(const Asn1SequenceFormatter& other) = delete;
+        Asn1SequenceFormatter(Asn1SequenceFormatter&& other);
+        Asn1SequenceFormatter& operator=(const Asn1SequenceFormatter& other) = delete;
+        Asn1SequenceFormatter& operator=(Asn1SequenceFormatter&& other);
+        ~Asn1SequenceFormatter();
+
+    private:
+        const uint8_t* sizeMarker;
+    };
 }
 
 #endif

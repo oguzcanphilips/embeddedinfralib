@@ -61,6 +61,11 @@ namespace infra
         return streamRange.begin() + offset;
     }
 
+    std::size_t ByteOutputStream::GetProcessedBytesSince(const uint8_t* marker) const
+    {
+        return std::distance(marker, streamRange.cbegin() + offset);
+    }
+
     infra::ByteRange ByteOutputStream::SaveState(const uint8_t* marker)
     {
         uint8_t* copyBegin = const_cast<uint8_t*>(marker);

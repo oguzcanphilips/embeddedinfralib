@@ -81,6 +81,7 @@ TEST(ByteOutputStreamTest, stream_to_saved_point)
     stream << uint8_t(3);
 
     {
+        EXPECT_EQ(1, stream.ProcessedBytesSince(marker));
         infra::SavedMarkerDataStream savedStream(stream, marker);
         savedStream << uint8_t(2);
     }
@@ -102,6 +103,7 @@ TEST(ByteOutputStreamTest, stream_to_nested_saved_point)
         savedStream << uint8_t(4);
 
         {
+            EXPECT_EQ(1, savedStream.ProcessedBytesSince(nestedMarker));
             infra::SavedMarkerDataStream nestedSavedStream(savedStream, nestedMarker);
             nestedSavedStream << uint8_t(3);
         }
