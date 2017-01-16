@@ -62,19 +62,6 @@ TEST(Asn1ObjectFormatter, start_sequence)
     ASSERT_THAT(stream.Storage(), testing::ElementsAre(0x20 | 0x10, 0x06, 0x02, 0x04, 0xFF, 0xFF, 0xFF, 0xFF));
 }
 
-TEST(Asn1ObjectFormatter, add_context_specific)
-{
-    infra::ByteOutputStream::WithStorage<4> stream;
-    infra::Asn1Formatter formatter(stream);
-
-    std::array<uint8_t, 2> data = { 0xAB, 0xBA };
-
-    formatter.AddContextSpecific(data);
-
-    EXPECT_EQ(false, formatter.HasFailed());
-    ASSERT_THAT(stream.Storage(), testing::ElementsAre(0x20 | 0x80, 0x02, 0xAB, 0xBA));
-}
-
 TEST(Asn1ObjectFormatter, add_object_id)
 {
     infra::ByteOutputStream::WithStorage<4> stream;
