@@ -40,9 +40,36 @@ namespace infra
         AddTag(Type::Integer, sizeof(int32_t), value);
     }
 
+    void Asn1Formatter::AddSerial(infra::ConstByteRange serial)
+    {
+        AddTag(Type::Integer, serial.size(), serial);
+    }
+
     void Asn1Formatter::AddBigNumber(infra::ConstByteRange number)
     {
-        AddTag(Type::Integer, number.size(), number);
+    	while (!number.empty() && number.back() == 0)
+    		number.pop_back();
+
+        if (!number.empty() && (number.back() & 0x80) != 0)
+        {
+            AddTag(Type::Integer, number.size() + 1);
+
+            stream << uint8_t(0x00);
+            for (int i = number.size() - 1; i >= 0; --i)
+                stream << number[i];
+        }
+        else
+        {
+            AddTag(Type::Integer, number.size());
+
+            for (int i = number.size() - 1; i >= 0; --i)
+                stream << number[i];
+        }
+    }
+
+    void Asn1Formatter::AddContextSpecific(uint8_t context, infra::ConstByteRange data)
+    {
+        AddTag(Type::Constructed | Type::ContextSpecific | context, data.size(), data);
     }
 
     void Asn1Formatter::AddObjectId(infra::ConstByteRange oid)
@@ -52,7 +79,13 @@ namespace infra
 
     void Asn1Formatter::AddBitString(infra::ConstByteRange string)
     {
-        AddTag(Type::BitString, string.size(), string);
+        AddTag(Type::BitString, string.size() + 1);
+
+        // Next byte indicates the bits of padding added to
+        // the data when the length of the data in bits is
+        // not a multiple of 8.
+        stream << uint8_t(0x00);
+        stream << string;
     }
 
     void Asn1Formatter::AddPrintableString(infra::ConstByteRange string)
@@ -75,11 +108,6 @@ namespace infra
         stream << infra::text << infra::Width(2, '0') << min;
         stream << infra::text << infra::Width(2, '0') << sec;
         stream << infra::text << 'Z';
-    }
-
-    void Asn1Formatter::AddNull()
-    {
-        stream << uint8_t(0x00);
     }
 
     Asn1ContainerFormatter Asn1Formatter::StartSequence()
@@ -106,8 +134,14 @@ namespace infra
     Asn1ContainerFormatter Asn1Formatter::StartBitString()
     {
         stream << static_cast<uint8_t>(Type::BitString);
+        auto marker = stream.SaveMarker();
 
-        return Asn1ContainerFormatter(stream, stream.SaveMarker());
+        // Next byte indicates the bits of padding added to
+        // the data when the length of the data in bits is
+        // not a multiple of 8.
+        stream << uint8_t(0x00);
+
+        return Asn1ContainerFormatter(stream, marker);
     }
 
     bool Asn1Formatter::HasFailed() const

@@ -18,12 +18,13 @@ namespace infra
         void Add(uint32_t value);
         void Add(int32_t value);
 
+        void AddSerial(infra::ConstByteRange serial);
         void AddBigNumber(infra::ConstByteRange number);
+        void AddContextSpecific(uint8_t context, infra::ConstByteRange data);
         void AddObjectId(infra::ConstByteRange oid);
         void AddBitString(infra::ConstByteRange string);
         void AddPrintableString(infra::ConstByteRange string);
         void AddUtcTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec);
-        void AddNull();
 
         Asn1ContainerFormatter StartSequence();
         Asn1ContainerFormatter StartSet();
