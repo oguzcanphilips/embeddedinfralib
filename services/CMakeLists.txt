@@ -1,6 +1,7 @@
 ccola_package(services)
 
 	ccola_subdirectories(
+		network
 		util
 		synchronous_util
 	)
