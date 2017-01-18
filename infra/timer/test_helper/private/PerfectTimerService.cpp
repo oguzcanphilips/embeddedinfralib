@@ -37,10 +37,4 @@ namespace infra
         systemTime += amount;
         Progressed(systemTime);
     }
-
-    void PerfectTimerService::SetTestSystemTime(TimePoint time)
-    {
-        systemTime = time;
-        Progressed(systemTime);
-    }
 }

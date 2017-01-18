@@ -20,7 +20,7 @@ namespace infra
         {
             TimePoint minimumTriggerTime = std::min(newSystemTime, systemTimerService.NextTrigger());
 
-            systemTimerService.SetTestSystemTime(minimumTriggerTime);
+            systemTimerService.TimeProgressed(minimumTriggerTime - systemTimerService.Now());
             ExecuteAllActions();
         } while (systemTimerService.Now() != newSystemTime);
     }
