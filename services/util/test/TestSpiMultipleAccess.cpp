@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "hal/interfaces/test_doubles/public/CommunicationConfiguratorMock.hpp"
 #include "hal/interfaces/test_doubles/public/SpiMock.hpp"
 #include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
 #include "services/util/public/SpiMultipleAccess.hpp"
@@ -87,34 +88,38 @@ TEST_F(SpiMultipleAccessTest, ReceiveStopAfterContinueSessionReleasesTheClaim)
     ExecuteAllActions();
 }
 
-TEST_F(SpiMultipleAccessTest, DefaultSpeedAndModeAreConfiguredBeforeSendAndReceive)
+TEST_F(SpiMultipleAccessTest, configurator_is_set_when_first_session_starts)
 {
-    EXPECT_CALL(spi, ConfigSpeedMock(100));
-    EXPECT_CALL(spi, ConfigModeMock(0));
-    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(true, std::vector<uint8_t>{ 5 })));
-    std::array<uint8_t, 1> buffer = { 5 };
-    access1.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
-    ExecuteAllActions();
-}
+    std::array<uint8_t, 1> buffer;
 
-TEST_F(SpiMultipleAccessTest, ConfiguredSpeedAndModeAreSetBeforeSendAndReceive)
-{
-    EXPECT_CALL(spi, ConfigSpeedMock(50));
-    EXPECT_CALL(spi, ConfigModeMock(3));
-    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(true, std::vector<uint8_t>{ 5 })));
-    access1.ConfigSpeed(50);
-    access1.ConfigMode(3);
-    std::array<uint8_t, 1> buffer = { 5 };
-    access1.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
-    ExecuteAllActions();
-}
+    testing::StrictMock<hal::CommunicationConfiguratorMock> configurator;
+    access1.SetCommunicationConfigurator(configurator);
 
-TEST_F(SpiMultipleAccessTest, ConfiguredSpeedAndModeAreNotSetBeforeSendAndReceiveStarts)
-{
+    EXPECT_CALL(spi, SetCommunicationConfigurator(testing::Ref(configurator)));
     EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
-    access1.ConfigSpeed(100);
-    access1.ConfigMode(3);
-    std::array<uint8_t, 1> buffer = { 5 };
     access1.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
+    ExecuteAllActions();
+
+    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    access1.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
+    ExecuteAllActions();
+}
+
+TEST_F(SpiMultipleAccessTest, configurator_is_reset_when_other_session_starts)
+{
+    std::array<uint8_t, 1> buffer;
+
+    testing::StrictMock<hal::CommunicationConfiguratorMock> configurator;
+    access1.SetCommunicationConfigurator(configurator);
+
+    EXPECT_CALL(spi, SetCommunicationConfigurator(testing::Ref(configurator)));
+    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    access1.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
+    ExecuteAllActions();
+    spi.actionOnCompletion();
+
+    EXPECT_CALL(spi, ResetCommunicationConfigurator());
+    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    access2.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     ExecuteAllActions();
 }

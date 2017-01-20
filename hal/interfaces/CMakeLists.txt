@@ -8,6 +8,7 @@ ccola_component(interfaces static_library)
 		private/I2cRegisterAccess.cpp
 		private/QuadSpi.cpp
 		private/Spi.cpp
+		public/CommunicationConfigurator.hpp
 		public/FileSystem.hpp
 		public/Flash.hpp
 		public/FlashHomogeneous.hpp

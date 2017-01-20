@@ -11,31 +11,27 @@ namespace services
         master.SendAndReceive(sendData, receiveData, nextAction, actionOnCompletion, actionOnStart);
     }
 
-    uint32_t SpiMultipleAccessMaster::Speed() const
+    void SpiMultipleAccessMaster::SetCommunicationConfigurator(hal::CommunicationConfigurator& configurator)
     {
-        return master.Speed();
+        if (communicationConfigurator != &configurator)
+        {
+            master.SetCommunicationConfigurator(configurator);
+            communicationConfigurator = &configurator;
+        }
     }
 
-    void SpiMultipleAccessMaster::ConfigSpeed(uint32_t speedInkHz)
+    void SpiMultipleAccessMaster::ResetCommunicationConfigurator()
     {
-        master.ConfigSpeed(speedInkHz);
-    }
-
-    uint8_t SpiMultipleAccessMaster::Mode() const
-    {
-        return master.Mode();
-    }
-
-    void SpiMultipleAccessMaster::ConfigMode(uint8_t spiMode)
-    {
-        master.ConfigMode(spiMode);
+        if (communicationConfigurator)
+        {
+            master.ResetCommunicationConfigurator();
+            communicationConfigurator = nullptr;
+        }
     }
 
     SpiMultipleAccess::SpiMultipleAccess(SpiMultipleAccessMaster& master)
         : master(master)
         , claimer(master)
-        , speedInkHz(master.Speed())
-        , spiMode(master.Mode())
     {}
 
     void SpiMultipleAccess::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart)
@@ -51,28 +47,23 @@ namespace services
             SendAndReceiveOnClaimed(sendData, receiveData, nextAction);
     }
 
-    uint32_t SpiMultipleAccess::Speed() const
+    void SpiMultipleAccess::SetCommunicationConfigurator(hal::CommunicationConfigurator& configurator)
     {
-        return speedInkHz;
+        communicationConfigurator = &configurator;
     }
 
-    void SpiMultipleAccess::ConfigSpeed(uint32_t speedInkHz)
+    void SpiMultipleAccess::ResetCommunicationConfigurator()
     {
-        this->speedInkHz = speedInkHz;
-    }
-
-    uint8_t SpiMultipleAccess::Mode() const
-    {
-        return spiMode;
-    }
-
-    void SpiMultipleAccess::ConfigMode(uint8_t spiMode)
-    {
-        this->spiMode = spiMode;
+        communicationConfigurator = nullptr;
     }
 
     void SpiMultipleAccess::SendAndReceiveOnClaimed(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction)
     {
+        if (communicationConfigurator)
+            master.SetCommunicationConfigurator(*communicationConfigurator);
+        else
+            master.ResetCommunicationConfigurator();
+
         master.SendAndReceive(sendData, receiveData, nextAction, [this, nextAction]()
         {
             if (nextAction == hal::SpiAction::stop)
@@ -81,8 +72,6 @@ namespace services
         }, [this]()
         {
             this->actionOnStart();
-            master.ConfigSpeed(speedInkHz);
-            master.ConfigMode(spiMode);
         });
     }
 }

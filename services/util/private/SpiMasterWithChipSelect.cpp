@@ -24,23 +24,13 @@ namespace services
         });
     }
 
-    uint32_t SpiMasterWithChipSelect::Speed() const
+    void SpiMasterWithChipSelect::SetCommunicationConfigurator(hal::CommunicationConfigurator& configurator)
     {
-        return spi.Speed();
+        spi.SetCommunicationConfigurator(configurator);
     }
 
-    void SpiMasterWithChipSelect::ConfigSpeed(uint32_t speedInkHz)
+    void SpiMasterWithChipSelect::ResetCommunicationConfigurator()
     {
-        spi.ConfigSpeed(speedInkHz);
-    }
-
-    uint8_t SpiMasterWithChipSelect::Mode() const
-    {
-        return spi.Mode();
-    }
-
-    void SpiMasterWithChipSelect::ConfigMode(uint8_t spiMode)
-    {
-        spi.ConfigMode(spiMode);
+        spi.ResetCommunicationConfigurator();
     }
 }

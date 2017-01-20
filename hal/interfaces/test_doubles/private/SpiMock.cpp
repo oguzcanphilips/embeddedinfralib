@@ -19,26 +19,6 @@ namespace hal
         infra::EventDispatcher::Instance().Schedule(actionOnCompletion);
     }
 
-    uint32_t SpiMock::Speed() const
-    {
-        return speed;
-    }
-
-    void SpiMock::ConfigSpeed(uint32_t speedInkHz)
-    {
-        ConfigSpeedMock(speedInkHz);
-    }
-
-    uint8_t SpiMock::Mode() const
-    {
-        return spiMode;
-    }
-
-    void SpiMock::ConfigMode(uint8_t spiMode)
-    {
-        ConfigModeMock(spiMode);
-    }
-
     void SpiAsynchronousMock::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart)
     {
         this->actionOnStart = actionOnStart;
@@ -54,25 +34,5 @@ namespace hal
             if (scheduleActionCompleteAutomatically)
                 infra::EventDispatcher::Instance().Schedule(actionOnCompletion);
         }
-    }
-
-    uint32_t SpiAsynchronousMock::Speed() const
-    {
-        return speed;
-    }
-
-    void SpiAsynchronousMock::ConfigSpeed(uint32_t speedInkHz)
-    {
-        ConfigSpeedMock(speedInkHz);
-    }
-
-    uint8_t SpiAsynchronousMock::Mode() const
-    {
-        return spiMode;
-    }
-
-    void SpiAsynchronousMock::ConfigMode(uint8_t spiMode)
-    {
-        ConfigModeMock(spiMode);
     }
 }

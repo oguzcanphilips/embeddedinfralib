@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "hal/interfaces/test_doubles/public/CommunicationConfiguratorMock.hpp"
 #include "hal/interfaces/test_doubles/public/GpioStub.hpp"
 #include "hal/interfaces/test_doubles/public/SpiMock.hpp"
 #include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
@@ -52,4 +53,15 @@ TEST_F(SpiMasterWithChipSelectTest, WhenSendAndReceivesFinishesChipSelectIsDeact
     ExecuteAllActions();
 
     EXPECT_TRUE(chipSelect.GetStubState());
+}
+
+TEST_F(SpiMasterWithChipSelectTest, SetCommunicationConfigurator_is_forwarded)
+{
+    hal::CommunicationConfiguratorMock configurator;
+
+    EXPECT_CALL(spiMock, SetCommunicationConfigurator(testing::Ref(configurator)));
+    spi.SetCommunicationConfigurator(configurator);
+
+    EXPECT_CALL(spiMock, ResetCommunicationConfigurator());
+    spi.ResetCommunicationConfigurator();
 }
