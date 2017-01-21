@@ -6,9 +6,14 @@ namespace services
         : master(master)
     {}
 
-    void SpiMultipleAccessMaster::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart)
+    void SpiMultipleAccessMaster::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& onDone)
     {
-        master.SendAndReceive(sendData, receiveData, nextAction, actionOnCompletion, actionOnStart);
+        master.SendAndReceive(sendData, receiveData, nextAction, onDone);
+    }
+
+    void SpiMultipleAccessMaster::SetChipSelectConfigurator(hal::ChipSelectConfigurator& configurator)
+    {
+        master.SetChipSelectConfigurator(configurator);
     }
 
     void SpiMultipleAccessMaster::SetCommunicationConfigurator(hal::CommunicationConfigurator& configurator)
@@ -34,17 +39,20 @@ namespace services
         , claimer(master)
     {}
 
-    void SpiMultipleAccess::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart)
+    void SpiMultipleAccess::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& onDone)
     {
-        this->actionOnStart = actionOnStart;
-        this->onDone = actionOnCompletion;
         if (!claimer.IsClaimed())
-            claimer.Claim([this, sendData, receiveData, nextAction]()
+            claimer.Claim([this, sendData, receiveData, nextAction, onDone]()
             {
-                SendAndReceiveOnClaimed(sendData, receiveData, nextAction);
+                SendAndReceiveOnClaimed(sendData, receiveData, nextAction, onDone);
             });
         else
-            SendAndReceiveOnClaimed(sendData, receiveData, nextAction);
+            SendAndReceiveOnClaimed(sendData, receiveData, nextAction, onDone);
+    }
+
+    void SpiMultipleAccess::SetChipSelectConfigurator(hal::ChipSelectConfigurator& configurator)
+    {
+        chipSelectConfigurator = &configurator;
     }
 
     void SpiMultipleAccess::SetCommunicationConfigurator(hal::CommunicationConfigurator& configurator)
@@ -57,21 +65,28 @@ namespace services
         communicationConfigurator = nullptr;
     }
 
-    void SpiMultipleAccess::SendAndReceiveOnClaimed(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction)
+    void SpiMultipleAccess::StartSession()
+    {
+        if (chipSelectConfigurator)
+            chipSelectConfigurator->StartSession();
+    }
+
+    void SpiMultipleAccess::EndSession()
+    {
+        if (chipSelectConfigurator)
+            chipSelectConfigurator->EndSession();
+
+        claimer.Release();
+    }
+
+    void SpiMultipleAccess::SendAndReceiveOnClaimed(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& onDone)
     {
         if (communicationConfigurator)
             master.SetCommunicationConfigurator(*communicationConfigurator);
         else
             master.ResetCommunicationConfigurator();
 
-        master.SendAndReceive(sendData, receiveData, nextAction, [this, nextAction]()
-        {
-            if (nextAction == hal::SpiAction::stop)
-                claimer.Release();
-            this->onDone();
-        }, [this]()
-        {
-            this->actionOnStart();
-        });
+        master.SetChipSelectConfigurator(*this);
+        master.SendAndReceive(sendData, receiveData, nextAction, onDone);
     }
 }

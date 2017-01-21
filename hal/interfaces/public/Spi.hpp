@@ -13,6 +13,19 @@ namespace hal
         stop
     };
 
+    class ChipSelectConfigurator
+    {
+    protected:
+        ChipSelectConfigurator() = default;
+        ChipSelectConfigurator(const ChipSelectConfigurator& other) = delete;
+        ChipSelectConfigurator& operator=(const ChipSelectConfigurator& other) = delete;
+        ~ChipSelectConfigurator() = default;
+
+    public:
+        virtual void StartSession() = 0;
+        virtual void EndSession() = 0;
+    };
+
     class SpiMaster
     {
     protected:
@@ -22,9 +35,10 @@ namespace hal
         ~SpiMaster() = default;
 
     public:
-        void SendData(infra::ConstByteRange data, SpiAction nextAction, const infra::Function<void()>& actionOnCompletion);
-        void ReceiveData(infra::ByteRange data, SpiAction nextAction, const infra::Function<void()>& actionOnCompletion);
-        virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart = infra::emptyFunction) = 0;
+        void SendData(infra::ConstByteRange data, SpiAction nextAction, const infra::Function<void()>& onDone);
+        void ReceiveData(infra::ByteRange data, SpiAction nextAction, const infra::Function<void()>& onDone);
+        virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& onDone) = 0;
+        virtual void SetChipSelectConfigurator(ChipSelectConfigurator& configurator) = 0;
         virtual void SetCommunicationConfigurator(CommunicationConfigurator& configurator) = 0;
         virtual void ResetCommunicationConfigurator() = 0;
     };

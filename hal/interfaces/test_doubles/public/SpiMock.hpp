@@ -15,7 +15,8 @@ namespace hal
         : public SpiMaster
     {
     public:
-        virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart) override;
+        virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& onDone) override;
+        MOCK_METHOD1(SetChipSelectConfigurator, void(ChipSelectConfigurator& configurator));
         MOCK_METHOD1(SetCommunicationConfigurator, void(CommunicationConfigurator& configurator));
         MOCK_METHOD0(ResetCommunicationConfigurator, void());
 
@@ -27,17 +28,26 @@ namespace hal
         : public SpiMaster
     {
     public:
-        virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart) override;
-
-        infra::Function<void()> actionOnCompletion;
-        infra::Function<void()> actionOnStart;
+        infra::Function<void()> onDone;
+        virtual void SetChipSelectConfigurator(ChipSelectConfigurator& configurator) override;
+        virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& onDone) override;
 
         using SendAndReceiveResult = std::pair<bool, std::vector<uint8_t>>;
         MOCK_METHOD2(SendAndReceiveMock, SendAndReceiveResult(std::vector<uint8_t> dataSent, SpiAction nextAction));
+        MOCK_METHOD1(SetChipSelectConfiguratorMock, void(ChipSelectConfigurator& configurator));
         MOCK_METHOD1(SetCommunicationConfigurator, void(CommunicationConfigurator& configurator));
         MOCK_METHOD0(ResetCommunicationConfigurator, void());
 
         bool scheduleActionCompleteAutomatically = true;
+        hal::ChipSelectConfigurator* chipSelectConfigurator = nullptr;
+    };
+
+    class ChipSelectConfiguratorMock
+        : public ChipSelectConfigurator
+    {
+    public:
+        MOCK_METHOD0(StartSession, void());
+        MOCK_METHOD0(EndSession, void());
     };
 }
 

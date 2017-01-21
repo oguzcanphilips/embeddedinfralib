@@ -14,7 +14,8 @@ namespace services
     public:
         explicit SpiMultipleAccessMaster(hal::SpiMaster& master);
 
-        virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart) override;
+        virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& onDone) override;
+        virtual void SetChipSelectConfigurator(hal::ChipSelectConfigurator& configurator) override;
         virtual void SetCommunicationConfigurator(hal::CommunicationConfigurator& configurator) override;
         virtual void ResetCommunicationConfigurator() override;
 
@@ -25,22 +26,25 @@ namespace services
 
     class SpiMultipleAccess
         : public hal::SpiMaster
+        , private hal::ChipSelectConfigurator
     {
     public:
         explicit SpiMultipleAccess(SpiMultipleAccessMaster& master);
 
-        virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart = infra::emptyFunction) override;
+        virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& onDone) override;
+        virtual void SetChipSelectConfigurator(hal::ChipSelectConfigurator& configurator) override; 
         virtual void SetCommunicationConfigurator(hal::CommunicationConfigurator& configurator) override;
         virtual void ResetCommunicationConfigurator() override;
 
     private:
-        void SendAndReceiveOnClaimed(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction);
+        virtual void StartSession() override;
+        virtual void EndSession() override;
+        void SendAndReceiveOnClaimed(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& onDone);
 
     private:
         SpiMultipleAccessMaster& master;
-        infra::ClaimableResource::Claimer::WithSize<36> claimer;
-        infra::Function<void()> onDone;
-        infra::Function<void()> actionOnStart;
+        infra::ClaimableResource::Claimer::WithSize<28 + INFRA_DEFAULT_FUNCTION_EXTRA_SIZE> claimer;
+        hal::ChipSelectConfigurator* chipSelectConfigurator = nullptr;
         hal::CommunicationConfigurator* communicationConfigurator = nullptr;
     };
 }

@@ -8,20 +8,24 @@ namespace services
 {
     class SpiMasterWithChipSelect
         : public hal::SpiMaster
+        , public hal::ChipSelectConfigurator
     {
     public:
         SpiMasterWithChipSelect(hal::SpiMaster& aSpi, hal::GpioPin& aChipSelect);
 
     public:
-        virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart = infra::emptyFunction) override;
+        virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& onDone) override;
+        virtual void SetChipSelectConfigurator(hal::ChipSelectConfigurator& configurator) override;
         virtual void SetCommunicationConfigurator(hal::CommunicationConfigurator& configurator) override;
         virtual void ResetCommunicationConfigurator() override;
+
+        virtual void StartSession() override;
+        virtual void EndSession() override;
 
     private:
         hal::SpiMaster& spi;
         hal::OutputPin chipSelect;
-        infra::Function<void()> onStart;
-        infra::Function<void()> onDone;
+        hal::ChipSelectConfigurator* chipSelectConfigurator = nullptr;
     };
 }
 

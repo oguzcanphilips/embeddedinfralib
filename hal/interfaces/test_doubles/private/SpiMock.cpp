@@ -3,10 +3,8 @@
 
 namespace hal
 {
-    void SpiMock::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart)
+    void SpiMock::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& onDone)
     {
-        actionOnStart();
-
         if (!sendData.empty())
             SendDataMock(std::vector<uint8_t>(sendData.begin(), sendData.end()), nextAction);
         if (!receiveData.empty())
@@ -16,23 +14,25 @@ namespace hal
             std::copy(dataToBeReceived.begin(), dataToBeReceived.end(), receiveData.begin());
         }
 
-        infra::EventDispatcher::Instance().Schedule(actionOnCompletion);
+        infra::EventDispatcher::Instance().Schedule(onDone);
     }
 
-    void SpiAsynchronousMock::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart)
+    void SpiAsynchronousMock::SetChipSelectConfigurator(ChipSelectConfigurator& configurator)
     {
-        this->actionOnStart = actionOnStart;
-        this->actionOnCompletion = actionOnCompletion;
+        chipSelectConfigurator = &configurator;
+        SetChipSelectConfiguratorMock(configurator);
+    }
 
+    void SpiAsynchronousMock::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& onDone)
+    {
+        this->onDone = onDone;
         std::pair<bool, std::vector<uint8_t>> result = SendAndReceiveMock(std::vector<uint8_t>(sendData.begin(), sendData.end()), nextAction);
         if (result.first)
         {
             EXPECT_EQ(receiveData.size(), result.second.size());                                                        //TICS !CFL#001
             std::copy(result.second.begin(), result.second.end(), receiveData.begin());
-
-            actionOnStart();
             if (scheduleActionCompleteAutomatically)
-                infra::EventDispatcher::Instance().Schedule(actionOnCompletion);
+                infra::EventDispatcher::Instance().Schedule(onDone);
         }
     }
 }

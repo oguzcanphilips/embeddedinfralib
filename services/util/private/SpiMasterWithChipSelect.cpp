@@ -5,23 +5,18 @@ namespace services
     SpiMasterWithChipSelect::SpiMasterWithChipSelect(hal::SpiMaster& spi, hal::GpioPin& chipSelect)
         : spi(spi)
         , chipSelect(chipSelect, true)
-    {}
-
-    void SpiMasterWithChipSelect::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart)
     {
-        onDone = actionOnCompletion;
-        onStart = actionOnStart;
+        spi.SetChipSelectConfigurator(*this);
+    }
 
-        spi.SendAndReceive(sendData, receiveData, nextAction, [this, nextAction]()
-        {
-            if (nextAction == hal::SpiAction::stop)
-                chipSelect.Set(true);
-            onDone();
-        }, [this]()
-        {
-            chipSelect.Set(false);
-            onStart();
-        });
+    void SpiMasterWithChipSelect::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& onDone)
+    {
+        spi.SendAndReceive(sendData, receiveData, nextAction, onDone);
+    }
+
+    void SpiMasterWithChipSelect::SetChipSelectConfigurator(hal::ChipSelectConfigurator& configurator)
+    {
+        chipSelectConfigurator = &configurator;
     }
 
     void SpiMasterWithChipSelect::SetCommunicationConfigurator(hal::CommunicationConfigurator& configurator)
@@ -32,5 +27,21 @@ namespace services
     void SpiMasterWithChipSelect::ResetCommunicationConfigurator()
     {
         spi.ResetCommunicationConfigurator();
+    }
+
+    void SpiMasterWithChipSelect::StartSession()
+    {
+        if (chipSelectConfigurator)
+            chipSelectConfigurator->StartSession();
+
+        chipSelect.Set(false);
+    }
+
+    void SpiMasterWithChipSelect::EndSession()
+    {
+        chipSelect.Set(true);
+
+        if (chipSelectConfigurator)
+            chipSelectConfigurator->EndSession();
     }
 }
