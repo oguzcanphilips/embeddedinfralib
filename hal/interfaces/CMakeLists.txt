@@ -18,6 +18,8 @@ ccola_component(interfaces static_library)
 		public/QuadSpi.hpp
 		public/SerialCommunication.hpp
 		public/Spi.hpp
+		public/UsbCustomHid.hpp
+		public/UsbLinkLayer.hpp
 	)
 
 	ccola_dependencies(
