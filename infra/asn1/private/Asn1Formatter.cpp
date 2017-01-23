@@ -21,7 +21,7 @@ namespace infra
 
     void Asn1Formatter::Add(uint8_t value)
     {
-        AddTag(Type::Integer, sizeof(uint8_t), value);
+        AddTagLengthValue(Tag::Integer, sizeof(uint8_t), value);
     }
 
     void Asn1Formatter::Add(uint32_t value)
@@ -29,7 +29,7 @@ namespace infra
         value = (value << 16) | (value >> 16);
         value = ((value & 0x00ff00ff) << 8) | ((value & 0xff00ff00) >> 8);
 
-        AddTag(Type::Integer, sizeof(uint32_t), value);
+        AddTagLengthValue(Tag::Integer, sizeof(uint32_t), value);
     }
 
     void Asn1Formatter::Add(int32_t value)
@@ -37,12 +37,12 @@ namespace infra
         value = (value << 16) | (value >> 16);
         value = ((value & 0x00ff00ff) << 8) | ((value & 0xff00ff00) >> 8);
 
-        AddTag(Type::Integer, sizeof(int32_t), value);
+        AddTagLengthValue(Tag::Integer, sizeof(int32_t), value);
     }
 
     void Asn1Formatter::AddSerial(infra::ConstByteRange serial)
     {
-        AddTag(Type::Integer, serial.size(), serial);
+        AddTagLengthValue(Tag::Integer, serial.size(), serial);
     }
 
     void Asn1Formatter::AddBigNumber(infra::ConstByteRange number)
@@ -52,7 +52,7 @@ namespace infra
 
         if (!number.empty() && (number.back() & 0x80) != 0)
         {
-            AddTag(Type::Integer, number.size() + 1);
+            AddTagLength(Tag::Integer, number.size() + 1);
 
             stream << uint8_t(0x00);
             for (int i = number.size() - 1; i >= 0; --i)
@@ -60,7 +60,7 @@ namespace infra
         }
         else
         {
-            AddTag(Type::Integer, number.size());
+            AddTagLength(Tag::Integer, number.size());
 
             for (int i = number.size() - 1; i >= 0; --i)
                 stream << number[i];
@@ -69,17 +69,17 @@ namespace infra
 
     void Asn1Formatter::AddContextSpecific(uint8_t context, infra::ConstByteRange data)
     {
-        AddTag(Type::Constructed | Type::ContextSpecific | context, data.size(), data);
+        AddTagLengthValue(Tag::Constructed | Tag::ContextSpecific | context, data.size(), data);
     }
 
     void Asn1Formatter::AddObjectId(infra::ConstByteRange oid)
     {
-        AddTag(Type::Oid, oid.size(), oid);
+        AddTagLengthValue(Tag::Oid, oid.size(), oid);
     }
 
     void Asn1Formatter::AddBitString(infra::ConstByteRange string)
     {
-        AddTag(Type::BitString, string.size() + 1);
+        AddTagLength(Tag::BitString, string.size() + 1);
 
         // Next byte indicates the bits of padding added to
         // the data when the length of the data in bits is
@@ -90,13 +90,13 @@ namespace infra
 
     void Asn1Formatter::AddPrintableString(infra::ConstByteRange string)
     {
-        AddTag(Type::PrintableString, string.size(), string);
+        AddTagLengthValue(Tag::PrintableString, string.size(), string);
     }
 
     void Asn1Formatter::AddUtcTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec)
     {
         const uint8_t utcTimeSize = 13; // "YYMMDDhhmmssZ"
-        AddTag(Type::UtcTime, utcTimeSize);
+        AddTagLength(Tag::UtcTime, utcTimeSize);
 
         year -= 1900;
         year -= 100 * (year >= 50);
@@ -112,28 +112,28 @@ namespace infra
 
     Asn1ContainerFormatter Asn1Formatter::StartSequence()
     {
-        stream << static_cast<uint8_t>(Type::Constructed | Type::Sequence);
+        stream << static_cast<uint8_t>(Tag::Constructed | Tag::Sequence);
 
         return Asn1ContainerFormatter(stream, stream.SaveMarker());
     }
 
     Asn1ContainerFormatter Asn1Formatter::StartSet()
     {
-        stream << static_cast<uint8_t>(Type::Constructed | Type::Set);
+        stream << static_cast<uint8_t>(Tag::Constructed | Tag::Set);
 
         return Asn1ContainerFormatter(stream, stream.SaveMarker());
     }
 
     Asn1ContainerFormatter Asn1Formatter::StartContextSpecific(uint8_t context)
     {
-        stream << static_cast<uint8_t>(Type::Constructed | Type::ContextSpecific | context);
+        stream << static_cast<uint8_t>(Tag::Constructed | Tag::ContextSpecific | context);
 
         return Asn1ContainerFormatter(stream, stream.SaveMarker());
     }
 
     Asn1ContainerFormatter Asn1Formatter::StartBitString()
     {
-        stream << static_cast<uint8_t>(Type::BitString);
+        stream << static_cast<uint8_t>(Tag::BitString);
         auto marker = stream.SaveMarker();
 
         // Next byte indicates the bits of padding added to
@@ -154,9 +154,9 @@ namespace infra
         return stream;
     }
 
-    void Asn1Formatter::AddTag(uint8_t type, uint32_t length)
+    void Asn1Formatter::AddTagLength(uint8_t tag, uint32_t length)
     {
-        stream << type;
+        stream << tag;
         AddLength(stream, length);
     }
 

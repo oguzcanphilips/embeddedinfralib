@@ -26,13 +26,13 @@ namespace infra
         void AddPrintableString(infra::ConstByteRange string);
         void AddUtcTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec);
 
+        template<typename T>
+        void AddOptional(infra::Optional<T> value);
+
         Asn1ContainerFormatter StartSequence();
         Asn1ContainerFormatter StartSet();
         Asn1ContainerFormatter StartContextSpecific(uint8_t context = 0);
         Asn1ContainerFormatter StartBitString();
-
-        template<typename T>
-        void AddOptional(infra::Optional<T> value);
 
         bool HasFailed() const;
 
@@ -40,7 +40,7 @@ namespace infra
         infra::DataOutputStream& Stream();
 
     private:
-        enum Type : uint8_t
+        enum Tag : uint8_t
         {
             Integer = 0x02,
             BitString = 0x03,
@@ -50,15 +50,14 @@ namespace infra
             Set = 0x11,
             UtcTime = 0x17,
             PrintableString = 0x13,
-            UniversalString = 0x1C,
             Constructed = 0x20,
             ContextSpecific = 0x80
         };
 
     private:
         template<typename T>
-        void AddTag(uint8_t type, uint32_t length, T data);
-        void AddTag(uint8_t type, uint32_t length);
+        void AddTagLengthValue(uint8_t tag, uint32_t length, T value);
+        void AddTagLength(uint8_t tag, uint32_t length);
 
     private:
         infra::DataOutputStream stream;
@@ -70,14 +69,14 @@ namespace infra
         if (value)
             Add(*value);
         else
-            AddTag(Type::Null, 0);
+            AddTagLength(Tag::Null, 0);
     }
 
     template<typename T>
-    void Asn1Formatter::AddTag(uint8_t type, uint32_t length, T data)
+    void Asn1Formatter::AddTagLengthValue(uint8_t tag, uint32_t length, T value)
     {
-        AddTag(type, length);
-        stream << data;
+        AddTagLength(tag, length);
+        stream << value;
     }
 
     class Asn1ContainerFormatter
