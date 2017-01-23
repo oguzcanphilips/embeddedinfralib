@@ -16,11 +16,7 @@ namespace infra
         virtual Duration Resolution() const override;
 
         void SetResolution(Duration resolution);
-
         void TimeProgressed(Duration amount);
-
-        // Test functions
-        void SetTestSystemTime(TimePoint time);
 
     private:
         TimePoint systemTime = TimePoint();

@@ -6,83 +6,87 @@ namespace services
         : master(master)
     {}
 
-    void SpiMultipleAccessMaster::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart)
+    void SpiMultipleAccessMaster::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& onDone)
     {
-        master.SendAndReceive(sendData, receiveData, nextAction, actionOnCompletion, actionOnStart);
+        master.SendAndReceive(sendData, receiveData, nextAction, onDone);
     }
 
-    uint32_t SpiMultipleAccessMaster::Speed() const
+    void SpiMultipleAccessMaster::SetChipSelectConfigurator(hal::ChipSelectConfigurator& configurator)
     {
-        return master.Speed();
+        master.SetChipSelectConfigurator(configurator);
     }
 
-    void SpiMultipleAccessMaster::ConfigSpeed(uint32_t speedInkHz)
+    void SpiMultipleAccessMaster::SetCommunicationConfigurator(hal::CommunicationConfigurator& configurator)
     {
-        master.ConfigSpeed(speedInkHz);
+        if (communicationConfigurator != &configurator)
+        {
+            master.SetCommunicationConfigurator(configurator);
+            communicationConfigurator = &configurator;
+        }
     }
 
-    uint8_t SpiMultipleAccessMaster::Mode() const
+    void SpiMultipleAccessMaster::ResetCommunicationConfigurator()
     {
-        return master.Mode();
-    }
-
-    void SpiMultipleAccessMaster::ConfigMode(uint8_t spiMode)
-    {
-        master.ConfigMode(spiMode);
+        if (communicationConfigurator)
+        {
+            master.ResetCommunicationConfigurator();
+            communicationConfigurator = nullptr;
+        }
     }
 
     SpiMultipleAccess::SpiMultipleAccess(SpiMultipleAccessMaster& master)
         : master(master)
         , claimer(master)
-        , speedInkHz(master.Speed())
-        , spiMode(master.Mode())
     {}
 
-    void SpiMultipleAccess::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart)
+    void SpiMultipleAccess::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& onDone)
     {
-        this->actionOnStart = actionOnStart;
-        this->onDone = actionOnCompletion;
         if (!claimer.IsClaimed())
-            claimer.Claim([this, sendData, receiveData, nextAction]()
+            claimer.Claim([this, sendData, receiveData, nextAction, onDone]()
             {
-                SendAndReceiveOnClaimed(sendData, receiveData, nextAction);
+                SendAndReceiveOnClaimed(sendData, receiveData, nextAction, onDone);
             });
         else
-            SendAndReceiveOnClaimed(sendData, receiveData, nextAction);
+            SendAndReceiveOnClaimed(sendData, receiveData, nextAction, onDone);
     }
 
-    uint32_t SpiMultipleAccess::Speed() const
+    void SpiMultipleAccess::SetChipSelectConfigurator(hal::ChipSelectConfigurator& configurator)
     {
-        return speedInkHz;
+        chipSelectConfigurator = &configurator;
     }
 
-    void SpiMultipleAccess::ConfigSpeed(uint32_t speedInkHz)
+    void SpiMultipleAccess::SetCommunicationConfigurator(hal::CommunicationConfigurator& configurator)
     {
-        this->speedInkHz = speedInkHz;
+        communicationConfigurator = &configurator;
     }
 
-    uint8_t SpiMultipleAccess::Mode() const
+    void SpiMultipleAccess::ResetCommunicationConfigurator()
     {
-        return spiMode;
+        communicationConfigurator = nullptr;
     }
 
-    void SpiMultipleAccess::ConfigMode(uint8_t spiMode)
+    void SpiMultipleAccess::StartSession()
     {
-        this->spiMode = spiMode;
+        if (chipSelectConfigurator)
+            chipSelectConfigurator->StartSession();
     }
 
-    void SpiMultipleAccess::SendAndReceiveOnClaimed(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction)
+    void SpiMultipleAccess::EndSession()
     {
-        master.SendAndReceive(sendData, receiveData, nextAction, [this, nextAction]()
-        {
-            if (nextAction == hal::SpiAction::stop)
-                claimer.Release();
-            this->onDone();
-        }, [this]()
-        {
-            this->actionOnStart();
-            master.ConfigSpeed(speedInkHz);
-            master.ConfigMode(spiMode);
-        });
+        if (chipSelectConfigurator)
+            chipSelectConfigurator->EndSession();
+
+        claimer.Release();
+    }
+
+    void SpiMultipleAccess::SendAndReceiveOnClaimed(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& onDone)
+    {
+        if (communicationConfigurator)
+            master.SetCommunicationConfigurator(*communicationConfigurator);
+        else
+            master.ResetCommunicationConfigurator();
+
+        master.SetChipSelectConfigurator(*this);
+        master.SendAndReceive(sendData, receiveData, nextAction, onDone);
     }
 }

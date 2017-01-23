@@ -8,6 +8,7 @@ ccola_component(interfaces static_library)
 		private/I2cRegisterAccess.cpp
 		private/QuadSpi.cpp
 		private/Spi.cpp
+		public/CommunicationConfigurator.hpp
 		public/FileSystem.hpp
 		public/Flash.hpp
 		public/FlashHomogeneous.hpp
@@ -17,6 +18,8 @@ ccola_component(interfaces static_library)
 		public/QuadSpi.hpp
 		public/SerialCommunication.hpp
 		public/Spi.hpp
+		public/UsbCustomHid.hpp
+		public/UsbLinkLayer.hpp
 	)
 
 	ccola_dependencies(

@@ -5,42 +5,43 @@ namespace services
     SpiMasterWithChipSelect::SpiMasterWithChipSelect(hal::SpiMaster& spi, hal::GpioPin& chipSelect)
         : spi(spi)
         , chipSelect(chipSelect, true)
-    {}
-
-    void SpiMasterWithChipSelect::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart)
     {
-        onDone = actionOnCompletion;
-        onStart = actionOnStart;
-
-        spi.SendAndReceive(sendData, receiveData, nextAction, [this, nextAction]()
-        {
-            if (nextAction == hal::SpiAction::stop)
-                chipSelect.Set(true);
-            onDone();
-        }, [this]()
-        {
-            chipSelect.Set(false);
-            onStart();
-        });
+        spi.SetChipSelectConfigurator(*this);
     }
 
-    uint32_t SpiMasterWithChipSelect::Speed() const
+    void SpiMasterWithChipSelect::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& onDone)
     {
-        return spi.Speed();
+        spi.SendAndReceive(sendData, receiveData, nextAction, onDone);
     }
 
-    void SpiMasterWithChipSelect::ConfigSpeed(uint32_t speedInkHz)
+    void SpiMasterWithChipSelect::SetChipSelectConfigurator(hal::ChipSelectConfigurator& configurator)
     {
-        spi.ConfigSpeed(speedInkHz);
+        chipSelectConfigurator = &configurator;
     }
 
-    uint8_t SpiMasterWithChipSelect::Mode() const
+    void SpiMasterWithChipSelect::SetCommunicationConfigurator(hal::CommunicationConfigurator& configurator)
     {
-        return spi.Mode();
+        spi.SetCommunicationConfigurator(configurator);
     }
 
-    void SpiMasterWithChipSelect::ConfigMode(uint8_t spiMode)
+    void SpiMasterWithChipSelect::ResetCommunicationConfigurator()
     {
-        spi.ConfigMode(spiMode);
+        spi.ResetCommunicationConfigurator();
+    }
+
+    void SpiMasterWithChipSelect::StartSession()
+    {
+        if (chipSelectConfigurator)
+            chipSelectConfigurator->StartSession();
+
+        chipSelect.Set(false);
+    }
+
+    void SpiMasterWithChipSelect::EndSession()
+    {
+        chipSelect.Set(true);
+
+        if (chipSelectConfigurator)
+            chipSelectConfigurator->EndSession();
     }
 }

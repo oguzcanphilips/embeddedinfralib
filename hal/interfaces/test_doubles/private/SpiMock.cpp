@@ -3,10 +3,8 @@
 
 namespace hal
 {
-    void SpiMock::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart)
+    void SpiMock::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& onDone)
     {
-        actionOnStart();
-
         if (!sendData.empty())
             SendDataMock(std::vector<uint8_t>(sendData.begin(), sendData.end()), nextAction);
         if (!receiveData.empty())
@@ -16,63 +14,25 @@ namespace hal
             std::copy(dataToBeReceived.begin(), dataToBeReceived.end(), receiveData.begin());
         }
 
-        infra::EventDispatcher::Instance().Schedule(actionOnCompletion);
+        infra::EventDispatcher::Instance().Schedule(onDone);
     }
 
-    uint32_t SpiMock::Speed() const
+    void SpiAsynchronousMock::SetChipSelectConfigurator(ChipSelectConfigurator& configurator)
     {
-        return speed;
+        chipSelectConfigurator = &configurator;
+        SetChipSelectConfiguratorMock(configurator);
     }
 
-    void SpiMock::ConfigSpeed(uint32_t speedInkHz)
+    void SpiAsynchronousMock::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& onDone)
     {
-        ConfigSpeedMock(speedInkHz);
-    }
-
-    uint8_t SpiMock::Mode() const
-    {
-        return spiMode;
-    }
-
-    void SpiMock::ConfigMode(uint8_t spiMode)
-    {
-        ConfigModeMock(spiMode);
-    }
-
-    void SpiAsynchronousMock::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& actionOnCompletion, const infra::Function<void()>& actionOnStart)
-    {
-        this->actionOnStart = actionOnStart;
-        this->actionOnCompletion = actionOnCompletion;
-
+        this->onDone = onDone;
         std::pair<bool, std::vector<uint8_t>> result = SendAndReceiveMock(std::vector<uint8_t>(sendData.begin(), sendData.end()), nextAction);
         if (result.first)
         {
             EXPECT_EQ(receiveData.size(), result.second.size());                                                        //TICS !CFL#001
             std::copy(result.second.begin(), result.second.end(), receiveData.begin());
-
-            actionOnStart();
             if (scheduleActionCompleteAutomatically)
-                infra::EventDispatcher::Instance().Schedule(actionOnCompletion);
+                infra::EventDispatcher::Instance().Schedule(onDone);
         }
-    }
-
-    uint32_t SpiAsynchronousMock::Speed() const
-    {
-        return speed;
-    }
-
-    void SpiAsynchronousMock::ConfigSpeed(uint32_t speedInkHz)
-    {
-        ConfigSpeedMock(speedInkHz);
-    }
-
-    uint8_t SpiAsynchronousMock::Mode() const
-    {
-        return spiMode;
-    }
-
-    void SpiAsynchronousMock::ConfigMode(uint8_t spiMode)
-    {
-        ConfigModeMock(spiMode);
     }
 }
