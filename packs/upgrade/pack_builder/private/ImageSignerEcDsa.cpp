@@ -1,6 +1,6 @@
-#include "packs/upgrade/pack_builder/public/ImageSignerEcDsa.hpp"
 #include "mbedtls/sha256.h"
-#include "micro-ecc/uECC.h"
+#include "crypto/micro-ecc/uECC.h"
+#include "packs/upgrade/pack_builder/public/ImageSignerEcDsa.hpp"
 
 namespace application
 {

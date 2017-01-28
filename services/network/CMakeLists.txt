@@ -1,9 +1,5 @@
 ccola_component(network static_library)
 
-	ccola_inheritable_include_directories(
-		../..
-	)
-
 	ccola_sources(
 		private/Connection.cpp
 		public/Connection.hpp

@@ -1,5 +1,5 @@
 #include "mbedtls/sha256.h"
-#include "uECC.h"
+#include "crypto/micro-ecc/uECC.h"
 #include "packs/upgrade/boot_loader/public/VerifierEcDsa.hpp"
 
 namespace application

@@ -1,7 +1,5 @@
 ccola_component(util static_library)
 
-	ccola_inheritable_include_directories(../..)
-
 	ccola_sources(
 		private/CrcCcittCalculator.cpp
 		private/Optional.cpp

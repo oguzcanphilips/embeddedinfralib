@@ -1,7 +1,7 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/pk_internal.h"
-#include "micro-ecc/uECC.h"
+#include "crypto/micro-ecc/uECC.h"
 #include "packs/upgrade/security_key_generator/public/MaterialGenerator.hpp"
 #include <fstream>
 #include <iomanip>

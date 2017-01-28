@@ -1,6 +1,6 @@
-#include "packs/upgrade/pack_builder/public/ImageAuthenticatorHmac.hpp"
 #include "mbedtls/md.h"
 #include "mbedtls/sha256.h"
+#include "packs/upgrade/pack_builder/public/ImageAuthenticatorHmac.hpp"
 #include <algorithm>
 #include <fstream>
 #include <iterator>

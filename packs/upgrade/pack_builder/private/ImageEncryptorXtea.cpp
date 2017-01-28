@@ -1,5 +1,5 @@
-#include "packs/upgrade/pack_builder/public/ImageEncryptorXtea.hpp"
 #include "mbedtls/xtea.h"
+#include "packs/upgrade/pack_builder/public/ImageEncryptorXtea.hpp"
 #include <cassert>
 #include <algorithm>
 #include <array>
