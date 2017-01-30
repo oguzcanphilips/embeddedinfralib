@@ -7,7 +7,7 @@
 
 namespace infra
 {
-    class Asn1SequenceFormatter;
+    class Asn1ContainerFormatter;
 
     class Asn1Formatter
     {
@@ -16,39 +16,50 @@ namespace infra
 
         void Add(uint8_t value);
         void Add(uint32_t value);
+        void Add(int32_t value);
 
+        void AddSerial(infra::ConstByteRange serial);
         void AddBigNumber(infra::ConstByteRange number);
-
-        void AddContextSpecific(infra::ConstByteRange data);
+        void AddContextSpecific(uint8_t context, infra::ConstByteRange data);
         void AddObjectId(infra::ConstByteRange oid);
-
-        Asn1SequenceFormatter StartSequence();
+        void AddBitString(infra::ConstByteRange string);
+        void AddPrintableString(infra::ConstByteRange string);
+        void AddUtcTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec);
 
         template<typename T>
         void AddOptional(infra::Optional<T> value);
 
+        Asn1ContainerFormatter StartSequence();
+        Asn1ContainerFormatter StartSet();
+        Asn1ContainerFormatter StartContextSpecific(uint8_t context = 0);
+        Asn1ContainerFormatter StartBitString();
+
         bool HasFailed() const;
 
+    protected:
+        infra::DataOutputStream& Stream();
+
     private:
-        enum Type : uint8_t
+        enum Tag : uint8_t
         {
             Integer = 0x02,
+            BitString = 0x03,
             Null = 0x05,
             Oid = 0x06,
             Sequence = 0x10,
             Set = 0x11,
+            UtcTime = 0x17,
+            PrintableString = 0x13,
             Constructed = 0x20,
             ContextSpecific = 0x80
         };
 
     private:
         template<typename T>
-        void AddTag(uint8_t type, uint32_t length, T data);
+        void AddTagLengthValue(uint8_t tag, uint32_t length, T value);
+        void AddTagLength(uint8_t tag, uint32_t length);
 
-        void AddTag(uint8_t type, uint32_t length);
-        void AddLength(uint32_t length);
-
-    protected:
+    private:
         infra::DataOutputStream stream;
     };
 
@@ -58,26 +69,26 @@ namespace infra
         if (value)
             Add(*value);
         else
-            AddTag(Type::Null, 0);
+            AddTagLength(Tag::Null, 0);
     }
 
     template<typename T>
-    void Asn1Formatter::AddTag(uint8_t type, uint32_t length, T data)
+    void Asn1Formatter::AddTagLengthValue(uint8_t tag, uint32_t length, T value)
     {
-        AddTag(type, length);
-        stream << data;
+        AddTagLength(tag, length);
+        stream << value;
     }
 
-    class Asn1SequenceFormatter
+    class Asn1ContainerFormatter
         : public Asn1Formatter
     {
     public:
-        Asn1SequenceFormatter(infra::DataOutputStream& stream, const uint8_t* sizeMarker);
-        Asn1SequenceFormatter(const Asn1SequenceFormatter& other) = delete;
-        Asn1SequenceFormatter(Asn1SequenceFormatter&& other);
-        Asn1SequenceFormatter& operator=(const Asn1SequenceFormatter& other) = delete;
-        Asn1SequenceFormatter& operator=(Asn1SequenceFormatter&& other);
-        ~Asn1SequenceFormatter();
+        Asn1ContainerFormatter(infra::DataOutputStream& stream, const uint8_t* sizeMarker);
+        Asn1ContainerFormatter(const Asn1ContainerFormatter& other) = delete;
+        Asn1ContainerFormatter(Asn1ContainerFormatter&& other);
+        Asn1ContainerFormatter& operator=(const Asn1ContainerFormatter& other) = delete;
+        Asn1ContainerFormatter& operator=(Asn1ContainerFormatter&& other);
+        ~Asn1ContainerFormatter();
 
     private:
         const uint8_t* sizeMarker;
