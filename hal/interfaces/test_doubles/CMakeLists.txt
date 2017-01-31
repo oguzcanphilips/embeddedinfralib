@@ -15,6 +15,7 @@ ccola_component(test_doubles win: static_library other: noncompile)
 		public/FileSystemStub.hpp
 		public/FlashMock.hpp
 		public/FlashStub.hpp
+		public/GpioMock.hpp
 		public/GpioStub.hpp
 		public/I2cMock.hpp
 		public/I2cRegisterAccessMock.hpp
