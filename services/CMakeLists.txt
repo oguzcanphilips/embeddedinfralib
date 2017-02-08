@@ -5,6 +5,7 @@ ccola_package(services)
 		usb
 		util
 		synchronous_util
+		tracer
 	)
 
 ccola_end_package()

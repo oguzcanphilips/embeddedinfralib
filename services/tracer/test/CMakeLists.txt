@@ -1,0 +1,15 @@
+ccola_component(tracer_test gmock_test)
+
+	ccola_sources(
+		TestStreamWriterOnSerialCommunication.cpp
+		TestTracer.cpp
+		TestTracerWithDateTime.cpp
+	)
+
+	ccola_dependencies(
+		tracer
+		infra.timer_test_helper
+		hal.test_doubles
+	)
+
+ccola_end_component()
