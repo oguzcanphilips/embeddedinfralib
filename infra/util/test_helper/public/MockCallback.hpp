@@ -6,7 +6,6 @@
 
 namespace infra
 {
-
     template<class T>
     class MockCallback;
 

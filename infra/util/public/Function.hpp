@@ -40,8 +40,6 @@
 
 namespace infra
 {
-    static const auto emptyFunction = []() {};
-
     template<class F, std::size_t ExtraSize = INFRA_DEFAULT_FUNCTION_EXTRA_SIZE>
     class Function;
 
@@ -133,6 +131,8 @@ namespace infra
         template<class F, std::size_t ExtraSize2>
         friend class Function;
     };
+
+    static const infra::Function<void()> emptyFunction = []() {};
 
     template<std::size_t ExtraSize, class Result, class... Args>
         void swap(Function<Result(Args...), ExtraSize>& x, Function<Result(Args...), ExtraSize>& y);

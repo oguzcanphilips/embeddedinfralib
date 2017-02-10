@@ -5,6 +5,7 @@ ccola_component(timer static_library)
 		private/ScalableDerivedTimerService.cpp
 		private/Timer.cpp
 		private/TimerAlternating.cpp
+		private/TimerExponentialBackoff.cpp
 		private/TimerLimitedRepeating.cpp
 		private/TimerLimitedRepeatingWithClosingAction.cpp
 		private/TimerService.cpp
@@ -13,6 +14,7 @@ ccola_component(timer static_library)
 		public/ScalableDerivedTimerService.hpp
 		public/Timer.hpp
 		public/TimerAlternating.hpp
+		public/TimerExponentialBackoff.hpp
 		public/TimerLimitedRepeating.hpp
 		public/TimerLimitedRepeatingWithClosingAction.hpp
 		public/TimerService.hpp
