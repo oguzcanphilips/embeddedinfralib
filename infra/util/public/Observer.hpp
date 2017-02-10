@@ -147,14 +147,14 @@ namespace infra
     {
         Detach();
         this->subject = &subject;
-        static_cast<infra::Subject<typename SubjectType_::ObserverType>&>(subject).RegisterObserver(this);
+        static_cast<infra::Subject<Descendant>&>(subject).RegisterObserver(this);
     }
 
     template<class Descendant, class SubjectType_>
     void Observer<Descendant, SubjectType_>::Detach()
     {
         if (subject)
-            static_cast<infra::Subject<typename SubjectType_::ObserverType>*>(subject)->UnregisterObserver(this);
+            static_cast<infra::Subject<Descendant>*>(subject)->UnregisterObserver(this);
         subject = nullptr;
     }
 
