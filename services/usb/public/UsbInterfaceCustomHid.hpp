@@ -78,7 +78,7 @@ namespace services
         alignas(4) uint8_t IdleState;
         alignas(4) uint8_t AltSetting;
         uint32_t IsReportAvailable;
-        CUSTOM_HID_StateTypeDef state = CUSTOM_HID_IDLE;
+        volatile CUSTOM_HID_StateTypeDef state = CUSTOM_HID_IDLE;
     };
 }
 
