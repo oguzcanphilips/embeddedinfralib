@@ -63,6 +63,16 @@ namespace infra
             return false;
         }
 
+        bool Dot::operator==(const Dot& other) const
+        {
+            return true;
+        }
+
+        bool Dot::operator!=(const Dot& other) const
+        {
+            return false;
+        }
+
         LeftBrace::LeftBrace(std::size_t index)
             : index(index)
         {}
@@ -220,6 +230,11 @@ namespace infra
             {
                 ++parseIndex;
                 return JsonToken::Comma();
+            }
+            else if (objectString[parseIndex] == '.')
+            {
+                ++parseIndex;
+                return JsonToken::Dot();
             }
             else if (objectString[parseIndex] == '{')
                 return JsonToken::LeftBrace(parseIndex++);

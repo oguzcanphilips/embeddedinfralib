@@ -458,6 +458,16 @@ TEST(JsonObjectTest, get_nonexistent_string_sets_error_on_object)
     EXPECT_TRUE(object.Error());
 }
 
+TEST(JsonObjectTest, nested_float_is_accepted)
+{
+    infra::JsonObject object(R"({ "key": { "nestedKey", 1.5 } })");
+
+    for (auto x : object)
+    {}
+
+    EXPECT_FALSE(object.Error());
+}
+
 TEST(JsonArrayIteratorTest, empty_array_iterator_compares_equal_to_end)
 {
     infra::JsonArray jsonArray(R"([ ])");
@@ -591,4 +601,14 @@ TEST(JsonArrayTest, incorrect_array_sets_error)
 
         EXPECT_TRUE(jsonArray.Error());
     }
+}
+
+TEST(JsonArrayTest, nested_float_is_accepted)
+{
+    infra::JsonArray jsonArray(R"([ { 1.5 } ])");
+
+    for (auto x : jsonArray)
+    {}
+
+    EXPECT_FALSE(jsonArray.Error());
 }
