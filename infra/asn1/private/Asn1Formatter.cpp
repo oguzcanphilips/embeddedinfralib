@@ -99,7 +99,8 @@ namespace infra
         AddTagLength(Tag::UtcTime, utcTimeSize);
 
         year -= 1900;
-        year -= 100 * (year >= 50);
+        if (year >= 50)
+            year -= 100;
 
         stream << infra::text << infra::Width(2, '0') << uint8_t(year);
         stream << infra::text << infra::Width(2, '0') << month;
@@ -182,7 +183,7 @@ namespace infra
 
     Asn1ContainerFormatter::~Asn1ContainerFormatter()
     {
-        if (sizeMarker)
+        if (sizeMarker != nullptr)
         {
             infra::SavedMarkerDataStream sizeStream(Stream(), sizeMarker);
             AddLength(sizeStream, Stream().ProcessedBytesSince(sizeMarker));

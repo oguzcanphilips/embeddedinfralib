@@ -27,7 +27,7 @@ namespace services
 
     void SpiMultipleAccessMaster::ResetCommunicationConfigurator()
     {
-        if (communicationConfigurator)
+        if (communicationConfigurator != nullptr)
         {
             master.ResetCommunicationConfigurator();
             communicationConfigurator = nullptr;
@@ -67,13 +67,13 @@ namespace services
 
     void SpiMultipleAccess::StartSession()
     {
-        if (chipSelectConfigurator)
+        if (chipSelectConfigurator != nullptr)
             chipSelectConfigurator->StartSession();
     }
 
     void SpiMultipleAccess::EndSession()
     {
-        if (chipSelectConfigurator)
+        if (chipSelectConfigurator != nullptr)
             chipSelectConfigurator->EndSession();
 
         claimer.Release();
@@ -81,7 +81,7 @@ namespace services
 
     void SpiMultipleAccess::SendAndReceiveOnClaimed(infra::ConstByteRange sendData, infra::ByteRange receiveData, hal::SpiAction nextAction, const infra::Function<void()>& onDone)
     {
-        if (communicationConfigurator)
+        if (communicationConfigurator != nullptr)
             master.SetCommunicationConfigurator(*communicationConfigurator);
         else
             master.ResetCommunicationConfigurator();

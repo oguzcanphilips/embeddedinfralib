@@ -2,14 +2,14 @@
 #define INFRA_CLOCK_FIXTURE_HPP
 
 #include "gmock/gmock.h"
-#include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
+#include "infra/event/test_helper/public/EventDispatcherWithWeakPtrFixture.hpp"
 #include "infra/timer/test_helper/public/PerfectTimerService.hpp"
 #include "infra/timer/public/TimerService.hpp"
 
 namespace infra
 {
     class ClockFixture
-        : public EventDispatcherFixture
+        : public EventDispatcherWithWeakPtrFixture
     {
     public:
         ClockFixture(uint32_t timerSericeId = systemTimerServiceId);

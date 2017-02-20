@@ -68,7 +68,7 @@ namespace infra
 
     infra::ByteRange ByteOutputStream::SaveState(const uint8_t* marker)
     {
-        uint8_t* copyBegin = const_cast<uint8_t*>(marker);
+        uint8_t* copyBegin = const_cast<uint8_t*>(marker);                                                              //TICS !CON#002
         uint8_t* copyEnd = streamRange.begin() + offset;
         std::copy_backward(copyBegin, copyEnd, streamRange.end());
 

@@ -142,7 +142,7 @@ namespace services
             case usbRequestTypeClass:
                 if (req->wLength != 0)
                 {
-                    if (req->bmRequest & 0x80)
+                    if ((req->bmRequest & 0x80) != 0)
                     {
                         Control(req->bRequest, data.data(), req->wLength);
                         device.ControlSendData(infra::ByteRange(data.data(), data.data() + req->wLength));

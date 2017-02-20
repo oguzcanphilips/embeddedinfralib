@@ -7,7 +7,7 @@ namespace infra
 {
     class EventDispatcherFixture
         : public EventDispatcher::WithSize<50>
-    {}; 
+    {};
 }
 
 #endif
