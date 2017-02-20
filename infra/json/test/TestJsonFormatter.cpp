@@ -121,6 +121,30 @@ TEST(JsonObjectFormatter, output_is_truncated_on_small_output_string)
     EXPECT_EQ(R"({)", string);
 }
 
+TEST(JsonObjectFormatter, move_object_formatter)
+{
+    infra::BoundedString::WithStorage<100> string;
+
+    {
+        auto formatter = infra::JsonObjectFormatter::WithStringStream(infra::inPlace, string);
+        auto subObject = std::move(formatter.SubObject("tag"));
+    }
+
+    EXPECT_EQ(R"({ "tag":{  } })", string);
+}
+
+TEST(JsonObjectFormatter, move_array_formatter)
+{
+    infra::BoundedString::WithStorage<100> string;
+
+    {
+        auto formatter = infra::JsonObjectFormatter::WithStringStream(infra::inPlace, string);
+        auto subArray = std::move(formatter.SubArray("tag"));
+    }
+
+    EXPECT_EQ(R"({ "tag":[  ] })", string);
+}
+
 TEST(JsonArrayFormatter, construction_results_in_empty_object)
 {
     infra::BoundedString::WithStorage<64> string;

@@ -11,18 +11,22 @@ namespace infra
 
     JsonObjectFormatter::JsonObjectFormatter(JsonObjectFormatter&& other)
         : stream(other.stream)
-    {}
+    {
+        other.stream = nullptr;
+    }
 
     JsonObjectFormatter& JsonObjectFormatter::operator=(JsonObjectFormatter&& other)
     {
         stream = other.stream;
+        other.stream = nullptr;
 
         return *this;
     }
 
     JsonObjectFormatter::~JsonObjectFormatter()
     {
-        *stream << " }";
+        if (stream != nullptr)
+            *stream << " }";
     }
 
     void JsonObjectFormatter::Add(const char* tagName, bool tag)
@@ -99,18 +103,22 @@ namespace infra
 
     JsonArrayFormatter::JsonArrayFormatter(JsonArrayFormatter&& other)
         : stream(other.stream)
-    {}
+    {
+        other.stream = nullptr;
+    }
 
     JsonArrayFormatter& JsonArrayFormatter::operator=(JsonArrayFormatter&& other)
     {
         stream = other.stream;
+        other.stream = nullptr;
 
         return *this;
     }
 
     JsonArrayFormatter::~JsonArrayFormatter()
     {
-        *stream << " ]";
+        if (stream != nullptr)
+            *stream << " ]";
     }
 
     void JsonArrayFormatter::Add(bool tag)
