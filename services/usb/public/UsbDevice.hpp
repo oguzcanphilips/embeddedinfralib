@@ -4,7 +4,7 @@
 #include "hal/interfaces/public/UsbLinkLayer.hpp"
 #include "services/usb/public/UsbInterface.hpp"
 
-#ifdef _MSC_VER
+#ifdef _MSC_VER                                                                                                         //TICS !POR#021
 #define alignas(x)
 #endif
 

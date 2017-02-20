@@ -248,7 +248,7 @@ namespace services
         , dataEndPointIn(device, CDC_IN_EP)
     {}
 
-    UsbInterfaceVirtualComPort::ConfiguredVirtualComPort::DataEndPointOut::DataEndPointOut(UsbDevice& device, uint8_t endPointNumber, infra::Function<void(infra::ConstByteRange data)> dataReceived)
+    UsbInterfaceVirtualComPort::ConfiguredVirtualComPort::DataEndPointOut::DataEndPointOut(UsbDevice& device, uint8_t endPointNumber, const infra::Function<void(infra::ConstByteRange data)>& dataReceived)
         : UsbBulkEndPointOut(device, endPointNumber, static_cast<uint16_t>(rxBuffer.size()))
         , dataReceived(dataReceived)
     {

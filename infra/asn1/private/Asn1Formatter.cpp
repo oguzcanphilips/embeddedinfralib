@@ -34,10 +34,7 @@ namespace infra
 
     void Asn1Formatter::Add(int32_t value)
     {
-        value = (value << 16) | (value >> 16);
-        value = ((value & 0x00ff00ff) << 8) | ((value & 0xff00ff00) >> 8);
-
-        AddTagLengthValue(Tag::Integer, sizeof(int32_t), value);
+        Add(static_cast<uint32_t>(value));
     }
 
     void Asn1Formatter::AddSerial(infra::ConstByteRange serial)

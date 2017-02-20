@@ -78,8 +78,8 @@ namespace services
     }
 
     UsbInterfaceCustomHid::UsbInterfaceCustomHid(UsbDevice& device)
-        : device(device)
-        , onReportReceived([](infra::ConstByteRange){})
+        : onReportReceived([](infra::ConstByteRange) {})
+        , device(device)
     {
         device.RegisterInterface(*this);
     }

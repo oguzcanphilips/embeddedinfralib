@@ -139,10 +139,10 @@ namespace services
     {
         if (epnum == 0)
         {
-            EndPoint* pep = &endPointOut[0];
-
             if (ep0_state == EndPointState::dataOut)
             {
+                EndPoint* pep = &endPointOut[0];
+
                 if (pep->remainingLength > pep->maxpacket)
                 {
                     pep->remainingLength -= pep->maxpacket;
@@ -163,14 +163,12 @@ namespace services
 
     void UsbDevice::DataInStage(uint8_t epnum, infra::ConstByteRange data)
     {
-        EndPoint* pep;
-
         if (epnum == 0)
         {
-            pep = &endPointIn[0];
-
             if (ep0_state == EndPointState::dataIn)
             {
+                EndPoint* pep = &endPointIn[0];
+
                 if (pep->remainingLength > pep->maxpacket)
                 {
                     pep->remainingLength -= pep->maxpacket;
@@ -503,18 +501,13 @@ namespace services
 
     void UsbDevice::SetAddress(uint16_t value, uint16_t index, uint16_t length)
     {
-        uint8_t  dev_addr;
-
         if (index == 0 && length == 0)
         {
-            dev_addr = (uint8_t)(value) & 0x7F;
-
             if (deviceState == DeviceState::configured)
-            {
                 ControlError();
-            }
             else
             {
+                uint8_t dev_addr = (uint8_t)(value) & 0x7F;
                 linkLayer.SetUsbAddress(dev_addr);
                 ControlSendStatus();
 
@@ -525,21 +518,15 @@ namespace services
             }
         }
         else
-        {
             ControlError();
-        }
     }
 
     void UsbDevice::SetConfig(uint16_t value)
     {
-        static uint8_t  cfgidx;
-
-        cfgidx = (uint8_t)(value);
+        uint8_t cfgidx = (uint8_t)(value);
 
         if (cfgidx > USBD_MAX_NUM_CONFIGURATION)
-        {
             ControlError();
-        }
         else
         {
             switch (deviceState)

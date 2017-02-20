@@ -20,7 +20,7 @@ namespace infra
 
     protected:
         Observer() = default;
-        Observer(SubjectType& subject);
+        Observer(SubjectType& subject);                                                                                 //TICS !INT#001
 
         Observer(const Observer& other) = delete;
         Observer& operator=(const Observer& other) = delete;
@@ -46,7 +46,7 @@ namespace infra
 
     protected:
         SingleObserver() = default;
-        SingleObserver(SubjectType& subject);
+        SingleObserver(SubjectType& subject);                                                                           //TICS !INT#001
 
         SingleObserver(const SingleObserver& other) = delete;
         SingleObserver& operator=(const SingleObserver& other) = delete;
