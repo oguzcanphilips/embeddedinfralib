@@ -31,7 +31,7 @@ namespace services
 
     void SpiMasterWithChipSelect::StartSession()
     {
-        if (chipSelectConfigurator)
+        if (chipSelectConfigurator != nullptr)
             chipSelectConfigurator->StartSession();
 
         chipSelect.Set(false);
@@ -41,7 +41,7 @@ namespace services
     {
         chipSelect.Set(true);
 
-        if (chipSelectConfigurator)
+        if (chipSelectConfigurator != nullptr)
             chipSelectConfigurator->EndSession();
     }
 }

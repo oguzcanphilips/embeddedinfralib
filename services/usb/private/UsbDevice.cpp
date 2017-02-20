@@ -545,7 +545,7 @@ namespace services
             switch (deviceState)
             {
                 case DeviceState::addressed:
-                    if (cfgidx)
+                    if (cfgidx != 0)
                     {
                         dev_config = cfgidx;
                         deviceState = DeviceState::configured;

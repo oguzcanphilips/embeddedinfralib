@@ -18,17 +18,13 @@ namespace infra
     // In order to guarantee this, StaticStorage is a trivial type per C++11 rules. Because of this, StaticStorage
     // must have a constexpr default constructor.
 
-    // Visual Studio 2013 does not yet support constexpr constructors, so the constructors must be compiler-generated.
-
     template<class T>
     class StaticStorage
     {
     public:
-#ifndef _MSC_VER                                                                                                                        //TICS !POR#021
         constexpr StaticStorage() = default;
         StaticStorage(const StaticStorage&) = delete;
         StaticStorage operator=(const StaticStorage&) = delete;
-#endif
         ~StaticStorage() = default;
 
         template<class... Args>
@@ -53,11 +49,9 @@ namespace infra
         static_assert(std::has_virtual_destructor<T>::value, "T needs to have a virtual destructor");
 
     public:
-#ifndef _MSC_VER                                                                                                                            //TICS !POR#021
         constexpr StaticStorageForPolymorphicObjects() = default;
         StaticStorageForPolymorphicObjects(const StaticStorageForPolymorphicObjects&) = delete;
         StaticStorageForPolymorphicObjects operator=(const StaticStorageForPolymorphicObjects&) = delete;
-#endif
         ~StaticStorageForPolymorphicObjects() = default;
 
         template<class U, class... Args>

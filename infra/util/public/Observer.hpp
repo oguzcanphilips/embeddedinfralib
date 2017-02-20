@@ -268,7 +268,7 @@ namespace infra
     template<class ObserverType, class Helper>
     void Subject<ObserverType, Helper>::UnregisterObserver(SingleObserver<ObserverType, SubjectType>* observer)
     {
-        (void)observer; // Avoid warning in release mode
+        (void)observer; // Avoid warning in release mode                                                                //TICS !CFL#024
         assert(this->observer == observer);
         this->observer = nullptr;
     }
