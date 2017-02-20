@@ -2,61 +2,64 @@
 #include "infra/util/public/SharedPtr.hpp"
 #include "infra/util/public/SharedObjectAllocatorFixedSize.hpp"
 
-class ObjectConstructionMock
+namespace
 {
-public:
-    MOCK_METHOD1(Construct, void(void* object));
-    MOCK_METHOD1(Destruct, void(void* object));
-};
-
-class MySharedObjectBase
-{
-protected:
-    MySharedObjectBase() = default;
-    MySharedObjectBase(const MySharedObjectBase& other) = delete;
-    MySharedObjectBase& operator=(const MySharedObjectBase& other) = delete;
-    ~MySharedObjectBase() = default;
-};
-
-class MySharedObject
-    : public MySharedObjectBase
-{
-public:
-    MySharedObject(ObjectConstructionMock& mock)
-        : mock(mock)
+    class ObjectConstructionMock
     {
-        mock.Construct(this);
-    }
+    public:
+        MOCK_METHOD1(Construct, void(void* object));
+        MOCK_METHOD1(Destruct, void(void* object));
+    };
 
-    ~MySharedObject()
+    class MySharedObjectBase
     {
-        mock.Destruct(this);
-    }
+    protected:
+        MySharedObjectBase() = default;
+        MySharedObjectBase(const MySharedObjectBase& other) = delete;
+        MySharedObjectBase& operator=(const MySharedObjectBase& other) = delete;
+        ~MySharedObjectBase() = default;
+    };
 
-    int Value() const
+    class MySharedObject
+        : public MySharedObjectBase
     {
-        return 5;
-    }
+    public:
+        MySharedObject(ObjectConstructionMock& mock)
+            : mock(mock)
+        {
+            mock.Construct(this);
+        }
 
-private:
-    ObjectConstructionMock& mock;
-};
+        ~MySharedObject()
+        {
+            mock.Destruct(this);
+        }
 
-class OtherBase
-{
-public:
-    int x;
-};
+        int Value() const
+        {
+            return 5;
+        }
 
-class MultiInheritedClass
-    : public OtherBase
-    , public MySharedObject
-{
-public:
-    MultiInheritedClass(ObjectConstructionMock& mock)
-        : MySharedObject(mock)
-    {}
-};
+    private:
+        ObjectConstructionMock& mock;
+    };
+
+    class OtherBase
+    {
+    public:
+        int x;
+    };
+
+    class MultiInheritedClass
+        : public OtherBase
+        , public MySharedObject
+    {
+    public:
+        MultiInheritedClass(ObjectConstructionMock& mock)
+            : MySharedObject(mock)
+        {}
+    };
+}
 
 class SharedPtrTest
     : public testing::Test

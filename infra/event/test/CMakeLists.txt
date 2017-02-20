@@ -3,6 +3,7 @@ ccola_component(event_test gmock_test)
 	ccola_sources(
 		TestClaimableResource.cpp
 		TestEventHandler.cpp
+		TestEventHandlerWithWeakPtr.cpp
 		TestQueueForOneReaderOneIrqWriter.cpp
 		TestSystemStateManager.cpp
 	)

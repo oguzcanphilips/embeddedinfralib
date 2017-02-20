@@ -1,9 +1,9 @@
-#include "infra/event/public/EventDispatcher.hpp"
+#include "infra/event/public/EventDispatcherWithWeakPtr.hpp"
 #include <cassert>
 
 namespace infra
 {
-    EventDispatcherWorkerImpl::EventDispatcherWorkerImpl(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage)
+    EventDispatcherWithWeakPtrWorker::EventDispatcherWithWeakPtrWorker(MemoryRange<std::pair<ActionStorage, std::atomic<bool>>> scheduledActionsStorage)
         : scheduledActions(scheduledActionsStorage)
         , scheduledActionsPushIndex(0)
         , scheduledActionsPopIndex(0)
@@ -13,7 +13,7 @@ namespace infra
             action.second = false;
     }
 
-    void EventDispatcherWorkerImpl::Schedule(const infra::Function<void()>& action)
+    void EventDispatcherWithWeakPtrWorker::Schedule(const infra::Function<void()>& action)
     {
         uint32_t pushIndex = scheduledActionsPushIndex;
         uint32_t newPushIndex;
@@ -23,7 +23,7 @@ namespace infra
             newPushIndex = (pushIndex + 1) % scheduledActions.size();
         } while (!scheduledActionsPushIndex.compare_exchange_weak(pushIndex, newPushIndex));
 
-        scheduledActions[pushIndex].first = action;
+        scheduledActions[pushIndex].first.Construct<ActionFunction>(action);
         assert(!scheduledActions[pushIndex].second);
         scheduledActions[pushIndex].second = true;
 
@@ -33,7 +33,7 @@ namespace infra
         RequestExecution();
     }
 
-    void EventDispatcherWorkerImpl::Run()
+    void EventDispatcherWithWeakPtrWorker::Run()
     {
         while (true)                                                                                            //TICS !CPP4127
         {
@@ -42,39 +42,48 @@ namespace infra
         }
     }
 
-    void EventDispatcherWorkerImpl::ExecuteAllActions()
+    void EventDispatcherWithWeakPtrWorker::ExecuteAllActions()
     {
         while (TryExecuteAction())
         {}
     }
 
-    bool EventDispatcherWorkerImpl::IsIdle() const
+    bool EventDispatcherWithWeakPtrWorker::IsIdle() const
     {
         return !scheduledActions[scheduledActionsPopIndex].second;
     }
 
-    std::size_t EventDispatcherWorkerImpl::MinCapacity() const
+    std::size_t EventDispatcherWithWeakPtrWorker::MinCapacity() const
     {
         return minCapacity;
     }
 
-    void EventDispatcherWorkerImpl::RequestExecution()
+    void EventDispatcherWithWeakPtrWorker::RequestExecution()
     {}
 
-    void EventDispatcherWorkerImpl::Idle()
+    void EventDispatcherWithWeakPtrWorker::Idle()
     {}
 
-    bool EventDispatcherWorkerImpl::TryExecuteAction()
+    bool EventDispatcherWithWeakPtrWorker::TryExecuteAction()
     {
         if (scheduledActions[scheduledActionsPopIndex].second)
         {
-            scheduledActions[scheduledActionsPopIndex].first();
-            scheduledActions[scheduledActionsPopIndex].first = nullptr;
+            scheduledActions[scheduledActionsPopIndex].first->Execute();
+            scheduledActions[scheduledActionsPopIndex].first.Destruct();
             scheduledActions[scheduledActionsPopIndex].second = false;
             scheduledActionsPopIndex = (scheduledActionsPopIndex + 1) % scheduledActions.size();
             return true;
         }
         else
             return false;
+    }
+
+    EventDispatcherWithWeakPtrWorker::ActionFunction::ActionFunction(const Function<void()>& function)
+        : function(function)
+    {}
+
+    void EventDispatcherWithWeakPtrWorker::ActionFunction::Execute()
+    {
+        function();
     }
 }

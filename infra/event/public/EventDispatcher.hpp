@@ -10,11 +10,24 @@ namespace infra
 {
     class EventDispatcherWorker
     {
+    protected:
+        EventDispatcherWorker() = default;
+        EventDispatcherWorker(const EventDispatcherWorker& other) = delete;
+        EventDispatcherWorker& operator=(const EventDispatcherWorker& other) = delete;
+        ~EventDispatcherWorker() = default;
+
     public:
-        template<std::size_t StorageSize, class T = EventDispatcherWorker>
+        virtual void Schedule(const infra::Function<void()>& action) = 0;
+    };
+
+    class EventDispatcherWorkerImpl
+        : public EventDispatcherWorker
+    {
+    public:
+        template<std::size_t StorageSize, class T = EventDispatcherWorkerImpl>
             using WithSize = infra::WithStorage<T, std::array<std::pair<infra::Function<void()>, std::atomic<bool>>, StorageSize>>;
 
-        explicit EventDispatcherWorker(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage);
+        explicit EventDispatcherWorkerImpl(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage);
 
         void Schedule(const infra::Function<void()>& action);
 
@@ -50,7 +63,7 @@ namespace infra
         explicit EventDispatcherConnector(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage);
     };
 
-    using EventDispatcher = EventDispatcherConnector<EventDispatcherWorker>;
+    using EventDispatcher = EventDispatcherConnector<EventDispatcherWorkerImpl>;
 
     ////    Implementation    ////
 
