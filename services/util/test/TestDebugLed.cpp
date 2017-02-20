@@ -3,7 +3,7 @@
 #include "infra/timer/test_helper/public/ClockFixture.hpp"
 #include "services/util/public/DebugLed.hpp"
 
-class DebugLedFixtureBase
+class DebugLedTestBase
     : public testing::Test
     , public infra::ClockFixture
 {
@@ -12,17 +12,17 @@ public:
     hal::GpioPinSpy led;
 };
 
-class DebugLedFixture
-    : public DebugLedFixtureBase
+class DebugLedTest
+    : public DebugLedTestBase
 {
 public:
-    DebugLedFixture()
+    DebugLedTest()
     {
         debugLed.Emplace(led);
     }
 };
 
-TEST_F(DebugLedFixture, DebugLedContinuouslyToggles)
+TEST_F(DebugLedTest, DebugLedContinuouslyToggles)
 {
     ForwardTime(std::chrono::seconds(2));
     EXPECT_EQ((std::vector<hal::PinChange>{
@@ -33,7 +33,7 @@ TEST_F(DebugLedFixture, DebugLedContinuouslyToggles)
     }), led.PinChanges());
 }
 
-TEST_F(DebugLedFixtureBase, NonStandardDurations)
+TEST_F(DebugLedTestBase, NonStandardDurations)
 {
     debugLed.Emplace(led, std::chrono::milliseconds(20), std::chrono::milliseconds(80));
 
