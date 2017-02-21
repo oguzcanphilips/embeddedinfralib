@@ -1,6 +1,6 @@
 #include "infra/stream/public/ByteOutputStream.hpp"
 #include "packs/upgrade/boot_loader/public/ImageUpgraderDiComm.hpp"
-#include "infra/json/public/Json.hpp"
+#include "infra/syntax/public/Json.hpp"
 
 namespace application
 {
