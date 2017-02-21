@@ -29,7 +29,7 @@ namespace infra
 
         explicit EventDispatcherWorkerImpl(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage);
 
-        void Schedule(const infra::Function<void()>& action);
+        virtual void Schedule(const infra::Function<void()>& action) override;
 
         void Run();
         void ExecuteAllActions();

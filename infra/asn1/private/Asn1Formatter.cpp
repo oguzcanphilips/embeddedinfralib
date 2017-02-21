@@ -5,11 +5,11 @@ namespace
     void AddLength(infra::DataOutputStream& stream, uint32_t length)
     {
         if (length > 0xFF)
-            stream << uint8_t(0x82) << uint8_t((length & 0xFF00) >> 8) << uint8_t(length & 0xFF);
+            stream << static_cast<uint8_t>(0x82) << static_cast<uint8_t>((length & 0xFF00) >> 8) << static_cast<uint8_t>(length & 0xFF);
         else if (length > 0x7F)
-            stream << uint8_t(0x81) << uint8_t(length & 0xFF);
+            stream << static_cast<uint8_t>(0x81) << static_cast<uint8_t>(length & 0xFF);
         else
-            stream << uint8_t(length & 0xFF);
+            stream << static_cast<uint8_t>(length & 0xFF);
     }
 }
 
@@ -51,7 +51,7 @@ namespace infra
         {
             AddTagLength(Tag::Integer, number.size() + 1);
 
-            stream << uint8_t(0x00);
+            stream << static_cast<uint8_t>(0x00);
             for (int i = number.size() - 1; i >= 0; --i)
                 stream << number[i];
         }
@@ -81,7 +81,7 @@ namespace infra
         // Next byte indicates the bits of padding added to
         // the data when the length of the data in bits is
         // not a multiple of 8.
-        stream << uint8_t(0x00);
+        stream << static_cast<uint8_t>(0x00);
         stream << string;
     }
 
@@ -99,7 +99,7 @@ namespace infra
         if (year >= 50)
             year -= 100;
 
-        stream << infra::text << infra::Width(2, '0') << uint8_t(year);
+        stream << infra::text << infra::Width(2, '0') << static_cast<uint8_t>(year);
         stream << infra::text << infra::Width(2, '0') << month;
         stream << infra::text << infra::Width(2, '0') << day;
         stream << infra::text << infra::Width(2, '0') << hour;
@@ -137,7 +137,7 @@ namespace infra
         // Next byte indicates the bits of padding added to
         // the data when the length of the data in bits is
         // not a multiple of 8.
-        stream << uint8_t(0x00);
+        stream << static_cast<uint8_t>(0x00);
 
         return Asn1ContainerFormatter(stream, marker);
     }

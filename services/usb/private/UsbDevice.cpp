@@ -27,21 +27,32 @@ namespace services
 
     #define USB_MAX_EP0_SIZE       64
 
-    #define LOBYTE(x)  ((uint8_t)(x & 0x00FF))
-    #define HIBYTE(x)  ((uint8_t)((x & 0xFF00) >>8))
+    namespace
+    {
+        constexpr uint8_t LowByte(uint16_t x)
+        {
+            return static_cast<uint8_t>(x);
+        }
 
-    #define SWAPBYTE(addr)        (((uint16_t)(*((const uint8_t *)(addr)))) + \
-                                   (((uint16_t)(*(((const uint8_t *)(addr)) + 1))) << 8))
+        constexpr uint8_t HighByte(uint16_t x)
+        {
+            return static_cast<uint8_t>(x >> 8);
+        }
 
+        constexpr uint16_t SwapByte(uint16_t x)
+        {
+            return (x << 8) | (x >> 8);
+        }
+    }
+    
     const uint16_t languageId = 1033;
 
-    #define  USB_LEN_LANGID_STR_DESC 0x04
-    alignas(4) const uint8_t USBD_LangIDDesc[USB_LEN_LANGID_STR_DESC] =
+    alignas(4) const std::array<uint8_t, 4> languadeIdDescriptor =
     {
-        USB_LEN_LANGID_STR_DESC,
+        4,
         usbDescriptorTypeString,
-        LOBYTE(languageId),
-        HIBYTE(languageId),
+        LowByte(languageId),
+        HighByte(languageId),
     };
 
     UsbDevice::UsbDevice(hal::UsbLinkLayer& linkLayer, const UsbConfig& config, bool selfPowered)
@@ -61,12 +72,12 @@ namespace services
                 config.deviceSubClass,      // bDeviceSubClass*/
                 config.deviceProtocol,      // bDeviceProtocol*/
                 USB_MAX_EP0_SIZE,           // bMaxPacketSize*/
-                LOBYTE(config.vid),         // idVendor*/
-                HIBYTE(config.vid),         // idVendor*/
-                LOBYTE(config.pid),         // idProduct*/
-                HIBYTE(config.pid),         // idProduct*/
-                LOBYTE(config.release),     // bcdDevice release */
-                HIBYTE(config.release),
+                LowByte(config.vid),         // idVendor*/
+                HighByte(config.vid),         // idVendor*/
+                LowByte(config.pid),         // idProduct*/
+                HighByte(config.pid),         // idProduct*/
+                LowByte(config.release),     // bcdDevice release */
+                HighByte(config.release),
                 USBD_IDX_MFC_STR,           // Index of manufacturer string*/
                 USBD_IDX_PRODUCT_STR,       // Index of product string*/
                 USBD_IDX_SERIAL_STR,        // Index of serial number string*/
@@ -295,9 +306,9 @@ namespace services
 
     void UsbDevice::StandardInterfaceRequest(USBD_SetupReqTypedef  *req)
     {
-        if (LOBYTE(req->wIndex) < std::distance(interfaces.begin(), interfaces.end()) && deviceState == DeviceState::configured)
+        if (LowByte(req->wIndex) < std::distance(interfaces.begin(), interfaces.end()) && deviceState == DeviceState::configured)
         {
-            std::next(interfaces.begin(), LOBYTE(req->wIndex))->Setup(req);
+            std::next(interfaces.begin(), LowByte(req->wIndex))->Setup(req);
 
             if (req->wLength == 0)
                 ControlSendStatus();
@@ -310,7 +321,7 @@ namespace services
     {
         uint8_t ep_addr;
         EndPoint* pep;
-        ep_addr = LOBYTE(req->wIndex);
+        ep_addr = LowByte(req->wIndex);
 
         /* Check if it is a class request */
         if ((req->bmRequest & 0x60) == 0x20)
@@ -417,10 +428,10 @@ namespace services
                 break;
 
             case usbDescriptorTypeString:
-                switch ((uint8_t)(value))
+                switch (static_cast<uint8_t>(value))
                 {
                     case USBD_IDX_LANGID_STR:
-                        buffer = infra::MakeByteRange(USBD_LangIDDesc);
+                        buffer = infra::MakeByteRange(languadeIdDescriptor);
                         break;
 
                     case USBD_IDX_MFC_STR:
@@ -507,7 +518,7 @@ namespace services
                 ControlError();
             else
             {
-                uint8_t dev_addr = (uint8_t)(value) & 0x7F;
+                uint8_t dev_addr = static_cast<uint8_t>(value) & 0x7F;
                 linkLayer.SetUsbAddress(dev_addr);
                 ControlSendStatus();
 
@@ -523,7 +534,7 @@ namespace services
 
     void UsbDevice::SetConfig(uint16_t value)
     {
-        uint8_t cfgidx = (uint8_t)(value);
+        uint8_t cfgidx = static_cast<uint8_t>(value);
 
         if (cfgidx > USBD_MAX_NUM_CONFIGURATION)
             ControlError();
@@ -652,9 +663,9 @@ namespace services
 
         result.bmRequest = setup[0];
         result.bRequest = setup[1];
-        result.wValue = SWAPBYTE(&setup[2]);
-        result.wIndex = SWAPBYTE(&setup[4]);
-        result.wLength = SWAPBYTE(&setup[6]);
+        result.wValue = SwapByte(setup[2]);
+        result.wIndex = SwapByte(setup[4]);
+        result.wLength = SwapByte(setup[6]);
 
         return result;
     }

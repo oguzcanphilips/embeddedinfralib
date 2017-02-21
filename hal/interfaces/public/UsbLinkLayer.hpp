@@ -75,7 +75,7 @@ namespace hal
         virtual void FlushEndPoint(uint8_t ep_addr) = 0;
         virtual void StallEndPoint(uint8_t ep_addr) = 0;
         virtual void ClearStallEndPoint(uint8_t ep_addr) = 0;
-        virtual uint8_t IsStallEndPoint(uint8_t ep_addr) = 0;
+        virtual bool IsStallEndPoint(uint8_t ep_addr) = 0;
         virtual void SetUsbAddress(uint8_t dev_addr) = 0;
         virtual void Transmit(uint8_t ep_addr, infra::ConstByteRange data) = 0;
         virtual void PrepareReceive(uint8_t ep_addr, infra::ConstByteRange data) = 0;

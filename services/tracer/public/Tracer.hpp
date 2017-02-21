@@ -8,7 +8,7 @@ namespace services
     class Tracer
     {
     public:
-        Tracer(infra::TextOutputStream& stream);
+        explicit Tracer(infra::TextOutputStream& stream);
 
         infra::TextOutputStream Trace();
         infra::TextOutputStream Continue();

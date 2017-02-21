@@ -162,7 +162,7 @@ namespace infra
         template<class F>
         void InvokerFunctions<Result(Args...), ExtraSize>::StaticDestruct(InvokerFunctionsType& invokerFunctions)
         {
-            reinterpret_cast<F&>(invokerFunctions.data).~F();
+            reinterpret_cast<F&>(invokerFunctions.data).~F();                                                                                       //TICS !CFL#024
             invokerFunctions.virtualMethodTable = nullptr;
         }
 
@@ -170,7 +170,7 @@ namespace infra
         template<class F>
         void InvokerFunctions<Result(Args...), ExtraSize>::StaticCopyConstruct(const InvokerFunctionsType& from, InvokerFunctionsType& to)
         {
-            new (&to.data) F(reinterpret_cast<const F&>(from.data));
+            new (&to.data) F(reinterpret_cast<const F&>(from.data));                                                                                //TICS !OAL#011
             std::memset(reinterpret_cast<char*>(&to.data) + sizeof(F), 0, ExtraSize - sizeof(F));                                                   //TICS !COV_CPP_NO_EFFECT_13
             to.virtualMethodTable = StaticVirtualMethodTable<F>();
         }
@@ -200,7 +200,7 @@ namespace infra
             static_assert(sizeof(F) <= ExtraSize, "Not enough static storage availabe for construction of derived type");
             static_assert(std::alignment_of<F>::value <= sizeof(UTIL_FUNCTION_ALIGNMENT), "Alignment of U is larger than alignment of this function");
 
-            new (&invokerFunctions.data) F(std::forward<F>(f));
+            new (&invokerFunctions.data) F(std::forward<F>(f));                                                                                     //TICS !OAL#011
             std::memset(reinterpret_cast<char*>(&invokerFunctions.data) + sizeof(F), 0, ExtraSize - sizeof(F));                                     //TICS !COV_CPP_NO_EFFECT_13
             invokerFunctions.virtualMethodTable = StaticVirtualMethodTable<F>();
         }

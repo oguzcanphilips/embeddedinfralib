@@ -8,7 +8,7 @@ namespace services
 {
     namespace
     {
-        static const uint8_t customHidReportDescriptor[] =
+        static const std::array<uint8_t, 38> customHidReportDescriptor =
         {
             0x06, 0xFF, 0xFF, // 04|2   , Usage Page (vendor defined?)
             0x09, 0x01,        // 08|1   , Usage      (vendor defined
@@ -34,7 +34,7 @@ namespace services
             0xC0            // C0|0   , End Collection
         };
 
-        static const uint8_t interfaceDescriptor[] =
+        static const std::array<uint8_t, 9> interfaceDescriptor =
         {
             0x09, /*bLength: Interface Descriptor size*/
             usbDescriptorTypeInterface,/*bDescriptorType: Interface descriptor type*/
@@ -47,7 +47,7 @@ namespace services
             0, /*iInterface: Index of string descriptor*/
         };
 
-        static const uint8_t customHidDescriptor[] =
+        static const std::array<uint8_t, 9> customHidDescriptor =
         {
             0x09, /*bLength: CUSTOM_HID Descriptor size*/
             CUSTOM_HID_DESCRIPTOR_TYPE, /*bDescriptorType: CUSTOM_HID*/
@@ -59,7 +59,7 @@ namespace services
             0x00,
         };
 
-        static const uint8_t endPointDescriptors[] =
+        static const std::array<uint8_t, 14> endPointDescriptors =
         {
             0x07, /*bLength: Endpoint Descriptor size*/
             usbDescriptorTypeEndPoint, /*bDescriptorType:*/
@@ -101,7 +101,7 @@ namespace services
 
         state = CUSTOM_HID_IDLE;
 
-        device.LinkLayer().PrepareReceive(CUSTOM_HID_EPOUT_ADDR, infra::ByteRange(Report_buf, Report_buf + USBD_CUSTOMHID_OUTREPORT_BUF_SIZE));
+        device.LinkLayer().PrepareReceive(CUSTOM_HID_EPOUT_ADDR, Report_buf);
     }
 
     void UsbInterfaceCustomHid::Unconfigured(uint8_t configIndex)
@@ -119,7 +119,7 @@ namespace services
                 {
 
                 case CUSTOM_HID_REQ_SET_PROTOCOL:
-                    Protocol = (uint8_t) (req->wValue);
+                    Protocol = static_cast<uint8_t>(req->wValue);
                     break;
 
                 case CUSTOM_HID_REQ_GET_PROTOCOL:
@@ -127,7 +127,7 @@ namespace services
                     break;
 
                 case CUSTOM_HID_REQ_SET_IDLE:
-                    IdleState = (uint8_t) (req->wValue >> 8);
+                    IdleState = static_cast<uint8_t>(req->wValue >> 8);
                     break;
 
                 case CUSTOM_HID_REQ_GET_IDLE:
@@ -136,7 +136,7 @@ namespace services
 
                 case CUSTOM_HID_REQ_SET_REPORT:
                     IsReportAvailable = 1;
-                    device.ControlPrepareReceive(infra::ByteRange(Report_buf, Report_buf + (uint8_t) (req->wLength)));
+                    device.ControlPrepareReceive(infra::ByteRange(Report_buf.data(), Report_buf.data() + static_cast<uint8_t>(req->wLength)));
 
                     break;
                 default:
@@ -166,9 +166,13 @@ namespace services
                         break;
 
                     case usbRequestSetInterface:
-                        AltSetting = (uint8_t) (req->wValue);
+                        AltSetting = static_cast<uint8_t>(req->wValue);
+                        break;
+                    default:
                         break;
                 }
+                break;
+            default:
                 break;
         }
     }
@@ -190,7 +194,7 @@ namespace services
             if (device.Configured())
             {
                 /* USB data will be immediately processed, this allows next USB traffic to be NAKed till the end of the application Xfer */
-                OutEvent(Report_buf);
+                OutEvent(Report_buf.data());
             }
         }
     }
@@ -219,7 +223,7 @@ namespace services
 
     void UsbInterfaceCustomHid::PrepareRx(uint16_t size)
     {
-        device.LinkLayer().PrepareReceive(CUSTOM_HID_EPOUT_ADDR, infra::ByteRange(Report_buf, Report_buf + size));
+        device.LinkLayer().PrepareReceive(CUSTOM_HID_EPOUT_ADDR, infra::ByteRange(Report_buf.data(), Report_buf.data() + size));
     }
 
     void UsbInterfaceCustomHid::OutEvent(uint8_t* data)
