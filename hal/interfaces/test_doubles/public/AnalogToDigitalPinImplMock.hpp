@@ -10,7 +10,11 @@ namespace hal
         : public AnalogToDigitalPinImplBase
     {
     public:
-        MOCK_METHOD1(Measure, void(const infra::Function<void(uint16_t value)>& onDone));
+        virtual void Measure(const infra::Function<void(uint16_t value)>& onDone) override;
+
+        MOCK_METHOD0(MeasureMock, void());
+
+        infra::Function<void(uint16_t value)> measureDone;
     };
 }
 
