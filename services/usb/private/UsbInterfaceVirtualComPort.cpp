@@ -6,13 +6,24 @@
 
 namespace services
 {
-#define LOBYTE(x)  ((uint8_t)(x & 0x00FF))
-#define HIBYTE(x)  ((uint8_t)((x & 0xFF00) >>8))
+    namespace
+    {
+        constexpr uint8_t LowByte(uint16_t x)
+        {
+            return static_cast<uint8_t>(x);
+        }
+
+        constexpr uint8_t HighByte(uint16_t x)
+        {
+            return static_cast<uint8_t>(x >> 8);
+        }
+    }
+
 #define CDC_CMD_PACKET_SIZE 8
 
     namespace
     {
-        alignas(4) uint8_t virtualComPortConfigurationDescriptor[58] =
+        alignas(4) std::array<uint8_t, 58> virtualComPortConfigurationDescriptor =
         {
             /*Interface Descriptor */
             0x09,   /* bLength: Interface Descriptor size */
@@ -58,8 +69,8 @@ namespace services
             usbDescriptorTypeEndPoint,   /* bDescriptorType: Endpoint */
             CDC_CMD_EP,                     /* bEndpointAddress */
             0x03,                           /* bmAttributes: Interrupt */
-            LOBYTE(CDC_CMD_PACKET_SIZE),     /* wMaxPacketSize: */
-            HIBYTE(CDC_CMD_PACKET_SIZE),
+            LowByte(CDC_CMD_PACKET_SIZE),     /* wMaxPacketSize: */
+            HighByte(CDC_CMD_PACKET_SIZE),
             0xff,                           /* bInterval: */
             /*---------------------------------------------------------------------------*/
 
@@ -79,8 +90,8 @@ namespace services
             usbDescriptorTypeEndPoint,      /* bDescriptorType: Endpoint */
             CDC_OUT_EP,                        /* bEndpointAddress */
             0x02,                              /* bmAttributes: Bulk */
-            LOBYTE(fullSpeedMaxPacketSize),  /* wMaxPacketSize: */
-            HIBYTE(fullSpeedMaxPacketSize),
+            LowByte(fullSpeedMaxPacketSize),  /* wMaxPacketSize: */
+            HighByte(fullSpeedMaxPacketSize),
             0x00,                              /* bInterval: ignore for Bulk transfer */
 
             /*Endpoint IN Descriptor*/
@@ -88,8 +99,8 @@ namespace services
             usbDescriptorTypeEndPoint,      /* bDescriptorType: Endpoint */
             CDC_IN_EP,                         /* bEndpointAddress */
             0x02,                              /* bmAttributes: Bulk */
-            LOBYTE(fullSpeedMaxPacketSize),  /* wMaxPacketSize: */
-            HIBYTE(fullSpeedMaxPacketSize),
+            LowByte(fullSpeedMaxPacketSize),  /* wMaxPacketSize: */
+            HighByte(fullSpeedMaxPacketSize),
             0x00                               /* bInterval: ignore for Bulk transfer */
         };
     }
@@ -157,7 +168,7 @@ namespace services
                 }
                 else
                 {
-                    Control(req->bRequest, (uint8_t*)req, 0);
+                    Control(req->bRequest, reinterpret_cast<uint8_t*>(req), 0);
                 }
                 break;
 
@@ -169,7 +180,11 @@ namespace services
                         break;
                     case usbRequestSetInterface:
                         break;
+                    default:
+                        break;
                 }
+                break;
+            default:
                 break;
         }
     }
@@ -248,7 +263,7 @@ namespace services
         , dataEndPointIn(device, CDC_IN_EP)
     {}
 
-    UsbInterfaceVirtualComPort::ConfiguredVirtualComPort::DataEndPointOut::DataEndPointOut(UsbDevice& device, uint8_t endPointNumber, infra::Function<void(infra::ConstByteRange data)> dataReceived)
+    UsbInterfaceVirtualComPort::ConfiguredVirtualComPort::DataEndPointOut::DataEndPointOut(UsbDevice& device, uint8_t endPointNumber, const infra::Function<void(infra::ConstByteRange data)>& dataReceived)
         : UsbBulkEndPointOut(device, endPointNumber, static_cast<uint16_t>(rxBuffer.size()))
         , dataReceived(dataReceived)
     {

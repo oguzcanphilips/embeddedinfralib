@@ -27,9 +27,11 @@ namespace hal
     class UsbLinkLayerObserver
         : public infra::SingleObserver<UsbLinkLayerObserver, UsbLinkLayer>
     {
-    public:
+    protected:
         UsbLinkLayerObserver(UsbLinkLayer& linkLayer) : infra::SingleObserver<UsbLinkLayerObserver, UsbLinkLayer>(linkLayer) {}
+        ~UsbLinkLayerObserver() = default;
 
+    public:
         virtual void SetupStage(infra::ConstByteRange setup) = 0;
         virtual void DataOutStage(uint8_t epnum, infra::ConstByteRange data) = 0;
         virtual void DataInStage(uint8_t epnum, infra::ConstByteRange data) = 0;
@@ -73,7 +75,7 @@ namespace hal
         virtual void FlushEndPoint(uint8_t ep_addr) = 0;
         virtual void StallEndPoint(uint8_t ep_addr) = 0;
         virtual void ClearStallEndPoint(uint8_t ep_addr) = 0;
-        virtual uint8_t IsStallEndPoint(uint8_t ep_addr) = 0;
+        virtual bool IsStallEndPoint(uint8_t ep_addr) = 0;
         virtual void SetUsbAddress(uint8_t dev_addr) = 0;
         virtual void Transmit(uint8_t ep_addr, infra::ConstByteRange data) = 0;
         virtual void PrepareReceive(uint8_t ep_addr, infra::ConstByteRange data) = 0;

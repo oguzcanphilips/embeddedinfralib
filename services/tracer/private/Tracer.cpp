@@ -14,7 +14,7 @@ namespace services
         return Continue();
     }
 
-    infra::TextOutputStream Tracer::Continue()
+    infra::TextOutputStream Tracer::Continue()                                                                          //TICS !INT#006
     {
         return stream;
     }

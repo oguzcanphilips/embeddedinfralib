@@ -42,7 +42,7 @@ namespace services
         , public hal::UsbCustomHid
     {
     public:
-        UsbInterfaceCustomHid(UsbDevice& device);
+        explicit UsbInterfaceCustomHid(UsbDevice& device);
 
         virtual void Send(infra::ConstByteRange data) override;
         virtual void OnReceived(infra::Function<void(infra::ConstByteRange)> onReportReceived) override;
@@ -67,13 +67,14 @@ namespace services
     protected:
         void OutEvent(uint8_t* data);
 
-        infra::Function<void(infra::ConstByteRange)> onReportReceived;
-        std::array<uint8_t, ReportSize> receiveBuffer;
+    protected:
+        infra::Function<void(infra::ConstByteRange)> onReportReceived;                                                  //TICS !INT#002
+        std::array<uint8_t, ReportSize> receiveBuffer;                                                                  //TICS !INT#002
 
     private:
         UsbDevice& device;
 
-        uint8_t Report_buf[USBD_CUSTOMHID_OUTREPORT_BUF_SIZE];
+        std::array<uint8_t, USBD_CUSTOMHID_OUTREPORT_BUF_SIZE> Report_buf;
         alignas(4) uint8_t Protocol;
         alignas(4) uint8_t IdleState;
         alignas(4) uint8_t AltSetting;

@@ -1,4 +1,4 @@
-#include "infra/json/public/JsonFormatter.hpp"
+#include "infra/syntax/public/JsonFormatter.hpp"
 
 namespace infra
 {

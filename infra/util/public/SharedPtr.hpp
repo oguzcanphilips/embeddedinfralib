@@ -146,10 +146,10 @@ namespace infra
         WeakPtr() = default;
         WeakPtr(const WeakPtr<T>& other);
         WeakPtr(WeakPtr<T>&& other);
-        template<class U>
+        template<class U>                                                                                               //TICS !INT#001
             WeakPtr(const WeakPtr<U>& other);
         template<class U>
-            WeakPtr(WeakPtr<U>&& other);
+            WeakPtr(WeakPtr<U>&& other);                                                                                //TICS !INT#001
         WeakPtr(const SharedPtr<T>& sharedPtr);                                                                         //TICS !INT#001
         WeakPtr& operator=(const WeakPtr<T>& other);
         WeakPtr& operator=(WeakPtr<T>&& other);

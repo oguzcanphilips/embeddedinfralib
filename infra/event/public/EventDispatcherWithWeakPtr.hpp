@@ -22,7 +22,7 @@ namespace infra
             : public Action
         {
         public:
-            ActionFunction(const Function<void()>& function);
+            explicit ActionFunction(const Function<void()>& function);
 
             virtual void Execute() override;
 

@@ -19,7 +19,7 @@ namespace services
         , public hal::SerialCommunication
     {
     public:
-        UsbInterfaceVirtualComPort(UsbDevice& device);
+        explicit UsbInterfaceVirtualComPort(UsbDevice& device);
 
         // Implementation of SerialCommunication
         virtual void SendData(infra::ConstByteRange data, infra::Function<void()> actionOnCompletion) override;
@@ -78,7 +78,7 @@ namespace services
                 : public UsbBulkEndPointOut
             {
             public:
-                DataEndPointOut(UsbDevice& device, uint8_t endPointNumber, infra::Function<void(infra::ConstByteRange data)> dataReceived);
+                DataEndPointOut(UsbDevice& device, uint8_t endPointNumber, const infra::Function<void(infra::ConstByteRange data)>& dataReceived);      //TICS !OLC#020
 
                 virtual void DataOut() override;
 
@@ -109,8 +109,8 @@ namespace services
             ConfiguredVirtualComPort(UsbDevice& device, infra::Function<void(infra::ConstByteRange data)> dataReceived);
 
         public:
-            DataEndPointOut dataEndPointOut;
-            DataEndPointIn dataEndPointIn;
+            DataEndPointOut dataEndPointOut;                                                                            //TICS !INT#002
+            DataEndPointIn dataEndPointIn;                                                                              //TICS !INT#002
         };
 
         infra::Optional<ConfiguredVirtualComPort> configured;

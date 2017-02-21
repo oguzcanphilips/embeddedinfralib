@@ -1,5 +1,5 @@
-#ifndef SERVICES_STREAM_WRITER_ON_SERIAL_COMMUNICATION
-#define SERVICES_STREAM_WRITER_ON_SERIAL_COMMUNICATION
+#ifndef SERVICES_STREAM_WRITER_ON_SERIAL_COMMUNICATION_HPP
+#define SERVICES_STREAM_WRITER_ON_SERIAL_COMMUNICATION_HPP
 
 #include "hal/interfaces/public/SerialCommunication.hpp"
 #include "infra/stream/public/OutputStream.hpp"

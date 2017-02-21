@@ -1,4 +1,4 @@
-#include "infra/json/public/Json.hpp"
+#include "infra/syntax/public/Json.hpp"
 #include <cctype>
 
 namespace

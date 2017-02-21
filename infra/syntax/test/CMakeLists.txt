@@ -1,11 +1,13 @@
-ccola_component(asn1_test gmock_test)
+ccola_component(syntax_test gmock_test)
 
 	ccola_sources(
 		TestAsn1Formatter.cpp
+		TestJson.cpp
+		TestJsonFormatter.cpp
 	)
 
 	ccola_dependencies(
-		asn1
+		syntax
 	)
 
 ccola_end_component()

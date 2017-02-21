@@ -4,7 +4,7 @@
 #include "hal/interfaces/public/UsbLinkLayer.hpp"
 #include "services/usb/public/UsbInterface.hpp"
 
-#ifdef _MSC_VER
+#ifdef _MSC_VER                                                                                                         //TICS !POR#021
 #define alignas(x)
 #endif
 
@@ -127,8 +127,8 @@ namespace services
         alignas(4) uint8_t dev_default_config;
         alignas(4) uint16_t dev_config_status;
         hal::UsbSpeed deviceSpeed = hal::UsbSpeed::full;
-        EndPoint endPointIn[15];
-        EndPoint endPointOut[15];
+        std::array<EndPoint, 15> endPointIn;
+        std::array<EndPoint, 15> endPointOut;
 
         enum class EndPointState: uint8_t
         {
@@ -188,7 +188,7 @@ namespace services
         using Result = UsbString<Characters...>;
     };
 
-    #define STRING_PROVIDER(name, string) struct name { constexpr static const char16_t* String() { return string; } };
+    #define STRING_PROVIDER(name, string) struct name { constexpr static const char16_t* String() { return string; } }; //TICS !PRE#004
 }
 
 #endif

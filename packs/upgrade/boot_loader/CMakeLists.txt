@@ -38,7 +38,7 @@ ccola_component(boot_loader static_library)
 		pack
 		infra.util
 		infra.stream
-		infra.json
+		infra.syntax
 		crypto.mbed_tls
 		crypto.micro_ecc
 		crypto.tiny_aes128

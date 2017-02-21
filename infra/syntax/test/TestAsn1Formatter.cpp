@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "infra/asn1/public/Asn1Formatter.hpp"
+#include "infra/syntax/public/Asn1Formatter.hpp"
 #include "infra/stream/public/ByteOutputStream.hpp"
 
 namespace
