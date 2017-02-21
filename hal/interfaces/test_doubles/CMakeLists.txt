@@ -1,7 +1,6 @@
 ccola_component(test_doubles win: static_library other: noncompile)
 
 	ccola_sources(
-		private/AnalogToDigitalPinImplStub.cpp
 		private/FileSystemStub.cpp
 		private/FlashMock.cpp
 		private/FlashStub.cpp
@@ -12,7 +11,7 @@ ccola_component(test_doubles win: static_library other: noncompile)
 		private/SerialCommunicationMock.cpp
 		private/SerialCommunicationStub.cpp
 		private/SpiMock.cpp
-		public/AnalogToDigitalPinImplStub.hpp
+		public/AnalogToDigitalPinImplMock.hpp
 		public/CommunicationConfiguratorMock.hpp
 		public/FileSystemStub.hpp
 		public/FlashMock.hpp
