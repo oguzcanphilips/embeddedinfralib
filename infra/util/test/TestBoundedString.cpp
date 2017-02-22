@@ -621,6 +621,16 @@ TEST(BoundedStringTest, TestFindLastNotOf)
     EXPECT_EQ(3, string.find_last_not_of('e'));
 }
 
+TEST(BoundedStringTest, TestStringAsByteRange)
+{
+    infra::BoundedString::WithStorage<5> string("abcde");
+
+    EXPECT_EQ(infra::MemoryRange<uint8_t>(reinterpret_cast<uint8_t*>(string.begin()), reinterpret_cast<uint8_t*>(string.end())),
+        StringAsByteRange(string));
+    EXPECT_EQ(infra::MemoryRange<const uint8_t>(reinterpret_cast<const uint8_t*>(string.begin()), reinterpret_cast<const uint8_t*>(string.end())),
+        StringAsByteRange(const_cast<const infra::BoundedString&>(static_cast<const infra::BoundedString&>(string))));
+}
+
 TEST(BoundedStringTest, TestPrintTo1)
 {
     std::ostringstream stream;
