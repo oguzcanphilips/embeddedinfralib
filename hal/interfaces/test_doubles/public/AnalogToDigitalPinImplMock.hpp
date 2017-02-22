@@ -3,11 +3,12 @@
 
 #include "gmock/gmock.h"
 #include "hal/interfaces/public/AnalogToDigitalPin.hpp"
+#include "infra/util/public/Unit.hpp"
 
 namespace hal
 {
     class AnalogToDigitalPinImplMock
-        : public AnalogToDigitalPinImplBase
+        : AnalogToDigitalPinImplBase
     {
     public:
         MOCK_METHOD1(Measure, void(const infra::Function<void(uint16_t value)>& onDone));
