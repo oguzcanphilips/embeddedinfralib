@@ -182,7 +182,7 @@ TEST_F(ImageUpgraderDiCommTest, ASmallChunkIsSentWhenSizeIsRestricted)
 {
     EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
-    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle","maxchunksize":4})")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle","maxchunksize":3})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":8})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJj"})")).WillOnce(testing::Throw<Ok>(Ok()));
 
@@ -208,7 +208,7 @@ TEST_F(ImageUpgraderDiCommTest, NextChunkIsSentAfterPreviousHasBeenProcessed)
     testing::InSequence s;
     EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
-    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle","maxchunksize":4})")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle","maxchunksize":3})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":6})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJj"})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":3})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"ZGVm"})")).WillOnce(testing::Throw<Ok>(Ok()));

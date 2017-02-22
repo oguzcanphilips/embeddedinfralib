@@ -40,7 +40,7 @@ namespace application
         infra::JsonObject firmwareProperties(firmwarePropertiesString);
         infra::BoundedConstString state = firmwareProperties.GetString("state");
         bool canUpgrade = firmwareProperties.GetOptionalBoolean("canupgrade").ValueOr(true);
-        maxChunkSize = firmwareProperties.GetOptionalInteger("maxchunksize").ValueOr((chunkSizeMax + 2) / 3 * 4);
+        maxChunkSize = firmwareProperties.GetOptionalInteger("maxchunksize").ValueOr(chunkSizeMax);
 
         if (firmwareProperties.Error() || state != "idle" || !canUpgrade)
             return false;
@@ -122,7 +122,7 @@ namespace application
 
     void ImageUpgraderDiComm::FirmwareWriter::ReadChunkFromFlash()
     {
-        chunk.resize(std::min(imageSize - imageSizeSent, maxChunkSize / 4 * 3));
+        chunk.resize(std::min(imageSize - imageSizeSent, maxChunkSize));
         flash.ReadBuffer(infra::MakeRangeFromContainer(chunk), imageAddress + imageSizeSent);
         decryptor.DecryptPart(infra::MakeRangeFromContainer(chunk));
         ConvertChunkToBase64();
