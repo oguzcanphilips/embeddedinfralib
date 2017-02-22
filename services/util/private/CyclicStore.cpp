@@ -346,6 +346,12 @@ namespace services
         loadStartAddressDelayed = other.loadStartAddressDelayed;
         address = other.address;
 
+        sectorStatus = other.sectorStatus;
+        firstSectorToRead = other.firstSectorToRead;
+        blockHeader = other.blockHeader;
+        readBuffer = other.readBuffer;
+        found = other.found;
+
         return *this;
     }
 
