@@ -38,11 +38,6 @@ namespace services
         {
             return static_cast<uint8_t>(x >> 8);
         }
-
-        constexpr uint16_t SwapByte(uint16_t x)
-        {
-            return (x << 8) | (x >> 8);
-        }
     }
     
     const uint16_t languageId = 1033;
@@ -663,9 +658,9 @@ namespace services
 
         result.bmRequest = setup[0];
         result.bRequest = setup[1];
-        result.wValue = SwapByte(setup[2]);
-        result.wIndex = SwapByte(setup[4]);
-        result.wLength = SwapByte(setup[6]);
+        result.wValue = reinterpret_cast<const uint16_t&>(setup[2]);
+        result.wIndex = reinterpret_cast<const uint16_t&>(setup[4]);
+        result.wLength = reinterpret_cast<const uint16_t&>(setup[6]);
 
         return result;
     }
