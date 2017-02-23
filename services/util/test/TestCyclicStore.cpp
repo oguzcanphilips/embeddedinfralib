@@ -170,6 +170,31 @@ TEST_F(CyclicStoreTest, ReadFirstItem)
     ExecuteAllActions();
 }
 
+TEST_F(CyclicStoreTest, ReadFirstItemTwice)
+{
+    // build
+    std::vector<uint8_t> data = { 11, 12 };
+    cyclicStore.Add(data, infra::emptyFunction);
+    ExecuteAllActions();
+
+    infra::MockCallback<void(std::vector<uint8_t>)> mock;
+    EXPECT_CALL(mock, callback(std::vector<uint8_t>{ 11, 12 }));
+
+    services::CyclicStore::Iterator iterator = cyclicStore.Begin();
+    std::vector<uint8_t> readDataBuffer(2, 0);
+    iterator.Read(readDataBuffer, [&mock](infra::ByteRange result) { mock.callback(std::vector<uint8_t>(result.begin(), result.end())); });
+
+    ExecuteAllActions();
+
+    // operate/check
+    EXPECT_CALL(mock, callback(std::vector<uint8_t>{ 11, 12 }));
+
+    iterator = cyclicStore.Begin();
+    iterator.Read(readDataBuffer, [&mock](infra::ByteRange result) { mock.callback(std::vector<uint8_t>(result.begin(), result.end())); });
+
+    ExecuteAllActions();
+}
+
 TEST_F(CyclicStoreTest, ReadItemWithInsufficientBufferSpace)
 {
     std::vector<uint8_t> data = { 11, 12 };

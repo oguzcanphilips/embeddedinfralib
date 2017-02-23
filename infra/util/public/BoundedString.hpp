@@ -310,6 +310,15 @@ namespace infra
     template<class T>
         void swap(BoundedStringBase<T>& lhs, BoundedStringBase<T>& rhs);
 
+    template<class T, class U>
+        MemoryRange<T> StringAsMemoryRange(infra::BoundedStringBase<U> string);
+    template<class T, class U>
+        MemoryRange<const T> StringAsMemoryRange(infra::BoundedStringBase<const U> string);
+    template<class U>
+        MemoryRange<uint8_t> StringAsByteRange(infra::BoundedStringBase<U> string);
+    template<class U>
+        MemoryRange<const uint8_t> StringAsByteRange(infra::BoundedStringBase<const U> string);
+
 #ifdef _MSC_VER                                                                                                                     //TICS !POR#021
     // gtest uses PrintTo to display the contents of BoundedStringBase<T>
     template<class T>
@@ -1603,6 +1612,30 @@ namespace infra
     void swap(BoundedStringBase<T>& lhs, BoundedStringBase<T>& rhs)
     {
         lhs.swap(rhs);
+    }
+
+    template<class T, class U>
+    MemoryRange<T> StringAsMemoryRange(infra::BoundedStringBase<U> string)
+    {
+        return MemoryRange<T>(reinterpret_cast<T*>(string.begin()), reinterpret_cast<T*>(string.end()));
+    }
+
+    template<class T, class U>
+    MemoryRange<const T> StringAsMemoryRange(infra::BoundedStringBase<const U> string)
+    {
+        return MemoryRange<const T>(reinterpret_cast<const T*>(string.begin()), reinterpret_cast<const T*>(string.end()));
+    }
+
+    template<class U>
+    MemoryRange<uint8_t> StringAsByteRange(infra::BoundedStringBase<U> string)
+    {
+        return StringAsMemoryRange<uint8_t>(string);
+    }
+
+    template<class U>
+    MemoryRange<const uint8_t> StringAsByteRange(infra::BoundedStringBase<const U> string)
+    {
+        return StringAsMemoryRange<uint8_t>(string);
     }
 }
 
