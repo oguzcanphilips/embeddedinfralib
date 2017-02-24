@@ -57,8 +57,7 @@ namespace hal
         this->onDone = onDone;
         Impl::Measure([this](uint16_t value)
         {
-            infra::Quantity<Unit, Storage> convertedValue((value * infra::Quantity<Conversion, Storage>(1)).Value());
-            this->onDone(convertedValue);
+            this->onDone(infra::Quantity<Conversion, Storage>(value));
         });
     }
 }
