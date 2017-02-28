@@ -7,10 +7,10 @@
 namespace hal
 {
     class DigitalToAnalogPinImplMock
-        : DigitalToAnalogPinImplBase
+        : public DigitalToAnalogPinImplBase
     {
     public:
-        MOCK_METHOD1(Set, void(uitn16_t value));
+        MOCK_METHOD1(Set, void(uint16_t value));
     };
 }
 
