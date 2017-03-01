@@ -20,9 +20,9 @@ namespace infra
 
     private:
         TimePoint triggerStart;
-        Duration triggerPeriod;
-        Duration initialTriggerPeriod;
-        Duration maximumBackoffPeriod;
+        Duration triggerPeriod = Duration();
+        Duration initialTriggerPeriod = Duration();
+        Duration maximumBackoffPeriod = Duration();
         mutable bool conditionResult = true;
         infra::Function<bool()> condition;
         infra::Function<void()> action;
