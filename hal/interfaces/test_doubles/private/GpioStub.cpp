@@ -46,7 +46,7 @@ namespace hal
     void GpioPinStub::Config(PinConfigType config, bool startOutputState)
     {
         input = false;
-        SetStubState(startOutputState);
+        Set(startOutputState);
     }
 
     void GpioPinStub::ResetConfig()
@@ -64,7 +64,7 @@ namespace hal
 
     void GpioPinStub::SetStubState(bool value)
     {
-        input = false;
+        input = true;
         if (state != value)
         {
             state = value;
