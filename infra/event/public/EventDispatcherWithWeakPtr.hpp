@@ -35,7 +35,7 @@ namespace infra
             : public Action
         {
         public:
-            ActionWithWeakPtr(const infra::Function<void(const infra::SharedPtr<T>& object)>& function, const infra::SharedPtr<T>& object);
+            ActionWithWeakPtr(const infra::Function<void(const infra::SharedPtr<T>& object)>& function, const infra::WeakPtr<T>& object);
 
             virtual void Execute() override;
 
@@ -55,6 +55,8 @@ namespace infra
 
         template<class T>
             void Schedule(const typename std::decay<infra::Function<void(const infra::SharedPtr<T>& object)>>::type& action, const infra::SharedPtr<T>& object);
+        template<class T>
+            void Schedule(const typename std::decay<infra::Function<void(const infra::SharedPtr<T>& object)>>::type& action, const infra::WeakPtr<T>& object);
 
         void Run();
         void ExecuteAllActions();
@@ -98,6 +100,12 @@ namespace infra
     template<class T>
     void EventDispatcherWithWeakPtrWorker::Schedule(const typename std::decay<infra::Function<void(const infra::SharedPtr<T>& object)>>::type& action, const infra::SharedPtr<T>& object)
     {
+        Schedule(action, infra::WeakPtr<T>(object));
+    }
+
+    template<class T>
+    void EventDispatcherWithWeakPtrWorker::Schedule(const typename std::decay<infra::Function<void(const infra::SharedPtr<T>& object)>>::type& action, const infra::WeakPtr<T>& object)
+    {
         uint32_t pushIndex = scheduledActionsPushIndex;
         uint32_t newPushIndex;
 
@@ -117,7 +125,7 @@ namespace infra
     }
 
     template<class T>
-    EventDispatcherWithWeakPtrWorker::ActionWithWeakPtr<T>::ActionWithWeakPtr(const infra::Function<void(const infra::SharedPtr<T>& object)>& function, const infra::SharedPtr<T>& object)
+    EventDispatcherWithWeakPtrWorker::ActionWithWeakPtr<T>::ActionWithWeakPtr(const infra::Function<void(const infra::SharedPtr<T>& object)>& function, const infra::WeakPtr<T>& object)
         : function(function)
         , object(object)
     {}

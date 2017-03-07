@@ -13,6 +13,7 @@ ccola_component(test_doubles win: static_library other: noncompile)
 		private/SpiMock.cpp
 		public/AnalogToDigitalPinImplMock.hpp
 		public/CommunicationConfiguratorMock.hpp
+		public/DigitalToAnalogPinImplMock.hpp
 		public/FileSystemStub.hpp
 		public/FlashMock.hpp
 		public/FlashStub.hpp

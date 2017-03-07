@@ -153,7 +153,7 @@ namespace services
         };
 
         DeviceState deviceState = DeviceState::defaultState;
-        DeviceState oldDeviceState;
+        DeviceState oldDeviceState = DeviceState::defaultState;
         bool remoteWakeUp = false;
 
         alignas(4) std::array<uint8_t, 512> configurationBuffer;

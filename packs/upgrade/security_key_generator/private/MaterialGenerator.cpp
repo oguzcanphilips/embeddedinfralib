@@ -160,5 +160,5 @@ namespace application
         output << "\n} };\n\n";
 
         output.copyfmt(oldState);
-    }
+    }                                                                                                                   //TICS !COV_CPP_STREAM_FORMAT_STATE_01
 }
