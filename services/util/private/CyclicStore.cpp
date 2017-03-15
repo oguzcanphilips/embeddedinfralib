@@ -2,7 +2,6 @@
 
 namespace services
 {
-
     CyclicStore::CyclicStore(hal::Flash& flash)
         : flash(flash)
         , claimer(resource)

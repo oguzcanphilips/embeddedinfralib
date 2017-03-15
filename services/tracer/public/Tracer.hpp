@@ -9,6 +9,9 @@ namespace services
     {
     public:
         explicit Tracer(infra::TextOutputStream& stream);
+        Tracer(const Tracer& other) = delete;
+        Tracer& operator=(const Tracer& other) = delete;
+        virtual ~Tracer() = default;
 
         infra::TextOutputStream Trace();
         infra::TextOutputStream Continue();
