@@ -2,8 +2,6 @@
 #include "packs/upgrade/pack_builder/public/BinaryObject.hpp"
 #include "mbedtls/memory_buffer_alloc.h"
 #include "packs/upgrade/pack_builder/public/BuildReferenceUpgradePack.hpp"
-#include "packs/upgrade/pack_builder/public/ImageEncryptorAes.hpp"
-#include "packs/upgrade/pack_builder/public/ImageSignerEcDsa.hpp"
 #include "packs/upgrade/pack_builder/public/UpgradePackBuilder.hpp"
 #include "packs/upgrade/pack_builder/public/UpgradePackInputFactory.hpp"
 #include <cctype>

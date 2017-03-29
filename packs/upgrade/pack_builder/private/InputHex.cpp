@@ -1,8 +1,5 @@
 #include "packs/upgrade/pack_builder/public/InputBinary.hpp"
 #include "packs/upgrade/pack_builder/public/InputHex.hpp"
-#include "packs/upgrade/pack_builder/public/ImageEncryptorAes.hpp"
-#include "packs/upgrade/pack_builder/public/ImageSecurityXteaHmac.hpp"
-#include "packs/upgrade/pack_builder/public/ImageAuthenticatorHmac.hpp"
 
 namespace application
 {
