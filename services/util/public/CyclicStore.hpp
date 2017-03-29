@@ -16,6 +16,7 @@ namespace services
         CyclicStore& operator=(const CyclicStore& other) = delete;
 
         void Add(infra::ConstByteRange range, infra::Function<void()> onDone);
+        void AddPartial(infra::ConstByteRange range, uint32_t totalSize, infra::Function<void()> onDone);
         void Clear(infra::Function<void()> onDone);
 
         class Iterator;
@@ -43,6 +44,9 @@ namespace services
         infra::ClaimableResource::Claimer::WithSize<12> recoverClaimer;
         infra::AutoResetFunction<void()> onAddDone;
         infra::AutoResetFunction<void()> onClearDone;
+        uint32_t remainingPartialSize = 0;
+        uint32_t partialSizeWritten = 0;
+        bool partialAddStarted = false;
 
         using Length = uint16_t;
 

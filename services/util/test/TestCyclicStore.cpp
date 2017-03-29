@@ -40,6 +40,21 @@ TEST_F(CyclicStoreTest, AddFirstItem)
     EXPECT_EQ((std::vector<uint8_t>{ 0xfc, 0xf8, 2, 0, 11, 12, 0xff, 0xff, 0xff, 0xff }), flash.sectors[0]);
 }
 
+TEST_F(CyclicStoreTest, AddPartialItem)
+{
+    std::vector<uint8_t> data = { 11 };
+    cyclicStore.AddPartial(data, 3, infra::emptyFunction);
+    ExecuteAllActions();
+    std::vector<uint8_t> secondData = { 12 };
+    cyclicStore.Add(secondData, infra::emptyFunction);
+    ExecuteAllActions();
+    std::vector<uint8_t> thirdData = { 13 };
+    cyclicStore.Add(thirdData, infra::emptyFunction);
+    ExecuteAllActions();
+
+    EXPECT_EQ((std::vector<uint8_t>{ 0xfc, 0xf8, 3, 0, 11, 12, 13, 0xff, 0xff, 0xff }), flash.sectors[0]);
+}
+
 TEST_F(CyclicStoreTest, AddSecondItem)
 {
     std::vector<uint8_t> data = { 11 };
