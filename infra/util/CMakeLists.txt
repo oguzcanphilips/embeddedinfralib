@@ -5,6 +5,7 @@ ccola_component(util static_library)
 		private/Optional.cpp
 		private/Sequencer.cpp
 		private/SharedPtr.cpp
+		private/Tokenizer.cpp
 		public/Allocator.hpp
 		public/AllocatorFixedSpace.hpp
 		public/AllocatorHeap.hpp
@@ -42,6 +43,7 @@ ccola_component(util static_library)
 		public/SharedObjectAllocator.hpp
 		public/SharedObjectAllocatorFixedSize.hpp
 		public/StaticStorage.hpp
+		public/Tokenizer.hpp
 		public/Unit.hpp
 		public/VariadicTemplates.hpp
 		public/Variant.hpp

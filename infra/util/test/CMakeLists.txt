@@ -30,6 +30,7 @@ ccola_component(util_test gmock_test)
 		TestSharedPtr.cpp
 		TestSignalSlot.cpp
 		TestStaticStorage.cpp
+		TestTokenizer.cpp
 		TestUnit.cpp
 		TestVariant.cpp
 	)
