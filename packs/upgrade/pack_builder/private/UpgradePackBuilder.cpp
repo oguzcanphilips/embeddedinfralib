@@ -48,8 +48,8 @@ namespace application
     {
         std::vector<uint8_t> signature = signer.ImageSignature(upgradePack);
 
-        UpgradePackHeaderPrologue prologue = {};
-        prologue.status = UpgradePackStatus::readyToDeploy;
+        UpgradePackHeaderPrologue prologue = {};    
+        prologue.status = UpgradePackStatus::empty; 
         prologue.magic = upgradePackMagic;
         prologue.errorCode = 0xffffffff;
         prologue.signedContentsLength = upgradePack.size();
