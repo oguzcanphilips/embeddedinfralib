@@ -66,7 +66,7 @@ TEST_F(TestUpgradePackBuilder, Status)
     std::vector<uint8_t> upgradePack = upgradePackBuilder.UpgradePack();
     const application::UpgradePackHeaderPrologue& prologue = reinterpret_cast<const application::UpgradePackHeaderPrologue&>(upgradePack.front());
 
-    EXPECT_EQ(application::UpgradePackStatus::readyToDeploy, prologue.status);
+    EXPECT_EQ(application::UpgradePackStatus::empty, prologue.status);
 }
 
 TEST_F(TestUpgradePackBuilder, Magic)
