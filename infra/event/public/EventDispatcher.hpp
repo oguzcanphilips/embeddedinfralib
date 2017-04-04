@@ -60,7 +60,8 @@ namespace infra
         template<std::size_t StorageSize>
             using WithSize = typename T::template WithSize<StorageSize, EventDispatcherConnector<T>>;
 
-        explicit EventDispatcherConnector(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage);
+        template<class... ConstructionArgs>
+            explicit EventDispatcherConnector(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage, ConstructionArgs&&... args);
     };
 
     using EventDispatcher = EventDispatcherConnector<EventDispatcherWorkerImpl>;
@@ -68,9 +69,10 @@ namespace infra
     ////    Implementation    ////
 
     template<class T>
-    EventDispatcherConnector<T>::EventDispatcherConnector(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage)
+    template<class... ConstructionArgs>
+    EventDispatcherConnector<T>::EventDispatcherConnector(MemoryRange<std::pair<infra::Function<void()>, std::atomic<bool>>> scheduledActionsStorage, ConstructionArgs&&... args)
         : infra::InterfaceConnector<EventDispatcherWorker>(this)
-        , T(scheduledActionsStorage)
+        , T(scheduledActionsStorage, std::forward(args)...)
     {}
 }
 

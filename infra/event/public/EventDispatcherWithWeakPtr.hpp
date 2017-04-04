@@ -90,7 +90,8 @@ namespace infra
         template<std::size_t StorageSize>
             using WithSize = typename T::template WithSize<StorageSize, EventDispatcherWithWeakPtrConnector<T>>;
 
-        explicit EventDispatcherWithWeakPtrConnector(MemoryRange<std::pair<EventDispatcherWithWeakPtrWorker::ActionStorage, std::atomic<bool>>> scheduledActionsStorage);
+        template<class... ConstructionArgs>
+            explicit EventDispatcherWithWeakPtrConnector(MemoryRange<std::pair<EventDispatcherWithWeakPtrWorker::ActionStorage, std::atomic<bool>>> scheduledActionsStorage, ConstructionArgs&&... args);
     };
 
     using EventDispatcherWithWeakPtr = EventDispatcherWithWeakPtrConnector<EventDispatcherWithWeakPtrWorker>;
@@ -139,10 +140,11 @@ namespace infra
     }
 
     template<class T>
-    EventDispatcherWithWeakPtrConnector<T>::EventDispatcherWithWeakPtrConnector(MemoryRange<std::pair<EventDispatcherWithWeakPtrWorker::ActionStorage, std::atomic<bool>>> scheduledActionsStorage)
+    template<class... ConstructionArgs>
+    EventDispatcherWithWeakPtrConnector<T>::EventDispatcherWithWeakPtrConnector(MemoryRange<std::pair<EventDispatcherWithWeakPtrWorker::ActionStorage, std::atomic<bool>>> scheduledActionsStorage, ConstructionArgs&&... args)
         : infra::InterfaceConnector<EventDispatcherWorker>(this)
         , infra::InterfaceConnector<EventDispatcherWithWeakPtrWorker>(this)
-        , T(scheduledActionsStorage)
+        , T(scheduledActionsStorage, std::forward(args)...)
     {}
 }
 
