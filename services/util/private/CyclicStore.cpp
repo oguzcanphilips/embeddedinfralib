@@ -1,3 +1,4 @@
+#include "infra/event/public/EventDispatcher.hpp"
 #include "services/util/public/CyclicStore.hpp"
 
 namespace services
@@ -321,8 +322,9 @@ namespace services
             flash.WriteBuffer(range, endAddress + partialSizeWritten + 3, [this]() { sequencer.Continue(); });
             partialSizeWritten += range.size();
         });
-        sequencer.If([this, range]() { return remainingPartialSize == 0; });
-            sequencer.Step([this, range]()  // Write status 'ready'
+        sequencer.Step([this, range]()  // Write status 'ready'
+        {
+            if (remainingPartialSize == 0)
             {
                 blockHeader.status = BlockStatus::dataReady;
                 flash.WriteBuffer(infra::MakeByteRange(blockHeader.status), endAddress, [this]() { sequencer.Continue(); });
@@ -331,10 +333,13 @@ namespace services
                 partialAddStarted = false;
                 if (endAddress == flash.TotalSize())
                     endAddress = 0;
-            });
-        sequencer.Else();
-            sequencer.Execute([this]() { partialAddStarted = true; });
-        sequencer.EndIf();
+            }
+            else
+            {
+                partialAddStarted = true;
+                infra::EventDispatcher::Instance().Schedule([this]() { sequencer.Continue(); });                
+            }
+        });
     }
 
     CyclicStore::Iterator::Iterator(const CyclicStore& store)
