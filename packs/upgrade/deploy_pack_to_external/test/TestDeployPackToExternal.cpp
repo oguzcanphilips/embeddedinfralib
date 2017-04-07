@@ -8,6 +8,24 @@
 #include "packs/upgrade/deploy_pack_to_external/public/DeployPackToExternal.hpp"
 #include "packs/upgrade/pack/public/UpgradePackHeader.hpp"
 
+namespace
+{
+    class DeployPackToExternalObserverMock
+        : public application::DeployPackToExternalObserver
+    {
+    public:
+        DeployPackToExternalObserverMock(application::DeployPackToExternal& deploy)
+            : application::DeployPackToExternalObserver(deploy)
+        {}
+
+        //using application::DeployPackToExternalObserver::DeployPackToExternalObserver;
+
+        MOCK_METHOD0(NotDeployable, void());
+        MOCK_METHOD0(DoesntFit, void());
+        MOCK_METHOD0(Done, void());
+    };
+}
+
 class DeployPackToExternalTest
     : public testing::Test
     , public infra::ClockFixture
@@ -20,7 +38,6 @@ public:
 
     hal::FlashStub from;
     hal::FlashStub to;
-    hal::GpioPinSpy statusLed;
 };
 
 TEST_F(DeployPackToExternalTest, DeployPackCopiesHeader)
@@ -30,7 +47,9 @@ TEST_F(DeployPackToExternalTest, DeployPackCopiesHeader)
     header.status = application::UpgradePackStatus::readyToDeploy;
     outputStream << header;
 
-    application::DeployPackToExternal deploy(from, to, statusLed);
+    application::DeployPackToExternal deploy(from, to);
+    DeployPackToExternalObserverMock observer(deploy);
+    EXPECT_CALL(observer, Done());
     ExecuteAllActions();
 
     infra::ByteInputStream inputStream(to.sectors[0]);
@@ -47,7 +66,9 @@ TEST_F(DeployPackToExternalTest, AfterCopyDeployStatusIsSet)
     header.status = application::UpgradePackStatus::readyToDeploy;
     outputStream << header;
 
-    application::DeployPackToExternal deploy(from, to, statusLed);
+    application::DeployPackToExternal deploy(from, to);
+    DeployPackToExternalObserverMock observer(deploy);
+    EXPECT_CALL(observer, Done());
     ExecuteAllActions();
 
     infra::ByteInputStream inputStream(to.sectors[0]);
@@ -67,7 +88,9 @@ TEST_F(DeployPackToExternalTest, DeployPackCopiesChunk)
     header.signedContentsLength = contents.size();
     outputStream << header << contents;
 
-    application::DeployPackToExternal deploy(from, to, statusLed);
+    application::DeployPackToExternal deploy(from, to);
+    DeployPackToExternalObserverMock observer(deploy);
+    EXPECT_CALL(observer, Done());
     ExecuteAllActions();
 
     infra::ByteInputStream inputStream(to.sectors[0]);
@@ -88,7 +111,9 @@ TEST_F(DeployPackToExternalTest, DeployPackCopiesMultipleChunks)
     header.signedContentsLength = contents.size() + largeContents.size();
     outputStream << header << largeContents << contents;
 
-    application::DeployPackToExternal deploy(from, to, statusLed);
+    application::DeployPackToExternal deploy(from, to);
+    DeployPackToExternalObserverMock observer(deploy);
+    EXPECT_CALL(observer, Done());
     ExecuteAllActions();
 
     infra::ByteInputStream inputStream(to.sectors[0]);
@@ -106,7 +131,9 @@ TEST_F(DeployPackToExternalTest, AfterDeployDeployedStatusIsSet)
     header.status = application::UpgradePackStatus::readyToDeploy;
     outputStream << header;
 
-    application::DeployPackToExternal deploy(from, to, statusLed);
+    application::DeployPackToExternal deploy(from, to);
+    DeployPackToExternalObserverMock observer(deploy);
+    EXPECT_CALL(observer, Done());
     ExecuteAllActions();
 
     infra::ByteInputStream inputStream(from.sectors[0]);
@@ -121,16 +148,10 @@ TEST_F(DeployPackToExternalTest, AfterDeployStatusLedSignalsSuccess)
     header.status = application::UpgradePackStatus::readyToDeploy;
     outputStream << header;
 
-    application::DeployPackToExternal deploy(from, to, statusLed);
+    application::DeployPackToExternal deploy(from, to);
+    DeployPackToExternalObserverMock observer(deploy);
+    EXPECT_CALL(observer, Done());
     ExecuteAllActions();
-
-    ForwardTime(std::chrono::milliseconds(1500));
-    EXPECT_EQ((std::vector<hal::PinChange>{
-        { std::chrono::milliseconds(0), true },
-        { std::chrono::milliseconds(100), false },
-        { std::chrono::milliseconds(200), true },
-        { std::chrono::milliseconds(300), false }
-    }), statusLed.PinChanges());
 }
 
 TEST_F(DeployPackToExternalTest, TooBigDoesNotDeploy)
@@ -141,7 +162,9 @@ TEST_F(DeployPackToExternalTest, TooBigDoesNotDeploy)
     header.signedContentsLength = to.SizeOfSector(0) * 5;
     outputStream << header;
 
-    application::DeployPackToExternal deploy(from, to, statusLed);
+    application::DeployPackToExternal deploy(from, to);
+    DeployPackToExternalObserverMock observer(deploy);
+    EXPECT_CALL(observer, DoesntFit());
     ExecuteAllActions();
 
     infra::ByteInputStream inputStream(to.sectors[0]);
@@ -149,25 +172,4 @@ TEST_F(DeployPackToExternalTest, TooBigDoesNotDeploy)
     inputStream >> infra::MakeByteRange(writtenHeader);
 
     EXPECT_FALSE(infra::ContentsEqual(infra::MakeByteRange(header), infra::MakeByteRange(writtenHeader)));
-}
-
-TEST_F(DeployPackToExternalTest, TooBigSignalsFailure)
-{
-    infra::ByteOutputStream outputStream(from.sectors[0]);
-    application::UpgradePackHeaderPrologue header = {};
-    header.status = application::UpgradePackStatus::readyToDeploy;
-    header.signedContentsLength = to.SizeOfSector(0) * 5;
-    outputStream << header;
-
-    application::DeployPackToExternal deploy(from, to, statusLed);
-    ExecuteAllActions();
-
-    ForwardTime(std::chrono::milliseconds(400));
-    EXPECT_EQ((std::vector<hal::PinChange>{
-        { std::chrono::milliseconds(0), true},
-        { std::chrono::milliseconds(100), false},
-        { std::chrono::milliseconds(200), true},
-        { std::chrono::milliseconds(300), false },
-        { std::chrono::milliseconds(400), true},
-    }), statusLed.PinChanges());
 }

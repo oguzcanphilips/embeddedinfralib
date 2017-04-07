@@ -1,6 +1,7 @@
 #ifndef INFRA_SHARED_PTR_HPP
 #define INFRA_SHARED_PTR_HPP
 
+#include <cassert>
 #include <cstdint>
 #include <type_traits>
 #include <memory>

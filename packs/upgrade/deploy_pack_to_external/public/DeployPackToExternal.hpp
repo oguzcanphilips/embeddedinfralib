@@ -4,16 +4,30 @@
 #include "hal/interfaces/public/Flash.hpp"
 #include "hal/interfaces/public/Gpio.hpp"
 #include "infra/util/public/ByteRange.hpp"
+#include "infra/util/public/Observer.hpp"
 #include "infra/util/public/Sequencer.hpp"
-#include "services/util/public/SignalLed.hpp"
 #include "packs/upgrade/pack/public/UpgradePackHeader.hpp"
 
 namespace application
 {
-    class DeployPackToExternal
+    class DeployPackToExternal;
+
+    class DeployPackToExternalObserver
+        : public infra::SingleObserver<DeployPackToExternalObserver, DeployPackToExternal>
     {
     public:
-        DeployPackToExternal(hal::Flash& from, hal::Flash& to, hal::GpioPin& statusLedPin);
+        using infra::SingleObserver<DeployPackToExternalObserver, DeployPackToExternal>::SingleObserver;
+
+        virtual void NotDeployable() = 0;
+        virtual void DoesntFit() = 0;
+        virtual void Done() = 0;
+    };
+
+    class DeployPackToExternal
+        : public infra::Subject<DeployPackToExternalObserver>
+    {
+    public:
+        DeployPackToExternal(hal::Flash& from, hal::Flash& to);
 
     private:
         hal::Flash& from;
@@ -27,7 +41,6 @@ namespace application
         std::size_t currentSize = 0;
         uint32_t currentReadAddress = 0;
         uint32_t currentWriteAddress = 0;
-        services::SignalLed statusLed;
     };
 }
 
