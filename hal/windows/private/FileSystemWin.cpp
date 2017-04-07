@@ -4,10 +4,6 @@
 
 namespace hal
 {
-    CannotOpenFileException::CannotOpenFileException(const std::string& name)
-        : name(name)
-    {}
-
     std::vector<std::string> FileSystemWin::ReadFile(const std::string& name)
     {
         std::ifstream input(name);

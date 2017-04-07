@@ -12,6 +12,7 @@ ccola_component(interfaces static_library)
 		public/CommunicationConfigurator.hpp
 		public/DigitalToAnalogPin.hpp
 		public/FileSystem.hpp
+		public/FileSystem.cpp
 		public/Flash.hpp
 		public/FlashHomogeneous.hpp
 		public/Gpio.hpp
