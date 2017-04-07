@@ -4,15 +4,7 @@
 #include "hal/interfaces/public/FileSystem.hpp"
 
 namespace hal
-{
-    struct CannotOpenFileException
-        : std::exception
-    {
-        explicit CannotOpenFileException(const std::string& name);
-
-        std::string name;
-    };
-
+{    
     class FileSystemWin
         : public hal::FileSystem
     {
