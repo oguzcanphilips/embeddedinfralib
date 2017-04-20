@@ -1,6 +1,7 @@
 ccola_component(syntax_test gmock_test)
 
 	ccola_sources(
+		TestAsn1.cpp
 		TestAsn1Formatter.cpp
 		TestJson.cpp
 		TestJsonFormatter.cpp
