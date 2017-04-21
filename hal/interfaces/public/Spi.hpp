@@ -42,6 +42,18 @@ namespace hal
         virtual void SetCommunicationConfigurator(CommunicationConfigurator& configurator) = 0;
         virtual void ResetCommunicationConfigurator() = 0;
     };
+
+    class SpiSlave
+    {
+    protected:
+        SpiSlave() = default;
+        SpiSlave(const SpiSlave& other) = delete;
+        SpiSlave& operator=(const SpiSlave& other) = delete;
+        ~SpiSlave() = default;
+
+    public:
+        virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, const infra::Function<void()>& onDone) = 0;
+    };
 }
 
 #endif
