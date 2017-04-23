@@ -44,8 +44,8 @@ namespace infra
 
     void Asn1Formatter::AddBigNumber(infra::ConstByteRange number)
     {
-    	while (!number.empty() && number.back() == 0)
-    		number.pop_back();
+        while (!number.empty() && number.back() == 0)
+            number.pop_back();
 
         if (!number.empty() && (number.back() & 0x80) != 0)
         {
