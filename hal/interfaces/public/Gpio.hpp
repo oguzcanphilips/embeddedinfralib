@@ -13,9 +13,7 @@ namespace hal
     {
         risingEdge,
         fallingEdge,
-        bothEdges,
-        highLevel,
-        lowLevel
+        bothEdges
     };
 
     enum class PinConfigType

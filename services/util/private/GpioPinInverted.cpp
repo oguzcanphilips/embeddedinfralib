@@ -48,8 +48,8 @@ namespace services
 
     void GpioPinInverted::EnableInterrupt(const infra::Function<void()>& action, hal::InterruptTrigger trigger)
     {
-        static const std::array<hal::InterruptTrigger, 5> inverse = { hal::InterruptTrigger::fallingEdge, hal::InterruptTrigger::risingEdge,
-            hal::InterruptTrigger::bothEdges, hal::InterruptTrigger::lowLevel, hal::InterruptTrigger::highLevel };
+        static const std::array<hal::InterruptTrigger, 3> inverse = { hal::InterruptTrigger::fallingEdge, hal::InterruptTrigger::risingEdge,
+            hal::InterruptTrigger::bothEdges };
         assert(static_cast<uint8_t>(trigger) < inverse.size());
         pin.EnableInterrupt(action, inverse[static_cast<uint8_t>(trigger)]);
     }
