@@ -40,7 +40,7 @@ namespace infra
         const T* operator->() const;
 
     private:
-        typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type data;
+        typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type data = {};
     };
 
     template<class T, std::size_t ExtraSize, class AlignAs = uint64_t>

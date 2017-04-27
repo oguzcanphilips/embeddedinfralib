@@ -31,7 +31,7 @@ namespace infra
     class Optional
     {
     public:
-        Optional() = default;
+        constexpr Optional() = default;
 
         Optional(const Optional& other);
         Optional(Optional&& other);
@@ -72,7 +72,7 @@ namespace infra
         friend bool operator!=(const T& x, const Optional& y) { return y != x; }
 
         template<class U>
-        T ValueOr(U&& value) const;
+            T ValueOr(U&& value) const;
 
     private:
         void Reset();
