@@ -37,5 +37,5 @@ TEST(StdStringInputStreamTest, ExtractStringLiteral)
     infra::StdStringInputStream::WithStorage stream(infra::inPlace, "abcd");
 
     stream >> "abcd";
-    EXPECT_TRUE(stream.IsEmpty());
+    EXPECT_TRUE(stream.Empty());
 }

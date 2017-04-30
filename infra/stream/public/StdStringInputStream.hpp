@@ -22,7 +22,9 @@ namespace infra
         virtual void Extract(ByteRange range) override;
         virtual uint8_t ExtractOne() override;
         virtual uint8_t Peek() override;
-        virtual bool Empty() const override;
+        virtual ConstByteRange ExtractContiguousRange() override;
+        virtual bool IsEmpty() const override;
+        virtual std::size_t SizeAvailable() const override;
 
     private:
         uint32_t offset = 0;

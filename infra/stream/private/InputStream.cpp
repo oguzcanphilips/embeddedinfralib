@@ -36,9 +36,19 @@ namespace infra
         : reader(reader)
     {}
 
-    bool InputStream::IsEmpty() const
+    bool InputStream::Empty() const
     {
-        return reader.Empty();
+        return reader.IsEmpty();
+    }
+
+    std::size_t InputStream::Available() const
+    {
+        return reader.SizeAvailable();
+    }
+
+    ConstByteRange InputStream::ContiguousRange()
+    {
+        return reader.ExtractContiguousRange();
     }
 
     bool InputStream::HasFailed() const
@@ -240,7 +250,7 @@ namespace infra
         SkipSpaces();
 
         v = 0;
-        for (std::size_t i = 0; (i != width.ValueOr(std::numeric_limits<std::size_t>::max()) && !Reader().Empty()) || i == 0; ++i)
+        for (std::size_t i = 0; (i != width.ValueOr(std::numeric_limits<std::size_t>::max()) && !Reader().IsEmpty()) || i == 0; ++i)
         {
             char c = static_cast<char>(Reader().Peek());
 
@@ -279,7 +289,7 @@ namespace infra
 
         v = 0;
 
-        for (std::size_t i = 0; (i != width.ValueOr(std::numeric_limits<std::size_t>::max()) && !Reader().Empty()) || i == 0; ++i)
+        for (std::size_t i = 0; (i != width.ValueOr(std::numeric_limits<std::size_t>::max()) && !Reader().IsEmpty()) || i == 0; ++i)
         {
             char c = static_cast<char>(Reader().Peek());
 

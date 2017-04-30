@@ -22,7 +22,10 @@ namespace infra
         virtual void Extract(ByteRange range) = 0;
         virtual uint8_t ExtractOne() = 0;
         virtual uint8_t Peek() = 0;
-        virtual bool Empty() const = 0;
+        virtual ConstByteRange ExtractContiguousRange() = 0;
+
+        virtual bool IsEmpty() const = 0;
+        virtual std::size_t SizeAvailable() const = 0;
 
         bool Failed() const;
         void ReportResult(bool ok);
@@ -36,7 +39,9 @@ namespace infra
     class InputStream
     {
     public:
-        bool IsEmpty() const;
+        bool Empty() const;
+        std::size_t Available() const;
+        ConstByteRange ContiguousRange();
         bool HasFailed() const;
 
     protected:

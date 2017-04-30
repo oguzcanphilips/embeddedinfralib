@@ -137,7 +137,7 @@ namespace application
             throw RecordTooShortException(fileName, lineNumber);
         if (sum != 0)
             throw IncorrectCrcException(fileName, lineNumber);
-        if (!stream.IsEmpty())
+        if (!stream.Empty())
             throw RecordTooLongException(fileName, lineNumber);
     }
 }

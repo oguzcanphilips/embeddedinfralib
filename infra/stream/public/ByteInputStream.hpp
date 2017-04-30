@@ -15,13 +15,13 @@ namespace infra
         ConstByteRange Processed() const;   // Invariant: Processed() ++ Remaining() == range
         ConstByteRange Remaining() const;
 
-        void Reset();
-
     private:
         virtual void Extract(ByteRange range) override;
         virtual uint8_t ExtractOne() override;
         virtual uint8_t Peek() override;
-        virtual bool Empty() const override;
+        virtual ConstByteRange ExtractContiguousRange() override;
+        virtual bool IsEmpty() const override;
+        virtual std::size_t SizeAvailable() const override;
 
     private:
         ConstByteRange range;

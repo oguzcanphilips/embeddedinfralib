@@ -45,8 +45,20 @@ namespace infra
         }
     }
 
-    bool StringInputStream::Empty() const
+    ConstByteRange StringInputStream::ExtractContiguousRange()
+    {
+        ConstByteRange result(reinterpret_cast<const uint8_t*>(string.data()) + offset, reinterpret_cast<const uint8_t*>(string.data()) + string.size());
+        offset = string.size();
+        return result;
+    }
+
+    bool StringInputStream::IsEmpty() const
     {
         return offset == string.size();
+    }
+
+    std::size_t StringInputStream::SizeAvailable() const
+    {
+        return string.size() - offset;
     }
 }

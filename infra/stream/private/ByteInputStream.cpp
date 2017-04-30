@@ -40,8 +40,21 @@ namespace infra
         return element;
     }
 
-    bool ByteInputStream::Empty() const
+    ConstByteRange ByteInputStream::ExtractContiguousRange()
+    {
+        ConstByteRange result = range;
+        result.pop_front(offset);
+        offset = range.size();
+        return result;
+    }
+
+    bool ByteInputStream::IsEmpty() const
     {
         return offset == range.size();
+    }
+
+    std::size_t ByteInputStream::SizeAvailable() const
+    {
+        return range.size() - offset;
     }
 }
