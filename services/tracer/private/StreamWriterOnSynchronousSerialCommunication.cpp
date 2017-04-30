@@ -15,7 +15,4 @@ namespace services
     {
         Insert(infra::MakeByteRange(element));
     }
-
-    void StreamWriterOnSynchronousSerialCommunication::Forward(std::size_t amount)
-    {}
 }

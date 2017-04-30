@@ -62,9 +62,6 @@ namespace infra
     void StreamWriterDummy::Insert(uint8_t element)
     {}
 
-    void StreamWriterDummy::Forward(std::size_t amount)
-    {}
-
     OutputStream::OutputStream(StreamWriter& writer)
         : writer(writer)
     {}
@@ -101,12 +98,6 @@ namespace infra
     TextOutputStream DataOutputStream::operator<<(Text)
     {
         return TextOutputStream(Writer());
-    }
-
-    DataOutputStream& DataOutputStream::operator<<(ForwardStream forward)
-    {
-        Writer().Forward(forward.amount);
-        return *this;
     }
 
     TextOutputStream::TextOutputStream(StreamWriter& writer)

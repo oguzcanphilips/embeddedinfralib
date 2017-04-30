@@ -60,12 +60,6 @@ namespace infra
         return TextInputStream(Reader());
     }
 
-    DataInputStream& DataInputStream::operator>>(ForwardStream forward)
-    {
-        Reader().Forward(forward.amount);
-        return *this;
-    }
-
     DataInputStream& DataInputStream::operator>>(ByteRange data)
     {
         Reader().Extract(data);

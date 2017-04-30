@@ -48,14 +48,6 @@ namespace infra
         ++offset;
     }
 
-    void ByteOutputStream::Forward(std::size_t amount)
-    {
-        ReportResult(amount <= streamRange.size() - offset);
-        offset += amount;
-        if (offset > streamRange.size())
-            offset = streamRange.size();
-    }
-
     const uint8_t* ByteOutputStream::ConstructSaveMarker() const
     {
         return streamRange.begin() + offset;

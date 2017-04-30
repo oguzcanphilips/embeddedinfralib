@@ -22,7 +22,6 @@ namespace infra
         virtual void Extract(ByteRange range) = 0;
         virtual uint8_t ExtractOne() = 0;
         virtual uint8_t Peek() = 0;
-        virtual void Forward(std::size_t amount) = 0;
         virtual bool Empty() const = 0;
 
         bool Failed() const;
@@ -57,7 +56,6 @@ namespace infra
         explicit DataInputStream(StreamReader& reader);
 
         TextInputStream operator>>(Text);
-        DataInputStream& operator>>(ForwardStream forward);
         DataInputStream& operator>>(ByteRange range);
         template<class Data>
             DataInputStream& operator>>(Data& data);

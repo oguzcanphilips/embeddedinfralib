@@ -31,9 +31,4 @@ namespace infra
     {
         string.push_back(static_cast<char>(element));
     }
-
-    void StdStringOutputStream::Forward(std::size_t amount)
-    {
-        string.append(amount, ' ');
-    }
 }

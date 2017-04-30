@@ -37,15 +37,6 @@ namespace infra
         ReportResult(isOk);
     }
 
-    void StringOutputStream::Forward(std::size_t amount)
-    {
-        std::size_t spaceLeft = string.max_size() - string.size();
-        ReportResult(amount <= spaceLeft);
-        if (amount > spaceLeft)
-            amount = spaceLeft;
-        string.append(amount, ' ');
-    }
-
     const uint8_t* StringOutputStream::ConstructSaveMarker() const
     {
         return reinterpret_cast<const uint8_t*>(string.end());

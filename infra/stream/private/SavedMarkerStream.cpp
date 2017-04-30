@@ -26,11 +26,6 @@ namespace infra
         streamRange.pop_front();
     }
 
-    void SavedMarkerTextStream::Forward(std::size_t amount)
-    {
-        streamRange.pop_front(amount);
-    }
-
     const uint8_t* SavedMarkerTextStream::ConstructSaveMarker() const
     {
         return streamRange.begin();
@@ -78,11 +73,6 @@ namespace infra
     {
         streamRange.front() = element;
         streamRange.pop_front();
-    }
-
-    void SavedMarkerDataStream::Forward(std::size_t amount)
-    {
-        streamRange.pop_front(amount);
     }
 
     const uint8_t* SavedMarkerDataStream::ConstructSaveMarker() const

@@ -19,9 +19,6 @@ namespace services
         Insert(infra::MakeByteRange(element));
     }
 
-    void StreamWriterOnSerialCommunication::Forward(std::size_t amount)
-    {}
-
     void StreamWriterOnSerialCommunication::TrySend()
     {
         if (!buffer.Empty() && !communicating)

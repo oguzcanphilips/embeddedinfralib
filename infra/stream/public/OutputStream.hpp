@@ -28,7 +28,6 @@ namespace infra
     public:
         virtual void Insert(ConstByteRange range) = 0;
         virtual void Insert(uint8_t element) = 0;
-        virtual void Forward(std::size_t amount) = 0;
 
         virtual const uint8_t* ConstructSaveMarker() const;
         virtual std::size_t GetProcessedBytesSince(const uint8_t* marker) const;
@@ -58,7 +57,6 @@ namespace infra
     public:
         virtual void Insert(ConstByteRange range);
         virtual void Insert(uint8_t element);
-        virtual void Forward(std::size_t amount);
     };    
 
     class OutputStream
@@ -86,7 +84,6 @@ namespace infra
         explicit DataOutputStream(StreamWriter& writer);
 
         TextOutputStream operator<<(Text);
-        DataOutputStream& operator<<(ForwardStream forward);
 
         template<class Data>
             DataOutputStream& operator<<(const Data& data);

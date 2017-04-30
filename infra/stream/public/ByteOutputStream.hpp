@@ -44,7 +44,6 @@ namespace infra
     private:
         virtual void Insert(ConstByteRange range) override;
         virtual void Insert(uint8_t element) override;
-        virtual void Forward(std::size_t amount) override;
 
         virtual const uint8_t* ConstructSaveMarker() const override;
         virtual std::size_t GetProcessedBytesSince(const uint8_t* marker) const override;

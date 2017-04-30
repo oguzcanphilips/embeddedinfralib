@@ -21,13 +21,6 @@ namespace infra
         std::size_t width;
         char padding;
     };
-
-    struct ForwardStream
-    {
-        explicit ForwardStream(std::size_t amount);
-
-        std::size_t amount;
-    };
 }
 
 #endif

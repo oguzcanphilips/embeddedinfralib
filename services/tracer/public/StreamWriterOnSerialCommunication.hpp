@@ -18,7 +18,6 @@ namespace services
 
         virtual void Insert(infra::ConstByteRange range) override;
         virtual void Insert(uint8_t element) override;
-        virtual void Forward(std::size_t amount) override;
 
     private:
         void TrySend();

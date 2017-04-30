@@ -15,8 +15,4 @@ namespace infra
         : width(width)
         , padding(padding)
     {}
-
-    ForwardStream::ForwardStream(std::size_t amount)
-        : amount(amount)
-    {}
 }

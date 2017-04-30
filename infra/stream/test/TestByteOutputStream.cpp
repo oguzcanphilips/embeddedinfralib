@@ -31,19 +31,6 @@ TEST(ByteOutputStreamTest, StreamFromMemoryRange)
     EXPECT_EQ((std::array<uint8_t, 4>{{ 0, 1, 4, 5 }}), buffer);
 }
 
-TEST(ByteOutputStreamTest, StreamForward)
-{
-    std::array<uint8_t, 2> from = { 10, 11 };
-    std::array<uint8_t, 8> buffer = { 0, 1, 2, 3, 4, 5, 6, 7 };
-
-    infra::ByteOutputStream stream(buffer);
-    stream << infra::ByteRange(from);
-    stream << infra::ForwardStream(3);
-    stream << infra::ByteRange(from);
-
-    EXPECT_EQ((std::array<uint8_t, 8>{{ 10, 11, 2, 3, 4, 10, 11, 7 }}), buffer);
-}
-
 TEST(ByteOutputStreamTest, WithStorage)
 {
     infra::ByteOutputStream::WithStorage<5> stream;
@@ -60,7 +47,7 @@ TEST(ByteOutputStreamTest, reserve_type)
     stream << uint8_t(3);
     reservedSpace = uint8_t(2);
 
-    EXPECT_EQ((std::array<uint8_t, 3>{ { 1, 2, 3 }}), stream.Processed());
+    EXPECT_EQ((std::array<uint8_t, 3>{{ 1, 2, 3 }}), stream.Processed());
 }
 
 TEST(ByteOutputStreamTest, reserve_type_without_space)

@@ -22,7 +22,6 @@ namespace infra
         virtual void Extract(ByteRange range) override;
         virtual uint8_t ExtractOne() override;
         virtual uint8_t Peek() override;
-        virtual void Forward(std::size_t amount) override;
         virtual bool Empty() const override;
 
     private:

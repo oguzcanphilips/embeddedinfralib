@@ -45,20 +45,6 @@ namespace infra
         }
     }
 
-    void StringInputStream::Forward(std::size_t amount)
-    {
-        offset += amount;
-        if (offset > string.size())
-        {
-            Reader().ReportResult(false);
-            offset = string.size();
-        }
-        else
-        {
-            Reader().ReportResult(true);
-        }
-    }
-
     bool StringInputStream::Empty() const
     {
         return offset == string.size();

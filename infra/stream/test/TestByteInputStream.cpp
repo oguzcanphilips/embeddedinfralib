@@ -36,15 +36,3 @@ TEST(ByteInputStreamTest, StreamToMemoryRange)
 
     EXPECT_EQ((std::array<uint8_t, 2>{{ 2, 3 }}), to);
 }
-
-TEST(ByteInputStreamTest, ForwardSkipsBytes)
-{
-    std::array<uint8_t, 2> to = { 0, 1 };
-    std::array<uint8_t, 4> buffer = { 2, 3, 4, 5 };
-
-    infra::ByteInputStream stream(buffer);
-    stream >> infra::ForwardStream(1) >> to;
-
-    EXPECT_EQ((std::array<uint8_t, 2>{{ 3, 4 }}), to);
-}
- 

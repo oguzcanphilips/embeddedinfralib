@@ -40,14 +40,6 @@ namespace infra
         return element;
     }
 
-    void ByteInputStream::Forward(std::size_t amount)
-    {
-        ReportResult(amount <= (range.size() - offset));
-        offset += amount;
-        if (offset > range.size())
-            offset = range.size();
-    }
-
     bool ByteInputStream::Empty() const
     {
         return offset == range.size();
