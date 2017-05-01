@@ -61,10 +61,10 @@ namespace application
                 imageAddress += sizeof(imageHeaderEpilogue);
 
                 imageUpgrader->ImageDecryptor().DecryptPart(infra::MakeByteRange(imageHeaderEpilogue));
-
-                if (!imageUpgrader->Upgrade(upgradePackFlash, imageAddress, imageHeaderEpilogue.imageSize, imageHeaderEpilogue.destinationAddress))
+                uint32_t upgradeResult = imageUpgrader->Upgrade(upgradePackFlash, imageAddress, imageHeaderEpilogue.imageSize, imageHeaderEpilogue.destinationAddress);
+                if (upgradeResult != 0)
                 {
-                    MarkAsError(upgradeErrorCodeImageUpgradeFailed);
+                    MarkAsError(upgradeResult);
                     return false;
                 }
 

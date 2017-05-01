@@ -15,7 +15,7 @@ namespace application
 
         const char* TargetName() const;
         Decryptor& ImageDecryptor();
-        virtual bool Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress) = 0;
+        virtual uint32_t Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress) = 0;
 
     protected:
         ~ImageUpgrader() = default;
