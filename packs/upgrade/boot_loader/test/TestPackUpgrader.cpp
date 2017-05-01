@@ -13,12 +13,12 @@ public:
         : application::ImageUpgrader("upgrader", decryptorNone)
     {}
 
-    virtual bool Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress) override
+    virtual uint32_t Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress) override
     {
         return UpgradeMock(imageAddress, imageSize, destinationAddress);
     }
 
-    MOCK_METHOD3(UpgradeMock, bool(uint32_t, uint32_t, uint32_t));
+    MOCK_METHOD3(UpgradeMock, uint32_t(uint32_t, uint32_t, uint32_t));
 
     application::DecryptorNone decryptorNone;
 };
@@ -96,7 +96,7 @@ TEST_F(PackUpgraderTest, ImageInvokesImageUpgrader)
     infra::ByteOutputStream stream(upgradePackFlash.sectors[0]);
     stream << header << imageHeaderPrologue << imageHeaderEpilogue << infra::ConstByteRange(image);
 
-    EXPECT_CALL(imageUpgraderMock, UpgradeMock(244, 2, 1)).WillOnce(testing::Return(true));
+    EXPECT_CALL(imageUpgraderMock, UpgradeMock(244, 2, 1)).WillOnce(testing::Return(0));
     application::PackUpgrader packUpgrader(upgradePackFlash);
     packUpgrader.UpgradeFromImages(singleUpgraderMock);
 }
@@ -112,7 +112,7 @@ TEST_F(PackUpgraderTest, PackIsMarkedAsDeployed)
     infra::ByteOutputStream stream(upgradePackFlash.sectors[0]);
     stream << header << imageHeaderPrologue << imageHeaderEpilogue << infra::ConstByteRange(image);
 
-    EXPECT_CALL(imageUpgraderMock, UpgradeMock(244, 2, 1)).WillOnce(testing::Return(true));
+    EXPECT_CALL(imageUpgraderMock, UpgradeMock(244, 2, 1)).WillOnce(testing::Return(0));
     application::PackUpgrader packUpgrader(upgradePackFlash);
     packUpgrader.UpgradeFromImages(singleUpgraderMock);
 
@@ -173,7 +173,7 @@ TEST_F(PackUpgraderTest, WhenUpgraderCannotUpgradePackIsMarkedAsError)
     infra::ByteOutputStream stream(upgradePackFlash.sectors[0]);
     stream << header << imageHeaderPrologue << imageHeaderEpilogue << infra::ConstByteRange(image);
 
-    EXPECT_CALL(imageUpgraderMock, UpgradeMock(244, 2, 1)).WillOnce(testing::Return(false));
+    EXPECT_CALL(imageUpgraderMock, UpgradeMock(244, 2, 1)).WillOnce(testing::Return(application::upgradeErrorCodeImageUpgradeFailed));
     application::PackUpgrader packUpgrader(upgradePackFlash);
     packUpgrader.UpgradeFromImages(singleUpgraderMock);
 

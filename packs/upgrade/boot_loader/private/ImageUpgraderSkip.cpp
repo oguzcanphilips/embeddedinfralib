@@ -8,8 +8,8 @@ namespace application
         : ImageUpgrader(targetName, decryptorNone)
     {}
 
-    bool ImageUpgraderSkip::Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress)
+    uint32_t ImageUpgraderSkip::Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress)
     {
-        return true;
+        return 0;
     }
 }

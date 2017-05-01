@@ -17,7 +17,7 @@ namespace application
 
         ImageUpgraderDiComm(infra::ByteRange buffer, const char* targetName, Decryptor& decryptor, DiComm& diComm);
 
-        virtual bool Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress) override;
+        virtual uint32_t Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress) override;
 
     private:
         bool InitializeProtocol();

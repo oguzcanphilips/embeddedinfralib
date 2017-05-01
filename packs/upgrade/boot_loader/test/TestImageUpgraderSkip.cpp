@@ -29,9 +29,9 @@ TEST(ImageUpgraderSkipTest, DecryptorAuthenticateReturnsTrue)
     EXPECT_TRUE(upgrader.ImageDecryptor().DecryptAndAuthenticate(infra::ByteRange()));
 }
 
-TEST(ImageUpgraderSkipTest, UpgradeReturnsTrue)
+TEST(ImageUpgraderSkipTest, UpgradeReturnsNoError)
 {
     hal::SynchronousFlashStub flash(1, 1);
     application::ImageUpgraderSkip upgrader("skip");
-    EXPECT_TRUE(upgrader.Upgrade(flash, 0, 0, 0));
+    EXPECT_EQ(0, upgrader.Upgrade(flash, 0, 0, 0));
 }
