@@ -3,6 +3,7 @@
 
 #include "infra/util/public/ByteRange.hpp"
 #include "packs/upgrade/pack_builder/public/UpgradePackBuilder.hpp"
+#include "packs/upgrade/pack_builder/public/UpgradePackInputFactory.hpp"
 #include <string>
 #include <vector>
 #include <utility>
@@ -10,7 +11,8 @@
 namespace application
 {
     int BuildUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
-        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey);
+        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey,
+        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<SingleInputFactory*>& otherTargets = std::vector<SingleInputFactory*>());
 
     class UpgradePackBuilderFacade
     {
@@ -19,7 +21,8 @@ namespace application
         virtual ~UpgradePackBuilderFacade() = default;
             
         void Build(const std::vector<std::string>& supportedHexTargets, const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets,
-            int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey);
+            int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey,
+            const std::vector<SingleInputFactory*>& otherTargets);
 
         int Result() const;
 
@@ -30,7 +33,8 @@ namespace application
 
     private:
         void TryBuild(const std::vector<std::string>& supportedHexTargets, const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets,
-            int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey);
+            int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey,
+            const std::vector<SingleInputFactory*>& otherTargets);
 
     protected:
         UpgradePackBuilder::HeaderInfo headerInfo;                                                                      //TICS !INT#002
