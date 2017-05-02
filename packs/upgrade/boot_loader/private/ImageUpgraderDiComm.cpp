@@ -23,7 +23,7 @@ namespace application
             && WaitForIdle())
             return 0;
         else
-            return upgradeErrorCodeImageUpgradeFailed;
+            return upgradeErrorCodeExternalImageUpgradeFailed;
     }
 
     bool ImageUpgraderDiComm::InitializeProtocol()

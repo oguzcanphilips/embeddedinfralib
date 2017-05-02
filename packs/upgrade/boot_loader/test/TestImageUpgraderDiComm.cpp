@@ -50,7 +50,7 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenInitializationFailsThreeTimes)
     EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(false));
     EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(false));
 
-    EXPECT_EQ(application::upgradeErrorCodeImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 0, 0));
+    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 0, 0));
 }
 
 TEST_F(ImageUpgraderDiCommTest, UpgradeContinuesWhenInitializationSucceedsAtTheThirdTime)
@@ -76,7 +76,7 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenSettingStateToIdleFails)
     EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(false, "")));
 
-    EXPECT_EQ(application::upgradeErrorCodeImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 0, 0));
+    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 0, 0));
 }
 
 TEST_F(ImageUpgraderDiCommTest, UpgradeChecksStateIsIdle)
@@ -95,7 +95,7 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenGetPropsFails)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(false, "")));
 
-    EXPECT_EQ(application::upgradeErrorCodeImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 0, 0));
+    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 0, 0));
 }
 
 TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenStateIsNotIdle)
@@ -104,7 +104,7 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenStateIsNotIdle)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"ready"})")));
 
-    EXPECT_EQ(application::upgradeErrorCodeImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 0, 0));
+    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 0, 0));
 }
 
 TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenCanUpgradeIsFalse)
@@ -113,7 +113,7 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenCanUpgradeIsFalse)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle","canupgrade":false})")));
 
-    EXPECT_EQ(application::upgradeErrorCodeImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 0, 0));
+    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 0, 0));
 }
 
 TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenCanUpgradeIsInvalid)
@@ -122,7 +122,7 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenCanUpgradeIsInvalid)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle","canupgrade":invalid})")));
 
-    EXPECT_EQ(application::upgradeErrorCodeImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 0, 0));
+    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 0, 0));
 }
 
 TEST_F(ImageUpgraderDiCommTest, UpgradeSetsMandatoryUpgradeAndSize)
@@ -152,7 +152,7 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenPutPropsFails)
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":10})")).WillOnce(testing::Return(std::make_pair(false, "")));
 
-    EXPECT_EQ(application::upgradeErrorCodeImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 10, 0));
+    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 10, 0));
 }
 
 TEST_F(ImageUpgraderDiCommTest, OneChunkIsSent)
@@ -176,7 +176,7 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenChunkFails)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(false, "")));
 
     upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
-    EXPECT_EQ(application::upgradeErrorCodeImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 4, 0));
+    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 4, 0));
 }
 
 TEST_F(ImageUpgraderDiCommTest, ASmallChunkIsSentWhenSizeIsRestricted)
@@ -201,7 +201,7 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenErrorIsReturnedInsteadOfProgress
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"error"})")));
 
     upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
-    EXPECT_EQ(application::upgradeErrorCodeImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 4, 0));
+    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 4, 0));
 }
 
 TEST_F(ImageUpgraderDiCommTest, NextChunkIsSentAfterPreviousHasBeenProcessed)
@@ -243,7 +243,7 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenPollForIdleFails)
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(false, "")));
 
     upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
-    EXPECT_EQ(application::upgradeErrorCodeImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 4, 0));
+    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 4, 0));
 }
 
 TEST_F(ImageUpgraderDiCommTest, WhenStateIsNotIdleStateIsPolledAgain)
@@ -272,7 +272,7 @@ TEST_F(ImageUpgraderDiCommTest, WhenStateIsErrorUpgradeIsNotSuccessful)
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"error"})")));
 
     upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
-    EXPECT_EQ(application::upgradeErrorCodeImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 4, 0));
+    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 4, 0));
 }
 
 TEST_F(ImageUpgraderDiCommTest, AfterStateIsIdleUpgradeIsSuccessful)
