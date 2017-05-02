@@ -45,10 +45,11 @@ namespace infra
         }
     }
 
-    ConstByteRange StdStringInputStream::ExtractContiguousRange()
+    ConstByteRange StdStringInputStream::ExtractContiguousRange(std::size_t max)
     {
         ConstByteRange result(reinterpret_cast<const uint8_t*>(string.data()) + offset, reinterpret_cast<const uint8_t*>(string.data()) + string.size());
-        offset = string.size();
+        result.shrink_from_back_to(max);
+        offset += result.size();
         return result;
     }
 
