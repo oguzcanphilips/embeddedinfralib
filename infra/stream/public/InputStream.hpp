@@ -22,7 +22,7 @@ namespace infra
         virtual void Extract(ByteRange range) = 0;
         virtual uint8_t ExtractOne() = 0;
         virtual uint8_t Peek() = 0;
-        virtual ConstByteRange ExtractContiguousRange() = 0;
+        virtual ConstByteRange ExtractContiguousRange(std::size_t max) = 0;
 
         virtual bool IsEmpty() const = 0;
         virtual std::size_t SizeAvailable() const = 0;
@@ -41,7 +41,7 @@ namespace infra
     public:
         bool Empty() const;
         std::size_t Available() const;
-        ConstByteRange ContiguousRange();
+        ConstByteRange ContiguousRange(std::size_t max = std::numeric_limits<std::size_t>::max());
         bool HasFailed() const;
 
     protected:

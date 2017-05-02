@@ -40,11 +40,12 @@ namespace infra
         return element;
     }
 
-    ConstByteRange ByteInputStream::ExtractContiguousRange()
+    ConstByteRange ByteInputStream::ExtractContiguousRange(std::size_t max)
     {
         ConstByteRange result = range;
         result.pop_front(offset);
-        offset = range.size();
+        result.shrink_from_back_to(max);
+        offset += result.size();
         return result;
     }
 

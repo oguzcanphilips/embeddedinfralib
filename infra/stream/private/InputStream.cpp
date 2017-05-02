@@ -46,9 +46,9 @@ namespace infra
         return reader.SizeAvailable();
     }
 
-    ConstByteRange InputStream::ContiguousRange()
+    ConstByteRange InputStream::ContiguousRange(std::size_t max)
     {
-        return reader.ExtractContiguousRange();
+        return reader.ExtractContiguousRange(max);
     }
 
     bool InputStream::HasFailed() const

@@ -1,5 +1,6 @@
 #include "infra/stream/public/ByteOutputStream.hpp"
 #include "packs/upgrade/boot_loader/public/ImageUpgraderDiComm.hpp"
+#include "packs/upgrade/pack/public/UpgradePackHeader.hpp"
 #include "infra/syntax/public/Json.hpp"
 
 namespace application
@@ -13,13 +14,16 @@ namespace application
         , buffer(buffer)
     {}
 
-    bool ImageUpgraderDiComm::Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress)
+    uint32_t ImageUpgraderDiComm::Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress)
     {
-        return InitializeProtocol()
+        if (InitializeProtocol()
             && InitializeProperties()
             && PrepareDownload(imageSize)
             && SendFirmware(flash, imageAddress, imageSize)
-            && WaitForIdle();
+            && WaitForIdle())
+            return 0;
+        else
+            return upgradeErrorCodeExternalImageUpgradeFailed;
     }
 
     bool ImageUpgraderDiComm::InitializeProtocol()

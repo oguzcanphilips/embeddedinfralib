@@ -28,6 +28,7 @@ namespace application
     static const uint32_t upgradeErrorCodeNoSuitableImageUpgraderFound = 4;
     static const uint32_t upgradeErrorCodeImageUpgradeFailed = 5;
     static const uint32_t upgradeErrorCodeInvalidStartAddressOrStackPointer = 6;
+    static const uint32_t upgradeErrorCodeExternalImageUpgradeFailed = 7;
 
     struct UpgradePackHeaderPrologue
     {

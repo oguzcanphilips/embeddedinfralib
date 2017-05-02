@@ -29,10 +29,11 @@ namespace application
     }
 
     int BuildUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
-        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey)
+        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey,
+        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<SingleInputFactory*>& otherTargets)
     {
         UpgradePackBuilderFacade builderFacade(headerInfo);
-        builderFacade.Build(supportedHexTargets, supportedBinaryTargets, argc, argv, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey);
+        builderFacade.Build(supportedHexTargets, supportedBinaryTargets, argc, argv, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey, otherTargets);
         return builderFacade.Result();
     }
 
@@ -48,22 +49,29 @@ namespace application
     }
 
     void UpgradePackBuilderFacade::Build(const std::vector<std::string>& supportedHexTargets,
-        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey)
+        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey,
+        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<SingleInputFactory*>& otherTargets)
     {
         try
         {
-            TryBuild(supportedHexTargets, supportedBinaryTargets, argc, argv, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey);
+            TryBuild(supportedHexTargets, supportedBinaryTargets, argc, argv, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey, otherTargets);
         }
         catch (UsageException&)
         {
+            std::cout << "Arugments: ";
+            for (int i = 0; i != argc; ++i)
+                std::cout << " " << argv[i];
+            std::cout << std::endl;
             std::cout << "Invalid number of arguments" << std::endl;
-            std::cout << argv[0] << " OUTPUTFILE [-Target1 INPUTFILE1] [-Target2 INPUTFILE2] [-Target3 INPUTFILE3] [-Target4 INPUTFILE4] ..." << std::endl;
+            std::cout << argv[0] << " OutputFile [-Target1 InputFile1] [-Target2 InputFile2] [-Target3 InputFile3] [-Target4 InputFile4] ..." << std::endl;
             std::cout << "Targets: ";
 
             for (auto target : supportedHexTargets)
                 std::cout << target << " ";
             for (auto targetAndAddress : supportedBinaryTargets)
                 std::cout << targetAndAddress.first << " ";
+            for (auto target : otherTargets)
+                std::cout << target->TargetName() << " ";
             std::cout << std::endl;
 
             result = 1;
@@ -120,7 +128,8 @@ namespace application
     }
 
     void UpgradePackBuilderFacade::TryBuild(const std::vector<std::string>& supportedHexTargets,
-        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey)
+        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey,
+        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<SingleInputFactory*>& otherTargets)
     {
         if (argc < 3)
             throw UsageException();
@@ -134,7 +143,7 @@ namespace application
         application::SecureRandomNumberGenerator randomNumberGenerator;
         hal::FileSystemWin fileSystem;
         application::ImageEncryptorAes imageEncryptorAes(randomNumberGenerator, aesKey);
-        application::UpgradePackInputFactory inputFactory(supportedHexTargets, supportedBinaryTargets, fileSystem, imageEncryptorAes);
+        application::UpgradePackInputFactory inputFactory(supportedHexTargets, supportedBinaryTargets, fileSystem, imageEncryptorAes, otherTargets);
         application::ImageSignerEcDsa signer(randomNumberGenerator, ecDsa224PublicKey, ecDsa224PrivateKey);
 
         PreBuilder();

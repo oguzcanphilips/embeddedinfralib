@@ -9,7 +9,7 @@ namespace application
         , destinationAddressOffset(destinationAddressOffset)
     {}
 
-    bool ImageUpgraderInternalFlash::Upgrade(hal::SynchronousFlash& upgradePackFlash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress)
+    uint32_t ImageUpgraderInternalFlash::Upgrade(hal::SynchronousFlash& upgradePackFlash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress)
     {
         destinationAddress += destinationAddressOffset;
 
@@ -28,7 +28,7 @@ namespace application
             destinationAddress += bufferRange.size();
         }
 
-        return true;
+        return 0;
     }
 
     void ImageUpgraderInternalFlash::SetFlash(hal::SynchronousFlash& flash)
