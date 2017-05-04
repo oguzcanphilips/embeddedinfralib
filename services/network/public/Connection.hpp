@@ -37,6 +37,7 @@ namespace services
     public:
         // A new send stream may only be requested when any previous send stream has been destroyed
         virtual void RequestSendStream(std::size_t sendSize) = 0;
+        virtual std::size_t MaxSendStreamSize() const = 0;
         // A new receive stream may only be requested when any previous receive streams has been destroyed
         virtual infra::SharedPtr<infra::DataInputStream> ReceiveStream() = 0;
         // When data from the receive stream has been processed, call AckReceived to free the TCP window
