@@ -4,10 +4,12 @@ ccola_component(tracer static_library)
 		private/StreamWriterOnSerialCommunication.cpp
 		private/StreamWriterOnSynchronousSerialCommunication.cpp
 		private/Tracer.cpp
+        private/TracerAdapterPrintf.cpp
 		private/TracerWithDateTime.cpp
 		public/StreamWriterOnSerialCommunication.hpp
 		public/StreamWriterOnSynchronousSerialCommunication.hpp
 		public/Tracer.hpp
+        public/TracerAdapterPrintf.hpp
 		public/TracerWithDateTime.hpp
 	)
 

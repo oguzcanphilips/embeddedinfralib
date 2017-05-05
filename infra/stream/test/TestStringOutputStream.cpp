@@ -147,6 +147,24 @@ TEST(StringOutputStreamTest, stream_int64_min)
     EXPECT_EQ("-9223372036854775808", stream.Storage());
 }
 
+TEST(StringOutputStreamTest, stream_float)
+{
+    infra::StringOutputStream::WithStorage<20> stream;
+
+    stream << float(42.123);
+
+    EXPECT_EQ("42.123", stream.Storage());
+}
+
+TEST(StringOutputStreamTest, stream_negative_float)
+{
+    infra::StringOutputStream::WithStorage<20> stream;
+
+    stream << float(-42.123);
+
+    EXPECT_EQ("-42.123", stream.Storage());
+}
+
 TEST(StringOutputStreamTest, stream_short_hex)
 {
     infra::StringOutputStream::WithStorage<10> stream;
