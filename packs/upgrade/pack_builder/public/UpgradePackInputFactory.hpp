@@ -6,13 +6,22 @@
 
 namespace application
 {
-    class SingleInputFactory
+    class NoFileInput
+        : public application::Input
     {
     public:
-        SingleInputFactory(const std::string& targetName);
-        SingleInputFactory(const SingleInputFactory& other) = delete;
-        SingleInputFactory& operator=(const SingleInputFactory& other) = delete;
-        virtual ~SingleInputFactory() = default;
+        NoFileInput(const std::string& targetName);
+
+        virtual std::vector<uint8_t> Image() const;
+    };
+
+    class NoFileInputFactory
+    {
+    public:
+        NoFileInputFactory(const std::string& targetName);
+        NoFileInputFactory(const NoFileInputFactory& other) = delete;
+        NoFileInputFactory& operator=(const NoFileInputFactory& other) = delete;
+        virtual ~NoFileInputFactory() = default;
 
         virtual std::unique_ptr<Input> CreateInput() const = 0;
 
@@ -28,7 +37,7 @@ namespace application
     public:
         UpgradePackInputFactory(const std::vector<std::string>& supportedHexTargets,
             const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets,
-            hal::FileSystem& fileSystem, const ImageSecurity& imageSecurity, const std::vector<SingleInputFactory*>& otherTargets);
+            hal::FileSystem& fileSystem, const ImageSecurity& imageSecurity, const std::vector<NoFileInputFactory*>& otherTargets);
 
         virtual std::unique_ptr<Input> CreateInput(const std::string& targetName, const std::string& fileName) override;
 
@@ -37,7 +46,7 @@ namespace application
         std::vector<std::pair<std::string, uint32_t>> supportedBinaryTargets;
         hal::FileSystem& fileSystem;
         const ImageSecurity& imageSecurity;
-        const std::vector<SingleInputFactory*>& otherTargets;
+        const std::vector<NoFileInputFactory*>& otherTargets;
     };
 }
 
