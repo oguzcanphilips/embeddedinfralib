@@ -119,6 +119,43 @@ TEST_F(PackUpgraderTest, PackIsMarkedAsDeployed)
     EXPECT_EQ(application::UpgradePackStatus::deployed, static_cast<application::UpgradePackStatus>(upgradePackFlash.sectors[0][0]));
 }
 
+TEST_F(PackUpgraderTest, when_upgrade_starts_pack_is_marked_as_deployStarted)
+{
+    UpgradePackHeaderNoSecurity header(CreateReadyToDeployHeader(1));
+
+    const std::vector<uint8_t> image{ 1, 5 };
+    application::ImageHeaderPrologue imageHeaderPrologue(CreateImageHeaderPrologue("upgrader", image.size()));
+    application::ImageHeaderEpilogue imageHeaderEpilogue = CreateImageHeaderEpilogue();
+
+    infra::ByteOutputStream stream(upgradePackFlash.sectors[0]);
+    stream << header << imageHeaderPrologue << imageHeaderEpilogue << infra::ConstByteRange(image);
+
+    EXPECT_CALL(imageUpgraderMock, UpgradeMock(244, 2, 1)).WillOnce(testing::Throw<int>(0));
+    application::PackUpgrader packUpgrader(upgradePackFlash);
+    EXPECT_THROW(packUpgrader.UpgradeFromImages(singleUpgraderMock), int);
+
+    EXPECT_EQ(application::UpgradePackStatus::deployStarted, static_cast<application::UpgradePackStatus>(upgradePackFlash.sectors[0][0]));
+}
+
+TEST_F(PackUpgraderTest, pack_that_was_already_started_will_be_retried)
+{
+    UpgradePackHeaderNoSecurity header(CreateReadyToDeployHeader(1));
+    header.prologue.status = application::UpgradePackStatus::deployStarted;
+
+    const std::vector<uint8_t> image{ 1, 5 };
+    application::ImageHeaderPrologue imageHeaderPrologue(CreateImageHeaderPrologue("upgrader", image.size()));
+    application::ImageHeaderEpilogue imageHeaderEpilogue = CreateImageHeaderEpilogue();
+
+    infra::ByteOutputStream stream(upgradePackFlash.sectors[0]);
+    stream << header << imageHeaderPrologue << imageHeaderEpilogue << infra::ConstByteRange(image);
+
+    EXPECT_CALL(imageUpgraderMock, UpgradeMock(244, 2, 1)).WillOnce(testing::Return(0));
+    application::PackUpgrader packUpgrader(upgradePackFlash);
+    packUpgrader.UpgradeFromImages(singleUpgraderMock);
+
+    EXPECT_EQ(application::UpgradePackStatus::deployed, static_cast<application::UpgradePackStatus>(upgradePackFlash.sectors[0][0]));
+}
+
 TEST_F(PackUpgraderTest, WhenVersionIsIncorrectPackIsMarkedAsError)
 {
     UpgradePackHeaderNoSecurity header(CreateReadyToDeployHeader(1));

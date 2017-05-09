@@ -13,9 +13,11 @@ namespace application
         upgradePackFlash.ReadBuffer(infra::MakeByteRange(headerPrologue), address);
         address += sizeof(UpgradePackHeaderPrologue);
 
-        bool sanity = headerPrologue.status == UpgradePackStatus::readyToDeploy && headerPrologue.magic == upgradePackMagic;
+        bool sanity = (headerPrologue.status == UpgradePackStatus::readyToDeploy || headerPrologue.status == UpgradePackStatus::deployStarted) && headerPrologue.magic == upgradePackMagic;
         if (!sanity)
             return;
+
+        MarkAsDeployStarted();
 
         address += headerPrologue.signatureLength;
 
@@ -74,6 +76,12 @@ namespace application
 
         MarkAsError(upgradeErrorCodeNoSuitableImageUpgraderFound);
         return false;
+    }
+
+    void PackUpgrader::MarkAsDeployStarted()
+    {
+        static const UpgradePackStatus statusStarted = UpgradePackStatus::deployStarted;
+        upgradePackFlash.WriteBuffer(infra::MakeByteRange(statusStarted), 0);
     }
 
     void PackUpgrader::MarkAsDeployed()
