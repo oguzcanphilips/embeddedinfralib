@@ -33,7 +33,7 @@ namespace application
                 sequencer.EndWhile();
                 sequencer.Step([this]()
                 {
-                    static const uint8_t statusDeployed = 0xf8;
+                    static const UpgradePackStatus statusDeployed = UpgradePackStatus::deployed;
                     from.WriteBuffer(infra::MakeByteRange(statusDeployed), 0, [this]() { sequencer.Continue(); });
                 });
                 sequencer.Execute([this]() { GetObserver().Done(); });

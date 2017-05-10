@@ -17,6 +17,7 @@ namespace application
 
     private:
         bool TryUpgradeImage(infra::MemoryRange<ImageUpgrader*> imageUpgraders);
+        void MarkAsDeployStarted();
         void MarkAsDeployed();
         void MarkAsError(uint32_t errorCode);
 

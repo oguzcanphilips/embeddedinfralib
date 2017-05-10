@@ -15,7 +15,7 @@ namespace application
         upgradePackFlash.ReadBuffer(infra::MakeByteRange(headerPrologue), address);
         address += sizeof(UpgradePackHeaderPrologue);
 
-        bool sanity = headerPrologue.status == UpgradePackStatus::readyToDeploy && headerPrologue.magic == upgradePackMagic;
+        bool sanity = (headerPrologue.status == UpgradePackStatus::readyToDeploy || headerPrologue.status == UpgradePackStatus::deployStarted) && headerPrologue.magic == upgradePackMagic;
 
         if (!sanity)
             return false;

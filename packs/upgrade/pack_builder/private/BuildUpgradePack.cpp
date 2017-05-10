@@ -30,7 +30,7 @@ namespace application
 
     int BuildUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
         const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey,
-        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<SingleInputFactory*>& otherTargets)
+        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets)
     {
         UpgradePackBuilderFacade builderFacade(headerInfo);
         builderFacade.Build(supportedHexTargets, supportedBinaryTargets, argc, argv, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey, otherTargets);
@@ -50,7 +50,7 @@ namespace application
 
     void UpgradePackBuilderFacade::Build(const std::vector<std::string>& supportedHexTargets,
         const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey,
-        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<SingleInputFactory*>& otherTargets)
+        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets)
     {
         try
         {
@@ -129,7 +129,7 @@ namespace application
 
     void UpgradePackBuilderFacade::TryBuild(const std::vector<std::string>& supportedHexTargets,
         const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey,
-        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<SingleInputFactory*>& otherTargets)
+        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets)
     {
         if (argc < 3)
             throw UsageException();

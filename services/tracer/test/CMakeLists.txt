@@ -4,6 +4,7 @@ ccola_component(tracer_test gmock_test)
 		TestStreamWriterOnSerialCommunication.cpp
 		TestStreamWriterOnSynchronousSerialCommunication.cpp
 		TestTracer.cpp
+		TestTracerAdapterPrintf.cpp
 		TestTracerWithDateTime.cpp
 	)
 

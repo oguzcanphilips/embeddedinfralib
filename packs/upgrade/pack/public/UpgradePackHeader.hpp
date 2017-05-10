@@ -9,8 +9,10 @@ namespace application
     enum class UpgradePackStatus: uint8_t
     {
         empty = 0xff,                   // 1111.1111
-        readyToDeploy = 0xfc,           // 1111.1110
-        deployed = 0xf8,                // 1111.1100
+        downloaded = 0xfe,              // 1111.1110
+        readyToDeploy = 0xfc,           // 1111.1100
+        deployStarted = 0xf8,           // 1111.1000
+        deployed = 0xf0,                // 1111.0000
         invalid = 0x7f,                 // 0111.1111
     };
 
