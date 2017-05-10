@@ -39,9 +39,10 @@ ccola_component(util static_library)
 		public/ReferenceCountedSingletons.hpp
 		public/ReverseRange.hpp
 		public/Sequencer.hpp
-		public/SharedPtr.hpp
 		public/SharedObjectAllocator.hpp
 		public/SharedObjectAllocatorFixedSize.hpp
+		public/SharedOptional.hpp
+		public/SharedPtr.hpp
 		public/StaticStorage.hpp
 		public/Tokenizer.hpp
 		public/Unit.hpp

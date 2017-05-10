@@ -27,6 +27,7 @@ ccola_component(util_test gmock_test)
 		TestProxyCreator.cpp
 		TestReferenceCountedSingleton.cpp
 		TestSequencer.cpp
+		TestSharedOptional.cpp
 		TestSharedPtr.cpp
 		TestSignalSlot.cpp
 		TestStaticStorage.cpp
