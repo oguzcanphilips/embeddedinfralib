@@ -18,6 +18,7 @@ namespace infra
 
     public:
         virtual void Schedule(const infra::Function<void()>& action) = 0;
+        virtual void ExecuteFirstAction() = 0;
     };
 
     class EventDispatcherWorkerImpl
@@ -40,6 +41,8 @@ namespace infra
     protected:
         virtual void RequestExecution();
         virtual void Idle();
+
+        virtual void ExecuteFirstAction() override;
 
     private:
         bool TryExecuteAction();

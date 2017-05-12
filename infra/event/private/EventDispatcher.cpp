@@ -64,11 +64,16 @@ namespace infra
     void EventDispatcherWorkerImpl::Idle()
     {}
 
+    void EventDispatcherWorkerImpl::ExecuteFirstAction()
+    {
+        scheduledActions[scheduledActionsPopIndex].first();
+    }
+
     bool EventDispatcherWorkerImpl::TryExecuteAction()
     {
         if (scheduledActions[scheduledActionsPopIndex].second)
         {
-            scheduledActions[scheduledActionsPopIndex].first();
+            ExecuteFirstAction();
             scheduledActions[scheduledActionsPopIndex].first = nullptr;
             scheduledActions[scheduledActionsPopIndex].second = false;
             scheduledActionsPopIndex = (scheduledActionsPopIndex + 1) % scheduledActions.size();
