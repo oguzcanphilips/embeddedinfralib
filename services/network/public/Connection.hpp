@@ -21,7 +21,7 @@ namespace services
         ~ZeroCopyConnectionObserver() = default;
 
     public:
-        virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream> stream) = 0;
+        virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>& stream) = 0;
         virtual void DataReceived() = 0;
     };
 
