@@ -15,8 +15,14 @@ namespace infra
 
     void BaseTimerService::NextTriggerChanged()
     {
-        infra::Duration durationToNextNotification = std::max(NextTrigger() - systemTime, Duration());
-        ticksNextNotification = static_cast<uint32_t>((durationToNextNotification + resolution - std::chrono::nanoseconds(1)) / resolution);
+        infra::TimePoint nextTrigger = NextTrigger();
+        if (nextTrigger != infra::TimePoint::max())
+        {
+            infra::Duration durationToNextNotification = std::max(NextTrigger() - systemTime, Duration());
+            ticksNextNotification = static_cast<uint32_t>((durationToNextNotification + resolution - std::chrono::nanoseconds(1)) / resolution);
+        }
+        else
+            ticksNextNotification = std::numeric_limits<uint32_t>::max();
     }
 
     TimePoint BaseTimerService::Now() const
