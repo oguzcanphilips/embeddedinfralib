@@ -1,4 +1,4 @@
-ccola_package(tcpip)
+ccola_package(lwip)
 
 	ccola_subdirectories(
 		lwip_config
