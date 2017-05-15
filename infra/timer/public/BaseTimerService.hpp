@@ -29,10 +29,9 @@ namespace infra
         TimePoint systemTime = TimePoint();
         Duration resolution;
 
-        std::atomic<uint32_t> nextNotification;
+        std::atomic<uint32_t> ticksNextNotification;
         std::atomic<uint32_t> ticksProgressed;
         std::atomic_bool notificationScheduled;
-        infra::TimePoint previousTrigger;
     };
 }
 

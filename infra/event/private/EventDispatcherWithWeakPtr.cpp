@@ -64,11 +64,16 @@ namespace infra
     void EventDispatcherWithWeakPtrWorker::Idle()
     {}
 
+    void EventDispatcherWithWeakPtrWorker::ExecuteFirstAction()
+    {
+        scheduledActions[scheduledActionsPopIndex].first->Execute();
+    }
+
     bool EventDispatcherWithWeakPtrWorker::TryExecuteAction()
     {
         if (scheduledActions[scheduledActionsPopIndex].second)
         {
-            scheduledActions[scheduledActionsPopIndex].first->Execute();
+            ExecuteFirstAction();
             scheduledActions[scheduledActionsPopIndex].first.Destruct();
             scheduledActions[scheduledActionsPopIndex].second = false;
             scheduledActionsPopIndex = (scheduledActionsPopIndex + 1) % scheduledActions.size();

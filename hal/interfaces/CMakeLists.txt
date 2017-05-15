@@ -1,6 +1,7 @@
 ccola_component(interfaces static_library)
 
 	ccola_sources(
+		private/Ethernet.cpp
 		private/Flash.cpp
 		private/FlashHomogeneous.cpp
 		private/Gpio.cpp
@@ -11,6 +12,7 @@ ccola_component(interfaces static_library)
 		public/AnalogToDigitalPin.hpp
 		public/CommunicationConfigurator.hpp
 		public/DigitalToAnalogPin.hpp
+		public/Ethernet.hpp
 		public/FileSystem.hpp
 		public/FileSystem.cpp
 		public/Flash.hpp

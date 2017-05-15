@@ -68,6 +68,8 @@ namespace infra
         virtual void RequestExecution();
         virtual void Idle();
 
+        virtual void ExecuteFirstAction() override;
+
     private:
         bool TryExecuteAction();
 

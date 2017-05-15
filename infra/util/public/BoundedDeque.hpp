@@ -76,6 +76,8 @@ namespace infra
         void resize(size_type n, const value_type& value = value_type());
         bool empty() const;
         bool full() const;
+        infra::MemoryRange<T> contiguous_range(const_iterator from);
+        infra::MemoryRange<const T> contiguous_range(const_iterator from) const;
 
     public:
         value_type& operator[](size_type position);
@@ -187,6 +189,7 @@ namespace infra
         private:
             template<class, class>
                 friend class BoundedDequeIterator;
+            friend DequeType;
 
             std::size_t index;
             DequeType* deque;
@@ -391,6 +394,30 @@ namespace infra
     bool BoundedDeque<T>::full() const
     {
         return numAllocated == max_size();
+    }
+
+    template<class T>
+    infra::MemoryRange<T> BoundedDeque<T>::contiguous_range(const_iterator from)
+    {
+        if (!empty())
+        {
+            std::size_t i = index(from.index);
+            return infra::MemoryRange<T>(&*storage[i], std::min(&*storage[i] + numAllocated - from.index, &**storage.begin() + storage.size()));
+        }
+        else
+            return infra::MemoryRange<T>();
+    }
+
+    template<class T>
+    infra::MemoryRange<const T> BoundedDeque<T>::contiguous_range(const_iterator from) const
+    {
+        if (!empty())
+        {
+            std::size_t i = index(from.index);
+            return infra::MemoryRange<const T>(&*storage[i], std::min(&*storage[i] + numAllocated - from.index, &**storage.begin() + storage.size()));
+        }
+        else
+            return infra::MemoryRange<const T>();
     }
 
     template<class T>
