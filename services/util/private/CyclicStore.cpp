@@ -309,7 +309,7 @@ namespace services
             sequencer.Step([this, range]()  // Write length
             {
                 blockHeader.SetBlockLength(static_cast<Length>(range.size() + remainingPartialSize));
-                flash.WriteBuffer(infra::MakeByteRange(blockHeader.BlockLength()), endAddress + 1, [this]() { sequencer.Continue(); });
+                flash.WriteBuffer(infra::ByteRange(&blockHeader.lengthLsb, (&blockHeader.lengthMsb)+1), endAddress + 1, [this]() { sequencer.Continue(); });
             });
             sequencer.Step([this]()         // Write status 'writing data'
             {
