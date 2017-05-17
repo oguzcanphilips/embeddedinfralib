@@ -4,11 +4,11 @@
 
 namespace infra
 {
-    QueueForOneReaderOneIrqWriter::QueueForOneReaderOneIrqWriter(const infra::ByteRange& aBuffer, const infra::Function<void()>& aOnDataAvailable)
-        : buffer(aBuffer)
+    QueueForOneReaderOneIrqWriter::QueueForOneReaderOneIrqWriter(const infra::ByteRange& buffer, const infra::Function<void()>& onDataAvailable)
+        : buffer(buffer)
         , contentsBegin(buffer.begin())
         , contentsEnd(buffer.begin())
-        , onDataAvailable(aOnDataAvailable)
+        , onDataAvailable(onDataAvailable)
     {
         notificationScheduled = false;
     }
@@ -22,6 +22,27 @@ namespace infra
             contentsEnd = buffer.begin();
         else
             ++contentsEnd;
+
+        NotifyDataAvailable();
+    }
+
+    void QueueForOneReaderOneIrqWriter::AddFromInterrupt(infra::ConstByteRange data)
+    {
+        std::size_t copySize = std::min<std::size_t>(data.size(), buffer.end() - contentsEnd);
+        uint8_t* begin = contentsBegin.load();
+        assert(begin <= contentsEnd.load() || begin > contentsEnd.load() + copySize);
+        std::copy(data.begin(), data.begin() + copySize, contentsEnd.load());
+
+        if (contentsEnd == buffer.end() - copySize)
+            contentsEnd = buffer.begin();
+        else
+            contentsEnd += copySize;
+
+        data.pop_front(copySize);
+
+        assert(begin <= contentsEnd.load() || begin > contentsEnd.load() + data.size());
+        std::copy(data.begin(), data.end(), contentsEnd.load());
+        contentsEnd += data.size();
 
         NotifyDataAvailable();
     }
@@ -48,6 +69,27 @@ namespace infra
             ++contentsBegin;
 
         return result;
+    }
+
+    infra::ConstByteRange QueueForOneReaderOneIrqWriter::ContiguousRange() const
+    {
+        const uint8_t* end = contentsEnd.load();
+
+        if (end < contentsBegin)
+            return infra::ConstByteRange(contentsBegin, buffer.end());
+        else
+            return infra::ConstByteRange(contentsBegin, end);
+    }
+
+    void QueueForOneReaderOneIrqWriter::Consume(uint32_t amount)
+    {
+        if (contentsBegin + amount >= buffer.end())
+        {
+            amount -= buffer.end() - contentsBegin;
+            contentsBegin = buffer.begin();
+        }
+
+        contentsBegin += amount;
     }
 
     void QueueForOneReaderOneIrqWriter::NotifyDataAvailable()

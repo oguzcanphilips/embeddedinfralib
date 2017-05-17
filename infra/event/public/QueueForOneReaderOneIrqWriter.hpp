@@ -14,15 +14,18 @@ namespace infra
     {
     public:
         template<std::size_t Size>
-            using WithStorage = infra::WithStorage<QueueForOneReaderOneIrqWriter, std::array<uint8_t, Size>>;
+            using WithStorage = infra::WithStorage<QueueForOneReaderOneIrqWriter, std::array<uint8_t, Size + 1>>;
 
-        QueueForOneReaderOneIrqWriter(const infra::ByteRange& aBuffer, const infra::Function<void()>& aOnDataAvailable);
+        QueueForOneReaderOneIrqWriter(const infra::ByteRange& buffer, const infra::Function<void()>& onDataAvailable);
 
         void AddFromInterrupt(uint8_t element);
+        void AddFromInterrupt(infra::ConstByteRange data);
 
         bool Empty() const;
         bool Full() const;
         uint8_t Get();
+        infra::ConstByteRange ContiguousRange() const;
+        void Consume(uint32_t amount);
 
     private:
         void NotifyDataAvailable();
