@@ -2,6 +2,7 @@ ccola_component(util_test gmock_test)
 
 	ccola_sources(
 		TestCyclicStore.cpp
+		TestDebouncedButton.cpp
 		TestDebugLed.cpp
 		TestFlashMultipleAccess.cpp
 		TestFlashQuadSpi.cpp

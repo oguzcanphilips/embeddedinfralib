@@ -2,6 +2,7 @@ ccola_component(util static_library)
 
 	ccola_sources(
 		private/CyclicStore.cpp
+		private/DebouncedButton.cpp
 		private/DebugLed.cpp
 		private/FlashDelayedInit.cpp
 		private/FlashMultipleAccess.cpp
@@ -15,6 +16,7 @@ ccola_component(util static_library)
 		private/SpiMasterWithChipSelect.cpp
 		private/SpiMultipleAccess.cpp
 		public/CyclicStore.hpp
+		public/DebouncedButton.hpp
 		public/DebugLed.hpp
 		public/FlashDelayedInit.hpp
 		public/FlashMultipleAccess.hpp
