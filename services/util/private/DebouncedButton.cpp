@@ -3,11 +3,12 @@
 
 namespace services
 {
-    DebouncedButton::DebouncedButton(hal::GpioPin& buttonPin, infra::Function<void()> callback, infra::Duration debounceDuration)
+    DebouncedButton::DebouncedButton(hal::GpioPin& buttonPin, infra::Function<void()> onPressed, infra::Function<void()> onReleased, infra::Duration debounceDuration)
         : buttonPin(buttonPin)
         , debounceDuration(debounceDuration)
         , previousButtonState(false)
-        , callback(callback)
+        , onPressed(onPressed)
+        , onReleased(onReleased)
     {
         this->buttonPin.EnableInterrupt([this]() { ButtonChanged(); }, hal::InterruptTrigger::bothEdges);
     }
@@ -20,6 +21,8 @@ namespace services
         {
             if (buttonState)
                 ButtonPressed();
+            else
+                ButtonReleased();
         }
 
         previousButtonState = buttonState;
@@ -29,8 +32,27 @@ namespace services
     {
         if (!debounceEnd.Armed())
         {
-            debounceEnd.Start(debounceDuration, infra::emptyFunction);
-            callback();
+            debounceEnd.Start(debounceDuration, [this]() { DebounceEnd(); });
+            announcedPressed = true;
+            onPressed();
         }
+    }
+
+    void DebouncedButton::ButtonReleased()
+    {
+        if (!debounceEnd.Armed())
+        {
+            debounceEnd.Start(debounceDuration, [this]() { DebounceEnd(); });
+            announcedPressed = false;
+            onReleased();
+        }
+    }
+
+    void DebouncedButton::DebounceEnd()
+    {
+        if (announcedPressed && !previousButtonState)
+            onReleased();
+        else if (!announcedPressed && previousButtonState)
+            onPressed();
     }
 }

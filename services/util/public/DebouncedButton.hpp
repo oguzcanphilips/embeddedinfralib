@@ -9,18 +9,22 @@ namespace services
     class DebouncedButton
     {
     public:
-        DebouncedButton(hal::GpioPin& buttonPin, infra::Function<void()> callback, infra::Duration debounceDuration = std::chrono::milliseconds(10));
+        DebouncedButton(hal::GpioPin& buttonPin, infra::Function<void()> onPressed, infra::Function<void()> onReleased = infra::emptyFunction, infra::Duration debounceDuration = std::chrono::milliseconds(10));
 
     private:
         void ButtonChanged();
         void ButtonPressed();
+        void ButtonReleased();
+        void DebounceEnd();
 
     private:
         hal::InputPin buttonPin;
         infra::Duration debounceDuration;
         bool previousButtonState;
         infra::TimerSingleShot debounceEnd;
-        infra::Function<void()> callback;
+        infra::Function<void()> onPressed;
+        infra::Function<void()> onReleased;
+        bool announcedPressed = false;
     };
 }
 
