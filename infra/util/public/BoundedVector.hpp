@@ -70,6 +70,8 @@ namespace infra
         void resize(size_type n, const value_type& value = value_type());
         bool empty() const;
         bool full() const;
+        infra::MemoryRange<T> range();
+        infra::MemoryRange<const T> range() const;
 
     public:
         value_type& operator[](size_type position);
@@ -316,6 +318,18 @@ namespace infra
     bool BoundedVector<T>::full() const
     {
         return numAllocated == max_size();
+    }
+
+    template<class T>
+    infra::MemoryRange<T> BoundedVector<T>::range()
+    {
+        return infra::MemoryRange<T>(begin(), end());
+    }
+
+    template<class T>
+    infra::MemoryRange<const T> BoundedVector<T>::range() const
+    {
+        return infra::MemoryRange<const T>(begin(), end());
     }
 
     template<class T>

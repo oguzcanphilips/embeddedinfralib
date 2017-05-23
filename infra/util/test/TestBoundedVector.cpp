@@ -117,6 +117,19 @@ TEST(BoundedVectorTest, TestBeginAndEnd)
     EXPECT_EQ(vector.rend(), vector.crend());
 }
 
+TEST(BoundedVectorTest, TestRange)
+{
+    infra::BoundedVector<int>::WithMaxSize<5> emptyVector;
+    EXPECT_EQ(0, emptyVector.range().size());
+    EXPECT_EQ(0, static_cast<const infra::BoundedVector<int>&>(emptyVector).range().size());
+
+    int range[3] = { 0, 1, 2 };
+    infra::BoundedVector<int>::WithMaxSize<5> vector(range, range + 3);
+
+    EXPECT_EQ(3, vector.range().size());
+    EXPECT_EQ(0, vector.range().front());
+}
+
 TEST(BoundedVectorTest, TestResizeBigger)
 {
     infra::BoundedVector<int>::WithMaxSize<5> vector(std::size_t(2), 4);
