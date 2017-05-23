@@ -5,8 +5,8 @@
 
 namespace application
 {
-	const uint32_t ImageUpgraderDiComm::chunkSizeDefault;
-	const uint32_t ImageUpgraderDiComm::chunkSizeMax;
+    const uint32_t ImageUpgraderDiComm::chunkSizeDefault;
+    const uint32_t ImageUpgraderDiComm::chunkSizeMax;
 
     ImageUpgraderDiComm::ImageUpgraderDiComm(infra::ByteRange buffer, const char* targetName, Decryptor& decryptor, DiComm& diComm)
         : ImageUpgrader(targetName, decryptor)
