@@ -104,6 +104,7 @@ namespace services
         virtual void CloseAndDestroy() = 0;
         virtual void AbortAndDestroy() = 0;
 
+        void SwitchObserver(const infra::SharedPtr<ConnectionObserver>& newObserver);
         void SetOwnership(const infra::SharedPtr<Connection>& connection, const infra::SharedPtr<ConnectionObserver>& observer);
         void ResetOwnership();
 

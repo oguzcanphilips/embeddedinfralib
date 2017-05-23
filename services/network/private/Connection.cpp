@@ -28,6 +28,12 @@ namespace services
         : infra::SingleObserver<ConnectionObserver, Connection>(connection)
     {}
 
+    void Connection::SwitchObserver(const infra::SharedPtr<ConnectionObserver>& newObserver)
+    {
+        this->observer = nullptr;
+        this->observer = newObserver;
+    }
+
     void Connection::SetOwnership(const infra::SharedPtr<Connection>& connection, const infra::SharedPtr<ConnectionObserver>& observer)
     {
         this->connection = connection;
