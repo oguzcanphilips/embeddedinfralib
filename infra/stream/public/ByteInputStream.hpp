@@ -11,6 +11,7 @@ namespace infra
     {
     public:
         explicit ByteInputStream(ConstByteRange range);
+        ByteInputStream(ConstByteRange range, SoftFail);
 
         ConstByteRange Processed() const;   // Invariant: Processed() ++ Remaining() == range
         ConstByteRange Remaining() const;

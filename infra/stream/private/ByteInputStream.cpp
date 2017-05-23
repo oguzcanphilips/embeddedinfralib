@@ -7,6 +7,12 @@ namespace infra
         , range(range)
     {}
 
+    ByteInputStream::ByteInputStream(ConstByteRange range, SoftFail)
+        : StreamReader(infra::softFail)
+        , DataInputStream(static_cast<StreamReader&>(*this))
+        , range(range)
+    {}
+
     ConstByteRange ByteInputStream::Processed() const
     {
         return MakeRange(range.begin(), range.begin() + offset);
