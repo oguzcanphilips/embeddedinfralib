@@ -327,8 +327,8 @@ namespace services
         sysCheckTimer.Start(std::chrono::milliseconds(50), [this]() { sys_check_timeouts(); }, infra::triggerImmediately);
     }
 
-    infra::SharedPtr<void> LightweightIp::Listen(uint16_t port, ZeroCopyConnectionObserverFactory& connectionObserverFactory)
+    infra::SharedPtr<void> LightweightIp::Listen(uint16_t port, ZeroCopyConnectionObserverFactory& factory)
     {
-        return listenerAllocator.Allocate(connectionAllocator, port, connectionObserverFactory);
+        return listenerAllocator.Allocate(connectionAllocator, port, factory);
     }
 }

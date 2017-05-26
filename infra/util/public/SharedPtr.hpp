@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <type_traits>
 #include <memory>
+#include "infra/util/public/StaticStorage.hpp"
 
 namespace infra
 {
@@ -48,14 +49,6 @@ namespace infra
             uint16_t weakPtrCount = 0;
             const void* object = nullptr;
             SharedObjectAllocatorBase* allocator = nullptr;
-        };
-
-        class NullAllocator
-            : public SharedObjectAllocatorBase
-        {
-        public:
-            virtual void Destruct(const void* object) override;
-            virtual void Deallocate(void* control) override;
         };
 
         template<class T>
@@ -194,6 +187,9 @@ namespace infra
 
     template<class T, class U>
         SharedPtr<T> MakeContainedSharedObject(T& object, const SharedPtr<U>& container);
+
+    template<class T, class... Args>
+        SharedPtr<T> MakeSharedOnHeap(Args&&... args);
 
     ////    Implementation    ////
 
@@ -531,6 +527,17 @@ namespace infra
         return weakPtr;
     }
 
+    namespace detail
+    {
+        class NullAllocator
+            : public SharedObjectAllocatorBase
+        {
+        public:
+            virtual void Destruct(const void* object) override;
+            virtual void Deallocate(void* control) override;
+        };
+    }
+
     template<class T>
     SharedPtr<T> UnOwnedSharedPtr(T& object)
     {
@@ -543,6 +550,48 @@ namespace infra
     SharedPtr<T> MakeContainedSharedObject(T& object, const SharedPtr<U>& container)
     {
         return SharedPtr<T>(container.control, &object);
+    }
+
+    namespace detail
+    {
+        template<class T>
+        class SharedObjectOnHeap
+            : private SharedObjectAllocatorBase
+        {
+        public:
+            template<class... Args>
+            SharedObjectOnHeap(Args&&... args)
+                : control(&*object, this)
+            {
+                object.Construct(std::forward<Args>(args)...);
+            }
+
+            operator SharedPtr<T>()
+            {
+                return SharedPtr<T>(&control, &*object);
+            }
+
+        private:
+            virtual void Destruct(const void* object) override
+            {
+                this->object.Destruct();
+            }
+
+            virtual void Deallocate(void* control) override
+            {
+                delete this;
+            }
+
+        private:
+            StaticStorage<T> object;
+            SharedPtrControl control;
+        };
+    }
+
+    template<class T, class... Args>
+    SharedPtr<T> MakeSharedOnHeap(Args&&... args)
+    {
+        return *new detail::SharedObjectOnHeap<T>(std::forward<Args>(args)...);
     }
 }
 

@@ -131,8 +131,7 @@ namespace services
                 AllocatorConnectionLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<NumConnections>>;
 
     public:
-        LightweightIp(AllocatorListenerLwIp& listenerAllocator
-            , AllocatorConnectionLwIp& connectionAllocator);
+        LightweightIp(AllocatorListenerLwIp& listenerAllocator, AllocatorConnectionLwIp& connectionAllocator);
 
         virtual infra::SharedPtr<void> Listen(uint16_t port, ZeroCopyConnectionObserverFactory& factory) override;
 

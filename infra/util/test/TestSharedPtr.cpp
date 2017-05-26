@@ -476,3 +476,13 @@ TEST_F(SharedPtrTest, create_contained_SharedPtr)
     containedObject = nullptr;
     testing::Mock::VerifyAndClearExpectations(&objectConstructionMock);
 }
+
+TEST_F(SharedPtrTest, MakeSharedOnHeap)
+{
+    void* savedObject;
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_)).WillOnce(testing::SaveArg<0>(&savedObject));
+    infra::SharedPtr<MySharedObject> object = infra::MakeSharedOnHeap<MySharedObject>(objectConstructionMock);
+    EXPECT_TRUE(static_cast<bool>(object));
+    EXPECT_EQ(5, object->Value());
+    EXPECT_CALL(objectConstructionMock, Destruct(savedObject));
+}
