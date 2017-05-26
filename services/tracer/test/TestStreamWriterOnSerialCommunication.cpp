@@ -1,6 +1,6 @@
 #include "gmock/gmock.h"
-#include "hal/interfaces/test_doubles/public/SerialCommunicationMock.hpp"
-#include "services/tracer/public/StreamWriterOnSerialCommunication.hpp"
+#include "hal/interfaces/test_doubles/SerialCommunicationMock.hpp"
+#include "services/tracer/StreamWriterOnSerialCommunication.hpp"
 
 class StreamWriterOnSerialCommunicationTest
     : public testing::Test

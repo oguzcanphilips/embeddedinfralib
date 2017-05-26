@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/CompareMembers.hpp"
+#include "infra/util/CompareMembers.hpp"
 
 TEST(EqualsTest, TestConstructedEmpty)
 {

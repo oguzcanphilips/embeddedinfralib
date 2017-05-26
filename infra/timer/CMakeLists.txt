@@ -1,24 +1,24 @@
 ccola_component(timer static_library)
 
 	ccola_sources(
-		private/BaseTimerService.cpp
-		private/ScalableDerivedTimerService.cpp
-		private/Timer.cpp
-		private/TimerAlternating.cpp
-		private/TimerExponentialBackoff.cpp
-		private/TimerLimitedRepeating.cpp
-		private/TimerLimitedRepeatingWithClosingAction.cpp
-		private/TimerService.cpp
-		private/TimerServiceManager.cpp
-		public/BaseTimerService.hpp
-		public/ScalableDerivedTimerService.hpp
-		public/Timer.hpp
-		public/TimerAlternating.hpp
-		public/TimerExponentialBackoff.hpp
-		public/TimerLimitedRepeating.hpp
-		public/TimerLimitedRepeatingWithClosingAction.hpp
-		public/TimerService.hpp
-		public/TimerServiceManager.hpp
+		BaseTimerService.cpp
+		ScalableDerivedTimerService.cpp
+		Timer.cpp
+		TimerAlternating.cpp
+		TimerExponentialBackoff.cpp
+		TimerLimitedRepeating.cpp
+		TimerLimitedRepeatingWithClosingAction.cpp
+		TimerService.cpp
+		TimerServiceManager.cpp
+		BaseTimerService.hpp
+		ScalableDerivedTimerService.hpp
+		Timer.hpp
+		TimerAlternating.hpp
+		TimerExponentialBackoff.hpp
+		TimerLimitedRepeating.hpp
+		TimerLimitedRepeatingWithClosingAction.hpp
+		TimerService.hpp
+		TimerServiceManager.hpp
 	)
 
 	ccola_dependencies(

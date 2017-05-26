@@ -1,4 +1,4 @@
-#include "packs/upgrade/pack_builder/public/BinaryObject.hpp"
+#include "packs/upgrade/pack_builder/BinaryObject.hpp"
 #include "gtest/gtest.h"
 
 TEST(BinaryObjectTest, AddByte)

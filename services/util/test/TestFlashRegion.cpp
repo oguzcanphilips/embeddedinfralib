@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include "hal/interfaces/test_doubles/public/FlashStub.hpp"
-#include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
-#include "services/util/public/FlashRegion.hpp"
+#include "hal/interfaces/test_doubles/FlashStub.hpp"
+#include "infra/event/test_helper/EventDispatcherFixture.hpp"
+#include "services/util/FlashRegion.hpp"
 
 class FlashRegionTest
     : public testing::Test

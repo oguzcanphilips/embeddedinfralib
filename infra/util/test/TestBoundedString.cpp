@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/BoundedString.hpp"
+#include "infra/util/BoundedString.hpp"
 
 TEST(BoundedStringTest, TestConstructedEmpty)
 {

@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/FixedPoint.hpp"
+#include "infra/util/FixedPoint.hpp"
 
 TEST(FixedPointTest, CreateYieldsZero)
 {

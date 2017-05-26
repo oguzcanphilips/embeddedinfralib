@@ -1,12 +1,12 @@
 #include "gmock/gmock.h"
-#include "hal/interfaces/test_doubles/public/GpioStub.hpp"
-#include "infra/timer/test_helper/public/ClockFixture.hpp"
-#include "infra/stream/public/ByteInputStream.hpp"
-#include "infra/stream/public/ByteOutputStream.hpp"
-#include "infra/util/public/Optional.hpp"
-#include "hal/interfaces/test_doubles/public/FlashStub.hpp"
-#include "packs/upgrade/deploy_pack_to_external/public/DeployPackToExternal.hpp"
-#include "packs/upgrade/pack/public/UpgradePackHeader.hpp"
+#include "hal/interfaces/test_doubles/GpioStub.hpp"
+#include "infra/timer/test_helper/ClockFixture.hpp"
+#include "infra/stream/ByteInputStream.hpp"
+#include "infra/stream/ByteOutputStream.hpp"
+#include "infra/util/Optional.hpp"
+#include "hal/interfaces/test_doubles/FlashStub.hpp"
+#include "packs/upgrade/deploy_pack_to_external/DeployPackToExternal.hpp"
+#include "packs/upgrade/pack/UpgradePackHeader.hpp"
 
 namespace
 {

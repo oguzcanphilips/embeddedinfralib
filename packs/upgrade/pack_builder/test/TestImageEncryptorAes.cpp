@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "packs/upgrade/pack_builder/public/ImageEncryptorAes.hpp"
+#include "packs/upgrade/pack_builder/ImageEncryptorAes.hpp"
 
 class ImageEncryptorAesTest
     : public testing::Test

@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "infra/util/public/Function.hpp"
-#include "infra/util/test_helper/public/MockCallback.hpp"
+#include "infra/util/Function.hpp"
+#include "infra/util/test_helper/MockCallback.hpp"
 
 TEST(FunctionTest, TestConstructedEmpty)
 {

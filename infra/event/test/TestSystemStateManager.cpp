@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
-#include "infra/event/public/EventDispatcher.hpp"
-#include "infra/event/public/SystemStateManager.hpp"
-#include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
-#include "infra/util/public/Optional.hpp"
+#include "infra/event/EventDispatcher.hpp"
+#include "infra/event/SystemStateManager.hpp"
+#include "infra/event/test_helper/EventDispatcherFixture.hpp"
+#include "infra/util/Optional.hpp"
 
 class SystemStateTest
     : public testing::Test

@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/BoundedVector.hpp"
-#include "infra/util/test_helper/public/MoveConstructible.hpp"
+#include "infra/util/BoundedVector.hpp"
+#include "infra/util/test_helper/MoveConstructible.hpp"
 #include <functional>
 #include <memory>
 

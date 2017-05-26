@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/syntax/public/Asn1.hpp"
+#include "infra/syntax/Asn1.hpp"
 
 TEST(Asn1ObjectFormatter, get_integer)
 {

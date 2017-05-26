@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/IntrusiveList.hpp"
-#include "infra/util/public/ReverseRange.hpp"
+#include "infra/util/IntrusiveList.hpp"
+#include "infra/util/ReverseRange.hpp"
 #include <functional>
 #include <memory>
 #include <utility>

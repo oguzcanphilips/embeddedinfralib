@@ -1,10 +1,10 @@
 #include "gmock/gmock.h"
-#include "hal/synchronous_interfaces/test_doubles/public/SynchronousFlashStub.hpp"
-#include "packs/upgrade/boot_loader/public/DecryptorNone.hpp"
-#include "packs/upgrade/boot_loader/public/ImageUpgraderDiComm.hpp"
+#include "hal/synchronous_interfaces/test_doubles/SynchronousFlashStub.hpp"
+#include "packs/upgrade/boot_loader/DecryptorNone.hpp"
+#include "packs/upgrade/boot_loader/ImageUpgraderDiComm.hpp"
 #include "packs/upgrade/boot_loader/test/MockDecryptor.hpp"
 #include "packs/upgrade/boot_loader/test/MockDiComm.hpp"
-#include "packs/upgrade/pack/public/UpgradePackHeader.hpp"
+#include "packs/upgrade/pack/UpgradePackHeader.hpp"
 
 class ImageUpgraderDiCommTest
     : public testing::Test

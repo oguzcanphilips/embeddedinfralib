@@ -1,8 +1,8 @@
 ccola_component(network static_library)
 
 	ccola_sources(
-		private/Connection.cpp
-		public/Connection.hpp
+		Connection.cpp
+		Connection.hpp
 	)
 
 	ccola_dependencies(

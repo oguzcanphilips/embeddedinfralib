@@ -1,6 +1,6 @@
 #include <gmock/gmock.h>
-#include "infra/util/public/SharedPtr.hpp"
-#include "infra/util/public/SharedObjectAllocatorFixedSize.hpp"
+#include "infra/util/SharedPtr.hpp"
+#include "infra/util/SharedObjectAllocatorFixedSize.hpp"
 
 namespace
 {

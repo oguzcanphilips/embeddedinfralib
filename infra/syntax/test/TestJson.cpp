@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/syntax/public/Json.hpp"
+#include "infra/syntax/Json.hpp"
 
 TEST(BasicUsageTest, object_with_some_values)
 {

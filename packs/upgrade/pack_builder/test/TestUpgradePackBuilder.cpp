@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/Optional.hpp"
-#include "packs/upgrade/pack_builder/public/UpgradePackBuilder.hpp"
+#include "infra/util/Optional.hpp"
+#include "packs/upgrade/pack_builder/UpgradePackBuilder.hpp"
 
 class ImageSignerNone
     : public application::ImageSigner

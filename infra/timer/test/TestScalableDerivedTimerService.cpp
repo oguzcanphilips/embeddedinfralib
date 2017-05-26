@@ -1,11 +1,11 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "infra/event/public/EventDispatcher.hpp"
-#include "infra/timer/public/ScalableDerivedTimerService.hpp"
-#include "infra/timer/public/Timer.hpp"
-#include "infra/timer/public/TimerServiceManager.hpp"
-#include "infra/timer/test_helper/public/ClockFixture.hpp"
-#include "infra/util/test_helper/public/MockCallback.hpp"
+#include "infra/event/EventDispatcher.hpp"
+#include "infra/timer/ScalableDerivedTimerService.hpp"
+#include "infra/timer/Timer.hpp"
+#include "infra/timer/TimerServiceManager.hpp"
+#include "infra/timer/test_helper/ClockFixture.hpp"
+#include "infra/util/test_helper/MockCallback.hpp"
 
 class ScalableDerivedTimerServiceTest
     : public testing::Test

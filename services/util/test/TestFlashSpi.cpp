@@ -1,8 +1,8 @@
 #include "gmock/gmock.h"
-#include "hal/interfaces/test_doubles/public/SpiMock.hpp"
-#include "infra/timer/test_helper/public/ClockFixture.hpp"
-#include "infra/util/test_helper/public/MockCallback.hpp"
-#include "services/util/public/FlashSpi.hpp"
+#include "hal/interfaces/test_doubles/SpiMock.hpp"
+#include "infra/timer/test_helper/ClockFixture.hpp"
+#include "infra/util/test_helper/MockCallback.hpp"
+#include "services/util/FlashSpi.hpp"
 
 class FlashSpiTest
     : public testing::Test

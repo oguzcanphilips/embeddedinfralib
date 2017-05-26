@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/Optional.hpp"
+#include "infra/util/Optional.hpp"
 
 namespace infra
 {

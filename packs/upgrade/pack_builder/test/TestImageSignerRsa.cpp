@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "packs/upgrade/pack_builder/public/ImageSignerRsa.hpp"
+#include "packs/upgrade/pack_builder/ImageSignerRsa.hpp"
 
 class TestImageSignerRsa
     : public testing::Test

@@ -1,9 +1,9 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "infra/event/public/EventDispatcher.hpp"
-#include "infra/event/test_helper/public/EventDispatcherWithWeakPtrFixture.hpp"
-#include "infra/util/test_helper/public/MockCallback.hpp"
-#include "infra/util/public/SharedObjectAllocatorFixedSize.hpp"
+#include "infra/event/EventDispatcher.hpp"
+#include "infra/event/test_helper/EventDispatcherWithWeakPtrFixture.hpp"
+#include "infra/util/test_helper/MockCallback.hpp"
+#include "infra/util/SharedObjectAllocatorFixedSize.hpp"
 
 class EventDispatcherWithWeakPtrTest
     : public testing::Test

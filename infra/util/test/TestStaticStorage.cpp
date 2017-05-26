@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "infra/util/public/StaticStorage.hpp"
+#include "infra/util/StaticStorage.hpp"
 
 TEST(StaticStorageTest, TestConstruction)
 {

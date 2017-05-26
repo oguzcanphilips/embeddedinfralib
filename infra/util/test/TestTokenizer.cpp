@@ -1,5 +1,5 @@
 #include "gmock/gmock.h"
-#include "infra/util/public/Tokenizer.hpp"
+#include "infra/util/Tokenizer.hpp"
 
 TEST(TokenizerTest, construction)
 {

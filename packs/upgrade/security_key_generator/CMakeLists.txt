@@ -1,9 +1,9 @@
 ccola_component(security_key_generator win: executable other: noncompile)
 
 	ccola_sources(
-		private/Main.cpp
-		private/MaterialGenerator.cpp
-		public/MaterialGenerator.hpp
+		Main.cpp
+		MaterialGenerator.cpp
+		MaterialGenerator.hpp
 	)
 
 	ccola_dependencies(

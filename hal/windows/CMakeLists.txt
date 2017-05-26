@@ -1,8 +1,8 @@
 ccola_component(windows win: static_library other: noncompile)
 
 	ccola_sources(
-		private/FileSystemWin.cpp
-		public/FileSystemWin.hpp
+		FileSystemWin.cpp
+		FileSystemWin.hpp
 	)
 
 	ccola_dependencies(
