@@ -215,7 +215,7 @@ namespace infra
     class ReservedProxy
     {
     public:
-        ReservedProxy(ByteRange range);
+        explicit ReservedProxy(ByteRange range);
 
         ReservedProxy& operator=(const T& data);
 
