@@ -20,8 +20,9 @@ namespace services
     {
         if (control)
         {
+            tcp_pcb* c = control;
             ResetControl();
-            tcp_abort(control);
+            tcp_abort(c);
         }
     }
 
