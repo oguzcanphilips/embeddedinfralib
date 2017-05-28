@@ -1,38 +1,12 @@
 #include <cstdlib>
 #include <cstring>
 #include "infra/event/EventDispatcher.hpp"
-#include "infra/util/CompareMembers.hpp"
 #include "lwip/lwip_cpp/LightweightIpOverEthernet.hpp"
 #include "netif/etharp.h"
 #include "lwip/dhcp.h"
 
 namespace services
 {
-    bool IPv4Addresses::operator==(const IPv4Addresses& other) const
-    {
-        return infra::Equals()
-            (address, other.address)
-            (netmask, other.netmask)
-            (gateway, other.gateway);
-    }
-
-    bool IPv4Addresses::operator!=(const IPv4Addresses& other) const
-    {
-        return !(*this == other);
-    }
-
-    bool IpConfig::operator==(const IpConfig& other) const
-    {
-        return infra::Equals()
-            (useDhcp, other.useDhcp)
-            (staticAddresses, other.staticAddresses);
-    }
-
-    bool IpConfig::operator!=(const IpConfig& other) const
-    {
-        return !(*this == other);
-    }
-
     LightweightIpOverEthernet::LightweightIpOverEthernet(hal::EthernetMac& ethernet, netif& netInterface)
         : hal::EthernetMacObserver(ethernet)
         , netInterface(netInterface)

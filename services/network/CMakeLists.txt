@@ -1,6 +1,8 @@
 ccola_component(network static_library)
 
 	ccola_sources(
+		Address.cpp
+		Address.hpp
 		Connection.cpp
 		Connection.hpp
 	)

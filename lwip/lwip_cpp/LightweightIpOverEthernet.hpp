@@ -7,31 +7,11 @@
 #include "infra/util/Observer.hpp"
 #include "infra/util/Optional.hpp"
 #include "lwip/netif.h"
+#include "services/network/Address.hpp"
 #include <array>
 
 namespace services
 {
-    using IPv4Address = std::array<uint8_t, 4>;
-
-    struct IPv4Addresses
-    {
-        IPv4Address address;
-        IPv4Address netmask;
-        IPv4Address gateway;
-
-        bool operator==(const IPv4Addresses& other) const;
-        bool operator!=(const IPv4Addresses& other) const;
-    };
-
-    struct IpConfig
-    {
-        bool useDhcp;
-        IPv4Addresses staticAddresses;
-
-        bool operator==(const IpConfig& other) const;
-        bool operator!=(const IpConfig& other) const;
-    };
-
     class LightweightIpOverEthernet
         : hal::EthernetMacObserver
     {
@@ -66,7 +46,7 @@ namespace services
             Config() {}
 
             std::array<char, 2> ifName = { { 'r', 'p' } };
-            IpConfig ipConfig = { true };
+            Ipv4Config ipConfig = { true };
         };
 
         LightweightIpOverEthernetFactory(hal::MacAddress macAddress, const Config& config = Config());
