@@ -14,13 +14,14 @@ namespace infra
     template<class T, class... ConstructionArgs>
     class SharedObjectAllocatorFixedSize<T, void(ConstructionArgs...)>
         : public SharedObjectAllocator<T, void(ConstructionArgs...)>
+        , private SharedObjectDeleter
     {
         static_assert(sizeof(T) == sizeof(StaticStorage<T>), "sizeof(StaticStorage) must be equal to sizeof(T) else reinterpret_cast will fail");
     private:
         struct Node
             : public detail::SharedPtrControl
         {
-            Node(SharedObjectAllocatorBase* allocator);
+            Node(SharedObjectDeleter* allocator);
 
             Node* next;
             infra::StaticStorage<T> object;
@@ -28,12 +29,14 @@ namespace infra
 
     public:
         template<std::size_t NumberOfElements>
-        using WithStorage = infra::WithStorage<SharedObjectAllocatorFixedSize, typename infra::BoundedVector<Node>::template WithMaxSize<NumberOfElements>>;
+            using WithStorage = infra::WithStorage<SharedObjectAllocatorFixedSize, typename infra::BoundedVector<Node>::template WithMaxSize<NumberOfElements>>;
 
         SharedObjectAllocatorFixedSize(infra::BoundedVector<Node>& elements);
         ~SharedObjectAllocatorFixedSize();
 
         virtual SharedPtr<T> Allocate(ConstructionArgs... args) override;
+
+    private:
         virtual void Destruct(const void* object) override;
         virtual void Deallocate(void* control) override;
 
@@ -69,7 +72,7 @@ namespace infra
             return SharedPtr<T>(node, &*node->object);
         }
         else
-            return SharedPtr<T>();
+            return nullptr;
     }
 
     template<class T, class... ConstructionArgs>
@@ -116,13 +119,13 @@ namespace infra
             if (elements.full())
                 return nullptr;
 
-            elements.emplace_back(this);
+            elements.emplace_back(static_cast<SharedObjectDeleter*>(this));
             return &elements.back();
         }
     }
 
     template<class T, class... ConstructionArgs>
-    SharedObjectAllocatorFixedSize<T, void(ConstructionArgs...)>::Node::Node(SharedObjectAllocatorBase* allocator)
+    SharedObjectAllocatorFixedSize<T, void(ConstructionArgs...)>::Node::Node(SharedObjectDeleter* allocator)
         : detail::SharedPtrControl(&*object, allocator)
     {}
 }

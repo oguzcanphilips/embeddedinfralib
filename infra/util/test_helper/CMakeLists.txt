@@ -3,6 +3,7 @@ ccola_component(util_test_helper win: source other: skip)
 	ccola_sources(
 		BoundedStringMatcher.hpp
 		MockCallback.hpp
+		MonitoredConstructionObject.hpp
 		MoveConstructible.hpp
 	)
 

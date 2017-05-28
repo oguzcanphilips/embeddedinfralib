@@ -41,6 +41,7 @@ ccola_component(util static_library)
 		Sequencer.hpp
 		SharedObjectAllocator.hpp
 		SharedObjectAllocatorFixedSize.hpp
+		SharedObjectAllocatorHeap.hpp
 		SharedOptional.hpp
 		SharedPtr.hpp
 		StaticStorage.hpp

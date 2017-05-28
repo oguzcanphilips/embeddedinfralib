@@ -6,9 +6,9 @@ namespace infra
 {
     namespace detail
     {
-        SharedPtrControl::SharedPtrControl(const void* object, SharedObjectAllocatorBase* allocator)
+        SharedPtrControl::SharedPtrControl(const void* object, SharedObjectDeleter* deleter)
             : object(object)
-            , allocator(allocator)
+            , deleter(deleter)
         {}
 
         void SharedPtrControl::IncreaseSharedCount()
@@ -23,7 +23,7 @@ namespace infra
 
             --sharedPtrCount;
             if (sharedPtrCount == 0)
-                allocator->Destruct(object);
+                deleter->Destruct(object);
 
             DecreaseWeakCount();
         }
@@ -39,7 +39,7 @@ namespace infra
 
             --weakPtrCount;
             if (weakPtrCount == 0)
-                allocator->Deallocate(this);
+                deleter->Deallocate(this);
         }
 
         bool SharedPtrControl::Expired() const

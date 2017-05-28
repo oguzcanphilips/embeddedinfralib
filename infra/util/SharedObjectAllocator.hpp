@@ -10,7 +10,6 @@ namespace infra
 
     template<class T, class... ConstructionArgs>
     class SharedObjectAllocator<T, void(ConstructionArgs...)>
-        : public SharedObjectAllocatorBase
     {
     public:
         template<template<class, class...> class Allocator>

@@ -257,7 +257,7 @@ namespace services
 
     infra::SharedPtr<void> EventDispatcherWithNetwork::Connect(IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory)
     {
-        return infra::SharedPtr<void>();
+        return nullptr;
     }
 
     void EventDispatcherWithNetwork::Idle()

@@ -1,16 +1,10 @@
-#include <gmock/gmock.h>
+#include "gmock/gmock.h"
 #include "infra/util/SharedPtr.hpp"
 #include "infra/util/SharedObjectAllocatorFixedSize.hpp"
+#include "infra/util/test_helper/MonitoredConstructionObject.hpp"
 
 namespace
 {
-    class ObjectConstructionMock
-    {
-    public:
-        MOCK_METHOD1(Construct, void(void* object));
-        MOCK_METHOD1(Destruct, void(void* object));
-    };
-
     class MySharedObjectBase
     {
     protected:
@@ -22,27 +16,18 @@ namespace
 
     class MySharedObject
         : public MySharedObjectBase
+        , public infra::MonitoredConstructionObject
     {
     public:
-        MySharedObject(ObjectConstructionMock& mock)
-            : mock(mock)
-        {
-            mock.Construct(this);
-        }
-
-        ~MySharedObject()
-        {
-            mock.Destruct(this);
-        }
+        using infra::MonitoredConstructionObject::MonitoredConstructionObject;
 
         int Value() const
         {
             return 5;
         }
-
-    private:
-        ObjectConstructionMock& mock;
     };
+
+    using AllocatorMySharedObject = infra::SharedObjectAllocator<MySharedObject, void(infra::ConstructionMonitorMock&)>;
 
     class OtherBase
     {
@@ -55,7 +40,7 @@ namespace
         , public MySharedObject
     {
     public:
-        MultiInheritedClass(ObjectConstructionMock& mock)
+        MultiInheritedClass(infra::ConstructionMonitorMock& mock)
             : MySharedObject(mock)
         {}
     };
@@ -65,18 +50,9 @@ class SharedPtrTest
     : public testing::Test
 {
 public:
-    testing::StrictMock<ObjectConstructionMock> objectConstructionMock;
-    infra::SharedObjectAllocatorFixedSize<MySharedObject, void(ObjectConstructionMock&)>::WithStorage<2> allocator;
+    testing::StrictMock<infra::ConstructionMonitorMock> objectConstructionMock;
+    AllocatorMySharedObject::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<2> allocator;
 };
-
-TEST_F(SharedPtrTest, allocate_one_object)
-{
-    void* savedObject;
-    EXPECT_CALL(objectConstructionMock, Construct(testing::_)).WillOnce(testing::SaveArg<0>(&savedObject));
-    infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
-    EXPECT_TRUE(static_cast<bool>(object));
-    EXPECT_CALL(objectConstructionMock, Destruct(savedObject));
-}
 
 TEST_F(SharedPtrTest, construct_empty_SharedPtr)
 {
@@ -91,14 +67,6 @@ TEST_F(SharedPtrTest, convert_nullptr_to_empty_SharedPtr)
 
     infra::SharedPtr<MySharedObject> object2 = nullptr;
     EXPECT_FALSE(static_cast<bool>(object2));
-}
-
-TEST_F(SharedPtrTest, when_allocation_fails_empty_SharedPtr_is_returned)
-{
-    infra::SharedObjectAllocatorFixedSize<MySharedObject, void(ObjectConstructionMock&)>::WithStorage<0> allocator;
-
-    infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
-    EXPECT_FALSE(static_cast<bool>(object));
 }
 
 TEST_F(SharedPtrTest, share_one_object_by_copy_construction)
@@ -274,26 +242,9 @@ TEST_F(SharedPtrTest, convert_WeakPtr_to_SharedPtr)
     EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 }
 
-TEST_F(SharedPtrTest, object_is_destructed_but_not_deallocated_while_WeakPtr_has_a_reference)
-{
-    infra::SharedObjectAllocatorFixedSize<MySharedObject, void(ObjectConstructionMock&)>::WithStorage<1> allocator;
-
-    infra::WeakPtr<MySharedObject> weakObject;
-
-    {
-        EXPECT_CALL(objectConstructionMock, Construct(testing::_));
-        infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
-        weakObject = object;
-        EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
-    }
-    testing::Mock::VerifyAndClearExpectations(&objectConstructionMock);
-
-    EXPECT_EQ(nullptr, allocator.Allocate(objectConstructionMock));
-}
-
 TEST_F(SharedPtrTest, move_construct_WeakPtr)
 {
-    infra::SharedObjectAllocatorFixedSize<MySharedObject, void(ObjectConstructionMock&)>::WithStorage<1> allocator;
+    infra::SharedObjectAllocatorFixedSize<MySharedObject, void(infra::ConstructionMonitorMock&)>::WithStorage<1> allocator;
 
     infra::WeakPtr<MySharedObject> weakObject;
 
@@ -312,7 +263,7 @@ TEST_F(SharedPtrTest, move_construct_WeakPtr)
 
 TEST_F(SharedPtrTest, move_assign_WeakPtr)
 {
-    infra::SharedObjectAllocatorFixedSize<MySharedObject, void(ObjectConstructionMock&)>::WithStorage<1> allocator;
+    infra::SharedObjectAllocatorFixedSize<MySharedObject, void(infra::ConstructionMonitorMock&)>::WithStorage<1> allocator;
 
     infra::WeakPtr<MySharedObject> weakObject;
 
@@ -332,7 +283,7 @@ TEST_F(SharedPtrTest, move_assign_WeakPtr)
 
 TEST_F(SharedPtrTest, converting_WeakPtr_to_SharedPtr_for_expired_object_results_in_nullptr)
 {
-    infra::SharedObjectAllocatorFixedSize<MySharedObject, void(ObjectConstructionMock&)>::WithStorage<1> allocator;
+    infra::SharedObjectAllocatorFixedSize<MySharedObject, void(infra::ConstructionMonitorMock&)>::WithStorage<1> allocator;
 
     infra::WeakPtr<MySharedObject> weakObject;
 
@@ -349,7 +300,7 @@ TEST_F(SharedPtrTest, converting_WeakPtr_to_SharedPtr_for_expired_object_results
 
 TEST_F(SharedPtrTest, allocate_multiple_inherited_class)
 {
-    infra::SharedObjectAllocatorFixedSize<MultiInheritedClass, void(ObjectConstructionMock&)>::WithStorage<2> allocator;
+    infra::SharedObjectAllocatorFixedSize<MultiInheritedClass, void(infra::ConstructionMonitorMock&)>::WithStorage<2> allocator;
     void* savedObject;
     EXPECT_CALL(objectConstructionMock, Construct(testing::_)).WillOnce(testing::SaveArg<0>(&savedObject));
     infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);

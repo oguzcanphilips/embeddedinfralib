@@ -8,7 +8,7 @@ namespace infra
 {
     template<class T>
     class SharedOptional
-        : private SharedObjectAllocatorBase
+        : private SharedObjectDeleter
     {
     public:
         SharedOptional();

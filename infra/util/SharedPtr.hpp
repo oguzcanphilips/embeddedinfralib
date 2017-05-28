@@ -15,13 +15,13 @@ namespace infra
     template<class T>
     class WeakPtr;
 
-    class SharedObjectAllocatorBase
+    class SharedObjectDeleter
     {
     protected:
-        SharedObjectAllocatorBase() = default;
-        SharedObjectAllocatorBase(const SharedObjectAllocatorBase& other) = delete;
-        SharedObjectAllocatorBase& operator=(const SharedObjectAllocatorBase& other) = delete;
-        ~SharedObjectAllocatorBase() = default;
+        SharedObjectDeleter() = default;
+        SharedObjectDeleter(const SharedObjectDeleter& other) = delete;
+        SharedObjectDeleter& operator=(const SharedObjectDeleter& other) = delete;
+        ~SharedObjectDeleter() = default;
 
     public:
         virtual void Destruct(const void* object) = 0;
@@ -33,7 +33,7 @@ namespace infra
         class SharedPtrControl
         {
         public:
-            SharedPtrControl(const void* object, SharedObjectAllocatorBase* allocator);
+            SharedPtrControl(const void* object, SharedObjectDeleter* deleter);
             SharedPtrControl(const SharedPtrControl& other) = delete;
             SharedPtrControl& operator=(const SharedPtrControl& other) = delete;
 
@@ -48,7 +48,7 @@ namespace infra
             uint16_t sharedPtrCount = 0;
             uint16_t weakPtrCount = 0;
             const void* object = nullptr;
-            SharedObjectAllocatorBase* allocator = nullptr;
+            SharedObjectDeleter* deleter = nullptr;
         };
 
         template<class T>
@@ -530,7 +530,7 @@ namespace infra
     namespace detail
     {
         class NullAllocator
-            : public SharedObjectAllocatorBase
+            : public SharedObjectDeleter
         {
         public:
             virtual void Destruct(const void* object) override;
@@ -556,7 +556,7 @@ namespace infra
     {
         template<class T>
         class SharedObjectOnHeap
-            : private SharedObjectAllocatorBase
+            : private SharedObjectDeleter
         {
         public:
             template<class... Args>
