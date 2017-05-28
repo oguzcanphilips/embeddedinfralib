@@ -8,6 +8,7 @@
 #include "infra/util/SharedOptional.hpp"
 #include "infra/util/WithStorage.hpp"
 #include "lwip/tcp.h"
+#include "services/network/Address.hpp"
 #include "services/network/Connection.hpp"
 
 namespace services
@@ -121,22 +122,45 @@ namespace services
 
     using AllocatorListenerLwIp = infra::SharedObjectAllocator<ListenerLwIp, void(AllocatorConnectionLwIp&, uint16_t, ZeroCopyConnectionObserverFactory&)>;
 
+    class ConnectorLwIp
+    {
+    public:
+        ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory);
+        ~ConnectorLwIp();
+
+    private:
+        static err_t StaticConnected(void* arg, tcp_pcb* tpcb, err_t err);
+        static void StaticError(void* arg, err_t err);
+        err_t Connected();
+        void Error(err_t err);
+
+    private:
+        AllocatorConnectionLwIp& allocator;
+        ZeroCopyConnectionObserverFactory& factory;
+        tcp_pcb* control;
+    };
+
+    using AllocatorConnectorLwIp = infra::SharedObjectAllocator<ConnectorLwIp, void(AllocatorConnectionLwIp& allocator, IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory)>;
+
     class LightweightIp
         : public ZeroCopyListenerFactory
     {
     public:
-        template<std::size_t NumListeners, std::size_t NumConnections>
-            using WithFixedAllocator = infra::WithStorage<
-                infra::WithStorage<LightweightIp, AllocatorListenerLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<NumListeners>>,
-                AllocatorConnectionLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<NumConnections>>;
+        template<std::size_t MaxListeners, std::size_t MaxConnectors, std::size_t MaxConnections>
+            using WithFixedAllocator = infra::WithStorage<infra::WithStorage<infra::WithStorage<LightweightIp,
+                AllocatorListenerLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxListeners>>,
+                AllocatorConnectorLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxConnectors>>,
+                AllocatorConnectionLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxConnections>>;
 
     public:
-        LightweightIp(AllocatorListenerLwIp& listenerAllocator, AllocatorConnectionLwIp& connectionAllocator);
+        LightweightIp(AllocatorListenerLwIp& listenerAllocator, AllocatorConnectorLwIp& connectorAllocator, AllocatorConnectionLwIp& connectionAllocator);
 
         virtual infra::SharedPtr<void> Listen(uint16_t port, ZeroCopyConnectionObserverFactory& factory) override;
+        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory) override;
 
     private:
         AllocatorListenerLwIp& listenerAllocator;
+        AllocatorConnectorLwIp& connectorAllocator;
         AllocatorConnectionLwIp& connectionAllocator;
         infra::TimerRepeating sysCheckTimer;
     };

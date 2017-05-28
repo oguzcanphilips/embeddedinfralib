@@ -1,11 +1,12 @@
-#ifndef NETWORK_CONNECTION_HPP
-#define NETWORK_CONNECTION_HPP
+#ifndef SERVICES_CONNECTION_HPP
+#define SERVICES_CONNECTION_HPP
 
 #include "infra/stream/InputStream.hpp"
 #include "infra/stream/OutputStream.hpp"
 #include "infra/util/ByteRange.hpp"
 #include "infra/util/Observer.hpp"
 #include "infra/util/SharedPtr.hpp"
+#include "services/network/Address.hpp"
 
 namespace services
 {
@@ -80,6 +81,7 @@ namespace services
 
     public:
         virtual infra::SharedPtr<void> Listen(uint16_t port, ZeroCopyConnectionObserverFactory& factory) = 0;
+        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory) = 0;
     };
 
     class Connection;

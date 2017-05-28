@@ -255,6 +255,11 @@ namespace services
         return infra::MakeSharedOnHeap<ListenerWin>(*this, port, factory);
     }
 
+    infra::SharedPtr<void> EventDispatcherWithNetwork::Connect(IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory)
+    {
+        return infra::SharedPtr<void>();
+    }
+
     void EventDispatcherWithNetwork::Idle()
     {
         FD_SET writeSet = {};

@@ -125,6 +125,7 @@ namespace services
 
     public:
         virtual infra::SharedPtr<void> Listen(uint16_t port, services::ZeroCopyConnectionObserverFactory& factory) override;
+        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory) override;
 
     protected:
         virtual void Idle() override;
