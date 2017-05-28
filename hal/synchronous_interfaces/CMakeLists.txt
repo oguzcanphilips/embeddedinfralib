@@ -9,6 +9,7 @@ ccola_component(synchronous_interfaces static_library)
 		SynchronousGpio.hpp
 		SynchronousI2c.hpp
 		SynchronousQuadSpi.hpp
+		SynchronousRandomDataGenerator.hpp
 		SynchronousSerialCommunication.hpp
 		SynchronousSpi.hpp
 		TimeKeeper.hpp

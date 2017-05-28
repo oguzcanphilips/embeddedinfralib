@@ -21,6 +21,7 @@ ccola_component(interfaces static_library)
 		I2c.hpp
 		I2cRegisterAccess.hpp
 		QuadSpi.hpp
+		RandomDataGenerator.hpp
 		SerialCommunication.hpp
 		Spi.hpp
 		UsbCustomHid.hpp
