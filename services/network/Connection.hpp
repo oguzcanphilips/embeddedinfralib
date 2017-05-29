@@ -48,14 +48,11 @@ namespace services
         virtual void CloseAndDestroy() = 0;
         virtual void AbortAndDestroy() = 0;
 
-        void SetOwnership(const infra::SharedPtr<ZeroCopyConnection>& connection, const infra::SharedPtr<ZeroCopyConnectionObserver>& observer);
+        void SetOwnership(const infra::SharedPtr<ZeroCopyConnection>& owner, const infra::SharedPtr<ZeroCopyConnectionObserver>& observer);
         void ResetOwnership();
 
-    protected:
-        infra::SharedPtr<ZeroCopyConnection> Self();
-
     private:
-        infra::SharedPtr<ZeroCopyConnection> connection;
+        infra::SharedPtr<ZeroCopyConnection> owner;
         infra::SharedPtr<ZeroCopyConnectionObserver> observer;
     };
 
