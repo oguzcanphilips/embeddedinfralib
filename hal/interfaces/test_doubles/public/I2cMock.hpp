@@ -55,6 +55,22 @@ namespace hal
         MOCK_METHOD1(RemoveSlave, void(uint8_t address));
         MOCK_METHOD0(StopTransceiving, void());
     };
+
+    //TICS -INT#002: A mock or stub may have public data
+    class I2cSlaveMockWithManualCallback
+        : public hal::I2cSlaveMock
+    {
+    public:
+        virtual void AddSlave(uint8_t ownAddress, infra::Function<void(DataDirection)> onAddressed) override;
+        virtual void SendData(infra::ConstByteRange data,
+            infra::Function<void(Result, uint32_t numberOfBytesSent)> onSent) override;
+        virtual void ReceiveData(infra::ByteRange data, bool lastOfSession,
+            infra::Function<void(Result, uint32_t numberOfBytesReceived)> onReceived) override;
+
+        infra::Function<void(hal::DataDirection)> onAddressed;
+        infra::Function<void(hal::Result, uint32_t numberOfBytesSent)> onSent;
+        infra::Function<void(hal::Result, uint32_t numberOfBytesSent)> onReceived;
+    };
 }
 
 #endif

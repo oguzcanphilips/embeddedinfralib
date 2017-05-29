@@ -53,4 +53,22 @@ namespace hal
         ReceiveDataMock(data, lastOfSession);
         onReceived(hal::Result::complete, data.size());
     }
+
+    void I2cSlaveMockWithManualCallback::AddSlave(uint8_t address, infra::Function<void(DataDirection)> onAddressed)
+    {
+        AddSlaveMock(address);
+        this->onAddressed = onAddressed;
+    }
+
+    void I2cSlaveMockWithManualCallback::SendData(infra::ConstByteRange data, infra::Function<void(Result, uint32_t numberOfBytesSent)> onSent)
+    {
+        SendDataMock(data);
+        this->onSent = onSent;
+    }
+
+    void I2cSlaveMockWithManualCallback::ReceiveData(infra::ByteRange data, bool lastOfSession, infra::Function<void(Result, uint32_t numberOfBytesReceived)> onReceived)
+    {
+        ReceiveDataMock(data, lastOfSession);
+        this->onReceived = onReceived;
+    }
 }
