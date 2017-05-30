@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include "hal/interfaces/test_doubles/public/I2cMock.hpp"
-#include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
-#include "services/util/public/I2cMultipleAccess.hpp"
+#include "hal/interfaces/test_doubles/I2cMock.hpp"
+#include "infra/event/test_helper/EventDispatcherFixture.hpp"
+#include "services/util/I2cMultipleAccess.hpp"
 
 class I2cMultipleAccessTest
     : public testing::Test

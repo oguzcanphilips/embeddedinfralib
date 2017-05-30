@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/IntrusivePriorityQueue.hpp"
+#include "infra/util/IntrusivePriorityQueue.hpp"
 
 struct QueueInt
     : infra::IntrusivePriorityQueue<QueueInt>::NodeType

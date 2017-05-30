@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "hal/interfaces/test_doubles/public/FileSystemStub.hpp"
-#include "packs/upgrade/pack_builder/public/InputBinary.hpp"
+#include "hal/interfaces/test_doubles/FileSystemStub.hpp"
+#include "packs/upgrade/pack_builder/InputBinary.hpp"
 #include "packs/upgrade/pack_builder/test/ImageSecurityNone.hpp"
 #include <algorithm>
 

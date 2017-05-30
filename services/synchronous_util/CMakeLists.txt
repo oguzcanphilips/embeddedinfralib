@@ -1,14 +1,14 @@
 ccola_component(synchronous_util static_library)
 
 	ccola_sources(
-		private/SynchronousFlashRegion.cpp
-		private/SynchronousFlashQuadSpi.cpp
-		private/SynchronousFlashSpi.cpp
-		private/SynchronousSpiMasterWithChipSelect.cpp
-		public/SynchronousFlashRegion.hpp
-		public/SynchronousFlashQuadSpi.hpp
-		public/SynchronousFlashSpi.hpp
-		public/SynchronousSpiMasterWithChipSelect.hpp
+		SynchronousFlashRegion.cpp
+		SynchronousFlashQuadSpi.cpp
+		SynchronousFlashSpi.cpp
+		SynchronousSpiMasterWithChipSelect.cpp
+		SynchronousFlashRegion.hpp
+		SynchronousFlashQuadSpi.hpp
+		SynchronousFlashSpi.hpp
+		SynchronousSpiMasterWithChipSelect.hpp
 	)
 
 	ccola_dependencies(

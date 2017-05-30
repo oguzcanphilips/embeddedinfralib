@@ -1,7 +1,7 @@
 #include "gmock/gmock.h"
-#include "infra/timer/test_helper/public/ClockFixture.hpp"
-#include "infra/stream/public/StringOutputStream.hpp"
-#include "services/tracer/public/TracerWithDateTime.hpp"
+#include "infra/timer/test_helper/ClockFixture.hpp"
+#include "infra/stream/StringOutputStream.hpp"
+#include "services/tracer/TracerWithDateTime.hpp"
 
 class TracerWithDateTimeTestImpl
     : public services::TracerWithDateTime

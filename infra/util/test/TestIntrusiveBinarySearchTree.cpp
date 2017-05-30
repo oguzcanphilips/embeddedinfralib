@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/IntrusiveBinarySearchTree.hpp"
+#include "infra/util/IntrusiveBinarySearchTree.hpp"
 #include <sstream>
 #include <string>
 

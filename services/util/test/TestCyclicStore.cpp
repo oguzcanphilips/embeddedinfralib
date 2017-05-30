@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
-#include "hal/interfaces/test_doubles/public/FlashStub.hpp"
-#include "infra/timer/test_helper/public/ClockFixture.hpp"
-#include "infra/util/test_helper/public/MockCallback.hpp"
-#include "services/util/public/CyclicStore.hpp"
+#include "hal/interfaces/test_doubles/FlashStub.hpp"
+#include "infra/timer/test_helper/ClockFixture.hpp"
+#include "infra/util/test_helper/MockCallback.hpp"
+#include "services/util/CyclicStore.hpp"
 
 class CyclicStoreBaseTest
     : public testing::Test

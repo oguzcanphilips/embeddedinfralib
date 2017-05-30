@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/InterfaceConnector.hpp"
+#include "infra/util/InterfaceConnector.hpp"
 
 class ITestSingleton
     : public infra::InterfaceConnector<ITestSingleton>

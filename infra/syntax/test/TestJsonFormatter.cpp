@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/syntax/public/JsonFormatter.hpp"
+#include "infra/syntax/JsonFormatter.hpp"
 
 TEST(BasicUsageTest, format_json_object)
 {

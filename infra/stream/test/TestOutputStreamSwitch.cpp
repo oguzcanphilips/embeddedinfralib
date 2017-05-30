@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include "infra/stream/public/ByteOutputStream.hpp"
-#include "infra/stream/public/StdStringOutputStream.hpp"
-#include "infra/stream/public/StringOutputStream.hpp"
+#include "infra/stream/ByteOutputStream.hpp"
+#include "infra/stream/StdStringOutputStream.hpp"
+#include "infra/stream/StringOutputStream.hpp"
 #include <cstdint>
 
 TEST(OutputStreamSwitchTest, StreamToTextStream)

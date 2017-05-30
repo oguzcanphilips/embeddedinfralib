@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/CyclicBuffer.hpp"
+#include "infra/util/CyclicBuffer.hpp"
 
 class CyclicBufferTest
     : public testing::Test

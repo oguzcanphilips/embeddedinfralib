@@ -1,8 +1,8 @@
 ccola_component(deploy_pack_to_external static_library)
 
 	ccola_sources(
-		private/DeployPackToExternal.cpp
-		public/DeployPackToExternal.hpp
+		DeployPackToExternal.cpp
+		DeployPackToExternal.hpp
 	)
 
 	ccola_dependencies(

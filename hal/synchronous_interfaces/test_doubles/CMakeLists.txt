@@ -1,10 +1,10 @@
 ccola_component(synchronous_test_doubles win: static_library other: noncompile)
 
 	ccola_sources(
-		private/SynchronousFlashStub.cpp
-		private/SynchronousSerialCommunicationMock.cpp
-		public/SynchronousFlashStub.hpp
-		public/SynchronousSerialCommunicationMock.hpp
+		SynchronousFlashStub.cpp
+		SynchronousSerialCommunicationMock.cpp
+		SynchronousFlashStub.hpp
+		SynchronousSerialCommunicationMock.hpp
 	)
 
 	ccola_dependencies(

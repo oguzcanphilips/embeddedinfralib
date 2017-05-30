@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "infra/timer/public/TimerLimitedRepeating.hpp"
-#include "infra/timer/test_helper/public/ClockFixture.hpp"
-#include "infra/util/test_helper/public/MockCallback.hpp"
+#include "infra/timer/TimerLimitedRepeating.hpp"
+#include "infra/timer/test_helper/ClockFixture.hpp"
+#include "infra/util/test_helper/MockCallback.hpp"
 
 class TimerLimitedRepeatingTest
     : public testing::Test

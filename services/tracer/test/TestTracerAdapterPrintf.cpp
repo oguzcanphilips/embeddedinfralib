@@ -1,7 +1,7 @@
 #include <gmock/gmock.h>
 #include <limits>
-#include "infra/stream/public/StringOutputStream.hpp"
-#include "services/tracer/public/TracerAdapterPrintf.hpp"
+#include "infra/stream/StringOutputStream.hpp"
+#include "services/tracer/TracerAdapterPrintf.hpp"
 
 services::TracerAdapterPrintf* printfAdapter = nullptr;
 

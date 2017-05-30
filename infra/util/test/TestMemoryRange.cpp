@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/BoundedVector.hpp"
-#include "infra/util/public/ByteRange.hpp"
-#include "infra/util/public/MemoryRange.hpp"
+#include "infra/util/BoundedVector.hpp"
+#include "infra/util/ByteRange.hpp"
+#include "infra/util/MemoryRange.hpp"
 
 TEST(MemoryRangeTest, TestConstructedEmpty)
 {

@@ -1,5 +1,5 @@
 #include "gmock/gmock.h"
-#include "infra/util/public/ProxyCreator.hpp"
+#include "infra/util/ProxyCreator.hpp"
 
 class PeripheralInterface
 {

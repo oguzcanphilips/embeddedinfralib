@@ -1,9 +1,9 @@
 #include "gtest/gtest.h"
-#include "hal/interfaces/test_doubles/public/CommunicationConfiguratorMock.hpp"
-#include "hal/interfaces/test_doubles/public/GpioStub.hpp"
-#include "hal/interfaces/test_doubles/public/SpiMock.hpp"
-#include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
-#include "services/util/public/SpiMasterWithChipSelect.hpp"
+#include "hal/interfaces/test_doubles/CommunicationConfiguratorMock.hpp"
+#include "hal/interfaces/test_doubles/GpioStub.hpp"
+#include "hal/interfaces/test_doubles/SpiMock.hpp"
+#include "infra/event/test_helper/EventDispatcherFixture.hpp"
+#include "services/util/SpiMasterWithChipSelect.hpp"
 
 class SpiMasterWithChipSelectTest
     : public testing::Test

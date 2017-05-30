@@ -1,10 +1,10 @@
 ccola_component(lwip_cpp static_library)
 
 	ccola_sources(
-		private/ConnectionLwIP.cpp
-		private/LightweightIpOverEthernet.cpp
-		public/ConnectionLwIP.hpp
-		public/LightweightIpOverEthernet.hpp
+		ConnectionLwIP.cpp
+		LightweightIpOverEthernet.cpp
+		ConnectionLwIP.hpp
+		LightweightIpOverEthernet.hpp
 	)
 
 	ccola_dependencies(

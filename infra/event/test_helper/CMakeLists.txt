@@ -1,8 +1,8 @@
 ccola_component(event_test_helper win: source other: skip)
 
 	ccola_sources(
-		public/EventDispatcherFixture.hpp
-		public/EventDispatcherWithWeakPtrFixture.hpp
+		EventDispatcherFixture.hpp
+		EventDispatcherWithWeakPtrFixture.hpp
 	)
 
 	ccola_dependencies(

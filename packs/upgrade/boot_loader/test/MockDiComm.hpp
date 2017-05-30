@@ -2,7 +2,7 @@
 #define UPGRADE_MOCK_DI_COMM_HPP
 
 #include "gmock/gmock.h"
-#include "packs/upgrade/boot_loader/public/DiComm.hpp"
+#include "packs/upgrade/boot_loader/DiComm.hpp"
 #include <string>
 #include <utility>
 

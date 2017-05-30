@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/AllocatorHeap.hpp"
+#include "infra/util/AllocatorHeap.hpp"
 
 class HeapAllocatorTest
     : public testing::Test

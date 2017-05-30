@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/BoundedPriorityQueue.hpp"
-#include "infra/util/test_helper/public/MoveConstructible.hpp"
+#include "infra/util/BoundedPriorityQueue.hpp"
+#include "infra/util/test_helper/MoveConstructible.hpp"
 
 TEST(BoundedPriorityQueueTest, TestConstructedEmpty)
 {

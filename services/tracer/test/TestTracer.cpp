@@ -1,6 +1,6 @@
 #include "gmock/gmock.h"
-#include "infra/stream/public/StringOutputStream.hpp"
-#include "services/tracer/public/Tracer.hpp"
+#include "infra/stream/StringOutputStream.hpp"
+#include "services/tracer/Tracer.hpp"
 
 class TracerTestImpl
     : public services::Tracer

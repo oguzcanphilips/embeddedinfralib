@@ -1,5 +1,5 @@
-#include "infra/event/public/ClaimableResource.hpp"
-#include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
+#include "infra/event/ClaimableResource.hpp"
+#include "infra/event/test_helper/EventDispatcherFixture.hpp"
 #include <gtest/gtest.h>
 
 class TestClaimer

@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "hal/interfaces/public/QuadSpi.hpp"
+#include "hal/interfaces/QuadSpi.hpp"
 
 TEST(QuadSpiTest, AddressToVectorToAddress)
 {

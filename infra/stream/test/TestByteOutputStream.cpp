@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "infra/stream/public/ByteOutputStream.hpp"
-#include "infra/stream/public/SavedMarkerStream.hpp"
+#include "infra/stream/ByteOutputStream.hpp"
+#include "infra/stream/SavedMarkerStream.hpp"
 
 TEST(ByteOutputStreamTest, StreamToRange)
 {

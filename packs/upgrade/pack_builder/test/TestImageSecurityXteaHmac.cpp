@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "packs/upgrade/pack_builder/public/ImageSecurityXteaHmac.hpp"
+#include "packs/upgrade/pack_builder/ImageSecurityXteaHmac.hpp"
 
 class TestImageSecurityXteaHmac
     : public testing::Test

@@ -1,6 +1,6 @@
 #include "gmock/gmock.h"
-#include "hal/synchronous_interfaces/test_doubles/public/SynchronousFlashStub.hpp"
-#include "packs/upgrade/boot_loader/public/ImageUpgraderSkip.hpp"
+#include "hal/synchronous_interfaces/test_doubles/SynchronousFlashStub.hpp"
+#include "packs/upgrade/boot_loader/ImageUpgraderSkip.hpp"
 
 TEST(ImageUpgraderSkipTest, ConstructionWithTargetName)
 {

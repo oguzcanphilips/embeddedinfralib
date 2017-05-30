@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
-#include "infra/timer/public/TimerLimitedRepeatingWithClosingAction.hpp"
-#include "infra/timer/public/TimerServiceManager.hpp"
-#include "infra/timer/test_helper/public/ClockFixture.hpp"
-#include "infra/util/test_helper/public/MockCallback.hpp"
+#include "infra/timer/TimerLimitedRepeatingWithClosingAction.hpp"
+#include "infra/timer/TimerServiceManager.hpp"
+#include "infra/timer/test_helper/ClockFixture.hpp"
+#include "infra/util/test_helper/MockCallback.hpp"
 
 class TimerLimitedRepeatingWithClosingActionTest
     : public testing::Test

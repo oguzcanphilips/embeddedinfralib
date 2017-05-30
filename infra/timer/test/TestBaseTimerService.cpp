@@ -1,10 +1,10 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
-#include "infra/timer/public/BaseTimerService.hpp"
-#include "infra/timer/public/Timer.hpp"
-#include "infra/timer/public/TimerServiceManager.hpp"
-#include "infra/util/test_helper/public/MockCallback.hpp"
+#include "infra/event/test_helper/EventDispatcherFixture.hpp"
+#include "infra/timer/BaseTimerService.hpp"
+#include "infra/timer/Timer.hpp"
+#include "infra/timer/TimerServiceManager.hpp"
+#include "infra/util/test_helper/MockCallback.hpp"
 
 class BaseTimerServiceTest
     : public testing::Test

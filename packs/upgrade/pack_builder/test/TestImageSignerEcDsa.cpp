@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "packs/upgrade/pack_builder/public/ImageSignerEcDsa.hpp"
+#include "packs/upgrade/pack_builder/ImageSignerEcDsa.hpp"
 
 class TestImageSignerEcDsa
     : public testing::Test

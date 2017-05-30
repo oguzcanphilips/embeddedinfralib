@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/stream/public/ByteInputStream.hpp"
+#include "infra/stream/ByteInputStream.hpp"
 #include <array>
 
 TEST(ByteInputStreamTest, StreamFromRange)

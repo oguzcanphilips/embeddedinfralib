@@ -1,6 +1,6 @@
 #include "gmock/gmock.h"
-#include "hal/synchronous_interfaces/test_doubles/public/SynchronousSerialCommunicationMock.hpp"
-#include "packs/upgrade/boot_loader/public/DiCommUart.hpp"
+#include "hal/synchronous_interfaces/test_doubles/SynchronousSerialCommunicationMock.hpp"
+#include "packs/upgrade/boot_loader/DiCommUart.hpp"
 
 class TimeKeeperStub
     : public hal::TimeKeeper

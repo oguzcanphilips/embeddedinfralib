@@ -1,8 +1,8 @@
 ccola_component(network_test_doubles win: static_library other: noncompile)
 
 	ccola_sources(
-		private/ConnectionMock.cpp
-		public/ConnectionMock.hpp
+		ConnectionMock.cpp
+		ConnectionMock.hpp
 	)
 
 	ccola_dependencies(

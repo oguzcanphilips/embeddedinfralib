@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/BoundedDeque.hpp"
-#include "infra/util/test_helper/public/MoveConstructible.hpp"
+#include "infra/util/BoundedDeque.hpp"
+#include "infra/util/test_helper/MoveConstructible.hpp"
 #include <memory>
 
 TEST(BoundedDequeTest, TestConstructedEmpty)
@@ -192,7 +192,7 @@ TEST(BoundedDequeTest, TestBeginAndEndWrapped)
     EXPECT_EQ(-1, *(deque.rend() - 1));
 }
 
-TEST(BoundedDequeTest, TestContiguousRangeFromBegin)
+TEST(BoundedDequeTest, TestContiguousRange)
 {
     infra::BoundedDeque<int>::WithMaxSize<5> emptyDeque;
     EXPECT_EQ(0, emptyDeque.contiguous_range(emptyDeque.begin()).size());
