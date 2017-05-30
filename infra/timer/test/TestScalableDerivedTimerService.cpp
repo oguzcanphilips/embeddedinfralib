@@ -84,3 +84,9 @@ TEST_F(ScalableDerivedTimerServiceTest, ScaleAndScaleBackAfterSomeTimePassed)
 
     ForwardTime(std::chrono::seconds(2));
 }
+
+TEST_F(ScalableDerivedTimerServiceTest, GetCurrentShiftValue)
+{
+    scalableTimerService.Shift(std::chrono::seconds(3));
+    EXPECT_EQ(std::chrono::seconds(3), scalableTimerService.GetCurrentShift());
+}

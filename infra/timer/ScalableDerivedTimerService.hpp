@@ -18,6 +18,7 @@ namespace infra
 
         void Shift(Duration shift);
         void Scale(uint32_t factor);
+        Duration GetCurrentShift() const;
 
     private:
         TimePoint ScaleTime(TimePoint time) const;

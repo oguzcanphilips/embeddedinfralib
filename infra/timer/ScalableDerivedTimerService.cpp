@@ -42,6 +42,11 @@ namespace infra
         NextTriggerChanged();
     }
 
+    Duration ScalableDerivedTimerService::GetCurrentShift() const
+    {
+        return shift;
+    }
+
     TimePoint ScalableDerivedTimerService::ScaleTime(TimePoint time) const
     {
         return startPointForFactor + (time - startPointForFactor + shift) * factor;
