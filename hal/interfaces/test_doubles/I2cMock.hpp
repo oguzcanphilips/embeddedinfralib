@@ -42,34 +42,12 @@ namespace hal
         : public hal::I2cSlave
     {
     public:
-        virtual void AddSlave(uint8_t ownAddress, infra::Function<void(DataDirection)> onAddressed) override;
-        virtual void SendData(infra::ConstByteRange data, 
-            infra::Function<void(Result, uint32_t numberOfBytesSent)> onSent) override;
-        virtual void ReceiveData(infra::ByteRange data, bool lastOfSession, 
-            infra::Function<void(Result, uint32_t numberOfBytesReceived)> onReceived) override;
-
-        MOCK_METHOD1(AddSlaveMock, void(uint8_t address));
-        MOCK_METHOD1(SendDataMock, void(infra::ConstByteRange data));
-        MOCK_METHOD2(ReceiveDataMock, void(infra::ByteRange data, bool lastOfSession));
+        MOCK_METHOD2(AddSlave, void(uint8_t address, infra::Function<void(DataDirection)> onAddressed));
+        MOCK_METHOD2(SendData, void(infra::ConstByteRange data, infra::Function<void(Result, uint32_t numberOfBytesSent)> onSent));
+        MOCK_METHOD3(ReceiveData, void(infra::ByteRange data, bool lastOfSession, infra::Function<void(Result, uint32_t numberOfBytesReceived)> onReceived));
 
         MOCK_METHOD1(RemoveSlave, void(uint8_t address));
         MOCK_METHOD0(StopTransceiving, void());
-    };
-
-    //TICS -INT#002: A mock or stub may have public data
-    class I2cSlaveMockWithManualCallback
-        : public hal::I2cSlaveMock
-    {
-    public:
-        virtual void AddSlave(uint8_t ownAddress, infra::Function<void(DataDirection)> onAddressed) override;
-        virtual void SendData(infra::ConstByteRange data,
-            infra::Function<void(Result, uint32_t numberOfBytesSent)> onSent) override;
-        virtual void ReceiveData(infra::ByteRange data, bool lastOfSession,
-            infra::Function<void(Result, uint32_t numberOfBytesReceived)> onReceived) override;
-
-        infra::Function<void(hal::DataDirection)> onAddressed;
-        infra::Function<void(hal::Result, uint32_t numberOfBytesSent)> onSent;
-        infra::Function<void(hal::Result, uint32_t numberOfBytesSent)> onReceived;
     };
 }
 
