@@ -20,6 +20,7 @@ namespace hal
         MOCK_METHOD2(ReceiveDataMock, std::vector<uint8_t>(hal::I2cAddress address, hal::Action nextAction));
     };
 
+    //TICS -INT#002: A mock or stub may have public data
     class I2cMasterMockWithoutAutomaticDone
         : public hal::I2cMaster
     {
@@ -34,6 +35,19 @@ namespace hal
 
         infra::Function<void(hal::Result, uint32_t numberOfBytesSent)> onSent;
         infra::Function<void(hal::Result)> onReceived;
+    };
+
+    //TICS -INT#002: A mock or stub may have public data
+    class I2cSlaveMock
+        : public hal::I2cSlave
+    {
+    public:
+        MOCK_METHOD2(AddSlave, void(uint8_t address, infra::Function<void(DataDirection)> onAddressed));
+        MOCK_METHOD2(SendData, void(infra::ConstByteRange data, infra::Function<void(Result, uint32_t numberOfBytesSent)> onSent));
+        MOCK_METHOD3(ReceiveData, void(infra::ByteRange data, bool lastOfSession, infra::Function<void(Result, uint32_t numberOfBytesReceived)> onReceived));
+
+        MOCK_METHOD1(RemoveSlave, void(uint8_t address));
+        MOCK_METHOD0(StopTransceiving, void());
     };
 }
 
