@@ -16,16 +16,12 @@ namespace services
             if (*format == '%')
             {
                 int lengthSpecifier = 0;
-                char paddingCharacter = ' ';
                 infra::Optional<int> precision;
 
                 ++format;
 
                 if (*format == '0')
-                {
-                    paddingCharacter = '0';
                     ++format;
-                }
 
                 while (*format == 'l')
                 {
@@ -75,7 +71,7 @@ namespace services
                     else
                         tracer.Continue() << va_arg(args, uint32_t);
                     break;
-                case 'p':
+                case 'p':                                                                                               //TICS !CFL#001
                 case 'X':
                     tracer.Continue() << "0x";
                 case 'x':

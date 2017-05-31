@@ -92,17 +92,13 @@ namespace infra
         pointer data() const;
 
     public:
-        iterator begin();
-        const_iterator begin() const;
+        iterator begin() const;
         const_iterator cbegin() const;
-        iterator end();
-        const_iterator end() const;
+        iterator end() const;
         const_iterator cend() const;
-        reverse_iterator rbegin();
-        const_reverse_iterator rbegin() const;
+        reverse_iterator rbegin() const;
         const_reverse_iterator crbegin() const;
-        reverse_iterator rend();
-        const_reverse_iterator rend() const;
+        reverse_iterator rend() const;
         const_reverse_iterator crend() const;
 
     public:
@@ -311,13 +307,13 @@ namespace infra
         void swap(BoundedStringBase<T>& lhs, BoundedStringBase<T>& rhs);
 
     template<class T, class U>
-        MemoryRange<T> StringAsMemoryRange(infra::BoundedStringBase<U> string);
+        MemoryRange<T> StringAsMemoryRange(const infra::BoundedStringBase<U>& string);
     template<class T, class U>
-        MemoryRange<const T> StringAsMemoryRange(infra::BoundedStringBase<const U> string);
+        MemoryRange<const T> StringAsMemoryRange(const infra::BoundedStringBase<const U>& string);
     template<class U>
-        MemoryRange<uint8_t> StringAsByteRange(infra::BoundedStringBase<U> string);
+        MemoryRange<uint8_t> StringAsByteRange(const infra::BoundedStringBase<U>& string);
     template<class U>
-        MemoryRange<const uint8_t> StringAsByteRange(infra::BoundedStringBase<const U> string);
+        MemoryRange<const uint8_t> StringAsByteRange(const infra::BoundedStringBase<const U>& string);
 
 #ifdef _MSC_VER                                                                                                                     //TICS !POR#021
     // gtest uses PrintTo to display the contents of BoundedStringBase<T>
@@ -572,13 +568,7 @@ namespace infra
     }
 
     template<class T>
-    typename BoundedStringBase<T>::iterator BoundedStringBase<T>::begin()
-    {
-        return range.begin();
-    }
-
-    template<class T>
-    typename BoundedStringBase<T>::const_iterator BoundedStringBase<T>::begin() const
+    typename BoundedStringBase<T>::iterator BoundedStringBase<T>::begin() const
     {
         return range.begin();
     }
@@ -590,13 +580,7 @@ namespace infra
     }
 
     template<class T>
-    typename BoundedStringBase<T>::iterator BoundedStringBase<T>::end()
-    {
-        return range.begin() + length;
-    }
-
-    template<class T>
-    typename BoundedStringBase<T>::const_iterator BoundedStringBase<T>::end() const
+    typename BoundedStringBase<T>::iterator BoundedStringBase<T>::end() const
     {
         return range.begin() + length;
     }
@@ -608,13 +592,7 @@ namespace infra
     }
 
     template<class T>
-    typename BoundedStringBase<T>::reverse_iterator BoundedStringBase<T>::rbegin()
-    {
-        return reverse_iterator(range.begin() + length);
-    }
-
-    template<class T>
-    typename BoundedStringBase<T>::const_reverse_iterator BoundedStringBase<T>::rbegin() const
+    typename BoundedStringBase<T>::reverse_iterator BoundedStringBase<T>::rbegin() const
     {
         return reverse_iterator(range.begin() + length);
     }
@@ -626,13 +604,7 @@ namespace infra
     }
 
     template<class T>
-    typename BoundedStringBase<T>::reverse_iterator BoundedStringBase<T>::rend()
-    {
-        return reverse_iterator(range.begin());
-    }
-
-    template<class T>
-    typename BoundedStringBase<T>::const_reverse_iterator BoundedStringBase<T>::rend() const
+    typename BoundedStringBase<T>::reverse_iterator BoundedStringBase<T>::rend() const
     {
         return reverse_iterator(range.begin());
     }
@@ -1615,25 +1587,25 @@ namespace infra
     }
 
     template<class T, class U>
-    MemoryRange<T> StringAsMemoryRange(infra::BoundedStringBase<U> string)
+    MemoryRange<T> StringAsMemoryRange(const infra::BoundedStringBase<U>& string)
     {
         return MemoryRange<T>(reinterpret_cast<T*>(string.begin()), reinterpret_cast<T*>(string.end()));
     }
 
     template<class T, class U>
-    MemoryRange<const T> StringAsMemoryRange(infra::BoundedStringBase<const U> string)
+    MemoryRange<const T> StringAsMemoryRange(const infra::BoundedStringBase<const U>& string)
     {
         return MemoryRange<const T>(reinterpret_cast<const T*>(string.begin()), reinterpret_cast<const T*>(string.end()));
     }
 
     template<class U>
-    MemoryRange<uint8_t> StringAsByteRange(infra::BoundedStringBase<U> string)
+    MemoryRange<uint8_t> StringAsByteRange(const infra::BoundedStringBase<U>& string)
     {
         return StringAsMemoryRange<uint8_t>(string);
     }
 
     template<class U>
-    MemoryRange<const uint8_t> StringAsByteRange(infra::BoundedStringBase<const U> string)
+    MemoryRange<const uint8_t> StringAsByteRange(const infra::BoundedStringBase<const U>& string)
     {
         return StringAsMemoryRange<uint8_t>(string);
     }

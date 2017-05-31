@@ -10,7 +10,7 @@ namespace application
         : public application::Input
     {
     public:
-        NoFileInput(const std::string& targetName);
+        explicit NoFileInput(const std::string& targetName);
 
         virtual std::vector<uint8_t> Image() const;
     };
@@ -18,7 +18,7 @@ namespace application
     class NoFileInputFactory
     {
     public:
-        NoFileInputFactory(const std::string& targetName);
+        explicit NoFileInputFactory(const std::string& targetName);
         NoFileInputFactory(const NoFileInputFactory& other) = delete;
         NoFileInputFactory& operator=(const NoFileInputFactory& other) = delete;
         virtual ~NoFileInputFactory() = default;

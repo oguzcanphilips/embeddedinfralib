@@ -8,22 +8,33 @@
 
 namespace infra
 {
+    template<class T>
+    class IntrusiveList;
+        
     namespace detail
     {
         template<class T>
-        struct IntrusiveListNode
-        {
-            IntrusiveListNode();
-            IntrusiveListNode(const IntrusiveListNode& other);
+        class IntrusiveListIterator;
 
+        template<class T>
+        class IntrusiveListNode
+        {
+        protected:
+            IntrusiveListNode();
+            ~IntrusiveListNode() = default;
+
+        public:
+            IntrusiveListNode(const IntrusiveListNode& other);
             IntrusiveListNode& operator=(const IntrusiveListNode& other);
 
+        private:
+            template<class U>
+                friend class IntrusiveList;
+            template<class U>
+                friend class IntrusiveListIterator;
             IntrusiveListNode<T>* next;
             IntrusiveListNode<T>* previous;
         };
-
-        template<class T>
-        class IntrusiveListIterator;
     }
 
     template<class T>

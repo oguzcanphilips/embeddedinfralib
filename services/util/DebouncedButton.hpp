@@ -15,7 +15,7 @@ namespace services
         void ButtonChanged();
         void ButtonPressed();
         void ButtonReleased();
-        void DebounceEnd();
+        void DebounceEnd() const;
 
     private:
         hal::InputPin buttonPin;

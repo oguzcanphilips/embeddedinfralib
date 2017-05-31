@@ -95,12 +95,13 @@ namespace infra
         template<class T>
         class IntrusiveForwardListNode
         {
-        public:
+        protected:
             IntrusiveForwardListNode();
             IntrusiveForwardListNode(const IntrusiveForwardListNode& other);
-
             IntrusiveForwardListNode& operator=(const IntrusiveForwardListNode& other);
+            ~IntrusiveForwardListNode() = default;
 
+        public:
             bool operator==(const IntrusiveForwardListNode<T>& other) const
             {
                 return static_cast<const T&>(*this) == static_cast<const T&>(other);

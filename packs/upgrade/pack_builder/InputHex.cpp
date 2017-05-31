@@ -25,13 +25,13 @@ namespace application
         uint32_t startAddress = (*data.begin()).first;
         std::vector<uint8_t> result;
 
-        for (application::SparseVector<uint8_t>::Iterator i = data.begin(); i != data.end(); ++i)
+        for (auto i : data)
         {
-            uint32_t address = (*i).first;
+            uint32_t address = i.first;
             if (result.size() < address + 1 - startAddress)
                 result.resize(address + 1 - startAddress);
 
-            result[address - startAddress] = (*i).second;
+            result[address - startAddress] = i.second;
         }
 
         return std::make_pair(result, startAddress);

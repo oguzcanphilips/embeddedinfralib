@@ -19,7 +19,7 @@ namespace infra
         template<std::size_t StorageSize>
             using WithStorage = infra::WithStorage<CyclicBuffer<T>, std::array<T, StorageSize>>;
 
-        CyclicBuffer(MemoryRange<T> aStorage);
+        explicit CyclicBuffer(MemoryRange<T> aStorage);
 
         bool Empty() const;
         bool Full() const;
