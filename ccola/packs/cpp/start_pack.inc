@@ -331,7 +331,9 @@ macro(ccola_runtime_directories)
 
 		foreach(item ${ARGV})
 			ccola_make_absolute(path ${item})
-			list(APPEND CCOLA_COMPONENT_RUNTIME_DIRECTORIES "${path}")
+			string(REPLACE "<CCOLA_COMPONENT_NAME>" ${CCOLA_COMPONENT_NAME} "${path}" runtime_directory)
+
+			list(APPEND CCOLA_COMPONENT_RUNTIME_DIRECTORIES "${runtime_directory}")
 		endforeach()
 
 		ccola_list_remove_duplicates(CCOLA_COMPONENT_RUNTIME_DIRECTORIES)
