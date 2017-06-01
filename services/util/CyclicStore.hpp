@@ -35,10 +35,10 @@ namespace services
 
     private:
         hal::Flash& flash;
-        uint32_t startAddress;
-        uint32_t endAddress;
+        uint32_t startAddress = 0;
+        uint32_t endAddress = 0;
         infra::Sequencer sequencer;
-        uint32_t sectorIndex;
+        uint32_t sectorIndex = 0;
         mutable infra::ClaimableResource resource;
         infra::ClaimableResource::Claimer::WithSize<12> claimer;
         infra::ClaimableResource::Claimer::WithSize<12> recoverClaimer;

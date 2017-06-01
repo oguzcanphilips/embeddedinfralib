@@ -48,7 +48,7 @@ namespace services
         }
     }
 
-    void DebouncedButton::DebounceEnd()
+    void DebouncedButton::DebounceEnd() const
     {
         if (announcedPressed && !previousButtonState)
             onReleased();

@@ -95,12 +95,13 @@ namespace infra
         template<class T>
         class IntrusiveForwardListNode
         {
-        public:
+        protected:
             IntrusiveForwardListNode();
             IntrusiveForwardListNode(const IntrusiveForwardListNode& other);
-
             IntrusiveForwardListNode& operator=(const IntrusiveForwardListNode& other);
+            ~IntrusiveForwardListNode() = default;
 
+        public:
             bool operator==(const IntrusiveForwardListNode<T>& other) const
             {
                 return static_cast<const T&>(*this) == static_cast<const T&>(other);
@@ -293,8 +294,8 @@ namespace infra
 
         if (index != end())
         {
-            if (index != begin())
-                erase_after(*previous);                                                     //TICS !COV_CPP_FORWARD_NULL_02
+            if (index != begin())                                                           //TICS !COV_CPP_FORWARD_NULL_02
+                erase_after(*previous);
             else
                 pop_front();
         }

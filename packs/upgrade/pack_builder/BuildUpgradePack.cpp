@@ -58,22 +58,7 @@ namespace application
         }
         catch (UsageException&)
         {
-            std::cout << "Arugments: ";
-            for (int i = 0; i != argc; ++i)
-                std::cout << " " << argv[i];
-            std::cout << std::endl;
-            std::cout << "Invalid number of arguments" << std::endl;
-            std::cout << argv[0] << " OutputFile [-Target1 InputFile1] [-Target2 InputFile2] [-Target3 InputFile3] [-Target4 InputFile4] ..." << std::endl;
-            std::cout << "Targets: ";
-
-            for (auto target : supportedHexTargets)
-                std::cout << target << " ";
-            for (auto targetAndAddress : supportedBinaryTargets)
-                std::cout << targetAndAddress.first << " ";
-            for (auto target : otherTargets)
-                std::cout << target->TargetName() << " ";
-            std::cout << std::endl;
-
+            ShowUsage(argc, argv, supportedHexTargets, supportedBinaryTargets, otherTargets);
             result = 1;
         }
         catch (application::IncorrectCrcException& exception)
@@ -153,6 +138,26 @@ namespace application
         builder.WriteUpgradePack(outputFilename, fileSystem);
 
         std::cout << "Done" << std::endl;
+    }
+
+    void UpgradePackBuilderFacade::ShowUsage(int argc, const char* argv[], const std::vector<std::string>& supportedHexTargets,
+        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, const std::vector<NoFileInputFactory*>& otherTargets) const
+    {
+        std::cout << "Arugments: ";
+        for (int i = 0; i != argc; ++i)
+            std::cout << " " << argv[i];
+        std::cout << std::endl;
+        std::cout << "Invalid number of arguments" << std::endl;
+        std::cout << argv[0] << " OutputFile [-Target1 InputFile1] [-Target2 InputFile2] [-Target3 InputFile3] [-Target4 InputFile4] ..." << std::endl;
+        std::cout << "Targets: ";
+
+        for (auto target : supportedHexTargets)
+            std::cout << target << " ";
+        for (auto targetAndAddress : supportedBinaryTargets)
+            std::cout << targetAndAddress.first << " ";
+        for (auto target : otherTargets)
+            std::cout << target->TargetName() << " ";
+        std::cout << std::endl;
     }
 
     int UpgradePackBuilderFacade::Result() const

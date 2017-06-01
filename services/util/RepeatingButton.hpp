@@ -35,7 +35,6 @@ namespace services
             infra::Duration initialDelay;
             infra::Duration successiveDelay;
             infra::TimePoint triggerStart;
-            infra::Duration triggerPeriod;
         };
 
     private:

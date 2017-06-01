@@ -331,7 +331,7 @@ macro(ccola_runtime_directories)
 
 		foreach(item ${ARGV})
 			ccola_make_absolute(path ${item})
-			string(REPLACE "<CCOLA_COMPONENT_NAME>" ${CCOLA_COMPONENT_NAME} "${path}" runtime_directory)
+			string(REPLACE "<CCOLA_COMPONENT_NAME>" ${CCOLA_COMPONENT_NAME} runtime_directory "${path}")
 
 			list(APPEND CCOLA_COMPONENT_RUNTIME_DIRECTORIES "${runtime_directory}")
 		endforeach()
