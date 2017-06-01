@@ -1,1 +1,1 @@
-ccola_pack_directory(protoc_pack)
+ccola_pack_directory(protoc)
