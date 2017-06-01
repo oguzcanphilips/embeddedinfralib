@@ -294,8 +294,8 @@ namespace infra
 
         if (index != end())
         {
-            if (index != begin())
-                erase_after(*previous);                                                     //TICS !COV_CPP_FORWARD_NULL_02
+            if (index != begin())                                                           //TICS !COV_CPP_FORWARD_NULL_02
+                erase_after(*previous);
             else
                 pop_front();
         }
