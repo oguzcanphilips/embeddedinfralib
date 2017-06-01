@@ -56,29 +56,48 @@ namespace services
         infra::SharedPtr<ZeroCopyConnectionObserver> observer;
     };
 
-    class ZeroCopyConnectionObserverFactory
+    class ZeroCopyServerConnectionObserverFactory
     {
     protected:
-        ZeroCopyConnectionObserverFactory() = default;
-        ZeroCopyConnectionObserverFactory(const ZeroCopyConnectionObserverFactory& other) = delete;
-        ZeroCopyConnectionObserverFactory& operator=(const ZeroCopyConnectionObserverFactory& other) = delete;
-        ~ZeroCopyConnectionObserverFactory() = default;
+        ZeroCopyServerConnectionObserverFactory() = default;
+        ZeroCopyServerConnectionObserverFactory(const ZeroCopyServerConnectionObserverFactory& other) = delete;
+        ZeroCopyServerConnectionObserverFactory& operator=(const ZeroCopyServerConnectionObserverFactory& other) = delete;
+        ~ZeroCopyServerConnectionObserverFactory() = default;
 
     public:
         virtual infra::SharedPtr<ZeroCopyConnectionObserver> ConnectionAccepted(ZeroCopyConnection& newConnection) = 0;
     };
 
-    class ZeroCopyListenerFactory
+    class ZeroCopyClientConnectionObserverFactory
     {
     protected:
-        ZeroCopyListenerFactory() = default;
-        ZeroCopyListenerFactory(const ZeroCopyListenerFactory& other) = delete;
-        ZeroCopyListenerFactory& operator=(const ZeroCopyListenerFactory& other) = delete;
-        ~ZeroCopyListenerFactory() = default;
+        ZeroCopyClientConnectionObserverFactory() = default;
+        ZeroCopyClientConnectionObserverFactory(const ZeroCopyClientConnectionObserverFactory& other) = delete;
+        ZeroCopyClientConnectionObserverFactory& operator=(const ZeroCopyClientConnectionObserverFactory& other) = delete;
+        ~ZeroCopyClientConnectionObserverFactory() = default;
 
     public:
-        virtual infra::SharedPtr<void> Listen(uint16_t port, ZeroCopyConnectionObserverFactory& factory) = 0;
-        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory) = 0;
+        enum ConnectFailReason
+        {
+            refused,
+            connectionAllocationFailed
+        };
+
+        virtual infra::SharedPtr<ZeroCopyConnectionObserver> ConnectionEstablished(ZeroCopyConnection& newConnection) = 0;
+        virtual void ConnectionFailed(ConnectFailReason reason) = 0;
+    };
+
+    class ZeroCopyConnectionFactory
+    {
+    protected:
+        ZeroCopyConnectionFactory() = default;
+        ZeroCopyConnectionFactory(const ZeroCopyConnectionFactory& other) = delete;
+        ZeroCopyConnectionFactory& operator=(const ZeroCopyConnectionFactory& other) = delete;
+        ~ZeroCopyConnectionFactory() = default;
+
+    public:
+        virtual infra::SharedPtr<void> Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& factory) = 0;
+        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ZeroCopyClientConnectionObserverFactory& factory) = 0;
     };
 
     class Connection;

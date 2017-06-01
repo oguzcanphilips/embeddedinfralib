@@ -274,7 +274,7 @@ namespace services
         return connection.receiveBuffer.size() - sizeRead;
     }
 
-    ListenerLwIp::ListenerLwIp(AllocatorConnectionLwIp& allocator, uint16_t port, ZeroCopyConnectionObserverFactory& factory)
+    ListenerLwIp::ListenerLwIp(AllocatorConnectionLwIp& allocator, uint16_t port, ZeroCopyServerConnectionObserverFactory& factory)
         : allocator(allocator)
         , factory(factory)
     {
@@ -320,7 +320,7 @@ namespace services
         }
     }
 
-    ConnectorLwIp::ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory)
+    ConnectorLwIp::ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPv4Address address, uint16_t port, ZeroCopyClientConnectionObserverFactory& factory)
         : allocator(allocator)
         , factory(factory)
         , control(tcp_new())
@@ -359,7 +359,7 @@ namespace services
         if (connection)
         {
             control = nullptr;
-            infra::SharedPtr<ZeroCopyConnectionObserver> observer = factory.ConnectionAccepted(*connection);
+            infra::SharedPtr<ZeroCopyConnectionObserver> observer = factory.ConnectionEstablished(*connection);
 
             if (observer)
             {
@@ -373,6 +373,7 @@ namespace services
         {
             tcp_abort(control);
             control = nullptr;
+            factory.ConnectionFailed(factory.ConnectFailReason::connectionAllocationFailed);
             return ERR_ABRT;
         }
     }
@@ -380,6 +381,7 @@ namespace services
     void ConnectorLwIp::Error(err_t err)
     {
         control = nullptr;
+        factory.ConnectionFailed(factory.ConnectFailReason::refused);
     }
 
     LightweightIp::LightweightIp(AllocatorListenerLwIp& listenerAllocator, AllocatorConnectorLwIp& connectorAllocator, AllocatorConnectionLwIp& connectionAllocator)
@@ -391,12 +393,12 @@ namespace services
         sysCheckTimer.Start(std::chrono::milliseconds(50), [this]() { sys_check_timeouts(); }, infra::triggerImmediately);
     }
 
-    infra::SharedPtr<void> LightweightIp::Listen(uint16_t port, ZeroCopyConnectionObserverFactory& factory)
+    infra::SharedPtr<void> LightweightIp::Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& factory)
     {
         return listenerAllocator.Allocate(connectionAllocator, port, factory);
     }
 
-    infra::SharedPtr<void> LightweightIp::Connect(IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory)
+    infra::SharedPtr<void> LightweightIp::Connect(IPv4Address address, uint16_t port, ZeroCopyClientConnectionObserverFactory& factory)
     {
         return connectorAllocator.Allocate(connectionAllocator, address, port, factory);
     }

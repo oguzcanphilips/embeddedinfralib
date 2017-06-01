@@ -106,7 +106,7 @@ namespace services
         template<std::size_t Size>
             using WithFixedAllocator = infra::WithStorage<ListenerLwIp, AllocatorConnectionLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<Size>>;
 
-        ListenerLwIp(AllocatorConnectionLwIp& allocator, uint16_t port, ZeroCopyConnectionObserverFactory& factory);
+        ListenerLwIp(AllocatorConnectionLwIp& allocator, uint16_t port, ZeroCopyServerConnectionObserverFactory& factory);
         ~ListenerLwIp();
 
     private:
@@ -117,15 +117,15 @@ namespace services
     private:
         AllocatorConnectionLwIp& allocator;
         tcp_pcb* listenPort;
-        ZeroCopyConnectionObserverFactory& factory;
+        ZeroCopyServerConnectionObserverFactory& factory;
     };
 
-    using AllocatorListenerLwIp = infra::SharedObjectAllocator<ListenerLwIp, void(AllocatorConnectionLwIp&, uint16_t, ZeroCopyConnectionObserverFactory&)>;
+    using AllocatorListenerLwIp = infra::SharedObjectAllocator<ListenerLwIp, void(AllocatorConnectionLwIp&, uint16_t, ZeroCopyServerConnectionObserverFactory&)>;
 
     class ConnectorLwIp
     {
     public:
-        ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory);
+        ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPv4Address address, uint16_t port, ZeroCopyClientConnectionObserverFactory& factory);
         ~ConnectorLwIp();
 
     private:
@@ -136,14 +136,14 @@ namespace services
 
     private:
         AllocatorConnectionLwIp& allocator;
-        ZeroCopyConnectionObserverFactory& factory;
+        ZeroCopyClientConnectionObserverFactory& factory;
         tcp_pcb* control;
     };
 
-    using AllocatorConnectorLwIp = infra::SharedObjectAllocator<ConnectorLwIp, void(AllocatorConnectionLwIp& allocator, IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory)>;
+    using AllocatorConnectorLwIp = infra::SharedObjectAllocator<ConnectorLwIp, void(AllocatorConnectionLwIp& allocator, IPv4Address address, uint16_t port, ZeroCopyClientConnectionObserverFactory& factory)>;
 
     class LightweightIp
-        : public ZeroCopyListenerFactory
+        : public ZeroCopyConnectionFactory
     {
     public:
         template<std::size_t MaxListeners, std::size_t MaxConnectors, std::size_t MaxConnections>
@@ -155,8 +155,8 @@ namespace services
     public:
         LightweightIp(AllocatorListenerLwIp& listenerAllocator, AllocatorConnectorLwIp& connectorAllocator, AllocatorConnectionLwIp& connectionAllocator);
 
-        virtual infra::SharedPtr<void> Listen(uint16_t port, ZeroCopyConnectionObserverFactory& factory) override;
-        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory) override;
+        virtual infra::SharedPtr<void> Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& factory) override;
+        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ZeroCopyClientConnectionObserverFactory& factory) override;
 
     private:
         AllocatorListenerLwIp& listenerAllocator;

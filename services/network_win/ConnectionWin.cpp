@@ -178,7 +178,7 @@ namespace services
         return connection.receiveBuffer.size() - sizeRead;
     }
 
-    ListenerWin::ListenerWin(EventDispatcherWithNetwork& network, uint16_t port, services::ZeroCopyConnectionObserverFactory& factory)
+    ListenerWin::ListenerWin(EventDispatcherWithNetwork& network, uint16_t port, services::ZeroCopyServerConnectionObserverFactory& factory)
         : network(network)
         , factory(factory)
     {
@@ -250,12 +250,12 @@ namespace services
         listeners.erase(listener);
     }
 
-    infra::SharedPtr<void> EventDispatcherWithNetwork::Listen(uint16_t port, services::ZeroCopyConnectionObserverFactory& factory)
+    infra::SharedPtr<void> EventDispatcherWithNetwork::Listen(uint16_t port, services::ZeroCopyServerConnectionObserverFactory& factory)
     {
         return infra::MakeSharedOnHeap<ListenerWin>(*this, port, factory);
     }
 
-    infra::SharedPtr<void> EventDispatcherWithNetwork::Connect(IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory)
+    infra::SharedPtr<void> EventDispatcherWithNetwork::Connect(IPv4Address address, uint16_t port, ZeroCopyClientConnectionObserverFactory& factory)
     {
         return nullptr;
     }

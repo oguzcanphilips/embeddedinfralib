@@ -96,7 +96,7 @@ namespace services
         : public infra::IntrusiveList<ListenerWin>::NodeType
     {
     public:
-        ListenerWin(EventDispatcherWithNetwork& network, uint16_t port, services::ZeroCopyConnectionObserverFactory& factory);
+        ListenerWin(EventDispatcherWithNetwork& network, uint16_t port, services::ZeroCopyServerConnectionObserverFactory& factory);
         ~ListenerWin();
 
         void Accept();
@@ -105,15 +105,15 @@ namespace services
         friend class EventDispatcherWithNetwork;
 
         EventDispatcherWithNetwork& network;
-        services::ZeroCopyConnectionObserverFactory& factory;
+        services::ZeroCopyServerConnectionObserverFactory& factory;
         SOCKET listenSocket;
     };
 
-    using AllocatorListenerWin = infra::SharedObjectAllocator<ListenerWin, void(EventDispatcherWithNetwork&, uint16_t, services::ZeroCopyConnectionObserverFactory&)>;
+    using AllocatorListenerWin = infra::SharedObjectAllocator<ListenerWin, void(EventDispatcherWithNetwork&, uint16_t, services::ZeroCopyServerConnectionObserverFactory&)>;
 
     class EventDispatcherWithNetwork
         : public infra::EventDispatcherWithWeakPtr::WithSize<50>
-        , public services::ZeroCopyListenerFactory
+        , public services::ZeroCopyConnectionFactory
     {
     public:
         EventDispatcherWithNetwork();
@@ -124,8 +124,8 @@ namespace services
         void DeregisterListener(ListenerWin& listener);
 
     public:
-        virtual infra::SharedPtr<void> Listen(uint16_t port, services::ZeroCopyConnectionObserverFactory& factory) override;
-        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory) override;
+        virtual infra::SharedPtr<void> Listen(uint16_t port, services::ZeroCopyServerConnectionObserverFactory& factory) override;
+        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ZeroCopyClientConnectionObserverFactory& factory) override;
 
     protected:
         virtual void Idle() override;
