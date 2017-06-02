@@ -237,7 +237,7 @@ namespace services
     void Terminal::HistoryBackward()
     {
         if (state.historyIndex > 0)
-            OverwriteBuffer(history[state.historyIndex--]);
+            OverwriteBuffer(history[--state.historyIndex]);
         else
             SendBell();
     }
