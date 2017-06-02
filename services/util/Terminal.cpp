@@ -118,9 +118,10 @@ namespace services
         Print("\r\n");
 
         if (buffer.size() > 0)
+        {
             StoreHistory(buffer);
-
-        OnData(buffer);
+            OnData(buffer);
+        }
 
         buffer.clear();
         state.cursorPosition = 0;
