@@ -19,6 +19,18 @@ namespace hal
     protected:
         ~SynchronousOutputPin() = default;
     };
+
+    class SynchronousInputPin
+    {
+    public:
+        SynchronousInputPin() = default;
+        SynchronousInputPin(const SynchronousInputPin& other) = delete;
+
+        virtual bool Get() = 0;
+
+    protected:
+        ~SynchronousInputPin() = default;
+    };
 }
 
 #endif
