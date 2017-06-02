@@ -15,6 +15,7 @@ ccola_component(util static_library)
 		SignalLed.cpp
 		SpiMasterWithChipSelect.cpp
 		SpiMultipleAccess.cpp
+        Terminal.cpp
 		CyclicStore.hpp
 		DebouncedButton.hpp
 		DebugLed.hpp
@@ -29,6 +30,7 @@ ccola_component(util static_library)
 		SignalLed.hpp
 		SpiMasterWithChipSelect.hpp
 		SpiMultipleAccess.hpp
+        Terminal.hpp
 	)
 
 	ccola_dependencies(
