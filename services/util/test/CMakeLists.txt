@@ -14,6 +14,7 @@ ccola_component(util_test gmock_test)
 		TestSignalLed.cpp
 		TestSpiMasterWithChipSelect.cpp
 		TestSpiMultipleAccess.cpp
+        TestTerminal.cpp
 	)
 
 	ccola_dependencies(
