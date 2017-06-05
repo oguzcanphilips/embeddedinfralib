@@ -2,6 +2,10 @@
 
 namespace services
 {
+    ZeroCopyConnectionObserverMock::ZeroCopyConnectionObserverMock(services::ZeroCopyConnection& connection)
+        : services::ZeroCopyConnectionObserver(connection)
+    {}
+
     void ConnectionMock::Send(infra::ConstByteRange data)
     {
         SendMock(std::vector<uint8_t>(data.begin(), data.end()));
