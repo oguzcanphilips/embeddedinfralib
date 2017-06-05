@@ -24,6 +24,9 @@ namespace services
     public:
         virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>& stream) = 0;
         virtual void DataReceived() = 0;
+
+    private:
+        friend class ZeroCopyConnection;
     };
 
     class ZeroCopyConnection
