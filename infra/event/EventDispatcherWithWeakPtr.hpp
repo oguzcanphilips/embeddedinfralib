@@ -103,6 +103,7 @@ namespace infra
     template<class T>
     void EventDispatcherWithWeakPtrWorker::Schedule(const typename std::decay<infra::Function<void(const infra::SharedPtr<T>& object)>>::type& action, const infra::SharedPtr<T>& object)
     {
+        assert(object != nullptr);
         Schedule(action, infra::WeakPtr<T>(object));
     }
 
