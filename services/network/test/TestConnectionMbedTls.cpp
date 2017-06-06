@@ -2,6 +2,8 @@
 #include "hal/windows/SynchronousRandomDataGeneratorWin.hpp"
 #include "infra/event/test_helper/EventDispatcherWithWeakPtrFixture.hpp"
 #include "infra/util/test_helper/MockHelpers.hpp"
+#include "mbedtls/config.h"
+#include "mbedtls/certs.h"
 #include "services/network/ConnectionMbedTls.hpp"
 #include "services/network/test_doubles/ConnectionLoopBack.hpp"
 #include "services/network/test_doubles/ConnectionMock.hpp"
@@ -13,9 +15,15 @@ class ConnectionMbedTlsTest
 {
 public:
     ConnectionMbedTlsTest()
-        : connectionFactory(network, randomDataGenerator)
+        : connectionFactory(network, serverCertificates, randomDataGenerator)
         , thisListener(infra::UnOwnedSharedPtr(*this))
-    {}
+    {
+        serverCertificates.AddCertificateAuthority(infra::BoundedConstString(mbedtls_test_cas_pem, mbedtls_test_cas_pem_len));
+        serverCertificates.AddOwnCertificate(infra::BoundedConstString(mbedtls_test_srv_crt, mbedtls_test_srv_crt_len), infra::BoundedConstString(mbedtls_test_srv_key, mbedtls_test_srv_key_len));
+
+        clientCertificates.AddCertificateAuthority(infra::BoundedConstString(mbedtls_test_cas_pem, mbedtls_test_cas_pem_len));
+        clientCertificates.AddOwnCertificate(infra::BoundedConstString(mbedtls_test_cli_crt, mbedtls_test_cli_crt_len), infra::BoundedConstString(mbedtls_test_cli_key, mbedtls_test_cli_key_len));
+    }
 
     services::ZeroCopyServerConnectionObserverFactoryMock serverObserverFactory;
     services::ZeroCopyClientConnectionObserverFactoryMock clientObserverFactory;
@@ -25,6 +33,8 @@ public:
     infra::SharedPtr<void> thisListener;
     services::ZeroCopyServerConnectionObserverFactory* mbedTlsObserverFactory;
     services::ZeroCopyConnection* mbedTlsConnection;
+    services::MbedTlsCertificates serverCertificates;
+    services::MbedTlsCertificates clientCertificates;
     services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 1, 1> connectionFactory;
 };
 
@@ -52,9 +62,10 @@ TEST_F(ConnectionMbedTlsTest, Listen_returns_listener)
 
 TEST_F(ConnectionMbedTlsTest, create_connection)
 {
-    services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 1, 1> tlsNetwork(loopBackNetwork, randomDataGenerator);
-    infra::SharedPtr<void> listener = tlsNetwork.Listen(1234, serverObserverFactory);
-    infra::SharedPtr<void> connector = tlsNetwork.Connect(services::IPv4Address(), 1234, clientObserverFactory);
+    services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 1, 0> tlsNetworkServer(loopBackNetwork, serverCertificates, randomDataGenerator);
+    services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 0, 1> tlsNetworkClient(loopBackNetwork, clientCertificates, randomDataGenerator);
+    infra::SharedPtr<void> listener = tlsNetworkServer.Listen(1234, serverObserverFactory);
+    infra::SharedPtr<void> connector = tlsNetworkClient.Connect(services::IPv4Address(), 1234, clientObserverFactory);
     
     infra::SharedOptional<services::ZeroCopyConnectionObserverMock> observer1;
     infra::SharedOptional<services::ZeroCopyConnectionObserverMock> observer2;
@@ -68,9 +79,10 @@ TEST_F(ConnectionMbedTlsTest, create_connection)
 
 TEST_F(ConnectionMbedTlsTest, send_and_receive_data)
 {
-    services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 1, 1> tlsNetwork(loopBackNetwork, randomDataGenerator);
-    infra::SharedPtr<void> listener = tlsNetwork.Listen(1234, serverObserverFactory);
-    infra::SharedPtr<void> connector = tlsNetwork.Connect(services::IPv4Address(), 1234, clientObserverFactory);
+    services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 1, 0> tlsNetworkServer(loopBackNetwork, serverCertificates, randomDataGenerator);
+    services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 0, 1> tlsNetworkClient(loopBackNetwork, clientCertificates, randomDataGenerator);
+    infra::SharedPtr<void> listener = tlsNetworkServer.Listen(1234, serverObserverFactory);
+    infra::SharedPtr<void> connector = tlsNetworkClient.Connect(services::IPv4Address(), 1234, clientObserverFactory);
 
     infra::SharedOptional<services::ZeroCopyConnectionObserverStub> observer1;
     infra::SharedOptional<services::ZeroCopyConnectionObserverStub> observer2;
