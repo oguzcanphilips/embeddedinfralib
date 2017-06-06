@@ -27,7 +27,7 @@ namespace infra
         assert(!scheduledActions[pushIndex].second);
         scheduledActions[pushIndex].second = true;
 
-        minCapacity = std::min(minCapacity, (scheduledActions.size() + newPushIndex - scheduledActionsPopIndex) % scheduledActions.size());
+        minCapacity = std::min(minCapacity, (scheduledActions.size() + scheduledActionsPopIndex - pushIndex - 1) % scheduledActions.size() + 1);
         assert(minCapacity >= 1);
 
         RequestExecution();
