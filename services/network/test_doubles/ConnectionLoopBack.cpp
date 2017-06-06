@@ -73,8 +73,8 @@ namespace services
             ConnectionLoopBackPeer& connection = this->connection;
             infra::EventDispatcherWithWeakPtr::Instance().Schedule([&connection](const infra::SharedPtr<ConnectionLoopBack>& loopBack)
             {
-                if (connection.HasObserver())
-                    connection.GetObserver().DataReceived();
+                if (connection.peer.HasObserver())
+                    connection.peer.GetObserver().DataReceived();
             }, connection.loopBack.SharedFromThis());
         }
     }

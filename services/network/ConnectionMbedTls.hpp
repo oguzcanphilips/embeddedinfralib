@@ -102,6 +102,8 @@ namespace services
 
         infra::SharedPtr<infra::DataOutputStream> encryptedSendStream;
         std::size_t encryptedSendStreamSize = 0;
+
+        bool initialHandshake = true;
     };
 
     using AllocatorConnectionMbedTls = infra::SharedObjectAllocator<ConnectionMbedTls, void(ZeroCopyConnection& connection, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server)>;

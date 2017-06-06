@@ -70,7 +70,7 @@ namespace services
     private:
         ConnectionLoopBackPeer& peer;
         ConnectionLoopBack& loopBack;
-        infra::BoundedDeque<uint8_t>::WithMaxSize<2048> sendBuffer;
+        infra::BoundedDeque<uint8_t>::WithMaxSize<4096> sendBuffer;
         infra::SharedOptional<SendStreamLoopBackPeer> sendStream;
         std::size_t requestedSendSize = 0;
         infra::SharedOptional<ReceiveStreamLoopBackPeer> receiveStream;

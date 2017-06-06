@@ -50,12 +50,8 @@ TEST_F(ConnectionMbedTlsTest, Listen_returns_listener)
     EXPECT_NE(nullptr, listener);
 }
 
-#include "mbedtls/debug.h"
-
 TEST_F(ConnectionMbedTlsTest, create_connection)
 {
-    //mbedtls_debug_set_threshold(4);
-
     services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 1, 1> tlsNetwork(loopBackNetwork, randomDataGenerator);
     infra::SharedPtr<void> listener = tlsNetwork.Listen(1234, serverObserverFactory);
     infra::SharedPtr<void> connector = tlsNetwork.Connect(services::IPv4Address(), 1234, clientObserverFactory);
@@ -72,8 +68,6 @@ TEST_F(ConnectionMbedTlsTest, create_connection)
 
 TEST_F(ConnectionMbedTlsTest, send_and_receive_data)
 {
-    mbedtls_debug_set_threshold(2);
-
     services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 1, 1> tlsNetwork(loopBackNetwork, randomDataGenerator);
     infra::SharedPtr<void> listener = tlsNetwork.Listen(1234, serverObserverFactory);
     infra::SharedPtr<void> connector = tlsNetwork.Connect(services::IPv4Address(), 1234, clientObserverFactory);

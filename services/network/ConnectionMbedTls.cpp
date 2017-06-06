@@ -2,13 +2,6 @@
 #include "services/network/ConnectionMbedTls.hpp"
 #include "mbedtls/certs.h"
 
-#include <iostream>
-
-void debug(void*, int, const char* file, int line, const char* message)
-{
-    std::cout << file << "(" << line << "): " << message << std::flush;
-}
-
 namespace services
 {
     ConnectionMbedTls::ConnectionMbedTls(ZeroCopyConnection& connection, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server)
@@ -57,7 +50,6 @@ namespace services
         assert(result == 0);
 
         mbedtls_ssl_set_bio(&sslContext, this, &ConnectionMbedTls::StaticSslSend, &ConnectionMbedTls::StaticSslReceive, nullptr);
-        mbedtls_ssl_conf_dbg(&sslConfig, debug, nullptr);
 
         TryAllocateEncryptedSendStream();
     }
@@ -221,10 +213,12 @@ namespace services
 
     void ConnectionMbedTls::TrySend()
     {
-        do
+        while (initialHandshake || !sendBuffer.empty())
         {
             infra::ConstByteRange range = sendBuffer.contiguous_range(sendBuffer.begin());
-            int result = mbedtls_ssl_write(&sslContext, reinterpret_cast<const unsigned char*>(range.begin()), range.size());
+            int result = initialHandshake
+                ? mbedtls_ssl_handshake(&sslContext)
+                : mbedtls_ssl_write(&sslContext, reinterpret_cast<const unsigned char*>(range.begin()), range.size());
             if (result == MBEDTLS_ERR_SSL_WANT_WRITE || result == MBEDTLS_ERR_SSL_WANT_READ)
                 return;
             else if (result < 0)
@@ -233,13 +227,15 @@ namespace services
                 ZeroCopyConnectionObserver::Subject().AbortAndDestroy();
                 return;
             }
+            else if (initialHandshake)
+                initialHandshake = false;
             else
             {
                 sendBuffer.erase(sendBuffer.begin(), sendBuffer.begin() + result);
                 if (static_cast<std::size_t>(result) < range.size())
                     break;
             }
-        } while (!sendBuffer.empty());
+        }
 
         if (requestedSendSize != 0)
             TryAllocateSendStream();
