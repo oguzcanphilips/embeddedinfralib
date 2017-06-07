@@ -78,6 +78,19 @@ TEST(JsonObjectFormatter, add_BoundedConstString)
     EXPECT_EQ(R"({ "tag":"test" })", string);
 }
 
+TEST(JsonObjectFormatter, add_sting_as_sub_object)
+{
+    infra::BoundedString::WithStorage<64> string;
+
+    {
+        infra::BoundedConstString s(R"({ "test": 123 })");
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
+        formatter.AddSubObject("tag", s);
+    }
+
+    EXPECT_EQ(R"({ "tag":{ "test": 123 } })", string);
+}
+
 TEST(JsonObjectFormatter, add_sub_object)
 {
     infra::BoundedString::WithStorage<64> string;

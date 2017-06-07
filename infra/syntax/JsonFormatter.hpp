@@ -27,6 +27,7 @@ namespace infra
         void Add(const char* tagName, int64_t tag);
         void Add(const char* tagName, const char* tag);
         void Add(const char* tagName, infra::BoundedConstString tag);
+        void AddSubObject(const char* tagName, infra::BoundedConstString json);
         JsonObjectFormatter SubObject(infra::BoundedConstString tagName);
         JsonArrayFormatter SubArray(infra::BoundedConstString tagName);
 

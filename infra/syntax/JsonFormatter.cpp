@@ -65,6 +65,12 @@ namespace infra
         *stream << '"' << tagName << R"(":")" << tag << '"';
     }
 
+    void JsonObjectFormatter::AddSubObject(const char* tagName, infra::BoundedConstString json)
+    {
+        InsertSeparation();
+        *stream << '"' << tagName << R"(":)" << json;
+    }
+
     JsonObjectFormatter JsonObjectFormatter::SubObject(infra::BoundedConstString tagName)
     {
         InsertSeparation();
