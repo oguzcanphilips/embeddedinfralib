@@ -6,6 +6,7 @@
 
 namespace services
 {
+    //TICS -INT#002: A mock or stub may have public data
     class ZeroCopyConnectionStub
         : public services::ZeroCopyConnection
     {

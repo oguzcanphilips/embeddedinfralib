@@ -33,7 +33,7 @@ namespace services
             , public infra::DataOutputStream
         {
         public:
-            SendStreamLoopBackPeer(ConnectionLoopBackPeer& connection);
+            explicit SendStreamLoopBackPeer(ConnectionLoopBackPeer& connection);
             ~SendStreamLoopBackPeer();
 
         private:
@@ -50,7 +50,7 @@ namespace services
             , public infra::DataInputStream
         {
         public:
-            ReceiveStreamLoopBackPeer(ConnectionLoopBackPeer& connection);
+            explicit ReceiveStreamLoopBackPeer(ConnectionLoopBackPeer& connection);
 
             void ConsumeRead();
 

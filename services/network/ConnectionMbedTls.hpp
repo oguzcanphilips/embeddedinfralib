@@ -69,7 +69,7 @@ namespace services
             , public infra::DataOutputStream
         {
         public:
-            SendStreamMbedTls(ConnectionMbedTls& connection);
+            explicit SendStreamMbedTls(ConnectionMbedTls& connection);
             ~SendStreamMbedTls();
 
         private:
@@ -86,7 +86,7 @@ namespace services
             , public infra::DataInputStream
         {
         public:
-            ReceiveStreamMbedTls(ConnectionMbedTls& connection);
+            explicit ReceiveStreamMbedTls(ConnectionMbedTls& connection);
 
             void ConsumeRead();
 
@@ -170,8 +170,8 @@ namespace services
     using AllocatorConnectionMbedTlsConnector = infra::SharedObjectAllocator<ConnectionMbedTlsConnector,
         void(AllocatorConnectionMbedTls& allocator, ZeroCopyClientConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)>;
 
-#ifdef _MSC_VER
-#pragma warning(disable:4503)
+#ifdef _MSC_VER                                                                                                         //TICS !POR#021
+#pragma warning(disable:4503)                                                                                           //TICS !POR#018
 #endif
 
     class ConnectionFactoryMbedTls

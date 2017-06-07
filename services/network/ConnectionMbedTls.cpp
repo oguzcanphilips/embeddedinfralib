@@ -106,7 +106,7 @@ namespace services
                 return;
             }
             else
-                receiveBuffer.resize(newBufferStart + result);
+                receiveBuffer.resize(newBufferStart + static_cast<std::size_t>(result));
         }
 
         if (receiveBuffer.size() != startSize)
