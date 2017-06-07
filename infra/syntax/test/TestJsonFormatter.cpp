@@ -158,6 +158,18 @@ TEST(JsonObjectFormatter, move_array_formatter)
     EXPECT_EQ(R"({ "tag":[  ] })", string);
 }
 
+TEST(JsonObjectFormatter, escape_strings)
+{
+    infra::BoundedString::WithStorage<64> string;
+
+    {
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
+        formatter.Add("tag", "\"\\/\b\f\n\r\t\x11");
+    }
+
+    EXPECT_EQ("{ \"tag\":\"\\\"\\\\\\/\\b\\f\\n\\r\\t\\x0011\" }", string);
+}
+
 TEST(JsonArrayFormatter, construction_results_in_empty_object)
 {
     infra::BoundedString::WithStorage<64> string;
@@ -264,4 +276,3 @@ TEST(JsonArrayFormatter, output_is_truncated_on_small_output_string)
 
     EXPECT_EQ(R"([)", string);
 }
-
