@@ -15,7 +15,8 @@ namespace services
 
     void ZeroCopyConnection::ResetOwnership()
     {
-        observer->Detach();     // Someone may be keeping the observer alive, so detach it first so that the owner is not observed anymore
+        if (observer != nullptr)
+            observer->Detach();     // Someone may be keeping the observer alive, so detach it first so that the owner is not observed anymore
         observer = nullptr;
         owner = nullptr;
     }

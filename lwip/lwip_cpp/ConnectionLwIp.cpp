@@ -190,7 +190,7 @@ namespace services
         if (sent != 0)
             connection.SendBuffer(infra::Head(sendBuffer, sent));
         else
-            connection.sendBuffer.pop_back();
+            connection.sendMemoryPool.pop_back();
     }
 
     void ConnectionLwIp::SendStreamLwIp::Insert(infra::ConstByteRange range)

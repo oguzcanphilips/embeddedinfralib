@@ -8,6 +8,7 @@
 namespace services
 {
     //TICS -INT#002: A mock or stub may have public data
+    //TICS -INT#027: MOCK_METHOD can't add 'virtual' to its signature
     class ZeroCopyConnectionMock
         : public services::ZeroCopyConnection
     {
@@ -24,7 +25,7 @@ namespace services
         : public services::ZeroCopyConnectionObserver
     {
     public:
-        ZeroCopyConnectionObserverMock(services::ZeroCopyConnection& connection);
+        explicit ZeroCopyConnectionObserverMock(services::ZeroCopyConnection& connection);
 
         using services::ZeroCopyConnectionObserver::Subject;
 

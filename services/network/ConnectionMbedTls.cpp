@@ -183,7 +183,7 @@ namespace services
 
     int ConnectionMbedTls::SslSend(infra::ConstByteRange buffer)
     {
-        if (encryptedSendStream)
+        if (encryptedSendStream && encryptedSendStreamSize != 0)
         {
             buffer = infra::Head(buffer, encryptedSendStreamSize);
             encryptedSendStreamSize -= buffer.size();
