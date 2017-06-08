@@ -21,7 +21,7 @@ namespace infra
         struct Node
             : public detail::SharedPtrControl
         {
-            Node(SharedObjectDeleter* allocator);
+            explicit Node(SharedObjectDeleter* allocator);
 
             Node* next;
             infra::StaticStorage<T> object;
@@ -31,7 +31,7 @@ namespace infra
         template<std::size_t NumberOfElements>
             using WithStorage = infra::WithStorage<SharedObjectAllocatorFixedSize, typename infra::BoundedVector<Node>::template WithMaxSize<NumberOfElements>>;
 
-        SharedObjectAllocatorFixedSize(infra::BoundedVector<Node>& elements);
+        explicit SharedObjectAllocatorFixedSize(infra::BoundedVector<Node>& elements);
         ~SharedObjectAllocatorFixedSize();
 
         virtual SharedPtr<T> Allocate(ConstructionArgs... args) override;

@@ -11,16 +11,17 @@ namespace services
     class Terminal
     {
     public:
-        Terminal(hal::SerialCommunication& communication);
+        explicit Terminal(hal::SerialCommunication& communication);
 
         void Print(const char* message);
         virtual void OnData(infra::BoundedString data) {}
 
     private:
-        void HandleBytes();
-        void HandleByte(uint8_t byte);
+        void HandleInput();
+        void HandleChar(char in);
+        void HandleNonEscapeChar(char c);
 
-        bool ProcessEscapeSequence(uint8_t byte);
+        bool ProcessEscapeSequence(char in);
         void ProcessEnter();
         void ProcessBackspace();
         void ProcessDelete();
@@ -36,6 +37,7 @@ namespace services
         void HistoryForward();
         void HistoryBackward();
 
+        void SendNonEscapeChar(char c);
         void SendBell();
 
     private:

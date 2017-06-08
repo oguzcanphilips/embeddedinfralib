@@ -32,8 +32,8 @@ namespace services
             virtual void ComputeNextTriggerTime() override;
 
         private:
-            infra::Duration initialDelay;
-            infra::Duration successiveDelay;
+            infra::Duration initialDelay = infra::Duration();
+            infra::Duration successiveDelay = infra::Duration();
             infra::TimePoint triggerStart;
         };
 

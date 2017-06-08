@@ -4,7 +4,7 @@ namespace services
 {
     Terminal::Terminal(hal::SerialCommunication& communication)
         : communication(communication)
-        , queue([this] { HandleBytes(); })
+        , queue([this] { HandleInput(); })
     {
         communication.ReceiveData([this](infra::ConstByteRange data) { for (uint8_t element : data) queue.AddFromInterrupt(element); });
         Print(state.prompt);
@@ -17,20 +17,24 @@ namespace services
         communication.SendData(data, infra::emptyFunction);
     }
 
-    void Terminal::HandleBytes()
+    void Terminal::HandleInput()
     {
         while (!queue.Empty())
-            HandleByte(queue.Get());
+            HandleChar(static_cast<char>(queue.Get()));
     }
 
-    void Terminal::HandleByte(uint8_t byte)
+    void Terminal::HandleChar(char c)
     {
         if (state.processingEscapeSequence)
-            state.processingEscapeSequence = ProcessEscapeSequence(byte);
+            state.processingEscapeSequence = ProcessEscapeSequence(c);
         else
+            HandleNonEscapeChar(c);
+    }
+
+    void Terminal::HandleNonEscapeChar(char c)
+    {
+        switch (c)
         {
-            switch (byte)
-            {
             case '\n':
                 break;
             case '\r':
@@ -68,46 +72,40 @@ namespace services
                 HistoryBackward();
                 break;
             default:
-                if (byte > 31 && byte < 127)
-                {
-                    communication.SendData(infra::MakeByteRange(byte), infra::emptyFunction);
-                    buffer.push_back(byte);
-                    state.cursorPosition++;
-                }
-                else
-                    SendBell();
-            }
+                SendNonEscapeChar(c);
+                break;
         }
     }
 
-    bool Terminal::ProcessEscapeSequence(uint8_t byte)
+    bool Terminal::ProcessEscapeSequence(char in)
     {
-        for (auto c : { ';', '[', 'O', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' })
-            if (byte == c)
-                return true;
+        static const infra::BoundedConstString ignoredEscapeCharacters = ";[O0123456789";
+        if (ignoredEscapeCharacters.find(in) != infra::BoundedConstString::npos)
+            return true;
 
-        switch (byte)
+        switch (in)
         {
-        case 'A':
-            HistoryBackward();
-            break;
-        case 'B':
-            HistoryForward();
-            break;
-        case 'C':
-            MoveCursorRight();
-            break;
-        case 'D':
-            MoveCursorLeft();
-            break;
-        case 'F':
-            MoveCursorEnd();
-            break;
-        case 'H':
-            MoveCursorHome();
-            break;
-        default:
-            SendBell();
+            case 'A':
+                HistoryBackward();
+                break;
+            case 'B':
+                HistoryForward();
+                break;
+            case 'C':
+                MoveCursorRight();
+                break;
+            case 'D':
+                MoveCursorLeft();
+                break;
+            case 'F':
+                MoveCursorEnd();
+                break;
+            case 'H':
+                MoveCursorHome();
+                break;
+            default:
+                SendBell();
+                break;
         }
 
         return false;
@@ -239,6 +237,18 @@ namespace services
     {
         if (state.historyIndex > 0)
             OverwriteBuffer(history[--state.historyIndex]);
+        else
+            SendBell();
+    }
+
+    void Terminal::SendNonEscapeChar(char c)
+    {
+        if (c > 31 && c < 127)
+        {
+            communication.SendData(infra::MakeByteRange(c), infra::emptyFunction);
+            buffer.push_back(c);
+            state.cursorPosition++;
+        }
         else
             SendBell();
     }
