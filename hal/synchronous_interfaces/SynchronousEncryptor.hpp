@@ -16,8 +16,8 @@ namespace hal
     public:
         virtual infra::ByteRange StateBuffer() = 0;
         virtual void Reset() = 0;
-        virtual void Encrypt(infra::ByteRange data) = 0;
-        virtual void Decrypt(infra::ByteRange data) = 0;
+        virtual void Encrypt(infra::ConstByteRange input, infra::ByteRange output) = 0;
+        virtual void Decrypt(infra::ConstByteRange input, infra::ByteRange output) = 0;
     };
 
     class SynchronousEncryptorWithKeyGeneration

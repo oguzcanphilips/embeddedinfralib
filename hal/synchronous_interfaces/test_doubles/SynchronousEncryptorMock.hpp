@@ -12,8 +12,8 @@ namespace hal
     public:
         MOCK_METHOD0(StateBuffer, infra::ByteRange());
         MOCK_METHOD0(Reset, void());
-        MOCK_METHOD1(Encrypt, void(infra::ByteRange data));
-        MOCK_METHOD1(Decrypt, void(infra::ByteRange data));
+        MOCK_METHOD2(Encrypt, void(infra::ConstByteRange input, infra::ByteRange output));
+        MOCK_METHOD2(Decrypt, void(infra::ConstByteRange input, infra::ByteRange output));
     };
 
     class SynchronousEncryptorWithKeyGenerationMock
@@ -22,8 +22,8 @@ namespace hal
     public:
         MOCK_METHOD0(StateBuffer, infra::ByteRange());
         MOCK_METHOD0(Reset, void());
-        MOCK_METHOD1(Encrypt, void(infra::ByteRange data));
-        MOCK_METHOD1(Decrypt, void(infra::ByteRange data));
+        MOCK_METHOD2(Encrypt, void(infra::ConstByteRange input, infra::ByteRange output));
+        MOCK_METHOD2(Decrypt, void(infra::ConstByteRange input, infra::ByteRange output));
         MOCK_METHOD0(Key, infra::ByteRange());
         MOCK_METHOD0(GenerateKey, void());
     };
