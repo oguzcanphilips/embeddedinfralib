@@ -1,29 +1,30 @@
 ccola_component(test_doubles win: static_library other: noncompile)
 
 	ccola_sources(
-		FileSystemStub.cpp
-		FlashMock.cpp
-		FlashStub.cpp
-		GpioStub.cpp
-		I2cMock.cpp
-		I2cRegisterAccessMock.cpp
-		QuadSpiStub.cpp
-		SerialCommunicationMock.cpp
-		SerialCommunicationStub.cpp
-		SpiMock.cpp
 		AnalogToDigitalPinImplMock.hpp
 		CommunicationConfiguratorMock.hpp
 		DigitalToAnalogPinImplMock.hpp
+		FileSystemStub.cpp
 		FileSystemStub.hpp
+		FlashMock.cpp
 		FlashMock.hpp
+		FlashStub.cpp
 		FlashStub.hpp
 		GpioMock.hpp
+		GpioStub.cpp
 		GpioStub.hpp
+		I2cMock.cpp
 		I2cMock.hpp
+		I2cRegisterAccessMock.cpp
 		I2cRegisterAccessMock.hpp
+		QuadSpiStub.cpp
 		QuadSpiStub.hpp
+		RandomDataGeneratorMock.hpp
+		SerialCommunicationMock.cpp
 		SerialCommunicationMock.hpp
+		SerialCommunicationStub.cpp
 		SerialCommunicationStub.hpp
+		SpiMock.cpp
 		SpiMock.hpp
 	)
 

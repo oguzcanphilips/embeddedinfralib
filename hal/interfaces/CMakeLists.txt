@@ -1,28 +1,28 @@
 ccola_component(interfaces static_library)
 
 	ccola_sources(
-		Ethernet.cpp
-		Flash.cpp
-		FlashHomogeneous.cpp
-		Gpio.cpp
-		I2c.cpp
-		I2cRegisterAccess.cpp
-		QuadSpi.cpp
-		Spi.cpp
 		AnalogToDigitalPin.hpp
 		CommunicationConfigurator.hpp
 		DigitalToAnalogPin.hpp
+		Ethernet.cpp
 		Ethernet.hpp
-		FileSystem.hpp
 		FileSystem.cpp
+		FileSystem.hpp
+		Flash.cpp
 		Flash.hpp
+		FlashHomogeneous.cpp
 		FlashHomogeneous.hpp
+		Gpio.cpp
 		Gpio.hpp
+		I2c.cpp
 		I2c.hpp
+		I2cRegisterAccess.cpp
 		I2cRegisterAccess.hpp
+		QuadSpi.cpp
 		QuadSpi.hpp
 		RandomDataGenerator.hpp
 		SerialCommunication.hpp
+		Spi.cpp
 		Spi.hpp
 		UsbCustomHid.hpp
 		UsbLinkLayer.hpp
