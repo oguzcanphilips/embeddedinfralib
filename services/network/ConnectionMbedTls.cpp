@@ -1,10 +1,14 @@
 #include "infra/event/EventDispatcherWithWeakPtr.hpp"
 #include "infra/timer/TimerServiceManager.hpp"
-#include "mbedtls/ssl_cache.h"
 #include "services/network/ConnectionMbedTls.hpp"
 
 namespace services
 {
+    namespace
+    {
+        infra::Optional<mbedtls_ssl_session> session;
+    }
+
     MbedTlsCertificates::MbedTlsCertificates()
     {
         mbedtls_x509_crt_init(&caCertificates);
@@ -40,10 +44,12 @@ namespace services
         assert(result == 0);
     }
 
-    ConnectionMbedTls::ConnectionMbedTls(ZeroCopyConnection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls_ssl_cache_context* cache)
+    ConnectionMbedTls::ConnectionMbedTls(ZeroCopyConnection& connection, MbedTlsCertificates& certificates,
+        hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls_ssl_cache_context* cache, mbedtls_ssl_session2* session)
         : ZeroCopyConnectionObserver(connection)
         , randomDataGenerator(randomDataGenerator)
         , server(server)
+        , session(session)
     {
         mbedtls_ssl_init(&sslContext);
         mbedtls_ssl_config_init(&sslConfig);
@@ -68,9 +74,9 @@ namespace services
         result = mbedtls_ssl_setup(&sslContext, &sslConfig);
         assert(result == 0);
 
-        if (!server && session != infra::none)
+        if (!server && services::session != infra::none)
         {
-            result = mbedtls_ssl_set_session(&sslContext, &*session);
+            result = mbedtls_ssl_set_session(&sslContext, &*services::session);
             assert(result == 0);
         }
 
@@ -256,8 +262,8 @@ namespace services
 
                 if (!server)
                 {
-                    session.Emplace();
-                    result = mbedtls_ssl_get_session(&sslContext, &*session);
+                    services::session.Emplace();
+                    result = mbedtls_ssl_get_session(&sslContext, &*services::session);
                     assert(result == 0);
                 }
             }
@@ -351,16 +357,17 @@ namespace services
         return connection.receiveBuffer.size() - sizeRead;
     }
 
-    ConnectionMbedTlsListener::ConnectionMbedTlsListener(AllocatorConnectionMbedTls& allocator, ZeroCopyServerConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)
+    ConnectionMbedTlsListener::ConnectionMbedTlsListener(AllocatorConnectionMbedTls& allocator, ZeroCopyServerConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls_ssl_cache_context& cache)
         : allocator(allocator)
         , factory(factory)
         , certificates(certificates)
         , randomDataGenerator(randomDataGenerator)
+        , cache(cache)
     {}
 
     infra::SharedPtr<ZeroCopyConnectionObserver> ConnectionMbedTlsListener::ConnectionAccepted(ZeroCopyConnection& newConnection)
     {
-        infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(newConnection, certificates, randomDataGenerator, true);
+        infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(newConnection, certificates, randomDataGenerator, true, &cache, nullptr);
         if (connection)
         {
             infra::SharedPtr<ZeroCopyConnectionObserver> observer = factory.ConnectionAccepted(*connection);
@@ -379,16 +386,18 @@ namespace services
         this->listener = listener;
     }
 
-    ConnectionMbedTlsConnector::ConnectionMbedTlsConnector(AllocatorConnectionMbedTls& allocator, ZeroCopyClientConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)
+    ConnectionMbedTlsConnector::ConnectionMbedTlsConnector(AllocatorConnectionMbedTls& allocator, ZeroCopyClientConnectionObserverFactory& factory,
+        MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls_ssl_session2& session)
         : allocator(allocator)
         , factory(factory)
         , certificates(certificates)
         , randomDataGenerator(randomDataGenerator)
+        , session(session)
     {}
 
     infra::SharedPtr<ZeroCopyConnectionObserver> ConnectionMbedTlsConnector::ConnectionEstablished(ZeroCopyConnection& newConnection)
     {
-        infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(newConnection, certificates, randomDataGenerator, false);
+        infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(newConnection, certificates, randomDataGenerator, false, nullptr, &session);
         if (connection)
         {
             infra::SharedPtr<ZeroCopyConnectionObserver> observer = factory.ConnectionEstablished(*connection);
@@ -428,11 +437,12 @@ namespace services
     ConnectionFactoryMbedTls::~ConnectionFactoryMbedTls()
     {
         mbedtls_ssl_cache_free(&cache);
+        //mbedtls_ssl_session_free(&session);
     }
 
     infra::SharedPtr<void> ConnectionFactoryMbedTls::Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& connectionObserverFactory)
     {
-        infra::SharedPtr<ConnectionMbedTlsListener> listener = listenerAllocator.Allocate(connectionAllocator, connectionObserverFactory, certificates, randomDataGenerator);
+        infra::SharedPtr<ConnectionMbedTlsListener> listener = listenerAllocator.Allocate(connectionAllocator, connectionObserverFactory, certificates, randomDataGenerator, cache);
 
         if (listener)
         {
@@ -449,7 +459,7 @@ namespace services
 
     infra::SharedPtr<void> ConnectionFactoryMbedTls::Connect(IPv4Address address, uint16_t port, ZeroCopyClientConnectionObserverFactory& connectionObserverFactory)
     {
-        infra::SharedPtr<ConnectionMbedTlsConnector> connector = connectorAllocator.Allocate(connectionAllocator, connectionObserverFactory, certificates, randomDataGenerator);
+        infra::SharedPtr<ConnectionMbedTlsConnector> connector = connectorAllocator.Allocate(connectionAllocator, connectionObserverFactory, certificates, randomDataGenerator, session);
 
         if (connector)
         {
