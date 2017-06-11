@@ -1,4 +1,6 @@
 #include "infra/event/EventDispatcherWithWeakPtr.hpp"
+#include "infra/timer/TimerServiceManager.hpp"
+#include "mbedtls/ssl_cache.h"
 #include "services/network/ConnectionMbedTls.hpp"
 
 namespace services
@@ -38,9 +40,10 @@ namespace services
         assert(result == 0);
     }
 
-    ConnectionMbedTls::ConnectionMbedTls(ZeroCopyConnection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server)
+    ConnectionMbedTls::ConnectionMbedTls(ZeroCopyConnection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls_ssl_cache_context* cache)
         : ZeroCopyConnectionObserver(connection)
         , randomDataGenerator(randomDataGenerator)
+        , server(server)
     {
         mbedtls_ssl_init(&sslContext);
         mbedtls_ssl_config_init(&sslConfig);
@@ -58,8 +61,18 @@ namespace services
 
         certificates.Config(sslConfig);
 
+        if (server)
+            mbedtls_ssl_conf_session_cache(&sslConfig, &cache, mbedtls_ssl_cache_get, mbedtls_ssl_cache_set);
+            //mbedtls_ssl_conf_session_cache(&sslConfig, nullptr, &GetCachedSession, &SetCachedSession);
+
         result = mbedtls_ssl_setup(&sslContext, &sslConfig);
         assert(result == 0);
+
+        if (!server && session != infra::none)
+        {
+            result = mbedtls_ssl_set_session(&sslContext, &*session);
+            assert(result == 0);
+        }
 
         mbedtls_ssl_set_bio(&sslContext, this, &ConnectionMbedTls::StaticSslSend, &ConnectionMbedTls::StaticSslReceive, nullptr);
 
@@ -238,7 +251,16 @@ namespace services
                 return;
             }
             else if (initialHandshake)
+            {
                 initialHandshake = false;
+
+                if (!server)
+                {
+                    session.Emplace();
+                    result = mbedtls_ssl_get_session(&sslContext, &*session);
+                    assert(result == 0);
+                }
+            }
             else
             {
                 sendBuffer.erase(sendBuffer.begin(), sendBuffer.begin() + result);
@@ -399,7 +421,14 @@ namespace services
         , factory(factory)
         , certificates(certificates)
         , randomDataGenerator(randomDataGenerator)
-    {}
+    {
+        mbedtls_ssl_cache_init(&cache);
+    }
+
+    ConnectionFactoryMbedTls::~ConnectionFactoryMbedTls()
+    {
+        mbedtls_ssl_cache_free(&cache);
+    }
 
     infra::SharedPtr<void> ConnectionFactoryMbedTls::Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& connectionObserverFactory)
     {
