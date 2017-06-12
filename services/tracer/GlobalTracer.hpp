@@ -7,8 +7,6 @@ namespace services
 {
     void SetGlobalTracerInstance(Tracer& tracer);
     Tracer& GlobalTracer();
-
-    static Tracer* globalTracerInstance;
 }
 
 #endif
