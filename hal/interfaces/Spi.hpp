@@ -4,6 +4,7 @@
 #include "hal/interfaces/CommunicationConfigurator.hpp"
 #include "infra/util/AutoResetFunction.hpp"
 #include "infra/util/ByteRange.hpp"
+#include "infra/util/Observer.hpp"
 
 namespace hal
 {
@@ -53,6 +54,23 @@ namespace hal
 
     public:
         virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, const infra::Function<void()>& onDone) = 0;
+    };
+
+    class SpiBulkDriver;
+
+    class BulkDriverObserver
+        : public infra::SingleObserver<BulkDriverObserver, SpiBulkDriver>
+    {
+    public:
+        virtual void ReceivedData() = 0;
+    };
+
+    class SpiBulkDriver
+        : infra::Subject<BulkDriverObserver>
+    {
+    public:
+        virtual void Send(infra::ConstByteRange sendData, infra::Function<void()> onDone) = 0;
+        virtual void getReceivedData(infra::ByteRange data) = 0;
     };
 }
 
