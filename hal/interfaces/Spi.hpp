@@ -62,15 +62,16 @@ namespace hal
         : public infra::SingleObserver<BulkDriverObserver, SpiBulkDriver>
     {
     public:
+        explicit BulkDriverObserver(SpiBulkDriver& subject);
         virtual void ReceivedData() = 0;
     };
 
     class SpiBulkDriver
-        : infra::Subject<BulkDriverObserver>
+        : public infra::Subject<BulkDriverObserver>
     {
     public:
         virtual void Send(infra::ConstByteRange sendData, infra::Function<void()> onDone) = 0;
-        virtual void getReceivedData(infra::ByteRange data) = 0;
+        virtual void GetReceivedData(infra::ByteRange data) = 0;
     };
 }
 

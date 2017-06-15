@@ -123,10 +123,11 @@ namespace services
         virtual void Send(infra::ConstByteRange data) = 0;
         virtual void CloseAndDestroy() = 0;
         virtual void AbortAndDestroy() = 0;
+        virtual IPv4Address GetIpv4Address() = 0;
 
         void SwitchObserver(const infra::SharedPtr<ConnectionObserver>& newObserver);
         void SetOwnership(const infra::SharedPtr<Connection>& connection, const infra::SharedPtr<ConnectionObserver>& observer);
-        void ResetOwnership();
+        void ResetOwnership();        
 
     protected:
         ~Connection() = default;

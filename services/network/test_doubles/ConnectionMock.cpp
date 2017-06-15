@@ -23,6 +23,11 @@ namespace services
         ResetOwnership();
     }
 
+    services::IPv4Address ConnectionMock::GetIpv4Address()
+    {
+        return GetIpv4AddressMock();
+    }
+
     void ConnectionMock::DataSent()
     {
         GetObserver().DataSent();

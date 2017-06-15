@@ -11,4 +11,8 @@ namespace hal
     {
         SendAndReceive(infra::ConstByteRange(), data, nextAction, onDone);
     }
+
+    BulkDriverObserver::BulkDriverObserver(SpiBulkDriver& subject)
+        : infra::SingleObserver<BulkDriverObserver, SpiBulkDriver>(subject)
+    {}
 }

@@ -63,10 +63,12 @@ namespace services
         virtual void Send(infra::ConstByteRange data) override;
         virtual void CloseAndDestroy() override;
         virtual void AbortAndDestroy() override;
+        virtual services::IPv4Address GetIpv4Address() override;
 
         MOCK_METHOD1(SendMock, void(std::vector<uint8_t> dataSent));
         MOCK_METHOD0(CloseAndDestroyMock, void());
-        MOCK_METHOD0(AbortAndDestroyMock, void());
+        MOCK_METHOD0(AbortAndDestroyMock, int());
+        MOCK_METHOD0(GetIpv4AddressMock, services::IPv4Address());
 
         void DataSent();
         void DataReceived(infra::ConstByteRange data);
