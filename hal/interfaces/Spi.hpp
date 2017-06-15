@@ -2,9 +2,9 @@
 #define HAL_SPI_HPP
 
 #include "hal/interfaces/CommunicationConfigurator.hpp"
-#include "infra/util/AutoResetFunction.hpp"
 #include "infra/util/ByteRange.hpp"
 #include "infra/util/Observer.hpp"
+#include "services/network/Connection.hpp"
 
 namespace hal
 {
@@ -58,20 +58,18 @@ namespace hal
 
     class SpiBulkDriver;
 
-    class BulkDriverObserver
-        : public infra::SingleObserver<BulkDriverObserver, SpiBulkDriver>
+    class BulkClient
+        : public services::ZeroCopyConnection
     {
-    public:
-        explicit BulkDriverObserver(SpiBulkDriver& subject);
-        virtual void ReceivedData() = 0;
     };
 
     class SpiBulkDriver
-        : public infra::Subject<BulkDriverObserver>
+        : services::ZeroCopyConnectionObserver
     {
     public:
+        explicit SpiBulkDriver(BulkClient& subject);
+
         virtual void Send(infra::ConstByteRange sendData, infra::Function<void()> onDone) = 0;
-        virtual void GetReceivedData(infra::ByteRange data) = 0;
     };
 }
 
