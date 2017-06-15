@@ -15,6 +15,7 @@ namespace services
         : public infra::SingleObserver<ZeroCopyConnectionObserver, ZeroCopyConnection>
     {
     protected:
+        explicit ZeroCopyConnectionObserver();
         explicit ZeroCopyConnectionObserver(ZeroCopyConnection& connection);
         ZeroCopyConnectionObserver(const ZeroCopyConnectionObserver& other) = delete;
         ZeroCopyConnectionObserver& operator=(const ZeroCopyConnectionObserver& other) = delete;

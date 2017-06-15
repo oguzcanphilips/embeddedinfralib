@@ -7,6 +7,10 @@ namespace services
         : infra::SingleObserver<ZeroCopyConnectionObserver, ZeroCopyConnection>(connection)
     {}
 
+    ZeroCopyConnectionObserver::ZeroCopyConnectionObserver()
+        : infra::SingleObserver<ZeroCopyConnectionObserver, ZeroCopyConnection>()
+    {}
+
     void ZeroCopyConnection::SetOwnership(const infra::SharedPtr<void>& owner, const infra::SharedPtr<ZeroCopyConnectionObserver>& observer)
     {
         this->owner = owner;
