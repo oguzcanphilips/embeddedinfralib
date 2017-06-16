@@ -13,6 +13,6 @@ namespace hal
     }
 
     SpiBulkDriver::SpiBulkDriver(BulkClient& subject)
-        : ZeroCopyConnectionObserver(subject)
+        : ZeroCopyDataTransportObserver(subject)
     {}
 }

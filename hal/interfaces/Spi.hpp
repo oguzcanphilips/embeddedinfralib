@@ -4,6 +4,7 @@
 #include "hal/interfaces/CommunicationConfigurator.hpp"
 #include "infra/util/ByteRange.hpp"
 #include "infra/util/Observer.hpp"
+#include "services/util/ZeroCopyDataTransport.hpp"
 #include "services/network/Connection.hpp"
 
 namespace hal
@@ -59,17 +60,15 @@ namespace hal
     class SpiBulkDriver;
 
     class BulkClient
-        : public services::ZeroCopyConnection
+        : public services::ZeroCopyDataTransport
     {
     };
 
     class SpiBulkDriver
-        : services::ZeroCopyConnectionObserver
+        : services::ZeroCopyDataTransportObserver
     {
     public:
         explicit SpiBulkDriver(BulkClient& subject);
-
-        virtual void Send(infra::ConstByteRange sendData, infra::Function<void()> onDone) = 0;
     };
 }
 
