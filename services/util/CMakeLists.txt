@@ -31,8 +31,8 @@ ccola_component(util static_library)
 		SpiMasterWithChipSelect.hpp
 		SpiMultipleAccess.hpp
         Terminal.hpp
-        ZeroCopyDataTransport.hpp
-        ZeroCopyDataTransport.cpp
+        DataTransport.hpp
+        DataTransport.cpp
 	)
 
 	ccola_dependencies(

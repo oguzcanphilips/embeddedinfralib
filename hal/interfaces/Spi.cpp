@@ -11,8 +11,4 @@ namespace hal
     {
         SendAndReceive(infra::ConstByteRange(), data, nextAction, onDone);
     }
-
-    SpiBulkDriver::SpiBulkDriver(BulkClient& subject)
-        : ZeroCopyDataTransportObserver(subject)
-    {}
 }
