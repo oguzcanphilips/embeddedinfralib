@@ -3,18 +3,16 @@
 
 #include "infra/util/ByteRange.hpp"
 #include "infra/util/Observer.hpp"
-#include "infra/util/SharedPtr.hpp"
+#include "infra/util/BoundedString.hpp"
 
 namespace services
 {
     class DataTransport;
 
     class DataTransportObserver
-        : public infra::SingleObserver<DataTransportObserver, DataTransport>
     {
     protected:
         explicit DataTransportObserver();
-        explicit DataTransportObserver(DataTransport& dataTransport);
         DataTransportObserver(const DataTransportObserver& other) = delete;
         DataTransportObserver& operator=(const DataTransportObserver& other) = delete;
         ~DataTransportObserver() = default;
@@ -28,7 +26,6 @@ namespace services
     };
 
     class DataTransport
-        : public infra::Subject<DataTransportObserver>
     {
     protected:
         DataTransport() = default;
@@ -45,18 +42,22 @@ namespace services
         virtual void AckReceived() = 0;
     };
 
-    class BulkDataObserver;
-
-    class BulkData
-        : public services::DataTransport
-    {
-    };
+    class BulkData;
 
     class BulkDataObserver
-        : services::DataTransportObserver
+        : public services::DataTransportObserver
+        , public infra::SingleObserver<BulkDataObserver, BulkData>
     {
     public:
         explicit BulkDataObserver(BulkData& subject);
+    };
+
+    class BulkData
+        : public services::DataTransport
+        , public infra::Subject<BulkDataObserver>
+    {
+    public:
+        virtual void Error(infra::BoundedConstString errorMessage) = 0;
     };
 }
 #endif
