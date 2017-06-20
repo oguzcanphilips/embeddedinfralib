@@ -1,8 +1,8 @@
 #ifndef upgrade_pack_builder_test_IMAGE_SECURITY_NONE_HPP
 #define upgrade_pack_builder_test_IMAGE_SECURITY_NONE_HPP
 
-#include "packs/upgrade/pack/public/UpgradePackHeader.hpp"
-#include "packs/upgrade/pack_builder/public/ImageSecurity.hpp"
+#include "packs/upgrade/pack/UpgradePackHeader.hpp"
+#include "packs/upgrade/pack_builder/ImageSecurity.hpp"
 
 namespace application
 {

@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "hal/interfaces/test_doubles/public/FileSystemStub.hpp"
-#include "packs/upgrade/pack_builder/public/InputHex.hpp"
+#include "hal/interfaces/test_doubles/FileSystemStub.hpp"
+#include "packs/upgrade/pack_builder/InputHex.hpp"
 #include "packs/upgrade/pack_builder/test/ImageSecurityNone.hpp"
 #include <algorithm>
 

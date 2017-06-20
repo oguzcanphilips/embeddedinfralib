@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include "infra/stream/public/SavedMarkerStream.hpp"
-#include "infra/stream/public/StringOutputStream.hpp"
-#include "infra/util/public/BoundedString.hpp"
+#include "infra/stream/SavedMarkerStream.hpp"
+#include "infra/stream/StringOutputStream.hpp"
+#include "infra/util/BoundedString.hpp"
 #include <cstdint>
 #include <limits>
 

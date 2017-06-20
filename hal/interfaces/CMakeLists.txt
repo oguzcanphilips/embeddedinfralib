@@ -1,28 +1,31 @@
 ccola_component(interfaces static_library)
 
 	ccola_sources(
-		private/Flash.cpp
-		private/FlashHomogeneous.cpp
-		private/Gpio.cpp
-		private/I2c.cpp
-		private/I2cRegisterAccess.cpp
-		private/QuadSpi.cpp
-		private/Spi.cpp
-		public/AnalogToDigitalPin.hpp
-		public/CommunicationConfigurator.hpp
-		public/DigitalToAnalogPin.hpp
-		public/FileSystem.hpp
-		public/FileSystem.cpp
-		public/Flash.hpp
-		public/FlashHomogeneous.hpp
-		public/Gpio.hpp
-		public/I2c.hpp
-		public/I2cRegisterAccess.hpp
-		public/QuadSpi.hpp
-		public/SerialCommunication.hpp
-		public/Spi.hpp
-		public/UsbCustomHid.hpp
-		public/UsbLinkLayer.hpp
+		AnalogToDigitalPin.hpp
+		CommunicationConfigurator.hpp
+		DigitalToAnalogPin.hpp
+		Ethernet.cpp
+		Ethernet.hpp
+		FileSystem.cpp
+		FileSystem.hpp
+		Flash.cpp
+		Flash.hpp
+		FlashHomogeneous.cpp
+		FlashHomogeneous.hpp
+		Gpio.cpp
+		Gpio.hpp
+		I2c.cpp
+		I2c.hpp
+		I2cRegisterAccess.cpp
+		I2cRegisterAccess.hpp
+		QuadSpi.cpp
+		QuadSpi.hpp
+		RandomDataGenerator.hpp
+		SerialCommunication.hpp
+		Spi.cpp
+		Spi.hpp
+		UsbCustomHid.hpp
+		UsbLinkLayer.hpp
 	)
 
 	ccola_dependencies(

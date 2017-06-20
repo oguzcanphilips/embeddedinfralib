@@ -2,7 +2,7 @@
 #define UPGRADE_MOCK_DECRYPTOR_HPP
 
 #include "gmock/gmock.h"
-#include "packs/upgrade/boot_loader/public/Decryptor.hpp"
+#include "packs/upgrade/boot_loader/Decryptor.hpp"
 
 namespace application
 {

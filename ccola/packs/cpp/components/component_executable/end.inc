@@ -40,6 +40,9 @@ if(${CCOLA_ARCH} STREQUAL "win")
 		list(APPEND dependencies ${path})
 	endforeach()
 	configure_file(${CCOLA_PACK_DIR_cpp}/cpp_project.depend "${destination}")
+
+	string(REPLACE "<CCOLA_CONFIGURATION>" ${CCOLA_SYSTEM_CONFIGURATION}-Debug CCOLA_COMPONENT_RUNTIME_DIRECTORIES_DEBUG "${CCOLA_COMPONENT_RUNTIME_DIRECTORIES}")
+	string(REPLACE "<CCOLA_CONFIGURATION>" ${CCOLA_SYSTEM_CONFIGURATION}-RelWithDebInfo CCOLA_COMPONENT_RUNTIME_DIRECTORIES_RELWITHDEBINFO "${CCOLA_COMPONENT_RUNTIME_DIRECTORIES}")
 	configure_file(${CCOLA_PACK_DIR_cpp}/components/component_executable/component.vcxproj.user.conf ${CMAKE_CURRENT_BINARY_DIR}/${CCOLA_COMPONENT_NAME}.vcxproj.user)
 endif()
 

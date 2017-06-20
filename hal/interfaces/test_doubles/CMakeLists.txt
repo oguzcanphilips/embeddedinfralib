@@ -1,30 +1,31 @@
 ccola_component(test_doubles win: static_library other: noncompile)
 
 	ccola_sources(
-		private/FileSystemStub.cpp
-		private/FlashMock.cpp
-		private/FlashStub.cpp
-		private/GpioStub.cpp
-		private/I2cMock.cpp
-		private/I2cRegisterAccessMock.cpp
-		private/QuadSpiStub.cpp
-		private/SerialCommunicationMock.cpp
-		private/SerialCommunicationStub.cpp
-		private/SpiMock.cpp
-		public/AnalogToDigitalPinImplMock.hpp
-		public/CommunicationConfiguratorMock.hpp
-		public/DigitalToAnalogPinImplMock.hpp
-		public/FileSystemStub.hpp
-		public/FlashMock.hpp
-		public/FlashStub.hpp
-		public/GpioMock.hpp
-		public/GpioStub.hpp
-		public/I2cMock.hpp
-		public/I2cRegisterAccessMock.hpp
-		public/QuadSpiStub.hpp
-		public/SerialCommunicationMock.hpp
-		public/SerialCommunicationStub.hpp
-		public/SpiMock.hpp
+		AnalogToDigitalPinImplMock.hpp
+		CommunicationConfiguratorMock.hpp
+		DigitalToAnalogPinImplMock.hpp
+		FileSystemStub.cpp
+		FileSystemStub.hpp
+		FlashMock.cpp
+		FlashMock.hpp
+		FlashStub.cpp
+		FlashStub.hpp
+		GpioMock.hpp
+		GpioStub.cpp
+		GpioStub.hpp
+		I2cMock.cpp
+		I2cMock.hpp
+		I2cRegisterAccessMock.cpp
+		I2cRegisterAccessMock.hpp
+		QuadSpiStub.cpp
+		QuadSpiStub.hpp
+		RandomDataGeneratorMock.hpp
+		SerialCommunicationMock.cpp
+		SerialCommunicationMock.hpp
+		SerialCommunicationStub.cpp
+		SerialCommunicationStub.hpp
+		SpiMock.cpp
+		SpiMock.hpp
 	)
 
 	ccola_dependencies(

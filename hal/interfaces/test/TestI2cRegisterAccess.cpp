@@ -1,8 +1,8 @@
 #include "gmock/gmock.h"
-#include "hal/interfaces/public/I2cRegisterAccess.hpp"
-#include "hal/interfaces/test_doubles/public/I2cMock.hpp"
-#include "infra/event/test_helper/public/EventDispatcherFixture.hpp"
-#include "infra/util/test_helper/public/MockCallback.hpp"
+#include "hal/interfaces/I2cRegisterAccess.hpp"
+#include "hal/interfaces/test_doubles/I2cMock.hpp"
+#include "infra/event/test_helper/EventDispatcherFixture.hpp"
+#include "infra/util/test_helper/MockCallback.hpp"
 #include <vector>
 
 class I2cRegisterAccessTest

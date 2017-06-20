@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/IntrusiveForwardList.hpp"
+#include "infra/util/IntrusiveForwardList.hpp"
 #include <functional>
 #include <memory>
 

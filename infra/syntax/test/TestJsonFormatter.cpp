@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/syntax/public/JsonFormatter.hpp"
+#include "infra/syntax/JsonFormatter.hpp"
 
 TEST(BasicUsageTest, format_json_object)
 {
@@ -78,6 +78,19 @@ TEST(JsonObjectFormatter, add_BoundedConstString)
     EXPECT_EQ(R"({ "tag":"test" })", string);
 }
 
+TEST(JsonObjectFormatter, add_sting_as_sub_object)
+{
+    infra::BoundedString::WithStorage<64> string;
+
+    {
+        infra::BoundedConstString s(R"({ "test": 123 })");
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
+        formatter.AddSubObject("tag", s);
+    }
+
+    EXPECT_EQ(R"({ "tag":{ "test": 123 } })", string);
+}
+
 TEST(JsonObjectFormatter, add_sub_object)
 {
     infra::BoundedString::WithStorage<64> string;
@@ -143,6 +156,18 @@ TEST(JsonObjectFormatter, move_array_formatter)
     }
 
     EXPECT_EQ(R"({ "tag":[  ] })", string);
+}
+
+TEST(JsonObjectFormatter, escape_strings)
+{
+    infra::BoundedString::WithStorage<64> string;
+
+    {
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
+        formatter.Add("tag", "\"\\/\b\f\n\r\t\x11");
+    }
+
+    EXPECT_EQ("{ \"tag\":\"\\\"\\\\\\/\\b\\f\\n\\r\\t\\x0011\" }", string);
 }
 
 TEST(JsonArrayFormatter, construction_results_in_empty_object)
@@ -251,4 +276,3 @@ TEST(JsonArrayFormatter, output_is_truncated_on_small_output_string)
 
     EXPECT_EQ(R"([)", string);
 }
-

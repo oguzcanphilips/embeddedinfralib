@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include "hal/interfaces/test_doubles/public/GpioStub.hpp"
-#include "infra/timer/test_helper/public/ClockFixture.hpp"
-#include "services/util/public/SignalLed.hpp"
+#include "hal/interfaces/test_doubles/GpioStub.hpp"
+#include "infra/timer/test_helper/ClockFixture.hpp"
+#include "services/util/SignalLed.hpp"
 
 class SignalLedTest
     : public testing::Test

@@ -1,16 +1,16 @@
 ccola_component(event static_library)
 
 	ccola_sources(
-		private/ClaimableResource.cpp
-		private/EventDispatcher.cpp
-		private/EventDispatcherWithWeakPtr.cpp
-		private/QueueForOneReaderOneIrqWriter.cpp
-		private/SystemStateManager.cpp
-		public/ClaimableResource.hpp
-		public/EventDispatcher.hpp
-		public/EventDispatcherWithWeakPtr.hpp
-		public/QueueForOneReaderOneIrqWriter.hpp
-		public/SystemStateManager.hpp
+		ClaimableResource.cpp
+		EventDispatcher.cpp
+		EventDispatcherWithWeakPtr.cpp
+		QueueForOneReaderOneIrqWriter.cpp
+		SystemStateManager.cpp
+		ClaimableResource.hpp
+		EventDispatcher.hpp
+		EventDispatcherWithWeakPtr.hpp
+		QueueForOneReaderOneIrqWriter.hpp
+		SystemStateManager.hpp
 	)
 
 	ccola_dependencies(

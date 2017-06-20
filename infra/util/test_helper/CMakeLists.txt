@@ -1,9 +1,11 @@
 ccola_component(util_test_helper win: source other: skip)
 
 	ccola_sources(
-		public/BoundedStringMatcher.hpp
-		public/MockCallback.hpp
-		public/MoveConstructible.hpp
+		BoundedStringMatcher.hpp
+		MockCallback.hpp
+		MockHelpers.hpp
+		MonitoredConstructionObject.hpp
+		MoveConstructible.hpp
 	)
 
 	ccola_dependencies(

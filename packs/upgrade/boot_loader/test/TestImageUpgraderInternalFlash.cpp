@@ -1,7 +1,7 @@
 #include "gmock/gmock.h"
-#include "hal/synchronous_interfaces/test_doubles/public/SynchronousFlashStub.hpp"
-#include "packs/upgrade/boot_loader/public/DecryptorNone.hpp"
-#include "packs/upgrade/boot_loader/public/ImageUpgraderInternalFlash.hpp"
+#include "hal/synchronous_interfaces/test_doubles/SynchronousFlashStub.hpp"
+#include "packs/upgrade/boot_loader/DecryptorNone.hpp"
+#include "packs/upgrade/boot_loader/ImageUpgraderInternalFlash.hpp"
 
 class ImageUpgraderInternalFlashTest
     : public testing::Test

@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "infra/util/public/ReferenceCountedSingleton.hpp"
+#include "infra/util/ReferenceCountedSingleton.hpp"
 
 class ReferenceCountedSingletonTest
     : public testing::Test

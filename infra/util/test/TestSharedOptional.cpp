@@ -1,5 +1,5 @@
 #include <gmock/gmock.h>
-#include "infra/util/public/SharedOptional.hpp"
+#include "infra/util/SharedOptional.hpp"
 
 TEST(SharedOptionalTest, Emplace_returns_SharedPtr)
 {

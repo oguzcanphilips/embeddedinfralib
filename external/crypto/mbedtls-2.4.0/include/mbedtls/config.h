@@ -345,7 +345,7 @@
  *
  * Enable Cipher Feedback mode (CFB) for symmetric ciphers.
  */
-#define MBEDTLS_CIPHER_MODE_CFB
+//#define MBEDTLS_CIPHER_MODE_CFB
 
 /**
  * \def MBEDTLS_CIPHER_MODE_CTR
@@ -497,7 +497,7 @@
  *      MBEDTLS_TLS_PSK_WITH_3DES_EDE_CBC_SHA
  *      MBEDTLS_TLS_PSK_WITH_RC4_128_SHA
  */
-#define MBEDTLS_KEY_EXCHANGE_PSK_ENABLED
+//#define MBEDTLS_KEY_EXCHANGE_PSK_ENABLED
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_DHE_PSK_ENABLED
@@ -521,7 +521,7 @@
  *      MBEDTLS_TLS_DHE_PSK_WITH_3DES_EDE_CBC_SHA
  *      MBEDTLS_TLS_DHE_PSK_WITH_RC4_128_SHA
  */
-#define MBEDTLS_KEY_EXCHANGE_DHE_PSK_ENABLED
+//#define MBEDTLS_KEY_EXCHANGE_DHE_PSK_ENABLED
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_ECDHE_PSK_ENABLED
@@ -541,7 +541,7 @@
  *      MBEDTLS_TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA
  *      MBEDTLS_TLS_ECDHE_PSK_WITH_RC4_128_SHA
  */
-#define MBEDTLS_KEY_EXCHANGE_ECDHE_PSK_ENABLED
+//#define MBEDTLS_KEY_EXCHANGE_ECDHE_PSK_ENABLED
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_RSA_PSK_ENABLED
@@ -566,7 +566,7 @@
  *      MBEDTLS_TLS_RSA_PSK_WITH_3DES_EDE_CBC_SHA
  *      MBEDTLS_TLS_RSA_PSK_WITH_RC4_128_SHA
  */
-#define MBEDTLS_KEY_EXCHANGE_RSA_PSK_ENABLED
+//#define MBEDTLS_KEY_EXCHANGE_RSA_PSK_ENABLED
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_RSA_ENABLED
@@ -594,7 +594,7 @@
  *      MBEDTLS_TLS_RSA_WITH_RC4_128_SHA
  *      MBEDTLS_TLS_RSA_WITH_RC4_128_MD5
  */
-#define MBEDTLS_KEY_EXCHANGE_RSA_ENABLED
+//#define MBEDTLS_KEY_EXCHANGE_RSA_ENABLED
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_DHE_RSA_ENABLED
@@ -620,7 +620,7 @@
  *      MBEDTLS_TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA
  *      MBEDTLS_TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA
  */
-#define MBEDTLS_KEY_EXCHANGE_DHE_RSA_ENABLED
+//#define MBEDTLS_KEY_EXCHANGE_DHE_RSA_ENABLED
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_ECDHE_RSA_ENABLED
@@ -750,7 +750,7 @@
  *
  * Disable if you only need to support RFC 5915 + 5480 key formats.
  */
-#define MBEDTLS_PK_PARSE_EC_EXTENDED
+//#define MBEDTLS_PK_PARSE_EC_EXTENDED
 
 /**
  * \def MBEDTLS_ERROR_STRERROR_DUMMY
@@ -765,7 +765,7 @@
  * Disable if you run into name conflicts and want to really remove the
  * mbedtls_strerror()
  */
-#define MBEDTLS_ERROR_STRERROR_DUMMY
+//#define MBEDTLS_ERROR_STRERROR_DUMMY
 
 /**
  * \def MBEDTLS_GENPRIME
@@ -794,7 +794,7 @@
  *
  * Uncomment this macro to prevent loading of default entropy functions.
  */
-//#define MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES
+#define MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES
 
 /**
  * \def MBEDTLS_NO_PLATFORM_ENTROPY
@@ -924,7 +924,9 @@
  *
  * Enable the checkup functions (*_self_test).
  */
+#ifdef _MSC_VER
 #define MBEDTLS_SELF_TEST
+#endif
 
 /**
  * \def MBEDTLS_SHA256_SMALLER
@@ -954,7 +956,7 @@
  *
  * Enable sending of all alert messages
  */
-#define MBEDTLS_SSL_ALL_ALERT_MESSAGES
+//#define MBEDTLS_SSL_ALL_ALERT_MESSAGES
 
 /**
  * \def MBEDTLS_SSL_DEBUG_ALL
@@ -1300,7 +1302,7 @@
  *
  * Comment this to disable run-time checking and save ROM space
  */
-#define MBEDTLS_VERSION_FEATURES
+//#define MBEDTLS_VERSION_FEATURES
 
 /**
  * \def MBEDTLS_X509_ALLOW_EXTENSIONS_NON_V3
@@ -1501,7 +1503,7 @@
  *      MBEDTLS_TLS_RSA_PSK_WITH_RC4_128_SHA
  *      MBEDTLS_TLS_PSK_WITH_RC4_128_SHA
  */
-#define MBEDTLS_ARC4_C
+//#define MBEDTLS_ARC4_C
 
 /**
  * \def MBEDTLS_ASN1_PARSE_C
@@ -1566,7 +1568,7 @@
  *
  * Module:  library/blowfish.c
  */
-#define MBEDTLS_BLOWFISH_C
+//#define MBEDTLS_BLOWFISH_C
 
 /**
  * \def MBEDTLS_CAMELLIA_C
@@ -1621,7 +1623,7 @@
  *      MBEDTLS_TLS_PSK_WITH_CAMELLIA_128_GCM_SHA256
  *      MBEDTLS_TLS_PSK_WITH_CAMELLIA_128_CBC_SHA256
  */
-#define MBEDTLS_CAMELLIA_C
+//#define MBEDTLS_CAMELLIA_C
 
 /**
  * \def MBEDTLS_CCM_C
@@ -1700,7 +1702,7 @@
  *
  * This module provides debugging functions.
  */
-#define MBEDTLS_DEBUG_C
+//#define MBEDTLS_DEBUG_C
 
 /**
  * \def MBEDTLS_DES_C
@@ -1726,7 +1728,7 @@
  *
  * PEM_PARSE uses DES/3DES for decrypting encrypted keys.
  */
-#define MBEDTLS_DES_C
+//#define MBEDTLS_DES_C
 
 /**
  * \def MBEDTLS_DHM_C
@@ -1740,7 +1742,7 @@
  * This module is used by the following key exchanges:
  *      DHE-RSA, DHE-PSK
  */
-#define MBEDTLS_DHM_C
+//#define MBEDTLS_DHM_C
 
 /**
  * \def MBEDTLS_ECDH_C
@@ -1830,7 +1832,7 @@
  *
  * This module enables mbedtls_strerror().
  */
-#define MBEDTLS_ERROR_C
+//#define MBEDTLS_ERROR_C
 
 /**
  * \def MBEDTLS_GCM_C
@@ -2158,7 +2160,7 @@
  * Caller:  library/mbedtls_md.c
  *
  */
-#define MBEDTLS_RIPEMD160_C
+//#define MBEDTLS_RIPEMD160_C
 
 /**
  * \def MBEDTLS_RSA_C
@@ -2224,7 +2226,7 @@
  *
  * This module adds support for SHA-384 and SHA-512.
  */
-#define MBEDTLS_SHA512_C
+//#define MBEDTLS_SHA512_C
 
 /**
  * \def MBEDTLS_SSL_CACHE_C
@@ -2358,7 +2360,7 @@
  *
  * This module provides run-time version information.
  */
-#define MBEDTLS_VERSION_C
+//#define MBEDTLS_VERSION_C
 
 /**
  * \def MBEDTLS_X509_USE_C

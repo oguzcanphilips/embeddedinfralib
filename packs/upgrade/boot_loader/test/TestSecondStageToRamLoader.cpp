@@ -1,9 +1,9 @@
 #include "gmock/gmock.h"
-#include "infra/stream/public/ByteInputStream.hpp"
-#include "infra/stream/public/ByteOutputStream.hpp"
-#include "packs/upgrade/boot_loader/public/SecondStageToRamLoader.hpp"
-#include "hal/synchronous_interfaces/test_doubles/public/SynchronousFlashStub.hpp"
-#include "packs/upgrade/pack/public/UpgradePackHeader.hpp"
+#include "infra/stream/ByteInputStream.hpp"
+#include "infra/stream/ByteOutputStream.hpp"
+#include "packs/upgrade/boot_loader/SecondStageToRamLoader.hpp"
+#include "hal/synchronous_interfaces/test_doubles/SynchronousFlashStub.hpp"
+#include "packs/upgrade/pack/UpgradePackHeader.hpp"
 #include <algorithm>
 
 class DecryptorSpy
