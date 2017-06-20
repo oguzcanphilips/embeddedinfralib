@@ -16,6 +16,7 @@
 //  opt = MyClass(2, 3, 4);         // Use the copy constructor for construction
 
 #include "infra/util/StaticStorage.hpp"
+#include <cassert>
 #include <memory>
 #include <type_traits>
 
