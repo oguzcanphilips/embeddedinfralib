@@ -33,8 +33,7 @@ namespace hal
         virtual void SetChipSelectConfigurator(ChipSelectConfigurator& configurator) override;
         virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& onDone) override;
 
-        using SendAndReceiveResult = std::pair<bool, std::vector<uint8_t>>;
-        MOCK_METHOD2(SendAndReceiveMock, SendAndReceiveResult(std::vector<uint8_t> dataSent, SpiAction nextAction));
+        MOCK_METHOD4(SendAndReceiveMock, void(std::vector<uint8_t> sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& onDone));
         MOCK_METHOD1(SetChipSelectConfiguratorMock, void(ChipSelectConfigurator& configurator));
         MOCK_METHOD1(SetCommunicationConfigurator, void(CommunicationConfigurator& configurator));
         MOCK_METHOD0(ResetCommunicationConfigurator, void());
