@@ -40,7 +40,7 @@ namespace services
         virtual infra::SharedPtr<void> Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& factory) override;
         MOCK_METHOD3(Connect, infra::SharedPtr<void>(services::IPv4Address address, uint16_t port, services::ZeroCopyClientConnectionObserverFactory& factory));
 
-        MOCK_METHOD1(ListenMock, void(uint16_t));
+        MOCK_METHOD1(ListenMock, infra::SharedPtr<void>(uint16_t));
 
         bool NewConnection(ZeroCopyConnection& connection);
 

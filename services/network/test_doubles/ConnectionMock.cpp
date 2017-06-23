@@ -5,8 +5,7 @@ namespace services
     infra::SharedPtr<void> ZeroCopyConnectionFactoryMock::Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& factory)
     {
         this->serverConnectionObserverFactory = &factory;
-        ListenMock(port);
-        return nullptr;
+        return ListenMock(port);
     }
 
     bool ZeroCopyConnectionFactoryMock::NewConnection(ZeroCopyConnection& connection)
