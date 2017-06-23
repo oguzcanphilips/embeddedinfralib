@@ -5,36 +5,36 @@ namespace services
 {
     MbedTlsCertificates::MbedTlsCertificates()
     {
-        mbedtls_x509_crt_init(&caCertificates);
-        mbedtls_x509_crt_init(&ownCertificate);
-        mbedtls_pk_init(&privateKey);
+        mbedtls2_x509_crt_init(&caCertificates);
+        mbedtls2_x509_crt_init(&ownCertificate);
+        mbedtls2_pk_init(&privateKey);
     }
 
     MbedTlsCertificates::~MbedTlsCertificates()
     {
-        mbedtls_pk_free(&privateKey);
-        mbedtls_x509_crt_free(&caCertificates);
-        mbedtls_x509_crt_free(&ownCertificate);
+        mbedtls2_pk_free(&privateKey);
+        mbedtls2_x509_crt_free(&caCertificates);
+        mbedtls2_x509_crt_free(&ownCertificate);
     }
 
     void MbedTlsCertificates::AddCertificateAuthority(const infra::BoundedConstString& certificate)
     {
-        int result = mbedtls_x509_crt_parse(&caCertificates, reinterpret_cast<const unsigned char*>(certificate.data()), certificate.size());
+        int result = mbedtls2_x509_crt_parse(&caCertificates, reinterpret_cast<const unsigned char*>(certificate.data()), certificate.size());
         assert(result == 0);
     }
 
     void MbedTlsCertificates::AddOwnCertificate(const infra::BoundedConstString& certificate, const infra::BoundedConstString& key)
     {
-        int result = mbedtls_x509_crt_parse(&ownCertificate, reinterpret_cast<const unsigned char*>(certificate.data()), certificate.size());
+        int result = mbedtls2_x509_crt_parse(&ownCertificate, reinterpret_cast<const unsigned char*>(certificate.data()), certificate.size());
         assert(result == 0);
-        result = mbedtls_pk_parse_key(&privateKey, reinterpret_cast<const unsigned char*>(key.data()), key.size(), NULL, 0);
+        result = mbedtls2_pk_parse_key(&privateKey, reinterpret_cast<const unsigned char*>(key.data()), key.size(), NULL, 0);
         assert(result == 0);
     }
 
-    void MbedTlsCertificates::Config(mbedtls_ssl_config& sslConfig)
+    void MbedTlsCertificates::Config(mbedtls2_ssl_config& sslConfig)
     {
-        mbedtls_ssl_conf_ca_chain(&sslConfig, &caCertificates, nullptr);
-        int result = mbedtls_ssl_conf_own_cert(&sslConfig, &ownCertificate, &privateKey);
+        mbedtls2_ssl_conf_ca_chain(&sslConfig, &caCertificates, nullptr);
+        int result = mbedtls2_ssl_conf_own_cert(&sslConfig, &ownCertificate, &privateKey);
         assert(result == 0);
     }
 
@@ -42,26 +42,26 @@ namespace services
         : ZeroCopyConnectionObserver(connection)
         , randomDataGenerator(randomDataGenerator)
     {
-        mbedtls_ssl_init(&sslContext);
-        mbedtls_ssl_config_init(&sslConfig);
-        mbedtls_ctr_drbg_init(&ctr_drbg);
+        mbedtls2_ssl_init(&sslContext);
+        mbedtls2_ssl_config_init(&sslConfig);
+        mbedtls2_ctr_drbg_init(&ctr_drbg);
 
         int result;
 
-        result = mbedtls_ctr_drbg_seed(&ctr_drbg, &ConnectionMbedTls::StaticGenerateRandomData, this, nullptr, 0);
+        result = mbedtls2_ctr_drbg_seed(&ctr_drbg, &ConnectionMbedTls::StaticGenerateRandomData, this, nullptr, 0);
         assert(result == 0);
 
-        result = mbedtls_ssl_config_defaults(&sslConfig, server ? MBEDTLS_SSL_IS_SERVER : MBEDTLS_SSL_IS_CLIENT, MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT);
+        result = mbedtls2_ssl_config_defaults(&sslConfig, server ? MBEDTLS_SSL_IS_SERVER : MBEDTLS_SSL_IS_CLIENT, MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT);
         assert(result == 0);
-        mbedtls_ssl_conf_rng(&sslConfig, mbedtls_ctr_drbg_random, &ctr_drbg);
-        mbedtls_ssl_conf_authmode(&sslConfig, server ? MBEDTLS_SSL_VERIFY_NONE : MBEDTLS_SSL_VERIFY_REQUIRED);
+        mbedtls2_ssl_conf_rng(&sslConfig, mbedtls2_ctr_drbg_random, &ctr_drbg);
+        mbedtls2_ssl_conf_authmode(&sslConfig, server ? MBEDTLS_SSL_VERIFY_NONE : MBEDTLS_SSL_VERIFY_REQUIRED);
 
         certificates.Config(sslConfig);
 
-        result = mbedtls_ssl_setup(&sslContext, &sslConfig);
+        result = mbedtls2_ssl_setup(&sslContext, &sslConfig);
         assert(result == 0);
 
-        mbedtls_ssl_set_bio(&sslContext, this, &ConnectionMbedTls::StaticSslSend, &ConnectionMbedTls::StaticSslReceive, nullptr);
+        mbedtls2_ssl_set_bio(&sslContext, this, &ConnectionMbedTls::StaticSslSend, &ConnectionMbedTls::StaticSslReceive, nullptr);
 
         TryAllocateEncryptedSendStream();
     }
@@ -70,9 +70,9 @@ namespace services
     {
         encryptedSendStream = nullptr;
 
-        mbedtls_ctr_drbg_free(&ctr_drbg);
-        mbedtls_ssl_free(&sslContext);
-        mbedtls_ssl_config_free(&sslConfig);
+        mbedtls2_ctr_drbg_free(&ctr_drbg);
+        mbedtls2_ssl_free(&sslContext);
+        mbedtls2_ssl_config_free(&sslConfig);
 
         ResetOwnership();
     }
@@ -93,7 +93,7 @@ namespace services
             receiveBuffer.resize(receiveBuffer.max_size());
             infra::ByteRange buffer = receiveBuffer.contiguous_range(receiveBuffer.begin() + newBufferStart);
 
-            int result = mbedtls_ssl_read(&sslContext, reinterpret_cast<unsigned char*>(buffer.begin()), buffer.size());
+            int result = mbedtls2_ssl_read(&sslContext, reinterpret_cast<unsigned char*>(buffer.begin()), buffer.size());
             if (result == MBEDTLS_ERR_SSL_WANT_WRITE || result == MBEDTLS_ERR_SSL_WANT_READ)
             {
                 receiveBuffer.resize(newBufferStart);
@@ -227,8 +227,8 @@ namespace services
         {
             infra::ConstByteRange range = sendBuffer.contiguous_range(sendBuffer.begin());
             int result = initialHandshake
-                ? mbedtls_ssl_handshake(&sslContext)
-                : mbedtls_ssl_write(&sslContext, reinterpret_cast<const unsigned char*>(range.begin()), range.size());
+                ? mbedtls2_ssl_handshake(&sslContext)
+                : mbedtls2_ssl_write(&sslContext, reinterpret_cast<const unsigned char*>(range.begin()), range.size());
             if (result == MBEDTLS_ERR_SSL_WANT_WRITE || result == MBEDTLS_ERR_SSL_WANT_READ)
                 return;
             else if (result < 0)

@@ -25,7 +25,7 @@ namespace application
         void WriteKeys(const std::string& fileName);
 
     private:
-        void PrintMpi(std::ostream& output, const char* name, mbedtls_mpi number);
+        void PrintMpi(std::ostream& output, const char* name, mbedtls2_mpi number);
         void PrintVector(std::ostream& output, const char* name, const std::vector<uint8_t>& vector);
 
         static int RandomEntropy(void* data, unsigned char* output, size_t length, size_t* outputLength);
@@ -33,7 +33,7 @@ namespace application
 
     private:
         static RandomNumberGenerator* randomNumberGenerator;
-        mbedtls_pk_context pk;
+        mbedtls2_pk_context pk;
 
         std::vector<uint8_t> aesKey;
         std::vector<uint8_t> xteaKey;

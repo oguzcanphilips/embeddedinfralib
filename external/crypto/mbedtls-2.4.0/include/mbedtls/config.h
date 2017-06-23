@@ -102,7 +102,7 @@
  *
  * Enabling MBEDTLS_PLATFORM_MEMORY without the
  * MBEDTLS_PLATFORM_{FREE,CALLOC}_MACROs will provide
- * "mbedtls_platform_set_calloc_free()" allowing you to set an alternative calloc() and
+ * "mbedtls2_platform_set_calloc_free()" allowing you to set an alternative calloc() and
  * free() function pointer at runtime.
  *
  * Enabling MBEDTLS_PLATFORM_MEMORY and specifying
@@ -141,7 +141,7 @@
  * function in the platform abstraction layer.
  *
  * Example: In case you uncomment MBEDTLS_PLATFORM_PRINTF_ALT, mbed TLS will
- * provide a function "mbedtls_platform_set_printf()" that allows you to set an
+ * provide a function "mbedtls2_platform_set_printf()" that allows you to set an
  * alternative printf function pointer.
  *
  * All these define require MBEDTLS_PLATFORM_C to be defined!
@@ -204,8 +204,8 @@
 /**
  * \def MBEDTLS_TIMING_ALT
  *
- * Uncomment to provide your own alternate implementation for mbedtls_timing_hardclock(),
- * mbedtls_timing_get_timer(), mbedtls_set_alarm(), mbedtls_set/get_delay()
+ * Uncomment to provide your own alternate implementation for mbedtls2_timing_hardclock(),
+ * mbedtls2_timing_get_timer(), mbedtls2_set_alarm(), mbedtls2_set/get_delay()
  *
  * Only works if you have MBEDTLS_TIMING_C enabled.
  *
@@ -226,7 +226,7 @@
  * functions, use one of the MBEDTLS__FUNCTION_NAME__ALT flags.
  *
  * Example: In case you uncomment MBEDTLS_AES_ALT, mbed TLS will no longer
- * provide the "struct mbedtls_aes_context" definition and omit the base function
+ * provide the "struct mbedtls2_aes_context" definition and omit the base function
  * declarations and implementations. "aes_alt.h" will be included from
  * "aes.h" to include the new function definitions.
  *
@@ -258,9 +258,9 @@
  * used, in contrast to the MBEDTLS__MODULE_NAME__ALT flags.
  *
  * Example: In case you uncomment MBEDTLS_SHA256_PROCESS_ALT, mbed TLS will
- * no longer provide the mbedtls_sha1_process() function, but it will still provide
- * the other function (using your mbedtls_sha1_process() function) and the definition
- * of mbedtls_sha1_context, so your implementation of mbedtls_sha1_process must be compatible
+ * no longer provide the mbedtls2_sha1_process() function, but it will still provide
+ * the other function (using your mbedtls2_sha1_process() function) and the definition
+ * of mbedtls2_sha1_context, so your implementation of mbedtls2_sha1_process must be compatible
  * with this definition.
  *
  * Note: if you use the AES_xxx_ALT macros, then is is recommended to also set
@@ -308,7 +308,7 @@
  * Uncomment this macro to let mbed TLS use your own implementation of a
  * hardware entropy collector.
  *
- * Your function must be called \c mbedtls_hardware_poll(), have the same
+ * Your function must be called \c mbedtls2_hardware_poll(), have the same
  * prototype as declared in entropy_poll.h, and accept NULL as first argument.
  *
  * Uncomment to use your own hardware entropy collector.
@@ -423,8 +423,8 @@
  *
  * Remove RC4 ciphersuites by default in SSL / TLS.
  * This flag removes the ciphersuites based on RC4 from the default list as
- * returned by mbedtls_ssl_list_ciphersuites(). However, it is still possible to
- * enable (some of) them with mbedtls_ssl_conf_ciphersuites() by including them
+ * returned by mbedtls2_ssl_list_ciphersuites(). However, it is still possible to
+ * enable (some of) them with mbedtls2_ssl_conf_ciphersuites() by including them
  * explicitly.
  *
  * Uncomment this macro to remove RC4 ciphersuites by default.
@@ -755,15 +755,15 @@
 /**
  * \def MBEDTLS_ERROR_STRERROR_DUMMY
  *
- * Enable a dummy error function to make use of mbedtls_strerror() in
+ * Enable a dummy error function to make use of mbedtls2_strerror() in
  * third party libraries easier when MBEDTLS_ERROR_C is disabled
  * (no effect when MBEDTLS_ERROR_C is enabled).
  *
  * You can safely disable this if MBEDTLS_ERROR_C is enabled, or if you're
- * not using mbedtls_strerror() or error_strerror() in your application.
+ * not using mbedtls2_strerror() or error_strerror() in your application.
  *
  * Disable if you run into name conflicts and want to really remove the
- * mbedtls_strerror()
+ * mbedtls2_strerror()
  */
 //#define MBEDTLS_ERROR_STRERROR_DUMMY
 
@@ -787,7 +787,7 @@
  * \def MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES
  *
  * Do not add default entropy sources. These are the platform specific,
- * mbedtls_timing_hardclock and HAVEGE based poll functions.
+ * mbedtls2_timing_hardclock and HAVEGE based poll functions.
  *
  * This is useful to have more control over the added entropy sources in an
  * application.
@@ -937,7 +937,7 @@
  * The default implementation is meant to be a reasonnable compromise between
  * performance and size. This version optimizes more aggressively for size at
  * the expense of performance. Eg on Cortex-M4 it reduces the size of
- * mbedtls_sha256_process() from ~2KB to ~0.5KB for a performance hit of about
+ * mbedtls2_sha256_process() from ~2KB to ~0.5KB for a performance hit of about
  * 30%.
  *
  * Uncomment to enable the smaller implementation of SHA256.
@@ -1174,7 +1174,7 @@
  *           MBEDTLS_SSL_PROTO_DTLS
  *
  * \warning Disabling this is often a security risk!
- * See mbedtls_ssl_conf_dtls_anti_replay() for details.
+ * See mbedtls2_ssl_conf_dtls_anti_replay() for details.
  *
  * Comment this to disable anti-replay in DTLS.
  */
@@ -1219,7 +1219,7 @@
  *
  * Enable support for a limit of records with bad MAC.
  *
- * See mbedtls_ssl_conf_dtls_badmac_limit().
+ * See mbedtls2_ssl_conf_dtls_badmac_limit().
  *
  * Requires: MBEDTLS_SSL_PROTO_DTLS
  */
@@ -1296,7 +1296,7 @@
  *
  * Allow run-time checking of compile-time enabled features. Thus allowing users
  * to check at run-time if the library is for instance compiled with threading
- * support via mbedtls_version_check_feature().
+ * support via mbedtls2_version_check_feature().
  *
  * Requires: MBEDTLS_VERSION_C
  *
@@ -1529,7 +1529,7 @@
  *          library/pkwrite.c
  *          library/x509_create.c
  *          library/x509write_crt.c
- *          library/mbedtls_x509write_csr.c
+ *          library/mbedtls2_x509write_csr.c
  */
 #define MBEDTLS_ASN1_WRITE_C
 
@@ -1830,7 +1830,7 @@
  * Module:  library/error.c
  * Caller:
  *
- * This module enables mbedtls_strerror().
+ * This module enables mbedtls2_strerror().
  */
 //#define MBEDTLS_ERROR_C
 
@@ -1890,7 +1890,7 @@
  *
  * Enable the generic message digest layer.
  *
- * Module:  library/mbedtls_md.c
+ * Module:  library/mbedtls2_md.c
  * Caller:
  *
  * Uncomment to enable generic message digest wrappers.
@@ -1902,7 +1902,7 @@
  *
  * Enable the MD2 hash algorithm.
  *
- * Module:  library/mbedtls_md2.c
+ * Module:  library/mbedtls2_md2.c
  * Caller:
  *
  * Uncomment to enable support for (rare) MD2-signed X.509 certs.
@@ -1914,7 +1914,7 @@
  *
  * Enable the MD4 hash algorithm.
  *
- * Module:  library/mbedtls_md4.c
+ * Module:  library/mbedtls2_md4.c
  * Caller:
  *
  * Uncomment to enable support for (rare) MD4-signed X.509 certs.
@@ -1926,8 +1926,8 @@
  *
  * Enable the MD5 hash algorithm.
  *
- * Module:  library/mbedtls_md5.c
- * Caller:  library/mbedtls_md.c
+ * Module:  library/mbedtls2_md5.c
+ * Caller:  library/mbedtls2_md.c
  *          library/pem.c
  *          library/ssl_tls.c
  *
@@ -1959,7 +1959,7 @@
  *
  * \note This module only works on POSIX/Unix (including Linux, BSD and OS X)
  * and Windows. For other platforms, you'll want to disable it, and write your
- * own networking callbacks to be passed to \c mbedtls_ssl_set_bio().
+ * own networking callbacks to be passed to \c mbedtls2_ssl_set_bio().
  *
  * \note See also our Knowledge Base article about porting to a new
  * environment:
@@ -1984,11 +1984,11 @@
  *          library/rsa.c
  *          library/x509.c
  *          library/x509_create.c
- *          library/mbedtls_x509_crl.c
- *          library/mbedtls_x509_crt.c
- *          library/mbedtls_x509_csr.c
+ *          library/mbedtls2_x509_crl.c
+ *          library/mbedtls2_x509_crt.c
+ *          library/mbedtls2_x509_csr.c
  *          library/x509write_crt.c
- *          library/mbedtls_x509write_csr.c
+ *          library/mbedtls2_x509write_csr.c
  *
  * This modules translates between OIDs and internal values.
  */
@@ -2016,9 +2016,9 @@
  * Module:  library/pem.c
  * Caller:  library/dhm.c
  *          library/pkparse.c
- *          library/mbedtls_x509_crl.c
- *          library/mbedtls_x509_crt.c
- *          library/mbedtls_x509_csr.c
+ *          library/mbedtls2_x509_crl.c
+ *          library/mbedtls2_x509_crt.c
+ *          library/mbedtls2_x509_csr.c
  *
  * Requires: MBEDTLS_BASE64_C
  *
@@ -2034,7 +2034,7 @@
  * Module:  library/pem.c
  * Caller:  library/pkwrite.c
  *          library/x509write_crt.c
- *          library/mbedtls_x509write_csr.c
+ *          library/mbedtls2_x509write_csr.c
  *
  * Requires: MBEDTLS_BASE64_C
  *
@@ -2064,8 +2064,8 @@
  * Enable the generic public (asymetric) key parser.
  *
  * Module:  library/pkparse.c
- * Caller:  library/mbedtls_x509_crt.c
- *          library/mbedtls_x509_csr.c
+ * Caller:  library/mbedtls2_x509_crt.c
+ *          library/mbedtls2_x509_csr.c
  *
  * Requires: MBEDTLS_PK_C
  *
@@ -2156,8 +2156,8 @@
  *
  * Enable the RIPEMD-160 hash algorithm.
  *
- * Module:  library/mbedtls_ripemd160.c
- * Caller:  library/mbedtls_md.c
+ * Module:  library/mbedtls2_ripemd160.c
+ * Caller:  library/mbedtls2_md.c
  *
  */
 //#define MBEDTLS_RIPEMD160_C
@@ -2185,8 +2185,8 @@
  *
  * Enable the SHA1 cryptographic hash algorithm.
  *
- * Module:  library/mbedtls_sha1.c
- * Caller:  library/mbedtls_md.c
+ * Module:  library/mbedtls2_sha1.c
+ * Caller:  library/mbedtls2_md.c
  *          library/ssl_cli.c
  *          library/ssl_srv.c
  *          library/ssl_tls.c
@@ -2201,9 +2201,9 @@
  *
  * Enable the SHA-224 and SHA-256 cryptographic hash algorithms.
  *
- * Module:  library/mbedtls_sha256.c
+ * Module:  library/mbedtls2_sha256.c
  * Caller:  library/entropy.c
- *          library/mbedtls_md.c
+ *          library/mbedtls2_md.c
  *          library/ssl_cli.c
  *          library/ssl_srv.c
  *          library/ssl_tls.c
@@ -2218,9 +2218,9 @@
  *
  * Enable the SHA-384 and SHA-512 cryptographic hash algorithms.
  *
- * Module:  library/mbedtls_sha512.c
+ * Module:  library/mbedtls2_sha512.c
  * Caller:  library/entropy.c
- *          library/mbedtls_md.c
+ *          library/mbedtls2_md.c
  *          library/ssl_cli.c
  *          library/ssl_srv.c
  *
@@ -2336,7 +2336,7 @@
  * \note The provided implementation only works on POSIX/Unix (including Linux,
  * BSD and OS X) and Windows. On other platforms, you can either disable that
  * module and provide your own implementations of the callbacks needed by
- * \c mbedtls_ssl_set_timer_cb() for DTLS, or leave it enabled and provide
+ * \c mbedtls2_ssl_set_timer_cb() for DTLS, or leave it enabled and provide
  * your own implementation of the whole module by setting
  * \c MBEDTLS_TIMING_ALT in the current file.
  *
@@ -2368,9 +2368,9 @@
  * Enable X.509 core for using certificates.
  *
  * Module:  library/x509.c
- * Caller:  library/mbedtls_x509_crl.c
- *          library/mbedtls_x509_crt.c
- *          library/mbedtls_x509_csr.c
+ * Caller:  library/mbedtls2_x509_crl.c
+ *          library/mbedtls2_x509_crt.c
+ *          library/mbedtls2_x509_csr.c
  *
  * Requires: MBEDTLS_ASN1_PARSE_C, MBEDTLS_BIGNUM_C, MBEDTLS_OID_C,
  *           MBEDTLS_PK_PARSE_C
@@ -2384,7 +2384,7 @@
  *
  * Enable X.509 certificate parsing.
  *
- * Module:  library/mbedtls_x509_crt.c
+ * Module:  library/mbedtls2_x509_crt.c
  * Caller:  library/ssl_cli.c
  *          library/ssl_srv.c
  *          library/ssl_tls.c
@@ -2400,8 +2400,8 @@
  *
  * Enable X.509 CRL parsing.
  *
- * Module:  library/mbedtls_x509_crl.c
- * Caller:  library/mbedtls_x509_crt.c
+ * Module:  library/mbedtls2_x509_crl.c
+ * Caller:  library/mbedtls2_x509_crt.c
  *
  * Requires: MBEDTLS_X509_USE_C
  *
@@ -2414,7 +2414,7 @@
  *
  * Enable X.509 Certificate Signing Request (CSR) parsing.
  *
- * Module:  library/mbedtls_x509_csr.c
+ * Module:  library/mbedtls2_x509_csr.c
  * Caller:  library/x509_crt_write.c
  *
  * Requires: MBEDTLS_X509_USE_C
@@ -2514,7 +2514,7 @@
 /* Entropy options */
 //#define MBEDTLS_ENTROPY_MAX_SOURCES                20 /**< Maximum number of sources supported */
 //#define MBEDTLS_ENTROPY_MAX_GATHER                128 /**< Maximum amount requested from entropy sources */
-//#define MBEDTLS_ENTROPY_MIN_HARDWARE               32 /**< Default minimum number of bytes required for the hardware entropy source mbedtls_hardware_poll() before entropy is released */
+//#define MBEDTLS_ENTROPY_MIN_HARDWARE               32 /**< Default minimum number of bytes required for the hardware entropy source mbedtls2_hardware_poll() before entropy is released */
 
 /* Memory buffer allocator options */
 //#define MBEDTLS_MEMORY_ALIGN_MULTIPLE      4 /**< Align on multiples of this value */
@@ -2531,8 +2531,8 @@
 //#define MBEDTLS_PLATFORM_STD_SNPRINTF    snprintf /**< Default snprintf to use, can be undefined */
 //#define MBEDTLS_PLATFORM_STD_EXIT_SUCCESS       0 /**< Default exit value to use, can be undefined */
 //#define MBEDTLS_PLATFORM_STD_EXIT_FAILURE       1 /**< Default exit value to use, can be undefined */
-//#define MBEDTLS_PLATFORM_STD_NV_SEED_READ   mbedtls_platform_std_nv_seed_read /**< Default nv_seed_read function to use, can be undefined */
-//#define MBEDTLS_PLATFORM_STD_NV_SEED_WRITE  mbedtls_platform_std_nv_seed_write /**< Default nv_seed_write function to use, can be undefined */
+//#define MBEDTLS_PLATFORM_STD_NV_SEED_READ   mbedtls2_platform_std_nv_seed_read /**< Default nv_seed_read function to use, can be undefined */
+//#define MBEDTLS_PLATFORM_STD_NV_SEED_WRITE  mbedtls2_platform_std_nv_seed_write /**< Default nv_seed_write function to use, can be undefined */
 //#define MBEDTLS_PLATFORM_STD_NV_SEED_FILE  "seedfile" /**< Seed file to read/write with default implementation */
 
 /* To Use Function Macros MBEDTLS_PLATFORM_C must be enabled */
@@ -2546,8 +2546,8 @@
 //#define MBEDTLS_PLATFORM_PRINTF_MACRO        printf /**< Default printf macro to use, can be undefined */
 /* Note: your snprintf must correclty zero-terminate the buffer! */
 //#define MBEDTLS_PLATFORM_SNPRINTF_MACRO    snprintf /**< Default snprintf macro to use, can be undefined */
-//#define MBEDTLS_PLATFORM_NV_SEED_READ_MACRO   mbedtls_platform_std_nv_seed_read /**< Default nv_seed_read function to use, can be undefined */
-//#define MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO  mbedtls_platform_std_nv_seed_write /**< Default nv_seed_write function to use, can be undefined */
+//#define MBEDTLS_PLATFORM_NV_SEED_READ_MACRO   mbedtls2_platform_std_nv_seed_read /**< Default nv_seed_read function to use, can be undefined */
+//#define MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO  mbedtls2_platform_std_nv_seed_write /**< Default nv_seed_write function to use, can be undefined */
 
 /* SSL Cache options */
 //#define MBEDTLS_SSL_CACHE_DEFAULT_TIMEOUT       86400 /**< 1 day  */

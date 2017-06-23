@@ -34,8 +34,8 @@
 #if defined(MBEDTLS_PLATFORM_C)
 #include "mbedtls/platform.h"
 #else
-#define mbedtls_calloc    calloc
-#define mbedtls_free      free
+#define mbedtls2_calloc    calloc
+#define mbedtls2_free      free
 #endif
 
 #include "mbedtls/ssl_cookie.h"
@@ -44,7 +44,7 @@
 #include <string.h>
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
+static void mbedtls2_zeroize( void *v, size_t n ) {
     volatile unsigned char *p = v; while( n-- ) *p++ = 0;
 }
 
@@ -75,36 +75,36 @@ static void mbedtls_zeroize( void *v, size_t n ) {
  */
 #define COOKIE_LEN      ( 4 + COOKIE_HMAC_LEN )
 
-void mbedtls_ssl_cookie_init( mbedtls_ssl_cookie_ctx *ctx )
+void mbedtls2_ssl_cookie_init( mbedtls2_ssl_cookie_ctx *ctx )
 {
-    mbedtls_md_init( &ctx->hmac_ctx );
+    mbedtls2_md_init( &ctx->hmac_ctx );
 #if !defined(MBEDTLS_HAVE_TIME)
     ctx->serial = 0;
 #endif
     ctx->timeout = MBEDTLS_SSL_COOKIE_TIMEOUT;
 
 #if defined(MBEDTLS_THREADING_C)
-    mbedtls_mutex_init( &ctx->mutex );
+    mbedtls2_mutex_init( &ctx->mutex );
 #endif
 }
 
-void mbedtls_ssl_cookie_set_timeout( mbedtls_ssl_cookie_ctx *ctx, unsigned long delay )
+void mbedtls2_ssl_cookie_set_timeout( mbedtls2_ssl_cookie_ctx *ctx, unsigned long delay )
 {
     ctx->timeout = delay;
 }
 
-void mbedtls_ssl_cookie_free( mbedtls_ssl_cookie_ctx *ctx )
+void mbedtls2_ssl_cookie_free( mbedtls2_ssl_cookie_ctx *ctx )
 {
-    mbedtls_md_free( &ctx->hmac_ctx );
+    mbedtls2_md_free( &ctx->hmac_ctx );
 
 #if defined(MBEDTLS_THREADING_C)
-    mbedtls_mutex_init( &ctx->mutex );
+    mbedtls2_mutex_init( &ctx->mutex );
 #endif
 
-    mbedtls_zeroize( ctx, sizeof( mbedtls_ssl_cookie_ctx ) );
+    mbedtls2_zeroize( ctx, sizeof( mbedtls2_ssl_cookie_ctx ) );
 }
 
-int mbedtls_ssl_cookie_setup( mbedtls_ssl_cookie_ctx *ctx,
+int mbedtls2_ssl_cookie_setup( mbedtls2_ssl_cookie_ctx *ctx,
                       int (*f_rng)(void *, unsigned char *, size_t),
                       void *p_rng )
 {
@@ -114,15 +114,15 @@ int mbedtls_ssl_cookie_setup( mbedtls_ssl_cookie_ctx *ctx,
     if( ( ret = f_rng( p_rng, key, sizeof( key ) ) ) != 0 )
         return( ret );
 
-    ret = mbedtls_md_setup( &ctx->hmac_ctx, mbedtls_md_info_from_type( COOKIE_MD ), 1 );
+    ret = mbedtls2_md_setup( &ctx->hmac_ctx, mbedtls2_md_info_from_type( COOKIE_MD ), 1 );
     if( ret != 0 )
         return( ret );
 
-    ret = mbedtls_md_hmac_starts( &ctx->hmac_ctx, key, sizeof( key ) );
+    ret = mbedtls2_md_hmac_starts( &ctx->hmac_ctx, key, sizeof( key ) );
     if( ret != 0 )
         return( ret );
 
-    mbedtls_zeroize( key, sizeof( key ) );
+    mbedtls2_zeroize( key, sizeof( key ) );
 
     return( 0 );
 }
@@ -130,7 +130,7 @@ int mbedtls_ssl_cookie_setup( mbedtls_ssl_cookie_ctx *ctx,
 /*
  * Generate the HMAC part of a cookie
  */
-static int ssl_cookie_hmac( mbedtls_md_context_t *hmac_ctx,
+static int ssl_cookie_hmac( mbedtls2_md_context_t *hmac_ctx,
                             const unsigned char time[4],
                             unsigned char **p, unsigned char *end,
                             const unsigned char *cli_id, size_t cli_id_len )
@@ -140,10 +140,10 @@ static int ssl_cookie_hmac( mbedtls_md_context_t *hmac_ctx,
     if( (size_t)( end - *p ) < COOKIE_HMAC_LEN )
         return( MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL );
 
-    if( mbedtls_md_hmac_reset(  hmac_ctx ) != 0 ||
-        mbedtls_md_hmac_update( hmac_ctx, time, 4 ) != 0 ||
-        mbedtls_md_hmac_update( hmac_ctx, cli_id, cli_id_len ) != 0 ||
-        mbedtls_md_hmac_finish( hmac_ctx, hmac_out ) != 0 )
+    if( mbedtls2_md_hmac_reset(  hmac_ctx ) != 0 ||
+        mbedtls2_md_hmac_update( hmac_ctx, time, 4 ) != 0 ||
+        mbedtls2_md_hmac_update( hmac_ctx, cli_id, cli_id_len ) != 0 ||
+        mbedtls2_md_hmac_finish( hmac_ctx, hmac_out ) != 0 )
     {
         return( MBEDTLS_ERR_SSL_INTERNAL_ERROR );
     }
@@ -157,12 +157,12 @@ static int ssl_cookie_hmac( mbedtls_md_context_t *hmac_ctx,
 /*
  * Generate cookie for DTLS ClientHello verification
  */
-int mbedtls_ssl_cookie_write( void *p_ctx,
+int mbedtls2_ssl_cookie_write( void *p_ctx,
                       unsigned char **p, unsigned char *end,
                       const unsigned char *cli_id, size_t cli_id_len )
 {
     int ret;
-    mbedtls_ssl_cookie_ctx *ctx = (mbedtls_ssl_cookie_ctx *) p_ctx;
+    mbedtls2_ssl_cookie_ctx *ctx = (mbedtls2_ssl_cookie_ctx *) p_ctx;
     unsigned long t;
 
     if( ctx == NULL || cli_id == NULL )
@@ -172,7 +172,7 @@ int mbedtls_ssl_cookie_write( void *p_ctx,
         return( MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL );
 
 #if defined(MBEDTLS_HAVE_TIME)
-    t = (unsigned long) mbedtls_time( NULL );
+    t = (unsigned long) mbedtls2_time( NULL );
 #else
     t = ctx->serial++;
 #endif
@@ -184,7 +184,7 @@ int mbedtls_ssl_cookie_write( void *p_ctx,
     *p += 4;
 
 #if defined(MBEDTLS_THREADING_C)
-    if( ( ret = mbedtls_mutex_lock( &ctx->mutex ) ) != 0 )
+    if( ( ret = mbedtls2_mutex_lock( &ctx->mutex ) ) != 0 )
         return( MBEDTLS_ERR_SSL_INTERNAL_ERROR + ret );
 #endif
 
@@ -192,7 +192,7 @@ int mbedtls_ssl_cookie_write( void *p_ctx,
                            p, end, cli_id, cli_id_len );
 
 #if defined(MBEDTLS_THREADING_C)
-    if( mbedtls_mutex_unlock( &ctx->mutex ) != 0 )
+    if( mbedtls2_mutex_unlock( &ctx->mutex ) != 0 )
         return( MBEDTLS_ERR_SSL_INTERNAL_ERROR +
                 MBEDTLS_ERR_THREADING_MUTEX_ERROR );
 #endif
@@ -203,14 +203,14 @@ int mbedtls_ssl_cookie_write( void *p_ctx,
 /*
  * Check a cookie
  */
-int mbedtls_ssl_cookie_check( void *p_ctx,
+int mbedtls2_ssl_cookie_check( void *p_ctx,
                       const unsigned char *cookie, size_t cookie_len,
                       const unsigned char *cli_id, size_t cli_id_len )
 {
     unsigned char ref_hmac[COOKIE_HMAC_LEN];
     int ret = 0;
     unsigned char *p = ref_hmac;
-    mbedtls_ssl_cookie_ctx *ctx = (mbedtls_ssl_cookie_ctx *) p_ctx;
+    mbedtls2_ssl_cookie_ctx *ctx = (mbedtls2_ssl_cookie_ctx *) p_ctx;
     unsigned long cur_time, cookie_time;
 
     if( ctx == NULL || cli_id == NULL )
@@ -220,7 +220,7 @@ int mbedtls_ssl_cookie_check( void *p_ctx,
         return( -1 );
 
 #if defined(MBEDTLS_THREADING_C)
-    if( ( ret = mbedtls_mutex_lock( &ctx->mutex ) ) != 0 )
+    if( ( ret = mbedtls2_mutex_lock( &ctx->mutex ) ) != 0 )
         return( MBEDTLS_ERR_SSL_INTERNAL_ERROR + ret );
 #endif
 
@@ -230,7 +230,7 @@ int mbedtls_ssl_cookie_check( void *p_ctx,
         ret = -1;
 
 #if defined(MBEDTLS_THREADING_C)
-    if( mbedtls_mutex_unlock( &ctx->mutex ) != 0 )
+    if( mbedtls2_mutex_unlock( &ctx->mutex ) != 0 )
         return( MBEDTLS_ERR_SSL_INTERNAL_ERROR +
                 MBEDTLS_ERR_THREADING_MUTEX_ERROR );
 #endif
@@ -238,11 +238,11 @@ int mbedtls_ssl_cookie_check( void *p_ctx,
     if( ret != 0 )
         return( ret );
 
-    if( mbedtls_ssl_safer_memcmp( cookie + 4, ref_hmac, sizeof( ref_hmac ) ) != 0 )
+    if( mbedtls2_ssl_safer_memcmp( cookie + 4, ref_hmac, sizeof( ref_hmac ) ) != 0 )
         return( -1 );
 
 #if defined(MBEDTLS_HAVE_TIME)
-    cur_time = (unsigned long) mbedtls_time( NULL );
+    cur_time = (unsigned long) mbedtls2_time( NULL );
 #else
     cur_time = ctx->serial;
 #endif

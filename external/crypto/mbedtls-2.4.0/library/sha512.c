@@ -48,16 +48,16 @@
 #else
 #include <stdio.h>
 #include <stdlib.h>
-#define mbedtls_printf printf
-#define mbedtls_calloc    calloc
-#define mbedtls_free       free
+#define mbedtls2_printf printf
+#define mbedtls2_calloc    calloc
+#define mbedtls2_free       free
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
 
 #if !defined(MBEDTLS_SHA512_ALT)
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
+static void mbedtls2_zeroize( void *v, size_t n ) {
     volatile unsigned char *p = v; while( n-- ) *p++ = 0;
 }
 
@@ -92,21 +92,21 @@ static void mbedtls_zeroize( void *v, size_t n ) {
 }
 #endif /* PUT_UINT64_BE */
 
-void mbedtls_sha512_init( mbedtls_sha512_context *ctx )
+void mbedtls2_sha512_init( mbedtls2_sha512_context *ctx )
 {
-    memset( ctx, 0, sizeof( mbedtls_sha512_context ) );
+    memset( ctx, 0, sizeof( mbedtls2_sha512_context ) );
 }
 
-void mbedtls_sha512_free( mbedtls_sha512_context *ctx )
+void mbedtls2_sha512_free( mbedtls2_sha512_context *ctx )
 {
     if( ctx == NULL )
         return;
 
-    mbedtls_zeroize( ctx, sizeof( mbedtls_sha512_context ) );
+    mbedtls2_zeroize( ctx, sizeof( mbedtls2_sha512_context ) );
 }
 
-void mbedtls_sha512_clone( mbedtls_sha512_context *dst,
-                           const mbedtls_sha512_context *src )
+void mbedtls2_sha512_clone( mbedtls2_sha512_context *dst,
+                           const mbedtls2_sha512_context *src )
 {
     *dst = *src;
 }
@@ -114,7 +114,7 @@ void mbedtls_sha512_clone( mbedtls_sha512_context *dst,
 /*
  * SHA-512 context setup
  */
-void mbedtls_sha512_starts( mbedtls_sha512_context *ctx, int is384 )
+void mbedtls2_sha512_starts( mbedtls2_sha512_context *ctx, int is384 )
 {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
@@ -196,7 +196,7 @@ static const uint64_t K[80] =
     UL64(0x5FCB6FAB3AD6FAEC),  UL64(0x6C44198C4A475817)
 };
 
-void mbedtls_sha512_process( mbedtls_sha512_context *ctx, const unsigned char data[128] )
+void mbedtls2_sha512_process( mbedtls2_sha512_context *ctx, const unsigned char data[128] )
 {
     int i;
     uint64_t temp1, temp2, W[80];
@@ -269,7 +269,7 @@ void mbedtls_sha512_process( mbedtls_sha512_context *ctx, const unsigned char da
 /*
  * SHA-512 process buffer
  */
-void mbedtls_sha512_update( mbedtls_sha512_context *ctx, const unsigned char *input,
+void mbedtls2_sha512_update( mbedtls2_sha512_context *ctx, const unsigned char *input,
                     size_t ilen )
 {
     size_t fill;
@@ -289,7 +289,7 @@ void mbedtls_sha512_update( mbedtls_sha512_context *ctx, const unsigned char *in
     if( left && ilen >= fill )
     {
         memcpy( (void *) (ctx->buffer + left), input, fill );
-        mbedtls_sha512_process( ctx, ctx->buffer );
+        mbedtls2_sha512_process( ctx, ctx->buffer );
         input += fill;
         ilen  -= fill;
         left = 0;
@@ -297,7 +297,7 @@ void mbedtls_sha512_update( mbedtls_sha512_context *ctx, const unsigned char *in
 
     while( ilen >= 128 )
     {
-        mbedtls_sha512_process( ctx, input );
+        mbedtls2_sha512_process( ctx, input );
         input += 128;
         ilen  -= 128;
     }
@@ -321,7 +321,7 @@ static const unsigned char sha512_padding[128] =
 /*
  * SHA-512 final digest
  */
-void mbedtls_sha512_finish( mbedtls_sha512_context *ctx, unsigned char output[64] )
+void mbedtls2_sha512_finish( mbedtls2_sha512_context *ctx, unsigned char output[64] )
 {
     size_t last, padn;
     uint64_t high, low;
@@ -337,8 +337,8 @@ void mbedtls_sha512_finish( mbedtls_sha512_context *ctx, unsigned char output[64
     last = (size_t)( ctx->total[0] & 0x7F );
     padn = ( last < 112 ) ? ( 112 - last ) : ( 240 - last );
 
-    mbedtls_sha512_update( ctx, sha512_padding, padn );
-    mbedtls_sha512_update( ctx, msglen, 16 );
+    mbedtls2_sha512_update( ctx, sha512_padding, padn );
+    mbedtls2_sha512_update( ctx, msglen, 16 );
 
     PUT_UINT64_BE( ctx->state[0], output,  0 );
     PUT_UINT64_BE( ctx->state[1], output,  8 );
@@ -359,16 +359,16 @@ void mbedtls_sha512_finish( mbedtls_sha512_context *ctx, unsigned char output[64
 /*
  * output = SHA-512( input buffer )
  */
-void mbedtls_sha512( const unsigned char *input, size_t ilen,
+void mbedtls2_sha512( const unsigned char *input, size_t ilen,
              unsigned char output[64], int is384 )
 {
-    mbedtls_sha512_context ctx;
+    mbedtls2_sha512_context ctx;
 
-    mbedtls_sha512_init( &ctx );
-    mbedtls_sha512_starts( &ctx, is384 );
-    mbedtls_sha512_update( &ctx, input, ilen );
-    mbedtls_sha512_finish( &ctx, output );
-    mbedtls_sha512_free( &ctx );
+    mbedtls2_sha512_init( &ctx );
+    mbedtls2_sha512_starts( &ctx, is384 );
+    mbedtls2_sha512_update( &ctx, input, ilen );
+    mbedtls2_sha512_finish( &ctx, output );
+    mbedtls2_sha512_free( &ctx );
 }
 
 #if defined(MBEDTLS_SELF_TEST)
@@ -445,23 +445,23 @@ static const unsigned char sha512_test_sum[6][64] =
 /*
  * Checkup routine
  */
-int mbedtls_sha512_self_test( int verbose )
+int mbedtls2_sha512_self_test( int verbose )
 {
     int i, j, k, buflen, ret = 0;
     unsigned char *buf;
     unsigned char sha512sum[64];
-    mbedtls_sha512_context ctx;
+    mbedtls2_sha512_context ctx;
 
-    buf = mbedtls_calloc( 1024, sizeof(unsigned char) );
+    buf = mbedtls2_calloc( 1024, sizeof(unsigned char) );
     if( NULL == buf )
     {
         if( verbose != 0 )
-            mbedtls_printf( "Buffer allocation failed\n" );
+            mbedtls2_printf( "Buffer allocation failed\n" );
 
         return( 1 );
     }
 
-    mbedtls_sha512_init( &ctx );
+    mbedtls2_sha512_init( &ctx );
 
     for( i = 0; i < 6; i++ )
     {
@@ -469,42 +469,42 @@ int mbedtls_sha512_self_test( int verbose )
         k = i < 3;
 
         if( verbose != 0 )
-            mbedtls_printf( "  SHA-%d test #%d: ", 512 - k * 128, j + 1 );
+            mbedtls2_printf( "  SHA-%d test #%d: ", 512 - k * 128, j + 1 );
 
-        mbedtls_sha512_starts( &ctx, k );
+        mbedtls2_sha512_starts( &ctx, k );
 
         if( j == 2 )
         {
             memset( buf, 'a', buflen = 1000 );
 
             for( j = 0; j < 1000; j++ )
-                mbedtls_sha512_update( &ctx, buf, buflen );
+                mbedtls2_sha512_update( &ctx, buf, buflen );
         }
         else
-            mbedtls_sha512_update( &ctx, sha512_test_buf[j],
+            mbedtls2_sha512_update( &ctx, sha512_test_buf[j],
                                  sha512_test_buflen[j] );
 
-        mbedtls_sha512_finish( &ctx, sha512sum );
+        mbedtls2_sha512_finish( &ctx, sha512sum );
 
         if( memcmp( sha512sum, sha512_test_sum[i], 64 - k * 16 ) != 0 )
         {
             if( verbose != 0 )
-                mbedtls_printf( "failed\n" );
+                mbedtls2_printf( "failed\n" );
 
             ret = 1;
             goto exit;
         }
 
         if( verbose != 0 )
-            mbedtls_printf( "passed\n" );
+            mbedtls2_printf( "passed\n" );
     }
 
     if( verbose != 0 )
-        mbedtls_printf( "\n" );
+        mbedtls2_printf( "\n" );
 
 exit:
-    mbedtls_sha512_free( &ctx );
-    mbedtls_free( buf );
+    mbedtls2_sha512_free( &ctx );
+    mbedtls2_free( buf );
 
     return( ret );
 }

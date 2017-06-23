@@ -45,7 +45,7 @@ namespace application
 
         // Initialize the MbedTLS memory pool
         unsigned char memory_buf[100000];
-        mbedtls_memory_buffer_alloc_init(memory_buf, sizeof(memory_buf));
+        mbedtls2_memory_buffer_alloc_init(memory_buf, sizeof(memory_buf));
     }
 
     void UpgradePackBuilderFacade::Build(const std::vector<std::string>& supportedHexTargets,

@@ -51,7 +51,7 @@ extern "C" {
  */
 typedef struct
 {
-    mbedtls_md_context_t    hmac_ctx;   /*!< context for the HMAC portion   */
+    mbedtls2_md_context_t    hmac_ctx;   /*!< context for the HMAC portion   */
 #if !defined(MBEDTLS_HAVE_TIME)
     unsigned long   serial;     /*!< serial number for expiration   */
 #endif
@@ -59,19 +59,19 @@ typedef struct
                                      or in number of tickets issued */
 
 #if defined(MBEDTLS_THREADING_C)
-    mbedtls_threading_mutex_t mutex;
+    mbedtls2_threading_mutex_t mutex;
 #endif
-} mbedtls_ssl_cookie_ctx;
+} mbedtls2_ssl_cookie_ctx;
 
 /**
  * \brief          Initialize cookie context
  */
-void mbedtls_ssl_cookie_init( mbedtls_ssl_cookie_ctx *ctx );
+void mbedtls2_ssl_cookie_init( mbedtls2_ssl_cookie_ctx *ctx );
 
 /**
  * \brief          Setup cookie context (generate keys)
  */
-int mbedtls_ssl_cookie_setup( mbedtls_ssl_cookie_ctx *ctx,
+int mbedtls2_ssl_cookie_setup( mbedtls2_ssl_cookie_ctx *ctx,
                       int (*f_rng)(void *, unsigned char *, size_t),
                       void *p_rng );
 
@@ -84,22 +84,22 @@ int mbedtls_ssl_cookie_setup( mbedtls_ssl_cookie_ctx *ctx,
  *                 issued in the meantime.
  *                 0 to disable expiration (NOT recommended)
  */
-void mbedtls_ssl_cookie_set_timeout( mbedtls_ssl_cookie_ctx *ctx, unsigned long delay );
+void mbedtls2_ssl_cookie_set_timeout( mbedtls2_ssl_cookie_ctx *ctx, unsigned long delay );
 
 /**
  * \brief          Free cookie context
  */
-void mbedtls_ssl_cookie_free( mbedtls_ssl_cookie_ctx *ctx );
+void mbedtls2_ssl_cookie_free( mbedtls2_ssl_cookie_ctx *ctx );
 
 /**
- * \brief          Generate cookie, see \c mbedtls_ssl_cookie_write_t
+ * \brief          Generate cookie, see \c mbedtls2_ssl_cookie_write_t
  */
-mbedtls_ssl_cookie_write_t mbedtls_ssl_cookie_write;
+mbedtls2_ssl_cookie_write_t mbedtls2_ssl_cookie_write;
 
 /**
- * \brief          Verify cookie, see \c mbedtls_ssl_cookie_write_t
+ * \brief          Verify cookie, see \c mbedtls2_ssl_cookie_write_t
  */
-mbedtls_ssl_cookie_check_t mbedtls_ssl_cookie_check;
+mbedtls2_ssl_cookie_check_t mbedtls2_ssl_cookie_check;
 
 #ifdef __cplusplus
 }

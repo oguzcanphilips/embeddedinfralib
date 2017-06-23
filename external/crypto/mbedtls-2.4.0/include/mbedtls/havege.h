@@ -40,21 +40,21 @@ typedef struct
     int pool[MBEDTLS_HAVEGE_COLLECT_SIZE];
     int WALK[8192];
 }
-mbedtls_havege_state;
+mbedtls2_havege_state;
 
 /**
  * \brief          HAVEGE initialization
  *
  * \param hs       HAVEGE state to be initialized
  */
-void mbedtls_havege_init( mbedtls_havege_state *hs );
+void mbedtls2_havege_init( mbedtls2_havege_state *hs );
 
 /**
  * \brief          Clear HAVEGE state
  *
  * \param hs       HAVEGE state to be cleared
  */
-void mbedtls_havege_free( mbedtls_havege_state *hs );
+void mbedtls2_havege_free( mbedtls2_havege_state *hs );
 
 /**
  * \brief          HAVEGE rand function
@@ -65,7 +65,7 @@ void mbedtls_havege_free( mbedtls_havege_state *hs );
  *
  * \return         0
  */
-int mbedtls_havege_random( void *p_rng, unsigned char *output, size_t len );
+int mbedtls2_havege_random( void *p_rng, unsigned char *output, size_t len );
 
 #ifdef __cplusplus
 }

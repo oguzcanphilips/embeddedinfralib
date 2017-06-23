@@ -35,37 +35,37 @@
 #include "mbedtls/platform.h"
 #else
 #include <stdlib.h>
-#define mbedtls_calloc    calloc
-#define mbedtls_free      free
+#define mbedtls2_calloc    calloc
+#define mbedtls2_free      free
 #endif
 
 #include "mbedtls/ssl_cache.h"
 
 #include <string.h>
 
-void mbedtls_ssl_cache_init( mbedtls_ssl_cache_context *cache )
+void mbedtls2_ssl_cache_init( mbedtls2_ssl_cache_context *cache )
 {
-    memset( cache, 0, sizeof( mbedtls_ssl_cache_context ) );
+    memset( cache, 0, sizeof( mbedtls2_ssl_cache_context ) );
 
     cache->timeout = MBEDTLS_SSL_CACHE_DEFAULT_TIMEOUT;
     cache->max_entries = MBEDTLS_SSL_CACHE_DEFAULT_MAX_ENTRIES;
 
 #if defined(MBEDTLS_THREADING_C)
-    mbedtls_mutex_init( &cache->mutex );
+    mbedtls2_mutex_init( &cache->mutex );
 #endif
 }
 
-int mbedtls_ssl_cache_get( void *data, mbedtls_ssl_session *session )
+int mbedtls2_ssl_cache_get( void *data, mbedtls2_ssl_session *session )
 {
     int ret = 1;
 #if defined(MBEDTLS_HAVE_TIME)
-    mbedtls_time_t t = mbedtls_time( NULL );
+    mbedtls2_time_t t = mbedtls2_time( NULL );
 #endif
-    mbedtls_ssl_cache_context *cache = (mbedtls_ssl_cache_context *) data;
-    mbedtls_ssl_cache_entry *cur, *entry;
+    mbedtls2_ssl_cache_context *cache = (mbedtls2_ssl_cache_context *) data;
+    mbedtls2_ssl_cache_entry *cur, *entry;
 
 #if defined(MBEDTLS_THREADING_C)
-    if( mbedtls_mutex_lock( &cache->mutex ) != 0 )
+    if( mbedtls2_mutex_lock( &cache->mutex ) != 0 )
         return( 1 );
 #endif
 
@@ -102,18 +102,18 @@ int mbedtls_ssl_cache_get( void *data, mbedtls_ssl_session *session )
          */
         if( entry->peer_cert.p != NULL )
         {
-            if( ( session->peer_cert = mbedtls_calloc( 1,
-                                 sizeof(mbedtls_x509_crt) ) ) == NULL )
+            if( ( session->peer_cert = mbedtls2_calloc( 1,
+                                 sizeof(mbedtls2_x509_crt) ) ) == NULL )
             {
                 ret = 1;
                 goto exit;
             }
 
-            mbedtls_x509_crt_init( session->peer_cert );
-            if( mbedtls_x509_crt_parse( session->peer_cert, entry->peer_cert.p,
+            mbedtls2_x509_crt_init( session->peer_cert );
+            if( mbedtls2_x509_crt_parse( session->peer_cert, entry->peer_cert.p,
                                 entry->peer_cert.len ) != 0 )
             {
-                mbedtls_free( session->peer_cert );
+                mbedtls2_free( session->peer_cert );
                 session->peer_cert = NULL;
                 ret = 1;
                 goto exit;
@@ -127,26 +127,26 @@ int mbedtls_ssl_cache_get( void *data, mbedtls_ssl_session *session )
 
 exit:
 #if defined(MBEDTLS_THREADING_C)
-    if( mbedtls_mutex_unlock( &cache->mutex ) != 0 )
+    if( mbedtls2_mutex_unlock( &cache->mutex ) != 0 )
         ret = 1;
 #endif
 
     return( ret );
 }
 
-int mbedtls_ssl_cache_set( void *data, const mbedtls_ssl_session *session )
+int mbedtls2_ssl_cache_set( void *data, const mbedtls2_ssl_session *session )
 {
     int ret = 1;
 #if defined(MBEDTLS_HAVE_TIME)
-    mbedtls_time_t t = time( NULL ), oldest = 0;
-    mbedtls_ssl_cache_entry *old = NULL;
+    mbedtls2_time_t t = time( NULL ), oldest = 0;
+    mbedtls2_ssl_cache_entry *old = NULL;
 #endif
-    mbedtls_ssl_cache_context *cache = (mbedtls_ssl_cache_context *) data;
-    mbedtls_ssl_cache_entry *cur, *prv;
+    mbedtls2_ssl_cache_context *cache = (mbedtls2_ssl_cache_context *) data;
+    mbedtls2_ssl_cache_entry *cur, *prv;
     int count = 0;
 
 #if defined(MBEDTLS_THREADING_C)
-    if( ( ret = mbedtls_mutex_lock( &cache->mutex ) ) != 0 )
+    if( ( ret = mbedtls2_mutex_lock( &cache->mutex ) ) != 0 )
         return( ret );
 #endif
 
@@ -221,7 +221,7 @@ int mbedtls_ssl_cache_set( void *data, const mbedtls_ssl_session *session )
             /*
              * max_entries not reached, create new entry
              */
-            cur = mbedtls_calloc( 1, sizeof(mbedtls_ssl_cache_entry) );
+            cur = mbedtls2_calloc( 1, sizeof(mbedtls2_ssl_cache_entry) );
             if( cur == NULL )
             {
                 ret = 1;
@@ -239,7 +239,7 @@ int mbedtls_ssl_cache_set( void *data, const mbedtls_ssl_session *session )
 #endif
     }
 
-    memcpy( &cur->session, session, sizeof( mbedtls_ssl_session ) );
+    memcpy( &cur->session, session, sizeof( mbedtls2_ssl_session ) );
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     /*
@@ -247,8 +247,8 @@ int mbedtls_ssl_cache_set( void *data, const mbedtls_ssl_session *session )
      */
     if( cur->peer_cert.p != NULL )
     {
-        mbedtls_free( cur->peer_cert.p );
-        memset( &cur->peer_cert, 0, sizeof(mbedtls_x509_buf) );
+        mbedtls2_free( cur->peer_cert.p );
+        memset( &cur->peer_cert, 0, sizeof(mbedtls2_x509_buf) );
     }
 
     /*
@@ -256,7 +256,7 @@ int mbedtls_ssl_cache_set( void *data, const mbedtls_ssl_session *session )
      */
     if( session->peer_cert != NULL )
     {
-        cur->peer_cert.p = mbedtls_calloc( 1, session->peer_cert->raw.len );
+        cur->peer_cert.p = mbedtls2_calloc( 1, session->peer_cert->raw.len );
         if( cur->peer_cert.p == NULL )
         {
             ret = 1;
@@ -275,7 +275,7 @@ int mbedtls_ssl_cache_set( void *data, const mbedtls_ssl_session *session )
 
 exit:
 #if defined(MBEDTLS_THREADING_C)
-    if( mbedtls_mutex_unlock( &cache->mutex ) != 0 )
+    if( mbedtls2_mutex_unlock( &cache->mutex ) != 0 )
         ret = 1;
 #endif
 
@@ -283,7 +283,7 @@ exit:
 }
 
 #if defined(MBEDTLS_HAVE_TIME)
-void mbedtls_ssl_cache_set_timeout( mbedtls_ssl_cache_context *cache, int timeout )
+void mbedtls2_ssl_cache_set_timeout( mbedtls2_ssl_cache_context *cache, int timeout )
 {
     if( timeout < 0 ) timeout = 0;
 
@@ -291,16 +291,16 @@ void mbedtls_ssl_cache_set_timeout( mbedtls_ssl_cache_context *cache, int timeou
 }
 #endif /* MBEDTLS_HAVE_TIME */
 
-void mbedtls_ssl_cache_set_max_entries( mbedtls_ssl_cache_context *cache, int max )
+void mbedtls2_ssl_cache_set_max_entries( mbedtls2_ssl_cache_context *cache, int max )
 {
     if( max < 0 ) max = 0;
 
     cache->max_entries = max;
 }
 
-void mbedtls_ssl_cache_free( mbedtls_ssl_cache_context *cache )
+void mbedtls2_ssl_cache_free( mbedtls2_ssl_cache_context *cache )
 {
-    mbedtls_ssl_cache_entry *cur, *prv;
+    mbedtls2_ssl_cache_entry *cur, *prv;
 
     cur = cache->chain;
 
@@ -309,17 +309,17 @@ void mbedtls_ssl_cache_free( mbedtls_ssl_cache_context *cache )
         prv = cur;
         cur = cur->next;
 
-        mbedtls_ssl_session_free( &prv->session );
+        mbedtls2_ssl_session_free( &prv->session );
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
-        mbedtls_free( prv->peer_cert.p );
+        mbedtls2_free( prv->peer_cert.p );
 #endif /* MBEDTLS_X509_CRT_PARSE_C */
 
-        mbedtls_free( prv );
+        mbedtls2_free( prv );
     }
 
 #if defined(MBEDTLS_THREADING_C)
-    mbedtls_mutex_free( &cache->mutex );
+    mbedtls2_mutex_free( &cache->mutex );
 #endif
 }
 

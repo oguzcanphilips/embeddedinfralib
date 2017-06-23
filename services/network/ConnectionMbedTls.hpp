@@ -22,12 +22,12 @@ namespace services
         void AddCertificateAuthority(const infra::BoundedConstString& certificate);
         void AddOwnCertificate(const infra::BoundedConstString& certificate, const infra::BoundedConstString& privateKey);
 
-        void Config(mbedtls_ssl_config& sslConfig);
+        void Config(mbedtls2_ssl_config& sslConfig);
 
     private:
-        mbedtls_x509_crt caCertificates;
-        mbedtls_x509_crt ownCertificate;
-        mbedtls_pk_context privateKey;
+        mbedtls2_x509_crt caCertificates;
+        mbedtls2_x509_crt ownCertificate;
+        mbedtls2_pk_context privateKey;
     };
 
     class ConnectionMbedTls
@@ -105,9 +105,9 @@ namespace services
 
     private:
         hal::SynchronousRandomDataGenerator& randomDataGenerator;
-        mbedtls_ssl_context sslContext;
-        mbedtls_ssl_config sslConfig;
-        mbedtls_ctr_drbg_context ctr_drbg;
+        mbedtls2_ssl_context sslContext;
+        mbedtls2_ssl_config sslConfig;
+        mbedtls2_ctr_drbg_context ctr_drbg;
 
         infra::BoundedDeque<uint8_t>::WithMaxSize<2048> receiveBuffer;
         infra::BoundedDeque<uint8_t>::WithMaxSize<2048> sendBuffer;

@@ -38,8 +38,8 @@ namespace application
         std::copy(signature.begin(), signature.end(), this->signature.begin());
         CalculateSha256(image);
 
-        mbedtls_rsa_context rsaCtx;
-        mbedtls_rsa_init(&rsaCtx, MBEDTLS_RSA_PKCS_V21, MBEDTLS_MD_SHA256);
+        mbedtls2_rsa_context rsaCtx;
+        mbedtls2_rsa_init(&rsaCtx, MBEDTLS_RSA_PKCS_V21, MBEDTLS_MD_SHA256);
         rsaCtx.len = publicKey.N.size();
         rsaCtx.N.s = 1;
         rsaCtx.N.n = publicKey.N.size();
@@ -47,13 +47,13 @@ namespace application
         rsaCtx.E.s = 1;
         rsaCtx.E.n = publicKey.E.size();
         rsaCtx.E.p = reinterpret_cast<uint32_t*>(const_cast<uint8_t*>(publicKey.E.begin()));
-        mbedtls_rsa_set_padding(&rsaCtx, MBEDTLS_RSA_PKCS_V21, MBEDTLS_MD_SHA256);
+        mbedtls2_rsa_set_padding(&rsaCtx, MBEDTLS_RSA_PKCS_V21, MBEDTLS_MD_SHA256);
 
-        if (mbedtls_rsa_check_pubkey(&rsaCtx) != 0)
+        if (mbedtls2_rsa_check_pubkey(&rsaCtx) != 0)
             return false;
 
-        bool success = mbedtls_rsa_rsassa_pss_verify(&rsaCtx, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, hash.size(), hash.data(), signature.data()) == 0
-            && mbedtls_rsa_self_test(0) == 0;
+        bool success = mbedtls2_rsa_rsassa_pss_verify(&rsaCtx, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, hash.size(), hash.data(), signature.data()) == 0
+            && mbedtls2_rsa_self_test(0) == 0;
 
         rsaCtx.N.p = nullptr;
         rsaCtx.E.p = nullptr;
@@ -63,27 +63,27 @@ namespace application
         rsaCtx.DP.p = nullptr;
         rsaCtx.DQ.p = nullptr;
         rsaCtx.QP.p = nullptr;
-        mbedtls_rsa_free(&rsaCtx);
+        mbedtls2_rsa_free(&rsaCtx);
 
         return success;
     }
 
     void ImageSignerRsa::CalculateSha256(const std::vector<uint8_t>& image)
     {
-        mbedtls_sha256_context ctx;
-        mbedtls_sha256_init(&ctx);
-        mbedtls_sha256_starts(&ctx, 0);
-        mbedtls_sha256_update(&ctx, image.data(), image.size());
-        mbedtls_sha256_finish(&ctx, hash.data());                                                                       //TICS !INT#030
-        mbedtls_sha256_free(&ctx);
+        mbedtls2_sha256_context ctx;
+        mbedtls2_sha256_init(&ctx);
+        mbedtls2_sha256_starts(&ctx, 0);
+        mbedtls2_sha256_update(&ctx, image.data(), image.size());
+        mbedtls2_sha256_finish(&ctx, hash.data());                                                                       //TICS !INT#030
+        mbedtls2_sha256_free(&ctx);
     }
 
     void ImageSignerRsa::CalculateSignature(const std::vector<uint8_t>& image)
     {
         int ret;
 
-        mbedtls_rsa_context rsaCtx;
-        mbedtls_rsa_init(&rsaCtx, MBEDTLS_RSA_PKCS_V21, MBEDTLS_MD_SHA256);
+        mbedtls2_rsa_context rsaCtx;
+        mbedtls2_rsa_init(&rsaCtx, MBEDTLS_RSA_PKCS_V21, MBEDTLS_MD_SHA256);
         rsaCtx.len = publicKey.N.size();
         rsaCtx.N.s = 1;
         rsaCtx.N.n = publicKey.N.size() / 4;
@@ -109,16 +109,16 @@ namespace application
         rsaCtx.QP.s = 1;
         rsaCtx.QP.n = privateKey.QP.size() / 4;
         rsaCtx.QP.p = reinterpret_cast<uint32_t*>(const_cast<uint8_t*>(privateKey.QP.begin()));
-        mbedtls_rsa_set_padding(&rsaCtx, MBEDTLS_RSA_PKCS_V21, MBEDTLS_MD_SHA256);
+        mbedtls2_rsa_set_padding(&rsaCtx, MBEDTLS_RSA_PKCS_V21, MBEDTLS_MD_SHA256);
 
         if (rsaCtx.len != signature.size())
             throw std::exception("Key length wrong");
 
-        ret = mbedtls_rsa_check_privkey(&rsaCtx);
+        ret = mbedtls2_rsa_check_privkey(&rsaCtx);
         if (ret != 0)
             throw std::exception("Public key is invalid");
 
-        ret = mbedtls_rsa_rsassa_pss_sign(&rsaCtx, MyRandom, NULL, MBEDTLS_RSA_PRIVATE, MBEDTLS_MD_SHA256, hash.size(), hash.data(), signature.data());
+        ret = mbedtls2_rsa_rsassa_pss_sign(&rsaCtx, MyRandom, NULL, MBEDTLS_RSA_PRIVATE, MBEDTLS_MD_SHA256, hash.size(), hash.data(), signature.data());
         if (ret != 0)
             throw std::exception("Failed to calculate signature");
 
@@ -130,7 +130,7 @@ namespace application
         rsaCtx.DP.p = nullptr;
         rsaCtx.DQ.p = nullptr;
         rsaCtx.QP.p = nullptr;
-        mbedtls_rsa_free(&rsaCtx);
+        mbedtls2_rsa_free(&rsaCtx);
     }
 
     int ImageSignerRsa::MyRandom(void *rng_state, unsigned char *output, size_t len)

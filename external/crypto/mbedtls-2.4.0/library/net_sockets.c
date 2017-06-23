@@ -125,7 +125,7 @@ static int net_prepare( void )
 /*
  * Initialize a context
  */
-void mbedtls_net_init( mbedtls_net_context *ctx )
+void mbedtls2_net_init( mbedtls2_net_context *ctx )
 {
     ctx->fd = -1;
 }
@@ -133,7 +133,7 @@ void mbedtls_net_init( mbedtls_net_context *ctx )
 /*
  * Initiate a TCP connection with host:port and the given protocol
  */
-int mbedtls_net_connect( mbedtls_net_context *ctx, const char *host, const char *port, int proto )
+int mbedtls2_net_connect( mbedtls2_net_context *ctx, const char *host, const char *port, int proto )
 {
     int ret;
     struct addrinfo hints, *addr_list, *cur;
@@ -180,7 +180,7 @@ int mbedtls_net_connect( mbedtls_net_context *ctx, const char *host, const char 
 /*
  * Create a listening socket on bind_ip:port
  */
-int mbedtls_net_bind( mbedtls_net_context *ctx, const char *bind_ip, const char *port, int proto )
+int mbedtls2_net_bind( mbedtls2_net_context *ctx, const char *bind_ip, const char *port, int proto )
 {
     int n, ret;
     struct addrinfo hints, *addr_list, *cur;
@@ -255,7 +255,7 @@ int mbedtls_net_bind( mbedtls_net_context *ctx, const char *bind_ip, const char 
  * Check if the requested operation would be blocking on a non-blocking socket
  * and thus 'failed' with a negative return value.
  */
-static int net_would_block( const mbedtls_net_context *ctx )
+static int net_would_block( const mbedtls2_net_context *ctx )
 {
     ((void) ctx);
     return( WSAGetLastError() == WSAEWOULDBLOCK );
@@ -267,7 +267,7 @@ static int net_would_block( const mbedtls_net_context *ctx )
  *
  * Note: on a blocking socket this function always returns 0!
  */
-static int net_would_block( const mbedtls_net_context *ctx )
+static int net_would_block( const mbedtls2_net_context *ctx )
 {
     /*
      * Never return 'WOULD BLOCK' on a non-blocking socket
@@ -292,8 +292,8 @@ static int net_would_block( const mbedtls_net_context *ctx )
 /*
  * Accept a connection from a remote client
  */
-int mbedtls_net_accept( mbedtls_net_context *bind_ctx,
-                        mbedtls_net_context *client_ctx,
+int mbedtls2_net_accept( mbedtls2_net_context *bind_ctx,
+                        mbedtls2_net_context *client_ctx,
                         void *client_ip, size_t buf_size, size_t *ip_len )
 {
     int ret;
@@ -410,7 +410,7 @@ int mbedtls_net_accept( mbedtls_net_context *bind_ctx,
 /*
  * Set the socket blocking or non-blocking
  */
-int mbedtls_net_set_block( mbedtls_net_context *ctx )
+int mbedtls2_net_set_block( mbedtls2_net_context *ctx )
 {
 #if ( defined(_WIN32) || defined(_WIN32_WCE) ) && !defined(EFIX64) && \
     !defined(EFI32)
@@ -421,7 +421,7 @@ int mbedtls_net_set_block( mbedtls_net_context *ctx )
 #endif
 }
 
-int mbedtls_net_set_nonblock( mbedtls_net_context *ctx )
+int mbedtls2_net_set_nonblock( mbedtls2_net_context *ctx )
 {
 #if ( defined(_WIN32) || defined(_WIN32_WCE) ) && !defined(EFIX64) && \
     !defined(EFI32)
@@ -435,7 +435,7 @@ int mbedtls_net_set_nonblock( mbedtls_net_context *ctx )
 /*
  * Portable usleep helper
  */
-void mbedtls_net_usleep( unsigned long usec )
+void mbedtls2_net_usleep( unsigned long usec )
 {
 #if defined(_WIN32)
     Sleep( ( usec + 999 ) / 1000 );
@@ -455,10 +455,10 @@ void mbedtls_net_usleep( unsigned long usec )
 /*
  * Read at most 'len' characters
  */
-int mbedtls_net_recv( void *ctx, unsigned char *buf, size_t len )
+int mbedtls2_net_recv( void *ctx, unsigned char *buf, size_t len )
 {
     int ret;
-    int fd = ((mbedtls_net_context *) ctx)->fd;
+    int fd = ((mbedtls2_net_context *) ctx)->fd;
 
     if( fd < 0 )
         return( MBEDTLS_ERR_NET_INVALID_CONTEXT );
@@ -491,13 +491,13 @@ int mbedtls_net_recv( void *ctx, unsigned char *buf, size_t len )
 /*
  * Read at most 'len' characters, blocking for at most 'timeout' ms
  */
-int mbedtls_net_recv_timeout( void *ctx, unsigned char *buf, size_t len,
+int mbedtls2_net_recv_timeout( void *ctx, unsigned char *buf, size_t len,
                       uint32_t timeout )
 {
     int ret;
     struct timeval tv;
     fd_set read_fds;
-    int fd = ((mbedtls_net_context *) ctx)->fd;
+    int fd = ((mbedtls2_net_context *) ctx)->fd;
 
     if( fd < 0 )
         return( MBEDTLS_ERR_NET_INVALID_CONTEXT );
@@ -529,16 +529,16 @@ int mbedtls_net_recv_timeout( void *ctx, unsigned char *buf, size_t len,
     }
 
     /* This call will not block */
-    return( mbedtls_net_recv( ctx, buf, len ) );
+    return( mbedtls2_net_recv( ctx, buf, len ) );
 }
 
 /*
  * Write at most 'len' characters
  */
-int mbedtls_net_send( void *ctx, const unsigned char *buf, size_t len )
+int mbedtls2_net_send( void *ctx, const unsigned char *buf, size_t len )
 {
     int ret;
-    int fd = ((mbedtls_net_context *) ctx)->fd;
+    int fd = ((mbedtls2_net_context *) ctx)->fd;
 
     if( fd < 0 )
         return( MBEDTLS_ERR_NET_INVALID_CONTEXT );
@@ -571,7 +571,7 @@ int mbedtls_net_send( void *ctx, const unsigned char *buf, size_t len )
 /*
  * Gracefully close the connection
  */
-void mbedtls_net_free( mbedtls_net_context *ctx )
+void mbedtls2_net_free( mbedtls2_net_context *ctx )
 {
     if( ctx->fd == -1 )
         return;

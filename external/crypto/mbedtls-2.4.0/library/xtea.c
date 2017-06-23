@@ -36,14 +36,14 @@
 #include "mbedtls/platform.h"
 #else
 #include <stdio.h>
-#define mbedtls_printf printf
+#define mbedtls2_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
 
 #if !defined(MBEDTLS_XTEA_ALT)
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
+static void mbedtls2_zeroize( void *v, size_t n ) {
     volatile unsigned char *p = v; while( n-- ) *p++ = 0;
 }
 
@@ -70,27 +70,27 @@ static void mbedtls_zeroize( void *v, size_t n ) {
 }
 #endif
 
-void mbedtls_xtea_init( mbedtls_xtea_context *ctx )
+void mbedtls2_xtea_init( mbedtls2_xtea_context *ctx )
 {
-    memset( ctx, 0, sizeof( mbedtls_xtea_context ) );
+    memset( ctx, 0, sizeof( mbedtls2_xtea_context ) );
 }
 
-void mbedtls_xtea_free( mbedtls_xtea_context *ctx )
+void mbedtls2_xtea_free( mbedtls2_xtea_context *ctx )
 {
     if( ctx == NULL )
         return;
 
-    mbedtls_zeroize( ctx, sizeof( mbedtls_xtea_context ) );
+    mbedtls2_zeroize( ctx, sizeof( mbedtls2_xtea_context ) );
 }
 
 /*
  * XTEA key schedule
  */
-void mbedtls_xtea_setup( mbedtls_xtea_context *ctx, const unsigned char key[16] )
+void mbedtls2_xtea_setup( mbedtls2_xtea_context *ctx, const unsigned char key[16] )
 {
     int i;
 
-    memset( ctx, 0, sizeof(mbedtls_xtea_context) );
+    memset( ctx, 0, sizeof(mbedtls2_xtea_context) );
 
     for( i = 0; i < 4; i++ )
     {
@@ -101,7 +101,7 @@ void mbedtls_xtea_setup( mbedtls_xtea_context *ctx, const unsigned char key[16] 
 /*
  * XTEA encrypt function
  */
-int mbedtls_xtea_crypt_ecb( mbedtls_xtea_context *ctx, int mode,
+int mbedtls2_xtea_crypt_ecb( mbedtls2_xtea_context *ctx, int mode,
                     const unsigned char input[8], unsigned char output[8])
 {
     uint32_t *k, v0, v1, i;
@@ -144,7 +144,7 @@ int mbedtls_xtea_crypt_ecb( mbedtls_xtea_context *ctx, int mode,
 /*
  * XTEA-CBC buffer encryption/decryption
  */
-int mbedtls_xtea_crypt_cbc( mbedtls_xtea_context *ctx, int mode, size_t length,
+int mbedtls2_xtea_crypt_cbc( mbedtls2_xtea_context *ctx, int mode, size_t length,
                     unsigned char iv[8], const unsigned char *input,
                     unsigned char *output)
 {
@@ -159,7 +159,7 @@ int mbedtls_xtea_crypt_cbc( mbedtls_xtea_context *ctx, int mode, size_t length,
         while( length > 0 )
         {
             memcpy( temp, input, 8 );
-            mbedtls_xtea_crypt_ecb( ctx, mode, input, output );
+            mbedtls2_xtea_crypt_ecb( ctx, mode, input, output );
 
             for( i = 0; i < 8; i++ )
                 output[i] = (unsigned char)( output[i] ^ iv[i] );
@@ -178,7 +178,7 @@ int mbedtls_xtea_crypt_cbc( mbedtls_xtea_context *ctx, int mode, size_t length,
             for( i = 0; i < 8; i++ )
                 output[i] = (unsigned char)( input[i] ^ iv[i] );
 
-            mbedtls_xtea_crypt_ecb( ctx, mode, output, output );
+            mbedtls2_xtea_crypt_ecb( ctx, mode, output, output );
             memcpy( iv, output, 8 );
 
             input  += 8;
@@ -237,41 +237,41 @@ static const unsigned char xtea_test_ct[6][8] =
 /*
  * Checkup routine
  */
-int mbedtls_xtea_self_test( int verbose )
+int mbedtls2_xtea_self_test( int verbose )
 {
     int i, ret = 0;
     unsigned char buf[8];
-    mbedtls_xtea_context ctx;
+    mbedtls2_xtea_context ctx;
 
-    mbedtls_xtea_init( &ctx );
+    mbedtls2_xtea_init( &ctx );
     for( i = 0; i < 6; i++ )
     {
         if( verbose != 0 )
-            mbedtls_printf( "  XTEA test #%d: ", i + 1 );
+            mbedtls2_printf( "  XTEA test #%d: ", i + 1 );
 
         memcpy( buf, xtea_test_pt[i], 8 );
 
-        mbedtls_xtea_setup( &ctx, xtea_test_key[i] );
-        mbedtls_xtea_crypt_ecb( &ctx, MBEDTLS_XTEA_ENCRYPT, buf, buf );
+        mbedtls2_xtea_setup( &ctx, xtea_test_key[i] );
+        mbedtls2_xtea_crypt_ecb( &ctx, MBEDTLS_XTEA_ENCRYPT, buf, buf );
 
         if( memcmp( buf, xtea_test_ct[i], 8 ) != 0 )
         {
             if( verbose != 0 )
-                mbedtls_printf( "failed\n" );
+                mbedtls2_printf( "failed\n" );
 
             ret = 1;
             goto exit;
         }
 
         if( verbose != 0 )
-            mbedtls_printf( "passed\n" );
+            mbedtls2_printf( "passed\n" );
     }
 
     if( verbose != 0 )
-        mbedtls_printf( "\n" );
+        mbedtls2_printf( "\n" );
 
 exit:
-    mbedtls_xtea_free( &ctx );
+    mbedtls2_xtea_free( &ctx );
 
     return( ret );
 }

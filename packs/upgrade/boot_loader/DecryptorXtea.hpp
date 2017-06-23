@@ -20,7 +20,7 @@ namespace application
         virtual bool DecryptAndAuthenticate(infra::ByteRange data) override;
 
     private:
-        mbedtls_xtea_context ctx;
+        mbedtls2_xtea_context ctx;
         std::array<uint8_t, blockLength> iv;
     };
 }

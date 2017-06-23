@@ -45,18 +45,18 @@ extern "C" {
  * The time_t datatype
  */
 #if defined(MBEDTLS_PLATFORM_TIME_TYPE_MACRO)
-typedef MBEDTLS_PLATFORM_TIME_TYPE_MACRO mbedtls_time_t;
+typedef MBEDTLS_PLATFORM_TIME_TYPE_MACRO mbedtls2_time_t;
 #else
 /* For time_t */
 #include <time.h>
-typedef time_t mbedtls_time_t;
+typedef time_t mbedtls2_time_t;
 #endif /* MBEDTLS_PLATFORM_TIME_TYPE_MACRO */
 
 /*
  * The function pointers for time
  */
 #if defined(MBEDTLS_PLATFORM_TIME_ALT)
-extern mbedtls_time_t (*mbedtls_time)( mbedtls_time_t* time );
+extern mbedtls2_time_t (*mbedtls2_time)( mbedtls2_time_t* time );
 
 /**
  * \brief   Set your own time function pointer
@@ -65,12 +65,12 @@ extern mbedtls_time_t (*mbedtls_time)( mbedtls_time_t* time );
  *
  * \return              0
  */
-int mbedtls_platform_set_time( mbedtls_time_t (*time_func)( mbedtls_time_t* time ) );
+int mbedtls2_platform_set_time( mbedtls2_time_t (*time_func)( mbedtls2_time_t* time ) );
 #else
 #if defined(MBEDTLS_PLATFORM_TIME_MACRO)
-#define mbedtls_time    MBEDTLS_PLATFORM_TIME_MACRO
+#define mbedtls2_time    MBEDTLS_PLATFORM_TIME_MACRO
 #else
-#define mbedtls_time   time
+#define mbedtls2_time   time
 #endif /* MBEDTLS_PLATFORM_TIME_MACRO */
 #endif /* MBEDTLS_PLATFORM_TIME_ALT */
 
