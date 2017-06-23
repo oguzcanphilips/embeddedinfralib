@@ -1,9 +1,14 @@
+#include "infra/event/EventDispatcherWithWeakPtr.hpp"
 #include "services/network/test_doubles/ConnectionStub.hpp"
 
 namespace services
 {
     void ZeroCopyConnectionStub::RequestSendStream(std::size_t sendSize)
-    {}
+    {
+        assert(sendStream.Allocatable());
+        sendStreamPtr = sendStream.Emplace(*this);
+        infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ZeroCopyConnectionStub>& object) { object->GetObserver().SendStreamAvailable(std::move(object->sendStreamPtr)); }, SharedFromThis());
+    }
 
     std::size_t ZeroCopyConnectionStub::MaxSendStreamSize() const
     {
@@ -12,11 +17,16 @@ namespace services
 
     infra::SharedPtr<infra::DataInputStream> ZeroCopyConnectionStub::ReceiveStream()
     {
-        return nullptr;
+        assert(receiveStream.Allocatable());
+        receivingIndex = 0;
+        return receiveStream.Emplace(*this);
     }
 
     void ZeroCopyConnectionStub::AckReceived()
-    {}
+    {
+        receivingData.erase(receivingData.begin(), receivingData.begin() + receivingIndex);
+        receivingIndex = 0;
+    }
 
     void ZeroCopyConnectionStub::CloseAndDestroy()
     {
@@ -28,6 +38,71 @@ namespace services
         ResetOwnership();
     }
 
+    void ZeroCopyConnectionStub::SimulateDataReceived(infra::ConstByteRange data)
+    {
+        receivingData.insert(receivingData.end(), data.begin(), data.end());
+        infra::EventDispatcherWithWeakPtr::Instance().Schedule([this](const infra::SharedPtr<ZeroCopyConnectionStub>& object) { object->GetObserver().DataReceived(); }, SharedFromThis());
+    }
+
+    ZeroCopyConnectionStub::SendStreamStub::SendStreamStub(ZeroCopyConnectionStub& connection)
+        : infra::DataOutputStream(static_cast<infra::StreamWriter&>(*this))
+        , connection(connection)
+    {}
+
+    void ZeroCopyConnectionStub::SendStreamStub::Insert(infra::ConstByteRange range)
+    {
+        connection.sentData.insert(connection.sentData.end(), range.begin(), range.end());
+    }
+
+    void ZeroCopyConnectionStub::SendStreamStub::Insert(uint8_t element)
+    {
+        connection.sentData.push_back(element);
+    }
+
+    ZeroCopyConnectionStub::ReceiveStreamStub::ReceiveStreamStub(ZeroCopyConnectionStub& connection)
+        : infra::DataInputStream(static_cast<infra::StreamReader&>(*this))
+        , connection(connection)
+    {}
+
+    void ZeroCopyConnectionStub::ReceiveStreamStub::Extract(infra::ByteRange range)
+    {
+        assert(connection.receivingData.size() - connection.receivingIndex >= range.size());
+        std::copy(connection.receivingData.begin() + connection.receivingIndex, connection.receivingData.begin() + connection.receivingIndex + range.size(), range.begin());
+        connection.receivingIndex += range.size();
+    }
+
+    uint8_t ZeroCopyConnectionStub::ReceiveStreamStub::ExtractOne()
+    {
+        assert(connection.receivingData.size() - connection.receivingIndex >= 1);
+        uint8_t result = connection.receivingData[connection.receivingIndex];
+        ++connection.receivingIndex;
+        return result;
+    }
+
+    uint8_t ZeroCopyConnectionStub::ReceiveStreamStub::Peek()
+    {
+        assert(connection.receivingData.size() - connection.receivingIndex >= 1);
+        return connection.receivingData[connection.receivingIndex];
+    }
+
+    infra::ConstByteRange ZeroCopyConnectionStub::ReceiveStreamStub::ExtractContiguousRange(std::size_t max)
+    {
+        infra::ConstByteRange available(connection.receivingData.data() + connection.receivingIndex, connection.receivingData.data() + connection.receivingData.size());
+        infra::ConstByteRange result(infra::Head(available, max));
+        connection.receivingIndex += result.size();
+        return result;
+    }
+
+    bool ZeroCopyConnectionStub::ReceiveStreamStub::IsEmpty() const
+    {
+        return connection.receivingData.size() == connection.receivingIndex;
+    }
+
+    std::size_t ZeroCopyConnectionStub::ReceiveStreamStub::SizeAvailable() const
+    {
+        return connection.receivingData.size() - connection.receivingIndex;
+    }
+    
     void ZeroCopyConnectionObserverStub::SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>& stream)
     {
         infra::ConstByteRange data(sendData.data(), sendData.data() + requestedSendStreamSize);

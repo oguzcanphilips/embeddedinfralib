@@ -2,6 +2,24 @@
 
 namespace services
 {
+    infra::SharedPtr<void> ZeroCopyConnectionFactoryMock::Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& factory)
+    {
+        this->serverConnectionObserverFactory = &factory;
+        ListenMock(port);
+        return nullptr;
+    }
+
+    bool ZeroCopyConnectionFactoryMock::NewConnection(ZeroCopyConnection& connection)
+    {
+        infra::SharedPtr<services::ZeroCopyConnectionObserver> connectionObserver = serverConnectionObserverFactory->ConnectionAccepted(connection);
+
+        if (!connectionObserver)
+            return false;
+
+        connection.SetOwnership(nullptr, connectionObserver);
+        return true;
+    }
+
     ZeroCopyConnectionObserverMock::ZeroCopyConnectionObserverMock(services::ZeroCopyConnection& connection)
         : services::ZeroCopyConnectionObserver(connection)
     {}

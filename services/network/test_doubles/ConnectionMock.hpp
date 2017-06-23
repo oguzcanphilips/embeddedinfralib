@@ -37,8 +37,15 @@ namespace services
         : public services::ZeroCopyConnectionFactory
     {
     public:
-        MOCK_METHOD2(Listen, infra::SharedPtr<void>(uint16_t port, services::ZeroCopyServerConnectionObserverFactory& factory));
+        virtual infra::SharedPtr<void> Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& factory) override;
         MOCK_METHOD3(Connect, infra::SharedPtr<void>(services::IPv4Address address, uint16_t port, services::ZeroCopyClientConnectionObserverFactory& factory));
+
+        MOCK_METHOD1(ListenMock, void(uint16_t));
+
+        bool NewConnection(ZeroCopyConnection& connection);
+
+    private:
+        ZeroCopyServerConnectionObserverFactory* serverConnectionObserverFactory = nullptr;
     };
 
     class ZeroCopyServerConnectionObserverFactoryMock
