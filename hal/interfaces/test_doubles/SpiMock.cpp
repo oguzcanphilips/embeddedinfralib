@@ -25,6 +25,7 @@ namespace hal
 
     void SpiAsynchronousMock::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, SpiAction nextAction, const infra::Function<void()>& onDone)
     {
+        this->onDone = onDone;
         SendAndReceiveMock(std::vector<uint8_t>(sendData.begin(), sendData.end()), receiveData, nextAction, onDone);
     }
 }
