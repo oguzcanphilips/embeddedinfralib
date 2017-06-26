@@ -102,6 +102,7 @@ namespace services
             else if (result < 0)
             {
                 encryptedSendStream = nullptr;
+                TlsReadFailure(result);
                 ZeroCopyConnectionObserver::Subject().AbortAndDestroy();
                 return;
             }
@@ -149,6 +150,12 @@ namespace services
         encryptedSendStream = nullptr;
         ZeroCopyConnectionObserver::Subject().AbortAndDestroy();
     }
+
+    void ConnectionMbedTls::TlsReadFailure(int reason)
+    {}
+
+    void ConnectionMbedTls::TlsWriteFailure(int reason)
+    {}
 
     void ConnectionMbedTls::TryAllocateSendStream()
     {
@@ -234,6 +241,7 @@ namespace services
             else if (result < 0)
             {
                 encryptedSendStream = nullptr;
+                TlsWriteFailure(result);
                 ZeroCopyConnectionObserver::Subject().AbortAndDestroy();
                 return;
             }
