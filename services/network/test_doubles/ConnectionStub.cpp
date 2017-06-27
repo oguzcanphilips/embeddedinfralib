@@ -60,29 +60,33 @@ namespace services
     }
 
     ZeroCopyConnectionStub::ReceiveStreamStub::ReceiveStreamStub(ZeroCopyConnectionStub& connection)
-        : infra::DataInputStream(static_cast<infra::StreamReader&>(*this))
+        : infra::StreamReader(infra::softFail)
+        , infra::DataInputStream(static_cast<infra::StreamReader&>(*this))
         , connection(connection)
     {}
 
     void ZeroCopyConnectionStub::ReceiveStreamStub::Extract(infra::ByteRange range)
     {
-        assert(connection.receivingData.size() - connection.receivingIndex >= range.size());
+        ReportResult(connection.receivingData.size() - connection.receivingIndex >= range.size());
+        range.shrink_from_back_to(connection.receivingData.size() - connection.receivingIndex);
         std::copy(connection.receivingData.begin() + connection.receivingIndex, connection.receivingData.begin() + connection.receivingIndex + range.size(), range.begin());
         connection.receivingIndex += range.size();
     }
 
     uint8_t ZeroCopyConnectionStub::ReceiveStreamStub::ExtractOne()
     {
-        assert(connection.receivingData.size() - connection.receivingIndex >= 1);
-        uint8_t result = connection.receivingData[connection.receivingIndex];
-        ++connection.receivingIndex;
+        uint8_t result;
+        Extract(infra::MakeByteRange(result));
         return result;
     }
 
     uint8_t ZeroCopyConnectionStub::ReceiveStreamStub::Peek()
     {
-        assert(connection.receivingData.size() - connection.receivingIndex >= 1);
-        return connection.receivingData[connection.receivingIndex];
+        ReportResult(connection.receivingData.size() - connection.receivingIndex >= 1);
+        if (connection.receivingData.size() - connection.receivingIndex >= 1)
+            return connection.receivingData[connection.receivingIndex];
+        else
+            return 0;
     }
 
     infra::ConstByteRange ZeroCopyConnectionStub::ReceiveStreamStub::ExtractContiguousRange(std::size_t max)
@@ -103,7 +107,7 @@ namespace services
         return connection.receivingData.size() - connection.receivingIndex;
     }
     
-    void ZeroCopyConnectionObserverStub::SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>& stream)
+    void ZeroCopyConnectionObserverStub::SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream)
     {
         infra::ConstByteRange data(sendData.data(), sendData.data() + requestedSendStreamSize);
         *stream << data;

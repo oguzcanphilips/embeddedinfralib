@@ -112,7 +112,7 @@ namespace services
             infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectionWin>& object)
             {
                 infra::SharedPtr<infra::DataOutputStream> stream = object->sendStream.Emplace(*object);
-                object->GetObserver().SendStreamAvailable(stream);
+                object->GetObserver().SendStreamAvailable(std::move(stream));
             }, SharedFromThis());
 
             requestedSendSize = 0;

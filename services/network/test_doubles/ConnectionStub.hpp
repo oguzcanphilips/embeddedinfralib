@@ -76,7 +76,7 @@ namespace services
             : services::ZeroCopyConnectionObserver(connection)
         {}
 
-        virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>& stream) override;
+        virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) override;
         virtual void DataReceived() override;
 
         void SendData(const std::vector<uint8_t>& data);

@@ -40,7 +40,7 @@ namespace services
         ~ConnectionMbedTls();
 
         // ZeroCopyConnectionObserver
-        virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>& stream) override;
+        virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) override;
         virtual void DataReceived() override;
 
         // ZeroCopyConnection

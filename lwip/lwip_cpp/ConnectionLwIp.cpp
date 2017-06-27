@@ -93,7 +93,7 @@ namespace services
             infra::EventDispatcherWithWeakPtr::Instance().Schedule([sendBuffer](const infra::SharedPtr<ConnectionLwIp>& object)
             {
                 infra::SharedPtr<infra::DataOutputStream> stream = object->sendStream.Emplace(*object, sendBuffer);
-                object->GetObserver().SendStreamAvailable(stream);
+                object->GetObserver().SendStreamAvailable(std::move(stream));
             }, SharedFromThis());
 
             requestedSendSize = 0;

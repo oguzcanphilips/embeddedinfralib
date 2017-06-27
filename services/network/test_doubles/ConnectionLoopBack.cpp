@@ -54,7 +54,7 @@ namespace services
             infra::EventDispatcherWithWeakPtr::Instance().Schedule([this](const infra::SharedPtr<ConnectionLoopBack>& loopBack)
             {
                 infra::SharedPtr<infra::DataOutputStream> stream = sendStream.Emplace(*this);
-                GetObserver().SendStreamAvailable(stream);
+                GetObserver().SendStreamAvailable(std::move(stream));
             }, loopBack.SharedFromThis());
 
             requestedSendSize = 0;

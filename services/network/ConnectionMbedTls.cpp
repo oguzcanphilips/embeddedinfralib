@@ -77,7 +77,7 @@ namespace services
         ResetOwnership();
     }
 
-    void ConnectionMbedTls::SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>& stream)
+    void ConnectionMbedTls::SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream)
     {
         encryptedSendStream = stream;
         TrySend();
@@ -165,7 +165,7 @@ namespace services
             infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectionMbedTls>& object)
             {
                 infra::SharedPtr<infra::DataOutputStream> stream = object->sendStream.Emplace(*object);
-                object->GetObserver().SendStreamAvailable(stream);
+                object->GetObserver().SendStreamAvailable(std::move(stream));
             }, SharedFromThis());
 
             requestedSendSize = 0;

@@ -29,7 +29,8 @@ namespace services
 
         using services::ZeroCopyConnectionObserver::Subject;
 
-        MOCK_METHOD1(SendStreamAvailable, void(infra::SharedPtr<infra::DataOutputStream>& stream));
+        virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) override { SendStreamAvailableMock(stream); }
+        MOCK_METHOD1(SendStreamAvailableMock, void(infra::SharedPtr<infra::DataOutputStream> stream));
         MOCK_METHOD0(DataReceived, void());
     };
 
