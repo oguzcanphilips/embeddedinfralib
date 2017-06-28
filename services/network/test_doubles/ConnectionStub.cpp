@@ -41,7 +41,11 @@ namespace services
     void ZeroCopyConnectionStub::SimulateDataReceived(infra::ConstByteRange data)
     {
         receivingData.insert(receivingData.end(), data.begin(), data.end());
-        infra::EventDispatcherWithWeakPtr::Instance().Schedule([this](const infra::SharedPtr<ZeroCopyConnectionStub>& object) { object->GetObserver().DataReceived(); }, SharedFromThis());
+        infra::EventDispatcherWithWeakPtr::Instance().Schedule([this](const infra::SharedPtr<ZeroCopyConnectionStub>& object)
+        {
+            if (object->HasObserver())
+                object->GetObserver().DataReceived();
+        }, SharedFromThis());
     }
 
     ZeroCopyConnectionStub::SendStreamStub::SendStreamStub(ZeroCopyConnectionStub& connection)
