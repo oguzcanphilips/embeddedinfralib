@@ -50,6 +50,8 @@ namespace services
         virtual void CloseAndDestroy() = 0;
         virtual void AbortAndDestroy() = 0;
 
+        virtual IPv4Address Ipv4Address() const = 0;
+
         void SwitchObserver(const infra::SharedPtr<ZeroCopyConnectionObserver>& newObserver);
         void SetOwnership(const infra::SharedPtr<void>& owner, const infra::SharedPtr<ZeroCopyConnectionObserver>& observer);
         void ResetOwnership();

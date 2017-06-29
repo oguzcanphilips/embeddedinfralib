@@ -46,6 +46,11 @@ namespace services
         peer.ResetOwnership();
     }
 
+    IPv4Address ConnectionLoopBackPeer::Ipv4Address() const
+    {
+        return IPv4Address{ 127, 0, 0, 1 };
+    }
+
     void ConnectionLoopBackPeer::TryAllocateSendStream()
     {
         assert(sendStream.Allocatable());

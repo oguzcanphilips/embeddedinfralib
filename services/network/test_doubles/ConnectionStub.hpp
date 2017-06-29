@@ -1,6 +1,7 @@
 #ifndef NETWORK_CONNECTION_STUB_HPP
 #define NETWORK_CONNECTION_STUB_HPP
 
+#include "gmock/gmock.h"
 #include "infra/util/SharedOptional.hpp"
 #include "services/network/Connection.hpp"
 #include <vector>
@@ -19,6 +20,10 @@ namespace services
         virtual void AckReceived() override;
         virtual void CloseAndDestroy() override;
         virtual void AbortAndDestroy() override;
+
+        MOCK_METHOD0(CloseAndDestroyMock, void());
+        MOCK_METHOD0(AbortAndDestroyMock, void());
+        MOCK_CONST_METHOD0(Ipv4Address, IPv4Address());
 
         void SimulateDataReceived(infra::ConstByteRange data);
 

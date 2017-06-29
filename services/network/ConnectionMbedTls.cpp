@@ -151,6 +151,11 @@ namespace services
         ZeroCopyConnectionObserver::Subject().AbortAndDestroy();
     }
 
+    IPv4Address ConnectionMbedTls::Ipv4Address() const
+    {
+        return ZeroCopyConnectionObserver::Subject().Ipv4Address();
+    }
+
     void ConnectionMbedTls::TlsReadFailure(int reason)
     {}
 

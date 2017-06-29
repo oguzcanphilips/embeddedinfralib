@@ -53,6 +53,20 @@ namespace services
         ResetOwnership();
     }
 
+    IPv4Address ConnectionWin::Ipv4Address() const
+    {
+        sockaddr_in address {};
+        int addressLength = sizeof(address);
+        getpeername(socket, reinterpret_cast<SOCKADDR*>(&address), &addressLength);
+
+        return IPv4Address{
+            static_cast<uint8_t>(address.sin_addr.s_addr >> 24),
+            static_cast<uint8_t>(address.sin_addr.s_addr >> 16),
+            static_cast<uint8_t>(address.sin_addr.s_addr >> 8),
+            static_cast<uint8_t>(address.sin_addr.s_addr)
+        };
+    }
+
     bool ConnectionWin::ReadyToReceive() const
     {
         return !receiveBuffer.full();

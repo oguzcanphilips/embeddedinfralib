@@ -52,6 +52,8 @@ namespace services
         virtual void CloseAndDestroy() override;
         virtual void AbortAndDestroy() override;
 
+        virtual IPv4Address Ipv4Address() const override;
+
         virtual void TlsReadFailure(int reason);
         virtual void TlsWriteFailure(int reason);
 

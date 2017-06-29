@@ -67,6 +67,16 @@ namespace services
         ResetOwnership();
     }
 
+    IPv4Address ConnectionLwIp::Ipv4Address() const
+    {
+        return IPv4Address{
+            static_cast<uint8_t>(ip_addr_get_ip4_u32(&control->remote_ip) >> 24),
+            static_cast<uint8_t>(ip_addr_get_ip4_u32(&control->remote_ip) >> 16),
+            static_cast<uint8_t>(ip_addr_get_ip4_u32(&control->remote_ip) >> 8),
+            static_cast<uint8_t>(ip_addr_get_ip4_u32(&control->remote_ip))
+        };
+    }
+
     void ConnectionLwIp::SendBuffer(infra::ConstByteRange buffer)
     {
         err_t result = tcp_write(control, buffer.begin(), static_cast<uint16_t>(buffer.size()), 0);

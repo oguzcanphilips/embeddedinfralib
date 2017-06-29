@@ -30,11 +30,13 @@ namespace services
 
     void ZeroCopyConnectionStub::CloseAndDestroy()
     {
+        CloseAndDestroyMock();
         ResetOwnership();
     }
 
     void ZeroCopyConnectionStub::AbortAndDestroy()
     {
+        AbortAndDestroyMock();
         ResetOwnership();
     }
 

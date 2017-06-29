@@ -19,6 +19,7 @@ namespace services
         MOCK_METHOD0(AckReceived, void());
         MOCK_METHOD0(CloseAndDestroy, void());
         MOCK_METHOD0(AbortAndDestroy, void());
+        MOCK_CONST_METHOD0(Ipv4Address, IPv4Address());
     };
 
     class ZeroCopyConnectionObserverMock

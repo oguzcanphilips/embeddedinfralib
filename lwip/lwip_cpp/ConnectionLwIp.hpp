@@ -27,6 +27,7 @@ namespace services
         virtual void AckReceived() override;
         virtual void CloseAndDestroy() override;
         virtual void AbortAndDestroy() override;
+        virtual IPv4Address Ipv4Address() const override;
 
     private:
         void SendBuffer(infra::ConstByteRange buffer);
