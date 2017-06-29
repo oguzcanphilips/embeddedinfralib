@@ -42,6 +42,15 @@ namespace hal
         hal::ChipSelectConfigurator* chipSelectConfigurator = nullptr;
     };
 
+    class SpiSlaveMock
+        : public SpiSlave
+    {
+    public:
+        virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, const infra::Function<void()>& onDone) override;
+
+        MOCK_METHOD3(SendAndReceiveMock, void(std::vector<uint8_t> sendData, infra::ByteRange receiveData, const infra::Function<void()>& onDone));
+    };
+
     class ChipSelectConfiguratorMock
         : public ChipSelectConfigurator
     {

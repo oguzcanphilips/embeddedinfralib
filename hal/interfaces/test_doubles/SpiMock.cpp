@@ -28,4 +28,9 @@ namespace hal
         this->onDone = onDone;
         SendAndReceiveMock(std::vector<uint8_t>(sendData.begin(), sendData.end()), receiveData, nextAction, onDone);
     }
+
+    void SpiSlaveMock::SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, const infra::Function<void()>& onDone)
+    {
+        SendAndReceiveMock(std::vector<uint8_t>(sendData.begin(), sendData.end()), receiveData, onDone);
+    }
 }
