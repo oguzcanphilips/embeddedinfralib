@@ -69,6 +69,8 @@ namespace infra
         MemoryRange<typename C::value_type> MakeRangeFromContainer(C& container);
     template<class C>
         MemoryRange<const typename C::value_type> MakeRangeFromContainer(const C& container);
+    template<class T>
+        std::vector<typename std::remove_const<T>::type> MakeVector(MemoryRange<T> range);
 
     template<class T, class U>
         MemoryRange<T> ReinterpretCastMemoryRange(MemoryRange<U> memoryRange);
@@ -292,6 +294,12 @@ namespace infra
     MemoryRange<const typename C::value_type> MakeRangeFromContainer(const C& container)
     {
         return MemoryRange<const typename C::value_type>(container.begin(), container.end());
+    }
+
+    template<class T>
+    std::vector<typename std::remove_const<T>::type> MakeVector(MemoryRange<T> range)
+    {
+        return std::vector<typename std::remove_const<T>::type>(range.begin(), range.end());
     }
 
     template<class T, class U>

@@ -274,3 +274,9 @@ TEST(MemoryRangeTest, TestMakeRangeFromContainer)
     EXPECT_EQ(infra::ByteRange(&container.front(), &container.front() + 3), infra::MakeRangeFromContainer(container));
     EXPECT_EQ(infra::ByteRange(&container.front(), &container.front() + 3), infra::MakeRangeFromContainer(static_cast<const infra::BoundedVector<uint8_t>&>(container)));
 }
+
+TEST(MemoryRangeTest, TestMakeVectorFromRange)
+{
+    std::array<uint8_t, 3> array { 2, 3, 4 };
+    EXPECT_EQ((std::vector<uint8_t>{ 2, 3, 4}), infra::MakeVector(infra::ConstByteRange(array)));
+}
