@@ -9,6 +9,7 @@
 namespace services
 {
     //TICS -INT#002: A mock or stub may have public data
+    //TICS -INT#027: A MOCK macro should not add virtual to its signature
     class ZeroCopyConnectionStub
         : public services::ZeroCopyConnection
         , public infra::EnableSharedFromThis<ZeroCopyConnectionStub>
@@ -35,7 +36,7 @@ namespace services
             , private infra::StreamWriter
         {
         public:
-            SendStreamStub(ZeroCopyConnectionStub& connection);
+            explicit SendStreamStub(ZeroCopyConnectionStub& connection);
 
         private:
             virtual void Insert(infra::ConstByteRange range) override;
@@ -50,7 +51,7 @@ namespace services
             , private infra::StreamReader
         {
         public:
-            ReceiveStreamStub(ZeroCopyConnectionStub& connection);
+            explicit ReceiveStreamStub(ZeroCopyConnectionStub& connection);
 
         private:
             virtual void Extract(infra::ByteRange range) override;

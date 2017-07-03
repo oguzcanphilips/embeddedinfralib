@@ -66,8 +66,8 @@ namespace services
     }
 
     ZeroCopyConnectionStub::ReceiveStreamStub::ReceiveStreamStub(ZeroCopyConnectionStub& connection)
-        : infra::StreamReader(infra::softFail)
-        , infra::DataInputStream(static_cast<infra::StreamReader&>(*this))
+        : infra::DataInputStream(static_cast<infra::StreamReader&>(*this))
+        , infra::StreamReader(infra::softFail)
         , connection(connection)
     {}
 
