@@ -271,8 +271,8 @@ TEST(MemoryRangeTest, TestMakeRangeFromContainer)
 {
     infra::BoundedVector<uint8_t>::WithMaxSize<3> container({ static_cast<uint8_t>(1), static_cast<uint8_t>(2), static_cast<uint8_t>(3) });
 
-    EXPECT_EQ(infra::ByteRange(&container.front(), &container.front() + 3), infra::MakeRangeFromContainer(container));
-    EXPECT_EQ(infra::ByteRange(&container.front(), &container.front() + 3), infra::MakeRangeFromContainer(static_cast<const infra::BoundedVector<uint8_t>&>(container)));
+    EXPECT_EQ(infra::ByteRange(&container.front(), &container.front() + 3), infra::MakeRange(container));
+    EXPECT_EQ(infra::ByteRange(&container.front(), &container.front() + 3), infra::MakeRange(static_cast<const infra::BoundedVector<uint8_t>&>(container)));
 }
 
 TEST(MemoryRangeTest, TestMakeVectorFromRange)

@@ -128,6 +128,11 @@ namespace infra
     template<class T>
         void swap(BoundedVector<T>& x, BoundedVector<T>& y);
 
+    template<class T>
+        MemoryRange<T> MakeRange(infra::BoundedVector<T>& container);
+    template<class T>
+        MemoryRange<const T> MakeRange(const infra::BoundedVector<T>& container);
+
     //// Implementation ////
 
     template<class T>
@@ -611,6 +616,18 @@ namespace infra
     void swap(BoundedVector<T>& x, BoundedVector<T>& y)
     {
         x.swap(y);
+    }
+
+    template<class T>
+    MemoryRange<T> MakeRange(infra::BoundedVector<T>& container)
+    {
+        return MemoryRange<T>(container.begin(), container.end());
+    }
+
+    template<class T>
+    MemoryRange<const T> MakeRange(const infra::BoundedVector<T>& container)
+    {
+        return MemoryRange<const T>(container.begin(), container.end());
     }
 }
 

@@ -65,12 +65,16 @@ namespace infra
 
     template<class T>
         MemoryRange<T> MakeRange(T* b, T* e);
-    template<class C>
-        MemoryRange<typename C::value_type> MakeRangeFromContainer(C& container);
-    template<class C>
-        MemoryRange<const typename C::value_type> MakeRangeFromContainer(const C& container);
+    template<class T, std::size_t N>
+        MemoryRange<T> MakeRange(std::array<T, N>& container);
+    template<class T, std::size_t N>
+        MemoryRange<const T> MakeRange(const std::array<T, N>& container);
     template<class T>
         std::vector<typename std::remove_const<T>::type> MakeVector(MemoryRange<T> range);
+    template<class T>
+        MemoryRange<T> MakeRange(std::vector<T>& range);
+    template<class T>
+        MemoryRange<const T> MakeRange(const std::vector<T>& range);
 
     template<class T, class U>
         MemoryRange<T> ReinterpretCastMemoryRange(MemoryRange<U> memoryRange);
@@ -284,22 +288,34 @@ namespace infra
         return MemoryRange<T>(b, e);
     }
 
-    template<class C>
-    MemoryRange<typename C::value_type> MakeRangeFromContainer(C& container)
+    template<class T, std::size_t N>
+    MemoryRange<T> MakeRange(std::array<T, N>& container)
     {
-        return MemoryRange<typename C::value_type>(container.begin(), container.end());
+        return MemoryRange<T>(container.begin(), container.end());
     }
 
-    template<class C>
-    MemoryRange<const typename C::value_type> MakeRangeFromContainer(const C& container)
+    template<class T, std::size_t N>
+    MemoryRange<const T> MakeRange(const std::array<T, N>& container)
     {
-        return MemoryRange<const typename C::value_type>(container.begin(), container.end());
+        return MemoryRange<const T>(container.begin(), container.end());
     }
 
     template<class T>
     std::vector<typename std::remove_const<T>::type> MakeVector(MemoryRange<T> range)
     {
         return std::vector<typename std::remove_const<T>::type>(range.begin(), range.end());
+    }
+
+    template<class T>
+    MemoryRange<T> MakeRange(std::vector<T>& range)
+    {
+        return MemoryRange<T>(range);
+    }
+
+    template<class T>
+    MemoryRange<const T> MakeRange(const std::vector<T>& range)
+    {
+        return MemoryRange<const T>(range);
     }
 
     template<class T, class U>
