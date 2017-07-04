@@ -9,8 +9,8 @@ namespace services
 {
     //TICS -INT#002: A mock or stub may have public data
     //TICS -INT#027: MOCK_METHOD can't add 'virtual' to its signature
-    class ZeroCopyConnectionMock
-        : public services::ZeroCopyConnection
+    class ConnectionMock
+        : public services::Connection
     {
     public:
         MOCK_METHOD1(RequestSendStream, void(std::size_t sendSize));
@@ -22,46 +22,46 @@ namespace services
         MOCK_CONST_METHOD0(Ipv4Address, IPv4Address());
     };
 
-    class ZeroCopyConnectionObserverMock
-        : public services::ZeroCopyConnectionObserver
+    class ConnectionObserverMock
+        : public services::ConnectionObserver
     {
     public:
-        explicit ZeroCopyConnectionObserverMock(services::ZeroCopyConnection& connection);
+        explicit ConnectionObserverMock(services::Connection& connection);
 
-        using services::ZeroCopyConnectionObserver::Subject;
+        using services::ConnectionObserver::Subject;
 
         virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) override { SendStreamAvailableMock(stream); }
         MOCK_METHOD1(SendStreamAvailableMock, void(infra::SharedPtr<infra::DataOutputStream> stream));
         MOCK_METHOD0(DataReceived, void());
     };
 
-    class ZeroCopyConnectionFactoryMock
-        : public services::ZeroCopyConnectionFactory
+    class ConnectionFactoryMock
+        : public services::ConnectionFactory
     {
     public:
-        virtual infra::SharedPtr<void> Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& factory) override;
-        MOCK_METHOD3(Connect, infra::SharedPtr<void>(services::IPv4Address address, uint16_t port, services::ZeroCopyClientConnectionObserverFactory& factory));
+        virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionObserverFactory& factory) override;
+        MOCK_METHOD3(Connect, infra::SharedPtr<void>(services::IPv4Address address, uint16_t port, services::ClientConnectionObserverFactory& factory));
 
         MOCK_METHOD1(ListenMock, infra::SharedPtr<void>(uint16_t));
 
-        bool NewConnection(ZeroCopyConnection& connection);
+        bool NewConnection(Connection& connection);
 
     private:
-        ZeroCopyServerConnectionObserverFactory* serverConnectionObserverFactory = nullptr;
+        ServerConnectionObserverFactory* serverConnectionObserverFactory = nullptr;
     };
 
-    class ZeroCopyServerConnectionObserverFactoryMock
-        : public services::ZeroCopyServerConnectionObserverFactory
+    class ServerConnectionObserverFactoryMock
+        : public services::ServerConnectionObserverFactory
     {
     public:
-        MOCK_METHOD1(ConnectionAccepted, infra::SharedPtr<services::ZeroCopyConnectionObserver>(services::ZeroCopyConnection& newConnection));
+        MOCK_METHOD1(ConnectionAccepted, infra::SharedPtr<services::ConnectionObserver>(services::Connection& newConnection));
     };
 
-    class ZeroCopyClientConnectionObserverFactoryMock
-        : public services::ZeroCopyClientConnectionObserverFactory
+    class ClientConnectionObserverFactoryMock
+        : public services::ClientConnectionObserverFactory
     {
     public:
-        MOCK_METHOD1(ConnectionEstablished, infra::SharedPtr<ZeroCopyConnectionObserver>(ZeroCopyConnection& newConnection));
+        MOCK_METHOD1(ConnectionEstablished, infra::SharedPtr<ConnectionObserver>(Connection& newConnection));
         MOCK_METHOD1(ConnectionFailed, void(ConnectFailReason reason));
     };
 }

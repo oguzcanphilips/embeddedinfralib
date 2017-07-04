@@ -2,15 +2,15 @@
 
 namespace services
 {
-    infra::SharedPtr<void> ZeroCopyConnectionFactoryMock::Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& factory)
+    infra::SharedPtr<void> ConnectionFactoryMock::Listen(uint16_t port, ServerConnectionObserverFactory& factory)
     {
         this->serverConnectionObserverFactory = &factory;
         return ListenMock(port);
     }
 
-    bool ZeroCopyConnectionFactoryMock::NewConnection(ZeroCopyConnection& connection)
+    bool ConnectionFactoryMock::NewConnection(Connection& connection)
     {
-        infra::SharedPtr<services::ZeroCopyConnectionObserver> connectionObserver = serverConnectionObserverFactory->ConnectionAccepted(connection);
+        infra::SharedPtr<services::ConnectionObserver> connectionObserver = serverConnectionObserverFactory->ConnectionAccepted(connection);
 
         if (!connectionObserver)
             return false;
@@ -19,7 +19,7 @@ namespace services
         return true;
     }
 
-    ZeroCopyConnectionObserverMock::ZeroCopyConnectionObserverMock(services::ZeroCopyConnection& connection)
-        : services::ZeroCopyConnectionObserver(connection)
+    ConnectionObserverMock::ConnectionObserverMock(services::Connection& connection)
+        : services::ConnectionObserver(connection)
     {}
 }

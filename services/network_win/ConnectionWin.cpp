@@ -192,7 +192,7 @@ namespace services
         return connection.receiveBuffer.size() - sizeRead;
     }
 
-    ListenerWin::ListenerWin(EventDispatcherWithNetwork& network, uint16_t port, services::ZeroCopyServerConnectionObserverFactory& factory)
+    ListenerWin::ListenerWin(EventDispatcherWithNetwork& network, uint16_t port, services::ServerConnectionObserverFactory& factory)
         : network(network)
         , factory(factory)
     {
@@ -228,7 +228,7 @@ namespace services
             std::abort();
 
         infra::SharedPtr<ConnectionWin> connection = infra::MakeSharedOnHeap<ConnectionWin>(network, acceptedSocket);
-        infra::SharedPtr<services::ZeroCopyConnectionObserver> observer = factory.ConnectionAccepted(*connection);
+        infra::SharedPtr<services::ConnectionObserver> observer = factory.ConnectionAccepted(*connection);
 
         if (observer)
         {
@@ -264,12 +264,12 @@ namespace services
         listeners.erase(listener);
     }
 
-    infra::SharedPtr<void> EventDispatcherWithNetwork::Listen(uint16_t port, services::ZeroCopyServerConnectionObserverFactory& factory)
+    infra::SharedPtr<void> EventDispatcherWithNetwork::Listen(uint16_t port, services::ServerConnectionObserverFactory& factory)
     {
         return infra::MakeSharedOnHeap<ListenerWin>(*this, port, factory);
     }
 
-    infra::SharedPtr<void> EventDispatcherWithNetwork::Connect(IPv4Address address, uint16_t port, ZeroCopyClientConnectionObserverFactory& factory)
+    infra::SharedPtr<void> EventDispatcherWithNetwork::Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory)
     {
         return nullptr;
     }

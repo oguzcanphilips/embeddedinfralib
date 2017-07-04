@@ -38,8 +38,8 @@ namespace services
         assert(result == 0);
     }
 
-    ConnectionMbedTls::ConnectionMbedTls(ZeroCopyConnection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server)
-        : ZeroCopyConnectionObserver(connection)
+    ConnectionMbedTls::ConnectionMbedTls(Connection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server)
+        : ConnectionObserver(connection)
         , randomDataGenerator(randomDataGenerator)
     {
         mbedtls2_ssl_init(&sslContext);
@@ -103,7 +103,7 @@ namespace services
             {
                 encryptedSendStream = nullptr;
                 TlsReadFailure(result);
-                ZeroCopyConnectionObserver::Subject().AbortAndDestroy();
+                ConnectionObserver::Subject().AbortAndDestroy();
                 return;
             }
             else
@@ -142,18 +142,18 @@ namespace services
 
     void ConnectionMbedTls::CloseAndDestroy()
     {
-        ZeroCopyConnectionObserver::Subject().CloseAndDestroy();
+        ConnectionObserver::Subject().CloseAndDestroy();
     }
 
     void ConnectionMbedTls::AbortAndDestroy()
     {
         encryptedSendStream = nullptr;
-        ZeroCopyConnectionObserver::Subject().AbortAndDestroy();
+        ConnectionObserver::Subject().AbortAndDestroy();
     }
 
     IPv4Address ConnectionMbedTls::Ipv4Address() const
     {
-        return ZeroCopyConnectionObserver::Subject().Ipv4Address();
+        return ConnectionObserver::Subject().Ipv4Address();
     }
 
     void ConnectionMbedTls::TlsReadFailure(int reason)
@@ -179,8 +179,8 @@ namespace services
 
     void ConnectionMbedTls::TryAllocateEncryptedSendStream()
     {
-        encryptedSendStreamSize = ZeroCopyConnectionObserver::Subject().MaxSendStreamSize();
-        ZeroCopyConnectionObserver::Subject().RequestSendStream(encryptedSendStreamSize);
+        encryptedSendStreamSize = ConnectionObserver::Subject().MaxSendStreamSize();
+        ConnectionObserver::Subject().RequestSendStream(encryptedSendStreamSize);
     }
 
     int ConnectionMbedTls::StaticSslSend(void* context, const unsigned char* buffer, std::size_t size)
@@ -220,10 +220,10 @@ namespace services
 
     int ConnectionMbedTls::SslReceive(infra::ByteRange buffer)
     {
-        infra::SharedPtr<infra::DataInputStream> stream = ZeroCopyConnectionObserver::Subject().ReceiveStream();
+        infra::SharedPtr<infra::DataInputStream> stream = ConnectionObserver::Subject().ReceiveStream();
         infra::ConstByteRange streamBuffer = stream->ContiguousRange(buffer.size());
         std::copy(streamBuffer.begin(), streamBuffer.end(), buffer.begin());
-        ZeroCopyConnectionObserver::Subject().AckReceived();
+        ConnectionObserver::Subject().AckReceived();
 
         infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectionMbedTls>& object) { object->TrySend(); }, SharedFromThis());
 
@@ -247,7 +247,7 @@ namespace services
             {
                 encryptedSendStream = nullptr;
                 TlsWriteFailure(result);
-                ZeroCopyConnectionObserver::Subject().AbortAndDestroy();
+                ConnectionObserver::Subject().AbortAndDestroy();
                 return;
             }
             else if (initialHandshake)
@@ -342,19 +342,19 @@ namespace services
         return connection.receiveBuffer.size() - sizeRead;
     }
 
-    ConnectionMbedTlsListener::ConnectionMbedTlsListener(AllocatorConnectionMbedTls& allocator, ZeroCopyServerConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)
+    ConnectionMbedTlsListener::ConnectionMbedTlsListener(AllocatorConnectionMbedTls& allocator, ServerConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)
         : allocator(allocator)
         , factory(factory)
         , certificates(certificates)
         , randomDataGenerator(randomDataGenerator)
     {}
 
-    infra::SharedPtr<ZeroCopyConnectionObserver> ConnectionMbedTlsListener::ConnectionAccepted(ZeroCopyConnection& newConnection)
+    infra::SharedPtr<ConnectionObserver> ConnectionMbedTlsListener::ConnectionAccepted(Connection& newConnection)
     {
         infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(newConnection, certificates, randomDataGenerator, true);
         if (connection)
         {
-            infra::SharedPtr<ZeroCopyConnectionObserver> observer = factory.ConnectionAccepted(*connection);
+            infra::SharedPtr<ConnectionObserver> observer = factory.ConnectionAccepted(*connection);
             if (observer)
             {
                 connection->SetOwnership(nullptr, observer);    // We are being held alive by another Connection object
@@ -370,19 +370,19 @@ namespace services
         this->listener = listener;
     }
 
-    ConnectionMbedTlsConnector::ConnectionMbedTlsConnector(AllocatorConnectionMbedTls& allocator, ZeroCopyClientConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)
+    ConnectionMbedTlsConnector::ConnectionMbedTlsConnector(AllocatorConnectionMbedTls& allocator, ClientConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)
         : allocator(allocator)
         , factory(factory)
         , certificates(certificates)
         , randomDataGenerator(randomDataGenerator)
     {}
 
-    infra::SharedPtr<ZeroCopyConnectionObserver> ConnectionMbedTlsConnector::ConnectionEstablished(ZeroCopyConnection& newConnection)
+    infra::SharedPtr<ConnectionObserver> ConnectionMbedTlsConnector::ConnectionEstablished(Connection& newConnection)
     {
         infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(newConnection, certificates, randomDataGenerator, false);
         if (connection)
         {
-            infra::SharedPtr<ZeroCopyConnectionObserver> observer = factory.ConnectionEstablished(*connection);
+            infra::SharedPtr<ConnectionObserver> observer = factory.ConnectionEstablished(*connection);
             if (observer)
             {
                 connection->SetOwnership(nullptr, observer);    // We are being held alive by another Connection object
@@ -405,7 +405,7 @@ namespace services
 
     ConnectionFactoryMbedTls::ConnectionFactoryMbedTls(AllocatorConnectionMbedTls& connectionAllocator,
         AllocatorConnectionMbedTlsListener& listenerAllocator, AllocatorConnectionMbedTlsConnector& connectorAllocator,
-        ZeroCopyConnectionFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)
+        ConnectionFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)
         : connectionAllocator(connectionAllocator)
         , listenerAllocator(listenerAllocator)
         , connectorAllocator(connectorAllocator)
@@ -414,7 +414,7 @@ namespace services
         , randomDataGenerator(randomDataGenerator)
     {}
 
-    infra::SharedPtr<void> ConnectionFactoryMbedTls::Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& connectionObserverFactory)
+    infra::SharedPtr<void> ConnectionFactoryMbedTls::Listen(uint16_t port, ServerConnectionObserverFactory& connectionObserverFactory)
     {
         infra::SharedPtr<ConnectionMbedTlsListener> listener = listenerAllocator.Allocate(connectionAllocator, connectionObserverFactory, certificates, randomDataGenerator);
 
@@ -431,7 +431,7 @@ namespace services
         return nullptr;
     }
 
-    infra::SharedPtr<void> ConnectionFactoryMbedTls::Connect(IPv4Address address, uint16_t port, ZeroCopyClientConnectionObserverFactory& connectionObserverFactory)
+    infra::SharedPtr<void> ConnectionFactoryMbedTls::Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& connectionObserverFactory)
     {
         infra::SharedPtr<ConnectionMbedTlsConnector> connector = connectorAllocator.Allocate(connectionAllocator, connectionObserverFactory, certificates, randomDataGenerator);
 

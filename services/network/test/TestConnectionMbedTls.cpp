@@ -25,14 +25,14 @@ public:
         clientCertificates.AddOwnCertificate(infra::BoundedConstString(mbedtls2_test_cli_crt, mbedtls2_test_cli_crt_len), infra::BoundedConstString(mbedtls2_test_cli_key, mbedtls2_test_cli_key_len));
     }
 
-    services::ZeroCopyServerConnectionObserverFactoryMock serverObserverFactory;
-    services::ZeroCopyClientConnectionObserverFactoryMock clientObserverFactory;
-    testing::StrictMock<services::ZeroCopyConnectionFactoryMock> network;
+    services::ServerConnectionObserverFactoryMock serverObserverFactory;
+    services::ClientConnectionObserverFactoryMock clientObserverFactory;
+    testing::StrictMock<services::ConnectionFactoryMock> network;
     services::ConnectionLoopBackFactory loopBackNetwork;
     hal::SynchronousRandomDataGeneratorWin randomDataGenerator;
     infra::SharedPtr<void> thisListener;
-    services::ZeroCopyServerConnectionObserverFactory* mbedTlsObserverFactory;
-    services::ZeroCopyConnection* mbedTlsConnection;
+    services::ServerConnectionObserverFactory* mbedTlsObserverFactory;
+    services::Connection* mbedTlsConnection;
     services::MbedTlsCertificates serverCertificates;
     services::MbedTlsCertificates clientCertificates;
     services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 1, 1> connectionFactory;
@@ -67,12 +67,12 @@ TEST_F(ConnectionMbedTlsTest, create_connection)
     infra::SharedPtr<void> listener = tlsNetworkServer.Listen(1234, serverObserverFactory);
     infra::SharedPtr<void> connector = tlsNetworkClient.Connect(services::IPv4Address(), 1234, clientObserverFactory);
     
-    infra::SharedOptional<services::ZeroCopyConnectionObserverMock> observer1;
-    infra::SharedOptional<services::ZeroCopyConnectionObserverMock> observer2;
+    infra::SharedOptional<services::ConnectionObserverMock> observer1;
+    infra::SharedOptional<services::ConnectionObserverMock> observer2;
     EXPECT_CALL(serverObserverFactory, ConnectionAccepted(testing::_))
-        .WillOnce(infra::Lambda([&](services::ZeroCopyConnection& connection) { return observer1.Emplace(connection); }));
+        .WillOnce(infra::Lambda([&](services::Connection& connection) { return observer1.Emplace(connection); }));
     EXPECT_CALL(clientObserverFactory, ConnectionEstablished(testing::_))
-        .WillOnce(infra::Lambda([&](services::ZeroCopyConnection& connection) { return observer2.Emplace(connection); }));
+        .WillOnce(infra::Lambda([&](services::Connection& connection) { return observer2.Emplace(connection); }));
     ExecuteAllActions();
     observer1->Subject().AbortAndDestroy();
 }
@@ -84,12 +84,12 @@ TEST_F(ConnectionMbedTlsTest, send_and_receive_data)
     infra::SharedPtr<void> listener = tlsNetworkServer.Listen(1234, serverObserverFactory);
     infra::SharedPtr<void> connector = tlsNetworkClient.Connect(services::IPv4Address(), 1234, clientObserverFactory);
 
-    infra::SharedOptional<services::ZeroCopyConnectionObserverStub> observer1;
-    infra::SharedOptional<services::ZeroCopyConnectionObserverStub> observer2;
+    infra::SharedOptional<services::ConnectionObserverStub> observer1;
+    infra::SharedOptional<services::ConnectionObserverStub> observer2;
     EXPECT_CALL(serverObserverFactory, ConnectionAccepted(testing::_))
-        .WillOnce(infra::Lambda([&](services::ZeroCopyConnection& connection) { return observer1.Emplace(connection); }));
+        .WillOnce(infra::Lambda([&](services::Connection& connection) { return observer1.Emplace(connection); }));
     EXPECT_CALL(clientObserverFactory, ConnectionEstablished(testing::_))
-        .WillOnce(infra::Lambda([&](services::ZeroCopyConnection& connection) { return observer2.Emplace(connection); }));
+        .WillOnce(infra::Lambda([&](services::Connection& connection) { return observer2.Emplace(connection); }));
     ExecuteAllActions();
 
     observer2->SendData(std::vector<uint8_t>{ 1, 2, 3, 4 });

@@ -12,7 +12,7 @@ namespace services
     class ConnectionLoopBackFactory;
 
     class ConnectionLoopBackPeer
-        : public ZeroCopyConnection
+        : public Connection
     {
     public:
         ConnectionLoopBackPeer(ConnectionLoopBackPeer& peer, ConnectionLoopBack& loopBack);
@@ -83,8 +83,8 @@ namespace services
     public:
         ConnectionLoopBack();
 
-        ZeroCopyConnection& Server();
-        ZeroCopyConnection& Client();
+        Connection& Server();
+        Connection& Client();
 
     private:
         ConnectionLoopBackPeer server;
@@ -94,33 +94,33 @@ namespace services
     class ConnectionLoopBackListener
     {
     public:
-        ConnectionLoopBackListener(uint16_t port, ConnectionLoopBackFactory& loopBackFactory, ZeroCopyServerConnectionObserverFactory& connectionObserverFactory);
+        ConnectionLoopBackListener(uint16_t port, ConnectionLoopBackFactory& loopBackFactory, ServerConnectionObserverFactory& connectionObserverFactory);
         ~ConnectionLoopBackListener();
 
-        void Accept(ZeroCopyClientConnectionObserverFactory& clientObserverFactory);
+        void Accept(ClientConnectionObserverFactory& clientObserverFactory);
 
     private:
         uint16_t port;
         ConnectionLoopBackFactory& loopBackFactory;
-        ZeroCopyServerConnectionObserverFactory& connectionObserverFactory;
+        ServerConnectionObserverFactory& connectionObserverFactory;
     };
 
     class ConnectionLoopBackConnector
         : public infra::EnableSharedFromThis<ConnectionLoopBackConnector>
     {
     public:
-        ConnectionLoopBackConnector(uint16_t port, ConnectionLoopBackFactory& loopBackFactory, ZeroCopyClientConnectionObserverFactory& connectionObserverFactory);
+        ConnectionLoopBackConnector(uint16_t port, ConnectionLoopBackFactory& loopBackFactory, ClientConnectionObserverFactory& connectionObserverFactory);
 
         void Connect();
 
     private:
         uint16_t port;
         ConnectionLoopBackFactory& loopBackFactory;
-        ZeroCopyClientConnectionObserverFactory& connectionObserverFactory;
+        ClientConnectionObserverFactory& connectionObserverFactory;
     };
 
     class ConnectionLoopBackFactory
-        : public ZeroCopyConnectionFactory
+        : public ConnectionFactory
     {
     public:
         ~ConnectionLoopBackFactory();
@@ -128,8 +128,8 @@ namespace services
         void RegisterListener(uint16_t port, ConnectionLoopBackListener* listener);
         void UnregisterListener(uint16_t port);
 
-        virtual infra::SharedPtr<void> Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& factory) override;
-        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ZeroCopyClientConnectionObserverFactory& factory) override;
+        virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionObserverFactory& factory) override;
+        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory) override;
 
     private:
         friend class ConnectionLoopBackConnector;

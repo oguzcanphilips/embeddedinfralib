@@ -31,19 +31,19 @@ namespace services
     };
 
     class ConnectionMbedTls
-        : public ZeroCopyConnection
-        , public ZeroCopyConnectionObserver
+        : public Connection
+        , public ConnectionObserver
         , public infra::EnableSharedFromThis<ConnectionMbedTls>
     {
     public:
-        ConnectionMbedTls(ZeroCopyConnection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server);
+        ConnectionMbedTls(Connection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server);
         ~ConnectionMbedTls();
 
-        // ZeroCopyConnectionObserver
+        // ConnectionObserver
         virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) override;
         virtual void DataReceived() override;
 
-        // ZeroCopyConnection
+        // Connection
         virtual void RequestSendStream(std::size_t sendSize) override;
         virtual std::size_t MaxSendStreamSize() const override;
         virtual infra::SharedPtr<infra::DataInputStream> ReceiveStream() override;
@@ -129,58 +129,58 @@ namespace services
     };
 
     using AllocatorConnectionMbedTls = infra::SharedObjectAllocator<ConnectionMbedTls,
-        void(ZeroCopyConnection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server)>;
+        void(Connection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server)>;
 
     class ConnectionMbedTlsListener
-        : public ZeroCopyServerConnectionObserverFactory
+        : public ServerConnectionObserverFactory
     {
     public:
-        ConnectionMbedTlsListener(AllocatorConnectionMbedTls& allocator, ZeroCopyServerConnectionObserverFactory& factory,
+        ConnectionMbedTlsListener(AllocatorConnectionMbedTls& allocator, ServerConnectionObserverFactory& factory,
             MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator);
 
-        virtual infra::SharedPtr<ZeroCopyConnectionObserver> ConnectionAccepted(ZeroCopyConnection& newConnection) override;
+        virtual infra::SharedPtr<ConnectionObserver> ConnectionAccepted(Connection& newConnection) override;
 
         void SetListener(infra::SharedPtr<void> listener);
 
     private:
         AllocatorConnectionMbedTls& allocator;
-        ZeroCopyServerConnectionObserverFactory& factory;
+        ServerConnectionObserverFactory& factory;
         MbedTlsCertificates& certificates;
         hal::SynchronousRandomDataGenerator& randomDataGenerator;
         infra::SharedPtr<void> listener;
     };
 
     using AllocatorConnectionMbedTlsListener = infra::SharedObjectAllocator<ConnectionMbedTlsListener,
-        void(AllocatorConnectionMbedTls& allocator, ZeroCopyServerConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)>;
+        void(AllocatorConnectionMbedTls& allocator, ServerConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)>;
 
     class ConnectionMbedTlsConnector
-        : public ZeroCopyClientConnectionObserverFactory
+        : public ClientConnectionObserverFactory
     {
     public:
-        ConnectionMbedTlsConnector(AllocatorConnectionMbedTls& allocator, ZeroCopyClientConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator);
+        ConnectionMbedTlsConnector(AllocatorConnectionMbedTls& allocator, ClientConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator);
 
-        virtual infra::SharedPtr<ZeroCopyConnectionObserver> ConnectionEstablished(ZeroCopyConnection& newConnection) override;
+        virtual infra::SharedPtr<ConnectionObserver> ConnectionEstablished(Connection& newConnection) override;
         virtual void ConnectionFailed(ConnectFailReason reason) override;
 
         void SetConnector(infra::SharedPtr<void> connector);
 
     private:
         AllocatorConnectionMbedTls& allocator;
-        ZeroCopyClientConnectionObserverFactory& factory;
+        ClientConnectionObserverFactory& factory;
         MbedTlsCertificates& certificates;
         hal::SynchronousRandomDataGenerator& randomDataGenerator;
         infra::SharedPtr<void> connector;
     };
 
     using AllocatorConnectionMbedTlsConnector = infra::SharedObjectAllocator<ConnectionMbedTlsConnector,
-        void(AllocatorConnectionMbedTls& allocator, ZeroCopyClientConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)>;
+        void(AllocatorConnectionMbedTls& allocator, ClientConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)>;
 
 #ifdef _MSC_VER                                                                                                         //TICS !POR#021
 #pragma warning(disable:4503)                                                                                           //TICS !POR#018
 #endif
 
     class ConnectionFactoryMbedTls
-        : public ZeroCopyConnectionFactory
+        : public ConnectionFactory
     {
     public:
         template<std::size_t MaxConnections, std::size_t MaxListeners, std::size_t MaxConnectors>
@@ -190,16 +190,16 @@ namespace services
                 , AllocatorConnectionMbedTlsConnector::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxConnectors>>;
 
         ConnectionFactoryMbedTls(AllocatorConnectionMbedTls& connectionAllocator, AllocatorConnectionMbedTlsListener& listenerAllocator, AllocatorConnectionMbedTlsConnector& connectorAllocator,
-            ZeroCopyConnectionFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator);
+            ConnectionFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator);
 
-        virtual infra::SharedPtr<void> Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& connectionObserverFactory) override;
-        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ZeroCopyClientConnectionObserverFactory& connectionObserverFactory) override;
+        virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionObserverFactory& connectionObserverFactory) override;
+        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& connectionObserverFactory) override;
 
     private:
         AllocatorConnectionMbedTls& connectionAllocator;
         AllocatorConnectionMbedTlsListener& listenerAllocator;
         AllocatorConnectionMbedTlsConnector& connectorAllocator;
-        ZeroCopyConnectionFactory& factory;
+        ConnectionFactory& factory;
         MbedTlsCertificates& certificates;
         hal::SynchronousRandomDataGenerator& randomDataGenerator;
     };

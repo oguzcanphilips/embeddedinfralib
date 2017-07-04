@@ -10,9 +10,9 @@ namespace services
 {
     //TICS -INT#002: A mock or stub may have public data
     //TICS -INT#027: A MOCK macro should not add virtual to its signature
-    class ZeroCopyConnectionStub
-        : public services::ZeroCopyConnection
-        , public infra::EnableSharedFromThis<ZeroCopyConnectionStub>
+    class ConnectionStub
+        : public services::Connection
+        , public infra::EnableSharedFromThis<ConnectionStub>
     {
     public:
         virtual void RequestSendStream(std::size_t sendSize) override;
@@ -36,14 +36,14 @@ namespace services
             , private infra::StreamWriter
         {
         public:
-            explicit SendStreamStub(ZeroCopyConnectionStub& connection);
+            explicit SendStreamStub(ConnectionStub& connection);
 
         private:
             virtual void Insert(infra::ConstByteRange range) override;
             virtual void Insert(uint8_t element) override;
 
         private:
-            ZeroCopyConnectionStub& connection;
+            ConnectionStub& connection;
         };
 
         class ReceiveStreamStub
@@ -51,7 +51,7 @@ namespace services
             , private infra::StreamReader
         {
         public:
-            explicit ReceiveStreamStub(ZeroCopyConnectionStub& connection);
+            explicit ReceiveStreamStub(ConnectionStub& connection);
 
         private:
             virtual void Extract(infra::ByteRange range) override;
@@ -62,7 +62,7 @@ namespace services
             virtual std::size_t SizeAvailable() const override;
 
         private:
-            ZeroCopyConnectionStub& connection;
+            ConnectionStub& connection;
         };
 
     private:
@@ -74,12 +74,12 @@ namespace services
         infra::SharedPtr<infra::DataOutputStream> sendStreamPtr;
     };
 
-    class ZeroCopyConnectionObserverStub
-        : public services::ZeroCopyConnectionObserver
+    class ConnectionObserverStub
+        : public services::ConnectionObserver
     {
     public:
-        ZeroCopyConnectionObserverStub(services::ZeroCopyConnection& connection)
-            : services::ZeroCopyConnectionObserver(connection)
+        ConnectionObserverStub(services::Connection& connection)
+            : services::ConnectionObserver(connection)
         {}
 
         virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) override;
@@ -89,7 +89,7 @@ namespace services
 
         std::vector<uint8_t> receivedData;
 
-        using services::ZeroCopyConnectionObserver::Subject;
+        using services::ConnectionObserver::Subject;
 
     private:
         void TryRequestSendStream();
