@@ -38,27 +38,27 @@ public:
     services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 1, 1> connectionFactory;
 };
 
-//TEST_F(ConnectionMbedTlsTest, when_allocation_on_network_fails_Listen_returns_nullptr)
-//{
-//    EXPECT_CALL(network, Listen(1234, testing::_)).WillOnce(testing::Return(nullptr));
-//    infra::SharedPtr<void> listener = connectionFactory.Listen(1234, serverObserverFactory);
-//    EXPECT_EQ(nullptr, listener);
-//}
-//
-//TEST_F(ConnectionMbedTlsTest, when_listener_allocation_fails_Listen_returns_nullptr)
-//{
-//    EXPECT_CALL(network, Listen(1234, testing::_)).WillOnce(testing::Return(thisListener));
-//    infra::SharedPtr<void> listener1 = connectionFactory.Listen(1234, serverObserverFactory);
-//    infra::SharedPtr<void> listener2 = connectionFactory.Listen(1234, serverObserverFactory);
-//    EXPECT_EQ(nullptr, listener2);
-//}
-//
-//TEST_F(ConnectionMbedTlsTest, Listen_returns_listener)
-//{
-//    EXPECT_CALL(network, Listen(1234, testing::_)).WillOnce(testing::Return(thisListener));
-//    infra::SharedPtr<void> listener = connectionFactory.Listen(1234, serverObserverFactory);
-//    EXPECT_NE(nullptr, listener);
-//}
+TEST_F(ConnectionMbedTlsTest, when_allocation_on_network_fails_Listen_returns_nullptr)
+{
+    EXPECT_CALL(network, Listen(1234, testing::_)).WillOnce(testing::Return(nullptr));
+    infra::SharedPtr<void> listener = connectionFactory.Listen(1234, serverObserverFactory);
+    EXPECT_EQ(nullptr, listener);
+}
+
+TEST_F(ConnectionMbedTlsTest, when_listener_allocation_fails_Listen_returns_nullptr)
+{
+    EXPECT_CALL(network, Listen(1234, testing::_)).WillOnce(testing::Return(thisListener));
+    infra::SharedPtr<void> listener1 = connectionFactory.Listen(1234, serverObserverFactory);
+    infra::SharedPtr<void> listener2 = connectionFactory.Listen(1234, serverObserverFactory);
+    EXPECT_EQ(nullptr, listener2);
+}
+
+TEST_F(ConnectionMbedTlsTest, Listen_returns_listener)
+{
+    EXPECT_CALL(network, Listen(1234, testing::_)).WillOnce(testing::Return(thisListener));
+    infra::SharedPtr<void> listener = connectionFactory.Listen(1234, serverObserverFactory);
+    EXPECT_NE(nullptr, listener);
+}
 
 TEST_F(ConnectionMbedTlsTest, create_connection)
 {

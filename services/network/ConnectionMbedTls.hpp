@@ -10,8 +10,6 @@
 #include "mbedtls/ssl_cache.h"
 #include "services/network/Connection.hpp"
 
-struct mbedtls_ssl_session2 {  };
-
 namespace services
 {
     class MbedTlsCertificates
@@ -40,7 +38,7 @@ namespace services
     {
     public:
         ConnectionMbedTls(ZeroCopyConnection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator,
-            bool server, mbedtls_ssl_cache_context* cache, mbedtls_ssl_session2* session);
+            bool server, mbedtls_ssl_cache_context* serverCache, mbedtls_ssl_session* clientSession);
         ~ConnectionMbedTls();
 
         // ZeroCopyConnectionObserver
@@ -110,7 +108,7 @@ namespace services
     private:
         hal::SynchronousRandomDataGenerator& randomDataGenerator;
         bool server;
-        mbedtls_ssl_session2* session;
+        mbedtls_ssl_session* clientSession;
         mbedtls_ssl_context sslContext;
         mbedtls_ssl_config sslConfig;
         mbedtls_ctr_drbg_context ctr_drbg;
@@ -131,14 +129,14 @@ namespace services
 
     using AllocatorConnectionMbedTls = infra::SharedObjectAllocator<ConnectionMbedTls,
         void(ZeroCopyConnection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator,
-            bool server, mbedtls_ssl_cache_context* cache, mbedtls_ssl_session2* session)>;
+            bool server, mbedtls_ssl_cache_context* serverCache, mbedtls_ssl_session* clientSession)>;
 
     class ConnectionMbedTlsListener
         : public ZeroCopyServerConnectionObserverFactory
     {
     public:
         ConnectionMbedTlsListener(AllocatorConnectionMbedTls& allocator, ZeroCopyServerConnectionObserverFactory& factory,
-            MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls_ssl_cache_context& cache);
+            MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls_ssl_cache_context& serverCache);
 
         virtual infra::SharedPtr<ZeroCopyConnectionObserver> ConnectionAccepted(ZeroCopyConnection& newConnection) override;
 
@@ -149,19 +147,19 @@ namespace services
         ZeroCopyServerConnectionObserverFactory& factory;
         MbedTlsCertificates& certificates;
         hal::SynchronousRandomDataGenerator& randomDataGenerator;
-        mbedtls_ssl_cache_context& cache;
+        mbedtls_ssl_cache_context& serverCache;
         infra::SharedPtr<void> listener;
     };
 
     using AllocatorConnectionMbedTlsListener = infra::SharedObjectAllocator<ConnectionMbedTlsListener,
-        void(AllocatorConnectionMbedTls& allocator, ZeroCopyServerConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls_ssl_cache_context& cache)>;
+        void(AllocatorConnectionMbedTls& allocator, ZeroCopyServerConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls_ssl_cache_context& serverCache)>;
 
     class ConnectionMbedTlsConnector
         : public ZeroCopyClientConnectionObserverFactory
     {
     public:
         ConnectionMbedTlsConnector(AllocatorConnectionMbedTls& allocator, ZeroCopyClientConnectionObserverFactory& factory,
-            MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls_ssl_session2& session);
+            MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls_ssl_session& clientSession);
 
         virtual infra::SharedPtr<ZeroCopyConnectionObserver> ConnectionEstablished(ZeroCopyConnection& newConnection) override;
         virtual void ConnectionFailed(ConnectFailReason reason) override;
@@ -173,13 +171,13 @@ namespace services
         ZeroCopyClientConnectionObserverFactory& factory;
         MbedTlsCertificates& certificates;
         hal::SynchronousRandomDataGenerator& randomDataGenerator;
-        mbedtls_ssl_session2& session;
+        mbedtls_ssl_session& clientSession;
         infra::SharedPtr<void> connector;
     };
 
     using AllocatorConnectionMbedTlsConnector = infra::SharedObjectAllocator<ConnectionMbedTlsConnector,
         void(AllocatorConnectionMbedTls& allocator, ZeroCopyClientConnectionObserverFactory& factory, MbedTlsCertificates& certificates,
-            hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls_ssl_session2& session)>;
+            hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls_ssl_session& clientSession)>;
 
 #ifdef _MSC_VER                                                                                                         //TICS !POR#021
 #pragma warning(disable:4503)                                                                                           //TICS !POR#018
@@ -209,8 +207,8 @@ namespace services
         ZeroCopyConnectionFactory& factory;
         MbedTlsCertificates& certificates;
         hal::SynchronousRandomDataGenerator& randomDataGenerator;
-        mbedtls_ssl_cache_context cache;
-        mbedtls_ssl_session2 session = {};
+        mbedtls_ssl_cache_context serverCache;
+        mbedtls_ssl_session clientSession = {};
     };
 }
 

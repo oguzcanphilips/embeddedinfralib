@@ -4,11 +4,6 @@
 
 namespace services
 {
-    namespace
-    {
-        infra::Optional<mbedtls_ssl_session> session;
-    }
-
     MbedTlsCertificates::MbedTlsCertificates()
     {
         mbedtls_x509_crt_init(&caCertificates);
@@ -45,11 +40,11 @@ namespace services
     }
 
     ConnectionMbedTls::ConnectionMbedTls(ZeroCopyConnection& connection, MbedTlsCertificates& certificates,
-        hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls_ssl_cache_context* cache, mbedtls_ssl_session2* session)
+        hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls_ssl_cache_context* serverCache, mbedtls_ssl_session* clientSession)
         : ZeroCopyConnectionObserver(connection)
         , randomDataGenerator(randomDataGenerator)
         , server(server)
-        , session(session)
+        , clientSession(clientSession)
     {
         mbedtls_ssl_init(&sslContext);
         mbedtls_ssl_config_init(&sslConfig);
@@ -68,15 +63,14 @@ namespace services
         certificates.Config(sslConfig);
 
         if (server)
-            mbedtls_ssl_conf_session_cache(&sslConfig, &cache, mbedtls_ssl_cache_get, mbedtls_ssl_cache_set);
-            //mbedtls_ssl_conf_session_cache(&sslConfig, nullptr, &GetCachedSession, &SetCachedSession);
+            mbedtls_ssl_conf_session_cache(&sslConfig, serverCache, mbedtls_ssl_cache_get, mbedtls_ssl_cache_set);
 
         result = mbedtls_ssl_setup(&sslContext, &sslConfig);
         assert(result == 0);
 
-        if (!server && services::session != infra::none)
+        if (!server)
         {
-            result = mbedtls_ssl_set_session(&sslContext, &*services::session);
+            result = mbedtls_ssl_set_session(&sslContext, clientSession);
             assert(result == 0);
         }
 
@@ -262,8 +256,7 @@ namespace services
 
                 if (!server)
                 {
-                    services::session.Emplace();
-                    result = mbedtls_ssl_get_session(&sslContext, &*services::session);
+                    result = mbedtls_ssl_get_session(&sslContext, clientSession);
                     assert(result == 0);
                 }
             }
@@ -357,17 +350,17 @@ namespace services
         return connection.receiveBuffer.size() - sizeRead;
     }
 
-    ConnectionMbedTlsListener::ConnectionMbedTlsListener(AllocatorConnectionMbedTls& allocator, ZeroCopyServerConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls_ssl_cache_context& cache)
+    ConnectionMbedTlsListener::ConnectionMbedTlsListener(AllocatorConnectionMbedTls& allocator, ZeroCopyServerConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls_ssl_cache_context& serverCache)
         : allocator(allocator)
         , factory(factory)
         , certificates(certificates)
         , randomDataGenerator(randomDataGenerator)
-        , cache(cache)
+        , serverCache(serverCache)
     {}
 
     infra::SharedPtr<ZeroCopyConnectionObserver> ConnectionMbedTlsListener::ConnectionAccepted(ZeroCopyConnection& newConnection)
     {
-        infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(newConnection, certificates, randomDataGenerator, true, &cache, nullptr);
+        infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(newConnection, certificates, randomDataGenerator, true, &serverCache, nullptr);
         if (connection)
         {
             infra::SharedPtr<ZeroCopyConnectionObserver> observer = factory.ConnectionAccepted(*connection);
@@ -387,17 +380,17 @@ namespace services
     }
 
     ConnectionMbedTlsConnector::ConnectionMbedTlsConnector(AllocatorConnectionMbedTls& allocator, ZeroCopyClientConnectionObserverFactory& factory,
-        MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls_ssl_session2& session)
+        MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls_ssl_session& clientSession)
         : allocator(allocator)
         , factory(factory)
         , certificates(certificates)
         , randomDataGenerator(randomDataGenerator)
-        , session(session)
+        , clientSession(clientSession)
     {}
 
     infra::SharedPtr<ZeroCopyConnectionObserver> ConnectionMbedTlsConnector::ConnectionEstablished(ZeroCopyConnection& newConnection)
     {
-        infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(newConnection, certificates, randomDataGenerator, false, nullptr, &session);
+        infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(newConnection, certificates, randomDataGenerator, false, nullptr, &clientSession);
         if (connection)
         {
             infra::SharedPtr<ZeroCopyConnectionObserver> observer = factory.ConnectionEstablished(*connection);
@@ -431,18 +424,19 @@ namespace services
         , certificates(certificates)
         , randomDataGenerator(randomDataGenerator)
     {
-        mbedtls_ssl_cache_init(&cache);
+        mbedtls_ssl_cache_init(&serverCache);
+        mbedtls_ssl_session_init(&clientSession);
     }
 
     ConnectionFactoryMbedTls::~ConnectionFactoryMbedTls()
     {
-        mbedtls_ssl_cache_free(&cache);
-        //mbedtls_ssl_session_free(&session);
+        mbedtls_ssl_cache_free(&serverCache);
+        mbedtls_ssl_session_free(&clientSession);
     }
 
     infra::SharedPtr<void> ConnectionFactoryMbedTls::Listen(uint16_t port, ZeroCopyServerConnectionObserverFactory& connectionObserverFactory)
     {
-        infra::SharedPtr<ConnectionMbedTlsListener> listener = listenerAllocator.Allocate(connectionAllocator, connectionObserverFactory, certificates, randomDataGenerator, cache);
+        infra::SharedPtr<ConnectionMbedTlsListener> listener = listenerAllocator.Allocate(connectionAllocator, connectionObserverFactory, certificates, randomDataGenerator, serverCache);
 
         if (listener)
         {
@@ -459,7 +453,7 @@ namespace services
 
     infra::SharedPtr<void> ConnectionFactoryMbedTls::Connect(IPv4Address address, uint16_t port, ZeroCopyClientConnectionObserverFactory& connectionObserverFactory)
     {
-        infra::SharedPtr<ConnectionMbedTlsConnector> connector = connectorAllocator.Allocate(connectionAllocator, connectionObserverFactory, certificates, randomDataGenerator, session);
+        infra::SharedPtr<ConnectionMbedTlsConnector> connector = connectorAllocator.Allocate(connectionAllocator, connectionObserverFactory, certificates, randomDataGenerator, clientSession);
 
         if (connector)
         {
