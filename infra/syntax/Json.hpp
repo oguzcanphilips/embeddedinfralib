@@ -388,6 +388,7 @@ namespace infra
     infra::detail::DoublePair<JsonValueArrayIterator<infra::BoundedConstString>> JsonStringArray(JsonArray& array);
     infra::detail::DoublePair<JsonValueArrayIterator<JsonObject>> JsonObjectArray(JsonArray& array);
     infra::detail::DoublePair<JsonValueArrayIterator<JsonArray>> JsonArrayArray(JsonArray& array);
+    void CleanJsonContents(infra::BoundedString& contents);
 
     ////    Implementation    ////
 

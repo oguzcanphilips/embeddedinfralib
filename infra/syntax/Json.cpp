@@ -1,3 +1,4 @@
+#include "infra/stream/StringOutputStream.hpp"
 #include "infra/syntax/Json.hpp"
 #include <cctype>
 
@@ -883,5 +884,98 @@ namespace infra
         return infra::detail::DoublePair<JsonValueArrayIterator<JsonArray>>(
             JsonValueArrayIterator<JsonArray>(array.begin(), array.end()),
             JsonValueArrayIterator<JsonArray>(array.end(), array.end()));
+    }
+
+    void CopyToken(infra::JsonToken::Token token, infra::TextOutputStream& stream)
+    {
+        class CopyVisitor
+            : public infra::StaticVisitor<void>
+        {
+        public:
+            CopyVisitor(infra::TextOutputStream& stream)
+                : stream(stream)
+            {}
+
+            void operator()(infra::JsonToken::End)
+            {
+                std::abort();
+            }
+
+            void operator()(infra::JsonToken::Error)
+            {
+                std::abort();
+            }
+
+            void operator()(infra::JsonToken::Colon)
+            {
+                stream << ':';
+            }
+
+            void operator()(infra::JsonToken::Comma)
+            {
+                stream << ',';
+            }
+
+            void operator()(infra::JsonToken::Dot)
+            {
+                stream << '.';
+            }
+
+            void operator()(infra::JsonToken::LeftBrace)
+            {
+                stream << '{';
+            }
+
+            void operator()(infra::JsonToken::RightBrace)
+            {
+                stream << '}';
+            }
+
+            void operator()(infra::JsonToken::LeftBracket)
+            {
+                stream << '[';
+            }
+
+            void operator()(infra::JsonToken::RightBracket)
+            {
+                stream << ']';
+            }
+
+            void operator()(infra::JsonToken::String token)
+            {
+                stream << '"' << token.Value() << '"';
+            }
+
+            void operator()(infra::JsonToken::Integer token)
+            {
+                stream << token.Value();
+            }
+
+            void operator()(infra::JsonToken::Boolean token)
+            {
+                if (token.Value())
+                    stream << "true";
+                else
+                    stream << "false";
+            }
+
+        private:
+            infra::TextOutputStream& stream;
+        };
+
+        CopyVisitor copyVisitor(stream);
+        infra::ApplyVisitor(copyVisitor, token);
+    }
+
+    void CleanJsonContents(infra::BoundedString& contents)
+    {
+        infra::JsonTokenizer tokenizer(contents);
+        infra::BoundedString newContents(infra::MakeRange(contents.begin(), contents.end()));
+        infra::StringOutputStream stream(newContents);
+
+        for (infra::JsonToken::Token token = tokenizer.Token(); !token.Is<infra::JsonToken::End>() && !token.Is<infra::JsonToken::Error>(); token = tokenizer.Token())
+            CopyToken(token, stream);
+
+        contents = newContents;
     }
 }
