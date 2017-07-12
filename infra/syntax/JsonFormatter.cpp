@@ -116,6 +116,12 @@ namespace infra
         *stream << '"';
     }
 
+    void JsonObjectFormatter::AddMilliFloat(const char* tagName, uint32_t intValue, uint32_t milliFractionalValue)
+    {
+        InsertSeparation();
+        *stream << '"' << tagName << R"(":)" << intValue << '.' << infra::Width(3, '0') << milliFractionalValue;
+    }
+
     void JsonObjectFormatter::AddSubObject(const char* tagName, infra::BoundedConstString json)
     {
         InsertSeparation();
