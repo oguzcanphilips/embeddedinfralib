@@ -1,6 +1,6 @@
 #include "gmock/gmock.h"
 #include "hal/windows/SynchronousRandomDataGeneratorWin.hpp"
-#include "infra/event/test_helper/EventDispatcherWithWeakPtrFixture.hpp"
+#include "infra/timer/test_helper/ClockFixture.hpp"
 #include "infra/util/test_helper/MockHelpers.hpp"
 #include "mbedtls/config.h"
 #include "mbedtls/certs.h"
@@ -11,7 +11,7 @@
 
 class ConnectionMbedTlsTest
     : public testing::Test
-    , public infra::EventDispatcherWithWeakPtrFixture
+    , public infra::ClockFixture
 {
 public:
     ConnectionMbedTlsTest()
@@ -62,8 +62,8 @@ TEST_F(ConnectionMbedTlsTest, Listen_returns_listener)
 
 TEST_F(ConnectionMbedTlsTest, create_connection)
 {
-    services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 1, 0> tlsNetworkServer(loopBackNetwork, serverCertificates, randomDataGenerator);
     services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 0, 1> tlsNetworkClient(loopBackNetwork, clientCertificates, randomDataGenerator);
+    services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 1, 0> tlsNetworkServer(loopBackNetwork, serverCertificates, randomDataGenerator);
     infra::SharedPtr<void> listener = tlsNetworkServer.Listen(1234, serverObserverFactory);
     infra::SharedPtr<void> connector = tlsNetworkClient.Connect(services::IPv4Address(), 1234, clientObserverFactory);
     
@@ -101,4 +101,39 @@ TEST_F(ConnectionMbedTlsTest, send_and_receive_data)
     EXPECT_EQ((std::vector<uint8_t>{ 5, 6, 7, 8 }), observer2->receivedData);
 
     observer1->Subject().AbortAndDestroy();
+}
+
+TEST_F(ConnectionMbedTlsTest, reopen_connection)
+{
+    services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 1, 0> tlsNetworkServer(loopBackNetwork, serverCertificates, randomDataGenerator);
+    services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 0, 1> tlsNetworkClient(loopBackNetwork, clientCertificates, randomDataGenerator);
+    infra::SharedPtr<void> listener = tlsNetworkServer.Listen(1234, serverObserverFactory);
+
+    {
+        infra::SharedPtr<void> connector = tlsNetworkClient.Connect(services::IPv4Address(), 1234, clientObserverFactory);
+
+        infra::SharedOptional<services::ConnectionObserverStub> observer1;
+        infra::SharedOptional<services::ConnectionObserverStub> observer2;
+        EXPECT_CALL(serverObserverFactory, ConnectionAccepted(testing::_))
+            .WillOnce(infra::Lambda([&](services::Connection& connection) { return observer1.Emplace(connection); }));
+        EXPECT_CALL(clientObserverFactory, ConnectionEstablished(testing::_))
+            .WillOnce(infra::Lambda([&](services::Connection& connection) { return observer2.Emplace(connection); }));
+        ExecuteAllActions();
+
+        observer1->Subject().AbortAndDestroy();
+    }
+
+    {
+        infra::SharedPtr<void> connector = tlsNetworkClient.Connect(services::IPv4Address(), 1234, clientObserverFactory);
+
+        infra::SharedOptional<services::ConnectionObserverStub> observer1;
+        infra::SharedOptional<services::ConnectionObserverStub> observer2;
+        EXPECT_CALL(serverObserverFactory, ConnectionAccepted(testing::_))
+            .WillOnce(infra::Lambda([&](services::Connection& connection) { return observer1.Emplace(connection); }));
+        EXPECT_CALL(clientObserverFactory, ConnectionEstablished(testing::_))
+            .WillOnce(infra::Lambda([&](services::Connection& connection) { return observer2.Emplace(connection); }));
+        ExecuteAllActions();
+
+        observer1->Subject().AbortAndDestroy();
+    }
 }

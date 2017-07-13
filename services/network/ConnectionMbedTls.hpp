@@ -7,6 +7,7 @@
 #include "infra/util/SharedOptional.hpp"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/ssl.h"
+#include "mbedtls/ssl_cache.h"
 #include "services/network/Connection.hpp"
 
 namespace services
@@ -36,7 +37,8 @@ namespace services
         , public infra::EnableSharedFromThis<ConnectionMbedTls>
     {
     public:
-        ConnectionMbedTls(Connection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server);
+        ConnectionMbedTls(Connection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator,
+            bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession);
         ~ConnectionMbedTls();
 
         // ConnectionObserver
@@ -110,6 +112,8 @@ namespace services
 
     private:
         hal::SynchronousRandomDataGenerator& randomDataGenerator;
+        bool server;
+        mbedtls2_ssl_session* clientSession;
         mbedtls2_ssl_context sslContext;
         mbedtls2_ssl_config sslConfig;
         mbedtls2_ctr_drbg_context ctr_drbg;
@@ -129,14 +133,15 @@ namespace services
     };
 
     using AllocatorConnectionMbedTls = infra::SharedObjectAllocator<ConnectionMbedTls,
-        void(Connection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server)>;
+        void(Connection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator,
+            bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession)>;
 
     class ConnectionMbedTlsListener
         : public ServerConnectionObserverFactory
     {
     public:
         ConnectionMbedTlsListener(AllocatorConnectionMbedTls& allocator, ServerConnectionObserverFactory& factory,
-            MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator);
+            MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_cache_context& serverCache);
 
         virtual infra::SharedPtr<ConnectionObserver> ConnectionAccepted(Connection& newConnection) override;
 
@@ -147,17 +152,19 @@ namespace services
         ServerConnectionObserverFactory& factory;
         MbedTlsCertificates& certificates;
         hal::SynchronousRandomDataGenerator& randomDataGenerator;
+        mbedtls2_ssl_cache_context& serverCache;
         infra::SharedPtr<void> listener;
     };
 
     using AllocatorConnectionMbedTlsListener = infra::SharedObjectAllocator<ConnectionMbedTlsListener,
-        void(AllocatorConnectionMbedTls& allocator, ServerConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)>;
+        void(AllocatorConnectionMbedTls& allocator, ServerConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_cache_context& serverCache)>;
 
     class ConnectionMbedTlsConnector
         : public ClientConnectionObserverFactory
     {
     public:
-        ConnectionMbedTlsConnector(AllocatorConnectionMbedTls& allocator, ClientConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator);
+        ConnectionMbedTlsConnector(AllocatorConnectionMbedTls& allocator, ClientConnectionObserverFactory& factory,
+            MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_session& clientSession);
 
         virtual infra::SharedPtr<ConnectionObserver> ConnectionEstablished(Connection& newConnection) override;
         virtual void ConnectionFailed(ConnectFailReason reason) override;
@@ -169,11 +176,13 @@ namespace services
         ClientConnectionObserverFactory& factory;
         MbedTlsCertificates& certificates;
         hal::SynchronousRandomDataGenerator& randomDataGenerator;
+        mbedtls2_ssl_session& clientSession;
         infra::SharedPtr<void> connector;
     };
 
     using AllocatorConnectionMbedTlsConnector = infra::SharedObjectAllocator<ConnectionMbedTlsConnector,
-        void(AllocatorConnectionMbedTls& allocator, ClientConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)>;
+        void(AllocatorConnectionMbedTls& allocator, ClientConnectionObserverFactory& factory, MbedTlsCertificates& certificates,
+            hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_session& clientSession)>;
 
 #ifdef _MSC_VER                                                                                                         //TICS !POR#021
 #pragma warning(disable:4503)                                                                                           //TICS !POR#018
@@ -191,6 +200,7 @@ namespace services
 
         ConnectionFactoryMbedTls(AllocatorConnectionMbedTls& connectionAllocator, AllocatorConnectionMbedTlsListener& listenerAllocator, AllocatorConnectionMbedTlsConnector& connectorAllocator,
             ConnectionFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator);
+        ~ConnectionFactoryMbedTls();
 
         virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionObserverFactory& connectionObserverFactory) override;
         virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& connectionObserverFactory) override;
@@ -202,6 +212,8 @@ namespace services
         ConnectionFactory& factory;
         MbedTlsCertificates& certificates;
         hal::SynchronousRandomDataGenerator& randomDataGenerator;
+        mbedtls2_ssl_cache_context serverCache;
+        mbedtls2_ssl_session clientSession = {};
     };
 }
 
