@@ -7,6 +7,8 @@ ccola_component(network static_library)
 		Connection.hpp
 		ConnectionMbedTls.cpp
 		ConnectionMbedTls.hpp
+		TracingConnectionMbedTls.cpp
+		TracingConnectionMbedTls.hpp
 	)
 
 	ccola_dependencies(
@@ -15,6 +17,7 @@ ccola_component(network static_library)
 		infra.timer
 		crypto.mbed_tls
 		hal.synchronous_interfaces
+		services.tracer
 	)
 
 ccola_end_component()
