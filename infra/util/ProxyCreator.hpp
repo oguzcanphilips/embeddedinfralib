@@ -29,7 +29,7 @@ namespace infra
     class DelayedProxyCreator
     {
     public:
-        DelayedProxyCreator(CreatorBase<T, ConstructionArgs...>& creator);
+        explicit DelayedProxyCreator(CreatorBase<T, ConstructionArgs...>& creator);
         ~DelayedProxyCreator();
 
         void Emplace(ConstructionArgs... args);
@@ -71,7 +71,7 @@ namespace infra
     {
     public:
         Creator();
-        Creator(infra::Function<void(infra::Optional<U>&, ConstructionArgs...)> emplaceFunction);
+        explicit Creator(infra::Function<void(infra::Optional<U>&, ConstructionArgs...)> emplaceFunction);
 
         virtual void Emplace(ConstructionArgs... args) override;
         virtual void Destroy() override;

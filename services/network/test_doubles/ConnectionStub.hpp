@@ -9,7 +9,7 @@
 namespace services
 {
     //TICS -INT#002: A mock or stub may have public data
-    //TICS -INT#027: A MOCK macro should not add virtual to its signature
+    //TICS -INT#027: MOCK_METHOD can't add 'virtual' to its signature
     class ConnectionStub
         : public services::Connection
         , public infra::EnableSharedFromThis<ConnectionStub>

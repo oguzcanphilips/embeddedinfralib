@@ -36,7 +36,6 @@ ccola_component(util static_library)
 		ProxyCreator.hpp
 		ReallyAssert.hpp
 		ReferenceCountedSingleton.hpp
-		ReferenceCountedSingletons.hpp
 		ReverseRange.hpp
 		Sequencer.hpp
 		SharedObjectAllocator.hpp
