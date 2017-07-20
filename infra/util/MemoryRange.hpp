@@ -75,6 +75,8 @@ namespace infra
         MemoryRange<T> MakeRange(std::vector<T>& range);
     template<class T>
         MemoryRange<const T> MakeRange(const std::vector<T>& range);
+    template<class T>
+        MemoryRange<const T> MakeConst(infra::MemoryRange<T> range);
 
     template<class T, class U>
         MemoryRange<T> ReinterpretCastMemoryRange(MemoryRange<U> memoryRange);
@@ -314,6 +316,12 @@ namespace infra
 
     template<class T>
     MemoryRange<const T> MakeRange(const std::vector<T>& range)
+    {
+        return MemoryRange<const T>(range);
+    }
+
+    template<class T>
+    MemoryRange<const T> MakeConst(infra::MemoryRange<T> range)
     {
         return MemoryRange<const T>(range);
     }

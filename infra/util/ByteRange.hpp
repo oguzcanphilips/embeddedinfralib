@@ -31,18 +31,18 @@ namespace infra
     template<class U>
     ByteRange ReinterpretCastByteRange(MemoryRange<U> memoryRange)
     {
-        return ByteRange(reinterpret_cast<uint8_t*>(memoryRange.begin()), reinterpret_cast<uint8_t*>(memoryRange.end()));
+        return ReinterpretCastMemoryRange<uint8_t>(memoryRange);
     }
 
     template<class U>
     ConstByteRange ReinterpretCastByteRange(MemoryRange<const U> memoryRange)
     {
-        return ConstByteRange(reinterpret_cast<const uint8_t*>(memoryRange.begin()), reinterpret_cast<const uint8_t*>(memoryRange.end()));
+        return ReinterpretCastMemoryRange<const uint8_t>(memoryRange);
     }
 
     inline ByteRange ConstCastByteRange(ConstByteRange byteRange)
     {
-        return ByteRange(const_cast<uint8_t*>(byteRange.begin()), const_cast<uint8_t*>(byteRange.end()));               //TICS !CON#002
+        return ConstCastMemoryRange<uint8_t>(byteRange);
     }
         
     template<class T>

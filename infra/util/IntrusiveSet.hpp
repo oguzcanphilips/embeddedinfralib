@@ -32,7 +32,7 @@ namespace infra
                 black
             };
 
-            Colour colour;
+            Colour colour = Colour::red;
         };
     }
 
@@ -280,10 +280,12 @@ namespace infra
                 }
             }
 
-            if (oldReplacement != nullptr && *oldReplacement != nullptr)
-                (*oldReplacement)->colour = replacement->colour;
             if (replacement != nullptr)
+            {
+                if (oldReplacement != nullptr && *oldReplacement != nullptr)
+                    (*oldReplacement)->colour = replacement->colour;
                 replacement->colour = value.colour;
+            }
         }
 
         while (doubleBlackParent != nullptr)

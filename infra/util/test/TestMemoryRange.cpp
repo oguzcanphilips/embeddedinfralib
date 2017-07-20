@@ -280,3 +280,20 @@ TEST(MemoryRangeTest, TestMakeVectorFromRange)
     std::array<uint8_t, 3> array { 2, 3, 4 };
     EXPECT_EQ((std::vector<uint8_t>{ 2, 3, 4}), infra::MakeVector(infra::ConstByteRange(array)));
 }
+
+TEST(MemoryRangeTest, ConstCasts)
+{
+    std::array<uint8_t, 3> array { 2, 3, 4 };
+
+    EXPECT_EQ(array, infra::ConstCastByteRange(infra::MakeRange(array)));
+    EXPECT_EQ(array, infra::ConstCastByteRange(infra::MakeConst(infra::MakeRange(array))));
+}
+
+TEST(MemoryRangeTest, MakeStringByteRange)
+{
+    const char* string = "string";
+    std::string stdString = "string";
+
+    EXPECT_EQ(infra::MemoryRange<const char>(string, string + std::strlen(string)), infra::ReinterpretCastMemoryRange<const char>(infra::MakeStringByteRange(string)));
+    EXPECT_EQ(infra::MemoryRange<const char>(stdString.data(), stdString.data() + stdString.size()), infra::ReinterpretCastMemoryRange<const char>(infra::MakeStringByteRange(stdString)));
+}

@@ -38,18 +38,6 @@ TEST_F(TracerAdapterPrintfTest, print_format_string_to_tracer)
     EXPECT_EQ("Hello, Tracer!", stream.Storage());
 }
 
-TEST_F(TracerAdapterPrintfTest, print_null_to_tracer)
-{
-    Print(nullptr);
-    EXPECT_EQ("", stream.Storage());
-}
-
-TEST_F(TracerAdapterPrintfTest, print_null_character_to_tracer)
-{
-    Print('\0');
-    EXPECT_EQ("", stream.Storage());
-}
-
 TEST_F(TracerAdapterPrintfTest, print_escaped_percent_sign_to_tracer)
 {
     Print("%%");
