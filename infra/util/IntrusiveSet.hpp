@@ -239,9 +239,9 @@ namespace infra
 
         {
             // Step 1
-            bool twoChildren = value.left && value.right;
+            bool twoChildren = value.left && value.right;                                                               //TICS !OLC#006
 
-            T* valueParent = value.parent;
+            T* valueParent = value.parent;                                                                              //TICS !OLC#006
             T* replacement;
             T* oldReplacementParent;
             T** oldReplacement;

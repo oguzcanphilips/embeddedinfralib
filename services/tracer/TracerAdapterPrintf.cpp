@@ -26,22 +26,25 @@ namespace services
         if (*format == '0')
             ++format;
 
-        int lengthSpecifier = 0;
-        ReadLength(format, lengthSpecifier);
+        int lengthSpecifier = ReadLength(format);
         SkipSize(format);
         ParseFormat(*format, lengthSpecifier, args);
     }
 
-    void TracerAdapterPrintf::ReadLength(const char*& format, int& lengthSpecifier)
+    int TracerAdapterPrintf::ReadLength(const char*& format) const
     {
+        int lengthSpecifier = 0;
+
         while (*format == 'l')
         {
             ++lengthSpecifier;
             ++format;
         }
+
+        return lengthSpecifier;
     }
 
-    void TracerAdapterPrintf::SkipSize(const char*& format)
+    void TracerAdapterPrintf::SkipSize(const char*& format) const
     {
         while (*format > '0' && *format <= '9')
             ++format;

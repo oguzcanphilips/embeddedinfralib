@@ -144,10 +144,9 @@ namespace infra
 
         public:
             BoundedForwardListIterator();
-            BoundedForwardListIterator(NodeType* node);
+            explicit BoundedForwardListIterator(NodeType* node);
             template<class T2>
-                BoundedForwardListIterator(const BoundedForwardListIterator<T2>& other);
-
+                BoundedForwardListIterator(const BoundedForwardListIterator<T2>& other);                                //TICS !INT#001
             template<class T2>
                 BoundedForwardListIterator& operator=(const BoundedForwardListIterator<T2>& other);
 
@@ -476,7 +475,7 @@ namespace infra
         NodeType* node = position.node().next;
         position.node().next = 0;
 
-        while (node)
+        while (node != nullptr)
         {
             node->storage.Destruct();
             NodeType* oldFreeList = freeList;
@@ -539,10 +538,8 @@ namespace infra
     template<class T>
     void BoundedForwardList<T>::clear()
     {
-        while (firstNode)
-        {
+        while (firstNode != nullptr)
             pop_front();
-        }
     }
 
     template<class T>
@@ -612,7 +609,7 @@ namespace infra
     {
         NodeType* result;
 
-        if (freeList)
+        if (freeList != nullptr)
         {
             result = freeList;
             freeList = freeList->next;

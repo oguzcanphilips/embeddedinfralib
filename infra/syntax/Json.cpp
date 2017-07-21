@@ -896,12 +896,12 @@ namespace infra
                 : stream(stream)
             {}
 
-            void operator()(infra::JsonToken::End)
+            void operator()(infra::JsonToken::End) const
             {
                 std::abort();
             }
 
-            void operator()(infra::JsonToken::Error)
+            void operator()(infra::JsonToken::Error) const
             {
                 std::abort();
             }

@@ -1,13 +1,11 @@
 #include "services/tracer/Tracer.hpp"
 
-namespace
-{
-    static services::Tracer* globalTracerInstance = nullptr;
-}
-
 namespace services
 {
-    Tracer* globalTracerInstance = nullptr;
+    namespace
+    {
+        Tracer* globalTracerInstance = nullptr;
+    }
 
     void SetGlobalTracerInstance(Tracer& tracer)
     {

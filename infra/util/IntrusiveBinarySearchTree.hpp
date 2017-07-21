@@ -445,7 +445,7 @@ namespace infra
             {
                 nextInOrder = nextInOrder->right;
 
-                while (nextInOrder->left)
+                while (nextInOrder->left != nullptr)
                     nextInOrder = nextInOrder->left;
             }
             else

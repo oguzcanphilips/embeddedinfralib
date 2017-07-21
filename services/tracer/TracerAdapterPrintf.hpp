@@ -15,8 +15,8 @@ namespace services
 
     private:
         void HandleFormat(const char*& format, va_list& args);
-        void ReadLength(const char*& format, int& lengthSpecifier);
-        void SkipSize(const char*& format);
+        int ReadLength(const char*& format) const;
+        void SkipSize(const char*& format) const;
         void ParseFormat(char format, int lengthSpecifier, va_list& args);
 
     private:
