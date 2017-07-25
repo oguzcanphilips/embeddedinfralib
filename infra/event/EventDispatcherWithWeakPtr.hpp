@@ -59,10 +59,10 @@ namespace infra
             void Schedule(const typename std::decay<infra::Function<void(const infra::SharedPtr<T>& object)>>::type& action, const infra::WeakPtr<T>& object);
 
         virtual std::size_t MinCapacity() const override;
+        virtual bool IsIdle() const override;
 
         void Run();
         void ExecuteAllActions();
-        bool IsIdle() const;
 
     protected:
         virtual void RequestExecution();
@@ -147,7 +147,7 @@ namespace infra
     EventDispatcherWithWeakPtrConnector<T>::EventDispatcherWithWeakPtrConnector(MemoryRange<std::pair<EventDispatcherWithWeakPtrWorker::ActionStorage, std::atomic<bool>>> scheduledActionsStorage, ConstructionArgs&&... args)
         : infra::InterfaceConnector<EventDispatcherWorker>(this)
         , infra::InterfaceConnector<EventDispatcherWithWeakPtrWorker>(this)
-        , T(scheduledActionsStorage, std::forward(args)...)
+        , T(scheduledActionsStorage, std::forward<ConstructionArgs>(args)...)
     {}
 }
 
