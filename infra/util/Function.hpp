@@ -132,6 +132,12 @@ namespace infra
         friend class Function;
     };
 
+    class Execute
+    {
+    public:
+        Execute(Function<void()> f);
+    };
+
     static const infra::Function<void()> emptyFunction = []() {};
 
     template<std::size_t ExtraSize, class Result, class... Args>
@@ -375,6 +381,11 @@ namespace infra
     bool Function<Result(Args...), ExtraSize>::Initialized() const
     {
         return invokerFunctions.virtualMethodTable != nullptr;                                                  //TICS !CON#007
+    }
+
+    inline Execute::Execute(Function<void()> f)
+    {
+        f();
     }
 
     template<std::size_t ExtraSize, class Result, class... Args>
