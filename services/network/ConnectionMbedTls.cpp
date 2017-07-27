@@ -151,6 +151,7 @@ namespace services
     void ConnectionMbedTls::AckReceived()
     {
         receiveStream->ConsumeRead();
+        DataReceived();
     }
 
     void ConnectionMbedTls::CloseAndDestroy()
