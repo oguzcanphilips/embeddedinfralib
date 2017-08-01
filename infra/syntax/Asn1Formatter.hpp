@@ -34,7 +34,7 @@ namespace infra
         Asn1ContainerFormatter StartContextSpecific(uint8_t context = 0);
         Asn1ContainerFormatter StartBitString();
 
-        bool HasFailed() const;
+        bool Failed() const;
 
     protected:
         infra::DataOutputStream& Stream();

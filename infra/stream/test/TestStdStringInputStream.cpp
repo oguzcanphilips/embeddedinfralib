@@ -29,7 +29,7 @@ TEST(StdStringInputStreamTest, ExtractHexFrowStdStringInputStreamWithOverflow)
     uint8_t v(1);
     stream >> infra::hex >> v;
     EXPECT_EQ(0, v);
-    EXPECT_TRUE(stream.HasFailed());
+    EXPECT_TRUE(stream.Failed());
 }
 
 TEST(StdStringInputStreamTest, ExtractStringLiteral)

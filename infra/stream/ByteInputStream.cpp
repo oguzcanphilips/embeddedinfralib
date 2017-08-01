@@ -2,42 +2,40 @@
 
 namespace infra
 {
-    ByteInputStream::ByteInputStream(ConstByteRange range)
-        : DataInputStream(static_cast<StreamReader&>(*this))
-        , range(range)
+    ByteInputStreamReader::ByteInputStreamReader(ConstByteRange range)
+        : range(range)
     {}
 
-    ByteInputStream::ByteInputStream(ConstByteRange range, SoftFail)
+    ByteInputStreamReader::ByteInputStreamReader(ConstByteRange range, SoftFail)
         : StreamReader(infra::softFail)
-        , DataInputStream(static_cast<StreamReader&>(*this))
         , range(range)
     {}
 
-    ConstByteRange ByteInputStream::Processed() const
+    ConstByteRange ByteInputStreamReader::Processed() const
     {
         return MakeRange(range.begin(), range.begin() + offset);
     }
 
-    ConstByteRange ByteInputStream::Remaining() const
+    ConstByteRange ByteInputStreamReader::Remaining() const
     {
         return MakeRange(range.begin() + offset, range.end());
     }
 
-    void ByteInputStream::Extract(ByteRange dataRange)
+    void ByteInputStreamReader::Extract(ByteRange dataRange)
     {
         ReportResult(dataRange.size() <= range.size() - offset);
         std::copy(range.begin() + offset, range.begin() + offset + dataRange.size(), dataRange.begin());
         offset += dataRange.size();
     }
 
-    uint8_t ByteInputStream::ExtractOne()
+    uint8_t ByteInputStreamReader::ExtractOne()
     {
         uint8_t element;
         Extract(MakeByteRange(element));
         return element;
     }
 
-    uint8_t ByteInputStream::Peek()
+    uint8_t ByteInputStreamReader::Peek()
     {
         uint8_t element;
         ByteRange dataRange(MakeByteRange(element));
@@ -46,7 +44,7 @@ namespace infra
         return element;
     }
 
-    ConstByteRange ByteInputStream::ExtractContiguousRange(std::size_t max)
+    ConstByteRange ByteInputStreamReader::ExtractContiguousRange(std::size_t max)
     {
         ConstByteRange result = range;
         result.pop_front(offset);
@@ -55,12 +53,12 @@ namespace infra
         return result;
     }
 
-    bool ByteInputStream::IsEmpty() const
+    bool ByteInputStreamReader::Empty() const
     {
         return offset == range.size();
     }
 
-    std::size_t ByteInputStream::SizeAvailable() const
+    std::size_t ByteInputStreamReader::Available() const
     {
         return range.size() - offset;
     }

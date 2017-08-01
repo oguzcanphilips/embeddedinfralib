@@ -144,9 +144,9 @@ namespace infra
         return JsonArrayFormatter(*stream);
     }
 
-    bool JsonObjectFormatter::HasFailed() const
+    bool JsonObjectFormatter::Failed() const
     {
-        return stream->HasFailed();
+        return stream->Failed();
     }
 
     void JsonObjectFormatter::InsertSeparation()
@@ -238,9 +238,9 @@ namespace infra
         return JsonArrayFormatter(*stream);
     }
 
-    bool JsonArrayFormatter::HasFailed() const
+    bool JsonArrayFormatter::Failed() const
     {
-        return stream->HasFailed();
+        return stream->Failed();
     }
 
     void JsonArrayFormatter::InsertSeparation()

@@ -150,7 +150,7 @@ namespace services
 
     void ConnectionMbedTls::AckReceived()
     {
-        receiveStream->ConsumeRead();
+        receiveStream->Reader().ConsumeRead();
         DataReceived();
     }
 
@@ -320,19 +320,18 @@ namespace services
         ++sent;
     }
 
-    ConnectionMbedTls::ReceiveStreamMbedTls::ReceiveStreamMbedTls(ConnectionMbedTls& connection)
+    ConnectionMbedTls::StreamReaderMbedTls::StreamReaderMbedTls(ConnectionMbedTls& connection)
         : infra::StreamReader(infra::softFail)
-        , infra::DataInputStream(static_cast<infra::StreamReader&>(*this))
         , connection(connection)
     {}
 
-    void ConnectionMbedTls::ReceiveStreamMbedTls::ConsumeRead()
+    void ConnectionMbedTls::StreamReaderMbedTls::ConsumeRead()
     {
         connection.receiveBuffer.erase(connection.receiveBuffer.begin(), connection.receiveBuffer.begin() + sizeRead);
         sizeRead = 0;
     }
 
-    void ConnectionMbedTls::ReceiveStreamMbedTls::Extract(infra::ByteRange range)
+    void ConnectionMbedTls::StreamReaderMbedTls::Extract(infra::ByteRange range)
     {
         bool ok = sizeRead + range.size() <= connection.receiveBuffer.size();
         ReportResult(ok);
@@ -344,7 +343,7 @@ namespace services
         }
     }
 
-    uint8_t ConnectionMbedTls::ReceiveStreamMbedTls::ExtractOne()
+    uint8_t ConnectionMbedTls::StreamReaderMbedTls::ExtractOne()
     {
         bool ok = sizeRead + 1 <= connection.receiveBuffer.size();
         ReportResult(ok);
@@ -355,7 +354,7 @@ namespace services
             return 0;
     }
 
-    uint8_t ConnectionMbedTls::ReceiveStreamMbedTls::Peek()
+    uint8_t ConnectionMbedTls::StreamReaderMbedTls::Peek()
     {
         bool ok = sizeRead + 1 <= connection.receiveBuffer.size();
         ReportResult(ok);
@@ -366,19 +365,19 @@ namespace services
             return 0;
     }
 
-    infra::ConstByteRange ConnectionMbedTls::ReceiveStreamMbedTls::ExtractContiguousRange(std::size_t max)
+    infra::ConstByteRange ConnectionMbedTls::StreamReaderMbedTls::ExtractContiguousRange(std::size_t max)
     {
         infra::ConstByteRange result = infra::Head(connection.receiveBuffer.contiguous_range(connection.receiveBuffer.begin() + sizeRead), max);
         sizeRead += result.size();
         return result;
     }
 
-    bool ConnectionMbedTls::ReceiveStreamMbedTls::IsEmpty() const
+    bool ConnectionMbedTls::StreamReaderMbedTls::Empty() const
     {
         return connection.receiveBuffer.size() == sizeRead;
     }
 
-    std::size_t ConnectionMbedTls::ReceiveStreamMbedTls::SizeAvailable() const
+    std::size_t ConnectionMbedTls::StreamReaderMbedTls::Available() const
     {
         return connection.receiveBuffer.size() - sizeRead;
     }

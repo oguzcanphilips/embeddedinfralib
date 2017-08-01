@@ -237,7 +237,7 @@ TEST(StringOutputStreamTest, overflow)
 
     stream << "abc";
     EXPECT_EQ("ab", stream.Storage());
-    EXPECT_TRUE(stream.HasFailed());
+    EXPECT_TRUE(stream.Failed());
 }
 
 TEST(StringOutputStreamTest, overflow_with_noFail)
@@ -254,7 +254,7 @@ TEST(StringOutputStreamTest, overflow_twice)
 
     stream << "abc" << "def";
     EXPECT_EQ("ab", stream.Storage());
-    EXPECT_TRUE(stream.HasFailed());
+    EXPECT_TRUE(stream.Failed());
 }
 
 TEST(StringOutputStreamTest, format_simple_string)
@@ -377,7 +377,7 @@ TEST(StringOutputStreamTest, reserve_type_without_space)
     auto reservedSpace = stream.Reserve<uint32_t>();
     reservedSpace = uint32_t(32);
 
-    EXPECT_TRUE(stream.HasFailed());
+    EXPECT_TRUE(stream.Failed());
 }
 
 TEST(StringOutputStreamTest, stream_to_saved_point)

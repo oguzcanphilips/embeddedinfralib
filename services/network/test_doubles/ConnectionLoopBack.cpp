@@ -28,7 +28,7 @@ namespace services
 
     void ConnectionLoopBackPeer::AckReceived()
     {
-        receiveStream->ConsumeRead();
+        receiveStream->Reader().ConsumeRead();
 
         if (peer.requestedSendSize != 0)
             peer.TryAllocateSendStream();
@@ -96,46 +96,45 @@ namespace services
         ++sent;
     }
 
-    ConnectionLoopBackPeer::ReceiveStreamLoopBackPeer::ReceiveStreamLoopBackPeer(ConnectionLoopBackPeer& connection)
-        : infra::DataInputStream(static_cast<infra::StreamReader&>(*this))
-        , connection(connection)
+    ConnectionLoopBackPeer::StreamReaderLoopBack::StreamReaderLoopBack(ConnectionLoopBackPeer& connection)
+        : connection(connection)
     {}
 
-    void ConnectionLoopBackPeer::ReceiveStreamLoopBackPeer::ConsumeRead()
+    void ConnectionLoopBackPeer::StreamReaderLoopBack::ConsumeRead()
     {
         connection.sendBuffer.erase(connection.sendBuffer.begin(), connection.sendBuffer.begin() + sizeRead);
         sizeRead = 0;
     }
 
-    void ConnectionLoopBackPeer::ReceiveStreamLoopBackPeer::Extract(infra::ByteRange range)
+    void ConnectionLoopBackPeer::StreamReaderLoopBack::Extract(infra::ByteRange range)
     {
         std::copy(connection.sendBuffer.begin() + sizeRead, connection.sendBuffer.begin() + sizeRead + range.size(), range.begin());
         sizeRead += range.size();
     }
 
-    uint8_t ConnectionLoopBackPeer::ReceiveStreamLoopBackPeer::ExtractOne()
+    uint8_t ConnectionLoopBackPeer::StreamReaderLoopBack::ExtractOne()
     {
         return connection.sendBuffer[sizeRead++];
     }
 
-    uint8_t ConnectionLoopBackPeer::ReceiveStreamLoopBackPeer::Peek()
+    uint8_t ConnectionLoopBackPeer::StreamReaderLoopBack::Peek()
     {
         return connection.sendBuffer[sizeRead];
     }
 
-    infra::ConstByteRange ConnectionLoopBackPeer::ReceiveStreamLoopBackPeer::ExtractContiguousRange(std::size_t max)
+    infra::ConstByteRange ConnectionLoopBackPeer::StreamReaderLoopBack::ExtractContiguousRange(std::size_t max)
     {
         infra::ConstByteRange result = infra::Head(connection.sendBuffer.contiguous_range(connection.sendBuffer.begin() + sizeRead), max);
         sizeRead += result.size();
         return result;
     }
 
-    bool ConnectionLoopBackPeer::ReceiveStreamLoopBackPeer::IsEmpty() const
+    bool ConnectionLoopBackPeer::StreamReaderLoopBack::Empty() const
     {
         return connection.sendBuffer.size() == sizeRead;
     }
 
-    std::size_t ConnectionLoopBackPeer::ReceiveStreamLoopBackPeer::SizeAvailable() const
+    std::size_t ConnectionLoopBackPeer::StreamReaderLoopBack::Available() const
     {
         return connection.sendBuffer.size() - sizeRead;
     }

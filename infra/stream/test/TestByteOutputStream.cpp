@@ -57,7 +57,7 @@ TEST(ByteOutputStreamTest, reserve_type_without_space)
     auto reservedSpace = stream.Reserve<uint32_t>();
     reservedSpace = uint32_t(32);
 
-    EXPECT_TRUE(stream.HasFailed());
+    EXPECT_TRUE(stream.Failed());
 }
 
 TEST(ByteOutputStreamTest, stream_to_saved_point)

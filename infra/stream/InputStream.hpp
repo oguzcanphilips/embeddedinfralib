@@ -15,8 +15,8 @@ namespace infra
     class StreamReader
     {
     public:
-        StreamReader();
-        explicit StreamReader(SoftFail);
+        StreamReader() = default;
+        StreamReader(SoftFail);
         ~StreamReader();
 
         virtual void Extract(ByteRange range) = 0;
@@ -24,11 +24,13 @@ namespace infra
         virtual uint8_t Peek() = 0;
         virtual ConstByteRange ExtractContiguousRange(std::size_t max) = 0;
 
-        virtual bool IsEmpty() const = 0;
-        virtual std::size_t SizeAvailable() const = 0;
+        virtual bool Empty() const = 0;
+        virtual std::size_t Available() const = 0;
 
         bool Failed() const;
         void ReportResult(bool ok);
+
+        void SetSoftFail();
 
     private:
         bool softFail = false;
@@ -38,16 +40,18 @@ namespace infra
 
     class InputStream
     {
+    protected:
+        explicit InputStream(StreamReader& reader);
+        InputStream(StreamReader& reader, infra::SoftFail);
+        ~InputStream() = default;
+
     public:
         bool Empty() const;
         std::size_t Available() const;
         ConstByteRange ContiguousRange(std::size_t max = std::numeric_limits<std::size_t>::max());
-        bool HasFailed() const;
+        bool Failed() const;
 
     protected:
-        explicit InputStream(StreamReader& reader);
-        ~InputStream() = default;
-
         StreamReader& Reader();
 
     private:
@@ -58,7 +62,11 @@ namespace infra
         : public InputStream
     {
     public:
+        template<class Reader>
+            class WithReader;
+
         explicit DataInputStream(StreamReader& reader);
+        DataInputStream(StreamReader& reader, SoftFail);
 
         TextInputStream operator>>(Text);
         DataInputStream& operator>>(ByteRange range);
@@ -70,7 +78,11 @@ namespace infra
         : public InputStream
     {
     public:
+        template<class Reader>
+            class WithReader;
+
         explicit TextInputStream(StreamReader& reader);
+        TextInputStream(StreamReader& reader, SoftFail);
 
         DataInputStream operator>>(Data);
         TextInputStream operator>>(Hex);
@@ -101,12 +113,64 @@ namespace infra
         infra::Optional<std::size_t> width;
     };
 
+    template<class TheReader>
+    class DataInputStream::WithReader
+        : private detail::StorageHolder<TheReader, WithReader<TheReader>>
+        , public DataInputStream
+    {
+    public:
+        template<class... Args>
+            WithReader(Args&&... args);
+
+        TheReader& Reader();
+    };
+
+    template<class TheReader>
+    class TextInputStream::WithReader
+        : private detail::StorageHolder<TheReader, WithReader<TheReader>>
+        , public TextInputStream
+    {
+    public:
+        template<class... Args>
+            WithReader(Args&&... args);
+
+        TheReader& Reader();
+    };
+
+    ////    Implementation    ////
+
     template<class Data>
     DataInputStream& DataInputStream::operator>>(Data& data)
     {
         MemoryRange<typename std::remove_const<uint8_t>::type> dataRange(ReinterpretCastMemoryRange<typename std::remove_const<uint8_t>::type>(MakeRange(&data, &data + 1)));
         Reader().Extract(dataRange);
         return *this;
+    }
+
+    template<class TheReader>
+    template<class... Args>
+    DataInputStream::WithReader<TheReader>::WithReader(Args&&... args)
+        : detail::StorageHolder<TheReader, WithReader<TheReader>>(std::forward<Args>(args)...)
+        , DataInputStream(this->storage)
+    {}
+
+    template<class TheReader>
+    TheReader& DataInputStream::WithReader<TheReader>::Reader()
+    {
+        return this->storage;
+    }
+
+    template<class TheReader>
+    template<class... Args>
+    TextInputStream::WithReader<TheReader>::WithReader(Args&&... args)
+        : detail::StorageHolder<TheReader, WithReader<TheReader>>(std::forward<Args>(args)...)
+        , TextInputStream(this->storage)
+    {}
+
+    template<class TheReader>
+    TheReader& TextInputStream::WithReader<TheReader>::Reader()
+    {
+        return this->storage;
     }
 }
 

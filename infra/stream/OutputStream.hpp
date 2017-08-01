@@ -35,7 +35,7 @@ namespace infra
         virtual void RestoreState(infra::ByteRange range);
 
         void SetNoFail();
-        bool Failed() const;
+        bool HasFailed() const;
         void ReportResult(bool ok);
 
     private:
@@ -67,7 +67,7 @@ namespace infra
 
     public:
         void SetNoFail();
-        bool HasFailed() const;
+        bool Failed() const;
         const uint8_t* SaveMarker() const;
         std::size_t ProcessedBytesSince(const uint8_t* marker) const;
 

@@ -40,7 +40,7 @@ namespace infra
         failureMode = FailureMode::no;
     }
 
-    bool StreamWriter::Failed() const
+    bool StreamWriter::HasFailed() const
     {
         checkedFail = true;
         return failed;
@@ -71,9 +71,9 @@ namespace infra
         writer.SetNoFail();
     }
 
-    bool OutputStream::HasFailed() const
+    bool OutputStream::Failed() const
     {
-        return writer.Failed();
+        return writer.HasFailed();
     }
 
     const uint8_t* OutputStream::SaveMarker() const

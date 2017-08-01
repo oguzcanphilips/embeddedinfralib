@@ -46,12 +46,11 @@ namespace services
             std::size_t sent = 0;
         };
 
-        class ReceiveStreamLoopBackPeer
-            : private infra::StreamReader
-            , public infra::DataInputStream
+        class StreamReaderLoopBack
+            : public infra::StreamReader
         {
         public:
-            explicit ReceiveStreamLoopBackPeer(ConnectionLoopBackPeer& connection);
+            explicit StreamReaderLoopBack(ConnectionLoopBackPeer& connection);
 
             void ConsumeRead();
 
@@ -60,8 +59,8 @@ namespace services
             virtual uint8_t ExtractOne() override;
             virtual uint8_t Peek() override;
             virtual infra::ConstByteRange ExtractContiguousRange(std::size_t max) override;
-            virtual bool IsEmpty() const override;
-            virtual std::size_t SizeAvailable() const override;
+            virtual bool Empty() const override;
+            virtual std::size_t Available() const override;
 
         private:
             ConnectionLoopBackPeer& connection;
@@ -74,7 +73,7 @@ namespace services
         infra::BoundedDeque<uint8_t>::WithMaxSize<1024> sendBuffer;
         infra::SharedOptional<SendStreamLoopBackPeer> sendStream;
         std::size_t requestedSendSize = 0;
-        infra::SharedOptional<ReceiveStreamLoopBackPeer> receiveStream;
+        infra::SharedOptional<infra::DataInputStream::WithReader<StreamReaderLoopBack>> receiveStream;
     };
 
     class ConnectionLoopBack

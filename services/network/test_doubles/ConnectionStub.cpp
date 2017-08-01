@@ -65,13 +65,12 @@ namespace services
         connection.sentData.push_back(element);
     }
 
-    ConnectionStub::ReceiveStreamStub::ReceiveStreamStub(ConnectionStub& connection)
-        : infra::DataInputStream(static_cast<infra::StreamReader&>(*this))
-        , infra::StreamReader(infra::softFail)
+    ConnectionStub::StreamReaderStub::StreamReaderStub(ConnectionStub& connection)
+        : infra::StreamReader(infra::softFail)
         , connection(connection)
     {}
 
-    void ConnectionStub::ReceiveStreamStub::Extract(infra::ByteRange range)
+    void ConnectionStub::StreamReaderStub::Extract(infra::ByteRange range)
     {
         ReportResult(connection.receivingData.size() - connection.receivingIndex >= range.size());
         range.shrink_from_back_to(connection.receivingData.size() - connection.receivingIndex);
@@ -79,14 +78,14 @@ namespace services
         connection.receivingIndex += range.size();
     }
 
-    uint8_t ConnectionStub::ReceiveStreamStub::ExtractOne()
+    uint8_t ConnectionStub::StreamReaderStub::ExtractOne()
     {
         uint8_t result;
         Extract(infra::MakeByteRange(result));
         return result;
     }
 
-    uint8_t ConnectionStub::ReceiveStreamStub::Peek()
+    uint8_t ConnectionStub::StreamReaderStub::Peek()
     {
         ReportResult(connection.receivingData.size() - connection.receivingIndex >= 1);
         if (connection.receivingData.size() - connection.receivingIndex >= 1)
@@ -95,7 +94,7 @@ namespace services
             return 0;
     }
 
-    infra::ConstByteRange ConnectionStub::ReceiveStreamStub::ExtractContiguousRange(std::size_t max)
+    infra::ConstByteRange ConnectionStub::StreamReaderStub::ExtractContiguousRange(std::size_t max)
     {
         infra::ConstByteRange available(connection.receivingData.data() + connection.receivingIndex, connection.receivingData.data() + connection.receivingData.size());
         infra::ConstByteRange result(infra::Head(available, max));
@@ -103,12 +102,12 @@ namespace services
         return result;
     }
 
-    bool ConnectionStub::ReceiveStreamStub::IsEmpty() const
+    bool ConnectionStub::StreamReaderStub::Empty() const
     {
         return connection.receivingData.size() == connection.receivingIndex;
     }
 
-    std::size_t ConnectionStub::ReceiveStreamStub::SizeAvailable() const
+    std::size_t ConnectionStub::StreamReaderStub::Available() const
     {
         return connection.receivingData.size() - connection.receivingIndex;
     }

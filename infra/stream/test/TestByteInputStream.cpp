@@ -16,7 +16,7 @@ TEST(ByteInputStreamTest, StreamFromRange)
 
     infra::ByteInputStream stream(from);
 
-    EXPECT_EQ(from, stream.Remaining());
+    EXPECT_EQ(from, stream.Reader().Remaining());
 
     stream >> to;
     EXPECT_EQ((To{ 0, 1 }), to);
@@ -25,7 +25,7 @@ TEST(ByteInputStreamTest, StreamFromRange)
     stream >> to;
     EXPECT_EQ((To{ 2, 3 }), to);
     EXPECT_TRUE(stream.Empty());
-    EXPECT_EQ(from, stream.Processed());
+    EXPECT_EQ(from, stream.Reader().Processed());
 }
 
 TEST(ByteInputStreamTest, StreamToMemoryRange)

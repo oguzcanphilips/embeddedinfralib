@@ -88,12 +88,11 @@ namespace services
             std::size_t sent = 0;
         };
 
-        class ReceiveStreamMbedTls
-            : private infra::StreamReader
-            , public infra::DataInputStream
+        class StreamReaderMbedTls
+            : public infra::StreamReader
         {
         public:
-            explicit ReceiveStreamMbedTls(ConnectionMbedTls& connection);
+            explicit StreamReaderMbedTls(ConnectionMbedTls& connection);
 
             void ConsumeRead();
 
@@ -102,8 +101,8 @@ namespace services
             virtual uint8_t ExtractOne() override;
             virtual uint8_t Peek() override;
             virtual infra::ConstByteRange ExtractContiguousRange(std::size_t max) override;
-            virtual bool IsEmpty() const override;
-            virtual std::size_t SizeAvailable() const override;
+            virtual bool Empty() const override;
+            virtual std::size_t Available() const override;
 
         private:
             ConnectionMbedTls& connection;
@@ -124,7 +123,7 @@ namespace services
         infra::SharedOptional<SendStreamMbedTls> sendStream;
         std::size_t requestedSendSize = 0;
         bool flushScheduled = false;
-        infra::SharedOptional<ReceiveStreamMbedTls> receiveStream;
+        infra::SharedOptional<infra::DataInputStream::WithReader<StreamReaderMbedTls>> receiveStream;
 
         infra::SharedPtr<infra::DataOutputStream> encryptedSendStream;
         std::size_t encryptedSendStreamSize = 0;

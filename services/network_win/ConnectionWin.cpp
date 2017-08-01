@@ -37,7 +37,7 @@ namespace services
 
     void ConnectionWin::AckReceived()
     {
-        receiveStream->ConsumeRead();
+        receiveStream->Reader().ConsumeRead();
     }
 
     void ConnectionWin::CloseAndDestroy()
@@ -148,46 +148,45 @@ namespace services
         connection.sendBuffer.push_back(element);
     }
 
-    ConnectionWin::ReceiveStreamWin::ReceiveStreamWin(ConnectionWin& connection)
-        : infra::DataInputStream(static_cast<infra::StreamReader&>(*this))
-        , connection(connection)
+    ConnectionWin::StreamReaderWin::StreamReaderWin(ConnectionWin& connection)
+        : connection(connection)
     {}
 
-    void ConnectionWin::ReceiveStreamWin::ConsumeRead()
+    void ConnectionWin::StreamReaderWin::ConsumeRead()
     {
         connection.receiveBuffer.erase(connection.receiveBuffer.begin(), connection.receiveBuffer.begin() + sizeRead);
         sizeRead = 0;
     }
 
-    void ConnectionWin::ReceiveStreamWin::Extract(infra::ByteRange range)
+    void ConnectionWin::StreamReaderWin::Extract(infra::ByteRange range)
     {
         std::copy(connection.receiveBuffer.begin() + sizeRead, connection.receiveBuffer.begin() + sizeRead + range.size(), range.begin());
         sizeRead += range.size();
     }
 
-    uint8_t ConnectionWin::ReceiveStreamWin::ExtractOne()
+    uint8_t ConnectionWin::StreamReaderWin::ExtractOne()
     {
         return connection.receiveBuffer[sizeRead++];
     }
 
-    uint8_t ConnectionWin::ReceiveStreamWin::Peek()
+    uint8_t ConnectionWin::StreamReaderWin::Peek()
     {
         return connection.receiveBuffer[sizeRead];
     }
 
-    infra::ConstByteRange ConnectionWin::ReceiveStreamWin::ExtractContiguousRange(std::size_t max)
+    infra::ConstByteRange ConnectionWin::StreamReaderWin::ExtractContiguousRange(std::size_t max)
     {
         infra::ConstByteRange result = infra::Head(connection.receiveBuffer.contiguous_range(connection.receiveBuffer.begin() + sizeRead), max);
         sizeRead += result.size();
         return result;
     }
 
-    bool ConnectionWin::ReceiveStreamWin::IsEmpty() const
+    bool ConnectionWin::StreamReaderWin::Empty() const
     {
         return connection.receiveBuffer.size() == sizeRead;
     }
 
-    std::size_t ConnectionWin::ReceiveStreamWin::SizeAvailable() const
+    std::size_t ConnectionWin::StreamReaderWin::Available() const
     {
         return connection.receiveBuffer.size() - sizeRead;
     }
