@@ -4,8 +4,7 @@
 #include "infra/util/StaticStorage.hpp"
 #include <cassert>
 
-// Two classes are available: ReferenceCountedSingleton, and ReferenceCountedSingletons (plural)
-// These classes help creating singletons that are constructed and destroyed based on a reference count.
+// This class helps creating a singleton that is constructed and destroyed based on a reference count.
 // This reference count is controlled by creating objects of a nested Access type, via which the access
 // to the singleton is controlled as well.
 
@@ -71,7 +70,7 @@ namespace infra
     template<class CRTP>
     CRTP& ReferenceCountedSingleton<CRTP>::Instance()
     {
-        assert(counter > 0);
+        assert(counter != 0);
         return *StorageHelper::storage;
     }
 

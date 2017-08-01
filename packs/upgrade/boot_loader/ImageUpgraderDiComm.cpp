@@ -130,8 +130,8 @@ namespace application
     void ImageUpgraderDiComm::FirmwareWriter::ReadChunkFromFlash()
     {
         chunk.resize(std::min(imageSize - imageSizeSent, maxChunkSize));
-        flash.ReadBuffer(infra::MakeRangeFromContainer(chunk), imageAddress + imageSizeSent);
-        decryptor.DecryptPart(infra::MakeRangeFromContainer(chunk));
+        flash.ReadBuffer(infra::MakeRange(chunk), imageAddress + imageSizeSent);
+        decryptor.DecryptPart(infra::MakeRange(chunk));
         ConvertChunkToBase64();
     }
 

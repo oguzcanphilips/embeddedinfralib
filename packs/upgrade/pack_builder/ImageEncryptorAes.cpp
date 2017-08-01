@@ -25,16 +25,16 @@ namespace application
     {
         std::vector<uint8_t> counter = randomNumberGenerator.Generate(blockLength);
 
-        mbedtls_aes_context ctx;
-        mbedtls_aes_init(&ctx);
-        mbedtls_aes_setkey_enc(&ctx, key.begin(), key.size() * 8);
+        mbedtls2_aes_context ctx;
+        mbedtls2_aes_init(&ctx);
+        mbedtls2_aes_setkey_enc(&ctx, key.begin(), key.size() * 8);
 
         std::vector<uint8_t> result = counter;
         result.resize(result.size() + data.size(), 0);
 
         size_t offset = 0;
         std::array<uint8_t, blockLength> stream_block = {};
-        int ret = mbedtls_aes_crypt_ctr(&ctx, data.size(), &offset, counter.data(), stream_block.data(), data.data(), result.data() + blockLength);     //TICS !INT#030
+        int ret = mbedtls2_aes_crypt_ctr(&ctx, data.size(), &offset, counter.data(), stream_block.data(), data.data(), result.data() + blockLength);     //TICS !INT#030
         if (ret != 0)
             throw std::exception("AES encryption failed");
 
@@ -69,6 +69,6 @@ namespace application
             ++currentStreamBlockOffset;
         }
 
-        return mbedtls_aes_self_test(0) == 0 && decrypted == original;
+        return mbedtls2_aes_self_test(0) == 0 && decrypted == original;
     }
 }

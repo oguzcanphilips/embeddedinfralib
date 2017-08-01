@@ -4,6 +4,7 @@ ccola_component(util_test gmock_test)
 		TestAllocatorFixedSpace.cpp
 		TestAllocatorHeap.cpp
 		TestAutoResetFunction.cpp
+		TestBitLogic.cpp
 		TestBoundedDeque.cpp
 		TestBoundedForwardList.cpp
 		TestBoundedList.cpp
@@ -31,7 +32,6 @@ ccola_component(util_test gmock_test)
 		TestSharedObjectAllocatorHeap.cpp
 		TestSharedOptional.cpp
 		TestSharedPtr.cpp
-		TestSignalSlot.cpp
 		TestStaticStorage.cpp
 		TestTokenizer.cpp
 		TestUnit.cpp

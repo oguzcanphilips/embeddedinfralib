@@ -25,25 +25,24 @@ namespace infra
         ConstByteRange MakeByteRange(const T& v);
     ConstByteRange MakeStringByteRange(const char* string);
     ConstByteRange MakeStringByteRange(const std::string& string);
-    std::vector<uint8_t> StringToByteVector(const char* string);
 
     ////    Implementation    ////
 
     template<class U>
     ByteRange ReinterpretCastByteRange(MemoryRange<U> memoryRange)
     {
-        return ByteRange(reinterpret_cast<uint8_t*>(memoryRange.begin()), reinterpret_cast<uint8_t*>(memoryRange.end()));
+        return ReinterpretCastMemoryRange<uint8_t>(memoryRange);
     }
 
     template<class U>
     ConstByteRange ReinterpretCastByteRange(MemoryRange<const U> memoryRange)
     {
-        return ConstByteRange(reinterpret_cast<const uint8_t*>(memoryRange.begin()), reinterpret_cast<const uint8_t*>(memoryRange.end()));
+        return ReinterpretCastMemoryRange<const uint8_t>(memoryRange);
     }
 
     inline ByteRange ConstCastByteRange(ConstByteRange byteRange)
     {
-        return ByteRange(const_cast<uint8_t*>(byteRange.begin()), const_cast<uint8_t*>(byteRange.end()));               //TICS !CON#002
+        return ConstCastMemoryRange<uint8_t>(byteRange);
     }
         
     template<class T>
@@ -72,11 +71,6 @@ namespace infra
     inline ConstByteRange MakeStringByteRange(const std::string& string)
     {
         return ReinterpretCastByteRange(MakeRange(string.data(), string.data() + string.size()));
-    }
-
-    inline std::vector<uint8_t> StringToByteVector(const char* string)
-    {
-        return std::vector<uint8_t>(reinterpret_cast<const uint8_t*>(string), reinterpret_cast<const uint8_t*>(string + std::strlen(string)));
     }
 }
 

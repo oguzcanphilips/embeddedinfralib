@@ -119,6 +119,32 @@ macro(ccola_sources_for_executable)
 endmacro()
 
 
+macro(ccola_add_binary source symbol)
+
+	# This macro adds a source file as binary data to an application.
+	# Two symbols will be defined: ${symbol}_start and ${symbol}_end,
+	# which point to the data.
+
+	ccola_make_absolute_from_source(absolute_source "${source}")
+	get_filename_component(path "${absolute_source}" DIRECTORY)
+	get_filename_component(name "${absolute_source}" NAME)
+	string(REPLACE "." "_" clean_name "${name}")
+
+	add_custom_command(
+		OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${name}.o"
+		COMMAND ${CCOLA_OBJ_COPY_TOOL} -I binary -O elf32-littlearm -B arm --redefine-sym _binary_${clean_name}_start=${symbol}_start --redefine-sym _binary_${clean_name}_end=${symbol}_end "${name}" "${CMAKE_CURRENT_BINARY_DIR}/${name}.o"
+		DEPENDS "${absolute_source}"
+		WORKING_DIRECTORY "${path}"
+	)
+
+	ccola_sources(
+	cortex:
+		"${CMAKE_CURRENT_BINARY_DIR}/${name}.o"
+	)
+
+endmacro()
+
+
 macro(ccola_source_dependencies)
 
 	if(NOT CCOLA_COMPONENT_SKIP)
@@ -430,6 +456,7 @@ macro(ccola_default_linker_scripts)
 
 	if(NOT CCOLA_COMPONENT_SKIP)
 		set(scripts "${ARGV}")
+		ccola_parse_selection_list(scripts)
 		foreach(script ${scripts})
 			ccola_source_dependencies("${script_path}")
 			ccola_set_source_group("Linker Scripts" "${script_path}")
@@ -445,6 +472,7 @@ macro(ccola_inherited_default_linker_scripts)
 
 	if(NOT CCOLA_COMPONENT_SKIP)
 		set(scripts "${ARGV}")
+		ccola_parse_selection_list(scripts)
 		foreach(script ${scripts})
 			ccola_make_absolute(script_path "${script}")
 			list(APPEND CCOLA_COMPONENT_DEFAULT_LINKER_SCRIPTS "${script_path}")

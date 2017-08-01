@@ -28,9 +28,9 @@ TEST_F(SpiMasterWithChipSelectTest, ChipSelectStartsHigh)
 
 TEST_F(SpiMasterWithChipSelectTest, on_StartSession_chip_select_is_activated)
 {
-    EXPECT_CALL(spiMock, SendAndReceiveMock(testing::_, testing::_)).WillOnce(testing::Return(std::make_pair(true, std::vector<uint8_t>{ 1 })));
+    std::vector<uint8_t> buffer = { 0 };
+    EXPECT_CALL(spiMock, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::stop, testing::_));
 
-    std::array<uint8_t, 1> buffer;
     spi->StartSession();
     spi->SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
 
@@ -39,9 +39,9 @@ TEST_F(SpiMasterWithChipSelectTest, on_StartSession_chip_select_is_activated)
 
 TEST_F(SpiMasterWithChipSelectTest, on_EndSession_chip_select_is_deactivated)
 {
-    EXPECT_CALL(spiMock, SendAndReceiveMock(testing::_, testing::_)).WillOnce(testing::Return(std::make_pair(true, std::vector<uint8_t>{ 1 })));
+    std::vector<uint8_t> buffer = { 0 };
+    EXPECT_CALL(spiMock, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::stop, testing::_));
 
-    std::array<uint8_t, 1> buffer;
     spi->StartSession();
     spi->SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     spi->EndSession();
@@ -51,12 +51,12 @@ TEST_F(SpiMasterWithChipSelectTest, on_EndSession_chip_select_is_deactivated)
 
 TEST_F(SpiMasterWithChipSelectTest, additional_ChipSelectConfigurator_is_invoked)
 {
+    std::vector<uint8_t> buffer = { 0 };
     hal::ChipSelectConfiguratorMock chipSelectConfiguratorMock;
     spi->SetChipSelectConfigurator(chipSelectConfiguratorMock);
 
-    EXPECT_CALL(spiMock, SendAndReceiveMock(testing::_, testing::_)).WillOnce(testing::Return(std::make_pair(true, std::vector<uint8_t>{ 1 })));
+    EXPECT_CALL(spiMock, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::stop, testing::_));
 
-    std::array<uint8_t, 1> buffer;
     EXPECT_CALL(chipSelectConfiguratorMock, StartSession());
     spi->StartSession();
     spi->SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);

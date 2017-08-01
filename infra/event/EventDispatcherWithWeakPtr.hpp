@@ -58,11 +58,11 @@ namespace infra
         template<class T>
             void Schedule(const typename std::decay<infra::Function<void(const infra::SharedPtr<T>& object)>>::type& action, const infra::WeakPtr<T>& object);
 
+        virtual std::size_t MinCapacity() const override;
+        virtual bool IsIdle() const override;
+
         void Run();
         void ExecuteAllActions();
-        bool IsIdle() const;
-
-        std::size_t MinCapacity() const;
 
     protected:
         virtual void RequestExecution();
@@ -103,6 +103,7 @@ namespace infra
     template<class T>
     void EventDispatcherWithWeakPtrWorker::Schedule(const typename std::decay<infra::Function<void(const infra::SharedPtr<T>& object)>>::type& action, const infra::SharedPtr<T>& object)
     {
+        assert(object != nullptr);
         Schedule(action, infra::WeakPtr<T>(object));
     }
 
@@ -121,7 +122,7 @@ namespace infra
         assert(!scheduledActions[pushIndex].second);
         scheduledActions[pushIndex].second = true;
 
-        minCapacity = std::min(minCapacity, (scheduledActions.size() + newPushIndex - scheduledActionsPopIndex) % scheduledActions.size());
+        minCapacity = std::min(minCapacity, (scheduledActions.size() + scheduledActionsPopIndex - pushIndex - 1) % scheduledActions.size() + 1);
         assert(minCapacity >= 1);
 
         RequestExecution();
@@ -146,7 +147,7 @@ namespace infra
     EventDispatcherWithWeakPtrConnector<T>::EventDispatcherWithWeakPtrConnector(MemoryRange<std::pair<EventDispatcherWithWeakPtrWorker::ActionStorage, std::atomic<bool>>> scheduledActionsStorage, ConstructionArgs&&... args)
         : infra::InterfaceConnector<EventDispatcherWorker>(this)
         , infra::InterfaceConnector<EventDispatcherWithWeakPtrWorker>(this)
-        , T(scheduledActionsStorage, std::forward(args)...)
+        , T(scheduledActionsStorage, std::forward<ConstructionArgs>(args)...)
     {}
 }
 

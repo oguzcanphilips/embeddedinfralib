@@ -211,3 +211,10 @@ TEST(FunctionTest, TestCompareToNullptr)
     EXPECT_NE(g, nullptr);
     EXPECT_NE(nullptr, g);
 }
+
+TEST(FunctionTest, Execute)
+{
+    infra::MockCallback<void()> m;
+    EXPECT_CALL(m, callback());
+    infra::Execute execute([&m]() { m.callback(); });
+}

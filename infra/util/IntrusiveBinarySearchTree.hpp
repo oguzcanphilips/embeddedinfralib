@@ -27,11 +27,11 @@ namespace infra
             IntrusiveBinarySearchTreeNode& operator=(const IntrusiveBinarySearchTreeNode& other);
 
         public:
-            T* parent = nullptr;
-            T* left = nullptr;
-            T* right = nullptr;
-            T* previousInOrder = nullptr;
-            T* nextInOrder = nullptr;
+            T* parent = nullptr;                                                                                        //TICS !INT#002
+            T* left = nullptr;                                                                                          //TICS !INT#002
+            T* right = nullptr;                                                                                         //TICS !INT#002
+            T* previousInOrder = nullptr;                                                                               //TICS !INT#002
+            T* nextInOrder = nullptr;                                                                                   //TICS !INT#002
         };
 
         template<class T, class Compare>
@@ -149,7 +149,7 @@ namespace infra
             IntrusiveBinarySearchTreeIterator();
             IntrusiveBinarySearchTreeIterator(const T* node, const TreeType& tree);
             template<class T2>
-            IntrusiveBinarySearchTreeIterator(const IntrusiveBinarySearchTreeIterator<T2, Compare>& other);
+                explicit IntrusiveBinarySearchTreeIterator(const IntrusiveBinarySearchTreeIterator<T2, Compare>& other);
 
             template<class T2>
             IntrusiveBinarySearchTreeIterator& operator=(const IntrusiveBinarySearchTreeIterator<T2, Compare>& other);
@@ -173,8 +173,8 @@ namespace infra
             template<class, class>
             friend class IntrusiveBinarySearchTree;
 
-            const TreeType* tree = nullptr;
             const T* node = nullptr;
+            const TreeType* tree = nullptr;
         };
     }
 
@@ -317,7 +317,7 @@ namespace infra
     {
         T* node = rootNode;
 
-        while (node)
+        while (node != nullptr)
         {
             if (node == &value)
                 return node;
@@ -358,10 +358,10 @@ namespace infra
         left->parent = top.parent;
         top.parent = left;
 
-        if (top.left)
+        if (top.left != nullptr)
             top.left->parent = &top;
 
-        if (left->parent)
+        if (left->parent != nullptr)
             parent_child_reference(*left->parent, top) = left;
         else
             rootNode = left;
@@ -377,23 +377,23 @@ namespace infra
         right->parent = top.parent;
         top.parent = right;
 
-        if (top.right)
+        if (top.right != nullptr)
             top.right->parent = &top;
 
-        if (right->parent)
+        if (right->parent != nullptr)
             parent_child_reference(*right->parent, top) = right;
         else
             rootNode = right;
     }
 
     template<class T, class Compare>
-    bool IntrusiveBinarySearchTree<T, Compare>::invariant_holds() const
+    bool IntrusiveBinarySearchTree<T, Compare>::invariant_holds() const                                                 //TICS !CFL#016
     {
         std::size_t nodesDiscovered = 0;
 
         const T* node = frontNode;
 
-        while (node)
+        while (node != nullptr)
         {
             ++nodesDiscovered;
 
@@ -401,7 +401,7 @@ namespace infra
             if ((node->parent == nullptr) != (node == rootNode))
                 return false;
 
-            if (node->parent)
+            if (node->parent != nullptr)
             {
                 if (node->parent->left == node)
                 {
@@ -417,7 +417,7 @@ namespace infra
                     return false;
             }
 
-            if (node->left)
+            if (node->left != nullptr)
             {
                 if (node->left->parent != node)
                     return false;
@@ -425,7 +425,7 @@ namespace infra
                     return false;
             }
 
-            if (node->right)
+            if (node->right != nullptr)
             {
                 if (node->right->parent != node)
                     return false;
@@ -441,11 +441,11 @@ namespace infra
                 return false;
 
             const T* nextInOrder = node;
-            if (nextInOrder->right)
+            if (nextInOrder->right != nullptr)
             {
                 nextInOrder = nextInOrder->right;
 
-                while (nextInOrder->left)
+                while (nextInOrder->left != nullptr)
                     nextInOrder = nextInOrder->left;
             }
             else
@@ -453,7 +453,7 @@ namespace infra
                 while (nextInOrder->parent && nextInOrder->parent->right == nextInOrder)
                     nextInOrder = nextInOrder->parent;
 
-                if (nextInOrder->parent)
+                if (nextInOrder->parent != nullptr)
                     nextInOrder = nextInOrder->parent;
                 else
                     nextInOrder = nullptr;
@@ -530,7 +530,7 @@ namespace infra
             {
                 if (compare(value, *current))
                 {
-                    if (current->left)
+                    if (current->left != nullptr)
                         current = current->left;
                     else
                     {
@@ -539,7 +539,7 @@ namespace infra
                         value.nextInOrder = current;
                         value.previousInOrder = current->previousInOrder;
                         current->previousInOrder = &value;
-                        if (value.previousInOrder)
+                        if (value.previousInOrder != nullptr)
                             value.previousInOrder->nextInOrder = &value;
                         else
                             frontNode = &value;
@@ -548,7 +548,7 @@ namespace infra
                 }
                 else
                 {
-                    if (current->right)
+                    if (current->right != nullptr)
                         current = current->right;
                     else
                     {
@@ -557,7 +557,7 @@ namespace infra
                         value.previousInOrder = current;
                         value.nextInOrder = current->nextInOrder;
                         current->nextInOrder = &value;
-                        if (value.nextInOrder)
+                        if (value.nextInOrder != nullptr)
                             value.nextInOrder->previousInOrder = &value;
                         else
                             backNode = &value;
@@ -569,7 +569,7 @@ namespace infra
     }
 
     template<class T, class Compare>
-    std::tuple<T*, T*, T**> IntrusiveBinarySearchTree<T, Compare>::remove_from_tree(reference value)
+    std::tuple<T*, T*, T**> IntrusiveBinarySearchTree<T, Compare>::remove_from_tree(reference value)                    //TICS !CFL#016
     {
         T* replacement = nullptr;
         T* oldReplacementParent = nullptr;
@@ -642,7 +642,7 @@ namespace infra
 
             if (replacement != value.right)
             {
-                if (replacement->right)
+                if (replacement->right != nullptr)
                     replacement->right->parent = replacement->parent;
                 replacement->parent->left = replacement->right;
 
@@ -679,9 +679,9 @@ namespace infra
     template<class T, class Compare>
     void IntrusiveBinarySearchTree<T, Compare>::erase_from_order(reference value)
     {
-        if (value.previousInOrder)
+        if (value.previousInOrder != nullptr)
             value.previousInOrder->nextInOrder = value.nextInOrder;
-        if (value.nextInOrder)
+        if (value.nextInOrder != nullptr)
             value.nextInOrder->previousInOrder = value.previousInOrder;
 
         value.nextInOrder = nullptr;
@@ -831,7 +831,7 @@ namespace infra
         template<class T, class Compare>
         IntrusiveBinarySearchTreeIterator<T, Compare>& IntrusiveBinarySearchTreeIterator<T, Compare>::operator--()
         {
-            if (node)
+            if (node != nullptr)
                 node = node->previousInOrder;
             else
                 node = &tree->back();

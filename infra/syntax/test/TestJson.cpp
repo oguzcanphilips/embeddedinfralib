@@ -164,6 +164,13 @@ TEST(JsonTokenizerTest, get_multiple_tokens)
     EXPECT_EQ(infra::JsonToken::Token(infra::JsonToken::End()), tokenizer.Token());
 }
 
+TEST(JsonTokenizerTest, clean_json)
+{
+    infra::BoundedString::WithStorage<512> data(R"({ "key" : "value", "key2" : 1234, "key3" : true })");
+    infra::CleanJsonContents(data);
+    EXPECT_EQ(R"({"key":"value","key2":1234,"key3":true})", data);
+}
+
 TEST(JsonObjectIteratorTest, empty_object_iterator_compares_equal_to_end)
 {
     infra::JsonObject object(R"({ })");

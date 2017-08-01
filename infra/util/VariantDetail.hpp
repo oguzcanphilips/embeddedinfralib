@@ -12,6 +12,10 @@ namespace infra
     template<class R>
     class StaticVisitor
     {
+    protected:
+        StaticVisitor() = default;
+        ~StaticVisitor() = default;
+
     public:
         typedef R ResultType;
     };

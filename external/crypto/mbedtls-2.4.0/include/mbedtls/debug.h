@@ -40,28 +40,28 @@
 #define MBEDTLS_DEBUG_STRIP_PARENS( ... )   __VA_ARGS__
 
 #define MBEDTLS_SSL_DEBUG_MSG( level, args )                    \
-    mbedtls_debug_print_msg( ssl, level, __FILE__, __LINE__,    \
+    mbedtls2_debug_print_msg( ssl, level, __FILE__, __LINE__,    \
                              MBEDTLS_DEBUG_STRIP_PARENS args )
 
 #define MBEDTLS_SSL_DEBUG_RET( level, text, ret )                \
-    mbedtls_debug_print_ret( ssl, level, __FILE__, __LINE__, text, ret )
+    mbedtls2_debug_print_ret( ssl, level, __FILE__, __LINE__, text, ret )
 
 #define MBEDTLS_SSL_DEBUG_BUF( level, text, buf, len )           \
-    mbedtls_debug_print_buf( ssl, level, __FILE__, __LINE__, text, buf, len )
+    mbedtls2_debug_print_buf( ssl, level, __FILE__, __LINE__, text, buf, len )
 
 #if defined(MBEDTLS_BIGNUM_C)
 #define MBEDTLS_SSL_DEBUG_MPI( level, text, X )                  \
-    mbedtls_debug_print_mpi( ssl, level, __FILE__, __LINE__, text, X )
+    mbedtls2_debug_print_mpi( ssl, level, __FILE__, __LINE__, text, X )
 #endif
 
 #if defined(MBEDTLS_ECP_C)
 #define MBEDTLS_SSL_DEBUG_ECP( level, text, X )                  \
-    mbedtls_debug_print_ecp( ssl, level, __FILE__, __LINE__, text, X )
+    mbedtls2_debug_print_ecp( ssl, level, __FILE__, __LINE__, text, X )
 #endif
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
 #define MBEDTLS_SSL_DEBUG_CRT( level, text, crt )                \
-    mbedtls_debug_print_crt( ssl, level, __FILE__, __LINE__, text, crt )
+    mbedtls2_debug_print_crt( ssl, level, __FILE__, __LINE__, text, crt )
 #endif
 
 #else /* MBEDTLS_DEBUG_C */
@@ -94,7 +94,7 @@ extern "C" {
  *                              - 3 Informational
  *                              - 4 Verbose
  */
-void mbedtls_debug_set_threshold( int threshold );
+void mbedtls2_debug_set_threshold( int threshold );
 
 /**
  * \brief    Print a message to the debug output. This function is always used
@@ -111,7 +111,7 @@ void mbedtls_debug_set_threshold( int threshold );
  * \attention       This function is intended for INTERNAL usage within the
  *                  library only.
  */
-void mbedtls_debug_print_msg( const mbedtls_ssl_context *ssl, int level,
+void mbedtls2_debug_print_msg( const mbedtls2_ssl_context *ssl, int level,
                               const char *file, int line,
                               const char *format, ... );
 
@@ -130,7 +130,7 @@ void mbedtls_debug_print_msg( const mbedtls_ssl_context *ssl, int level,
  * \attention       This function is intended for INTERNAL usage within the
  *                  library only.
  */
-void mbedtls_debug_print_ret( const mbedtls_ssl_context *ssl, int level,
+void mbedtls2_debug_print_ret( const mbedtls2_ssl_context *ssl, int level,
                       const char *file, int line,
                       const char *text, int ret );
 
@@ -151,7 +151,7 @@ void mbedtls_debug_print_ret( const mbedtls_ssl_context *ssl, int level,
  * \attention       This function is intended for INTERNAL usage within the
  *                  library only.
  */
-void mbedtls_debug_print_buf( const mbedtls_ssl_context *ssl, int level,
+void mbedtls2_debug_print_buf( const mbedtls2_ssl_context *ssl, int level,
                       const char *file, int line, const char *text,
                       const unsigned char *buf, size_t len );
 
@@ -172,9 +172,9 @@ void mbedtls_debug_print_buf( const mbedtls_ssl_context *ssl, int level,
  * \attention       This function is intended for INTERNAL usage within the
  *                  library only.
  */
-void mbedtls_debug_print_mpi( const mbedtls_ssl_context *ssl, int level,
+void mbedtls2_debug_print_mpi( const mbedtls2_ssl_context *ssl, int level,
                       const char *file, int line,
-                      const char *text, const mbedtls_mpi *X );
+                      const char *text, const mbedtls2_mpi *X );
 #endif
 
 #if defined(MBEDTLS_ECP_C)
@@ -194,9 +194,9 @@ void mbedtls_debug_print_mpi( const mbedtls_ssl_context *ssl, int level,
  * \attention       This function is intended for INTERNAL usage within the
  *                  library only.
  */
-void mbedtls_debug_print_ecp( const mbedtls_ssl_context *ssl, int level,
+void mbedtls2_debug_print_ecp( const mbedtls2_ssl_context *ssl, int level,
                       const char *file, int line,
-                      const char *text, const mbedtls_ecp_point *X );
+                      const char *text, const mbedtls2_ecp_point *X );
 #endif
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
@@ -215,9 +215,9 @@ void mbedtls_debug_print_ecp( const mbedtls_ssl_context *ssl, int level,
  * \attention       This function is intended for INTERNAL usage within the
  *                  library only.
  */
-void mbedtls_debug_print_crt( const mbedtls_ssl_context *ssl, int level,
+void mbedtls2_debug_print_crt( const mbedtls2_ssl_context *ssl, int level,
                       const char *file, int line,
-                      const char *text, const mbedtls_x509_crt *crt );
+                      const char *text, const mbedtls2_x509_crt *crt );
 #endif
 
 #ifdef __cplusplus

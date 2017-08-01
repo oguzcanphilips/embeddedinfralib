@@ -11,7 +11,13 @@ namespace services
     public:
         explicit TracerAdapterPrintf(services::Tracer& tracer);
 
-        int Print(const char* format, va_list args);
+        void Print(const char* format, va_list args);
+
+    private:
+        void HandleFormat(const char*& format, va_list& args);
+        int ReadLength(const char*& format) const;
+        void SkipSize(const char*& format) const;
+        void ParseFormat(char format, int lengthSpecifier, va_list& args);
 
     private:
         services::Tracer& tracer;

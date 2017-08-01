@@ -45,12 +45,12 @@ namespace application
 
     void ImageSignerEcDsa::CalculateSha256(const std::vector<uint8_t>& image)
     {
-        mbedtls_sha256_context ctx;
-        mbedtls_sha256_init(&ctx);
-        mbedtls_sha256_starts(&ctx, 0);
-        mbedtls_sha256_update(&ctx, image.data(), image.size());
-        mbedtls_sha256_finish(&ctx, hash.data());                                                                       //TICS !INT#030
-        mbedtls_sha256_free(&ctx);
+        mbedtls2_sha256_context ctx;
+        mbedtls2_sha256_init(&ctx);
+        mbedtls2_sha256_starts(&ctx, 0);
+        mbedtls2_sha256_update(&ctx, image.data(), image.size());
+        mbedtls2_sha256_finish(&ctx, hash.data());                                                                       //TICS !INT#030
+        mbedtls2_sha256_free(&ctx);
     }
 
     void ImageSignerEcDsa::CalculateSignature(const std::vector<uint8_t>& image)

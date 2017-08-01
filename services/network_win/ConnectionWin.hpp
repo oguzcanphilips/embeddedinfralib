@@ -15,7 +15,7 @@ namespace services
     class EventDispatcherWithNetwork;
 
     class ConnectionWin
-        : public services::ZeroCopyConnection
+        : public services::Connection
         , public infra::EnableSharedFromThis<ConnectionWin>
     {
     public:
@@ -28,6 +28,7 @@ namespace services
         virtual void AckReceived() override;
         virtual void CloseAndDestroy() override;
         virtual void AbortAndDestroy() override;
+        virtual IPv4Address Ipv4Address() const override;
 
         bool ReadyToReceive() const;
         bool ReadyToSend() const;
@@ -96,7 +97,7 @@ namespace services
         : public infra::IntrusiveList<ListenerWin>::NodeType
     {
     public:
-        ListenerWin(EventDispatcherWithNetwork& network, uint16_t port, services::ZeroCopyConnectionObserverFactory& factory);
+        ListenerWin(EventDispatcherWithNetwork& network, uint16_t port, services::ServerConnectionObserverFactory& factory);
         ~ListenerWin();
 
         void Accept();
@@ -105,15 +106,15 @@ namespace services
         friend class EventDispatcherWithNetwork;
 
         EventDispatcherWithNetwork& network;
-        services::ZeroCopyConnectionObserverFactory& factory;
+        services::ServerConnectionObserverFactory& factory;
         SOCKET listenSocket;
     };
 
-    using AllocatorListenerWin = infra::SharedObjectAllocator<ListenerWin, void(EventDispatcherWithNetwork&, uint16_t, services::ZeroCopyConnectionObserverFactory&)>;
+    using AllocatorListenerWin = infra::SharedObjectAllocator<ListenerWin, void(EventDispatcherWithNetwork&, uint16_t, services::ServerConnectionObserverFactory&)>;
 
     class EventDispatcherWithNetwork
         : public infra::EventDispatcherWithWeakPtr::WithSize<50>
-        , public services::ZeroCopyListenerFactory
+        , public services::ConnectionFactory
     {
     public:
         EventDispatcherWithNetwork();
@@ -124,8 +125,8 @@ namespace services
         void DeregisterListener(ListenerWin& listener);
 
     public:
-        virtual infra::SharedPtr<void> Listen(uint16_t port, services::ZeroCopyConnectionObserverFactory& factory) override;
-        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory) override;
+        virtual infra::SharedPtr<void> Listen(uint16_t port, services::ServerConnectionObserverFactory& factory) override;
+        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory) override;
 
     protected:
         virtual void Idle() override;

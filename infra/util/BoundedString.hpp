@@ -306,6 +306,10 @@ namespace infra
     template<class T>
         void swap(BoundedStringBase<T>& lhs, BoundedStringBase<T>& rhs);
 
+    template<class T>
+        MemoryRange<T> MakeRange(infra::BoundedStringBase<T>& container);
+    template<class T>
+        MemoryRange<const T> MakeRange(const infra::BoundedStringBase<T>& container);
     template<class T, class U>
         MemoryRange<T> StringAsMemoryRange(const infra::BoundedStringBase<U>& string);
     template<class T, class U>
@@ -1584,6 +1588,18 @@ namespace infra
     void swap(BoundedStringBase<T>& lhs, BoundedStringBase<T>& rhs)
     {
         lhs.swap(rhs);
+    }
+
+    template<class T>
+    MemoryRange<T> MakeRange(infra::BoundedStringBase<T>& container)
+    {
+        return MemoryRange<T>(container.begin(), container.end());
+    }
+
+    template<class T>
+    MemoryRange<const T> MakeRange(const infra::BoundedStringBase<T>& container)
+    {
+        return MemoryRange<const T>(container.begin(), container.end());
     }
 
     template<class T, class U>

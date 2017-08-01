@@ -3,37 +3,39 @@
 
 #include "infra/stream/InputStream.hpp"
 #include "infra/stream/OutputStream.hpp"
-#include "infra/util/ByteRange.hpp"
 #include "infra/util/Observer.hpp"
 #include "infra/util/SharedPtr.hpp"
 #include "services/network/Address.hpp"
 
 namespace services
 {
-    class ZeroCopyConnection;
+    class Connection;
 
-    class ZeroCopyConnectionObserver
-        : public infra::SingleObserver<ZeroCopyConnectionObserver, ZeroCopyConnection>
+    class ConnectionObserver
+        : public infra::SingleObserver<ConnectionObserver, Connection>
     {
     protected:
-        explicit ZeroCopyConnectionObserver(ZeroCopyConnection& connection);
-        ZeroCopyConnectionObserver(const ZeroCopyConnectionObserver& other) = delete;
-        ZeroCopyConnectionObserver& operator=(const ZeroCopyConnectionObserver& other) = delete;
-        ~ZeroCopyConnectionObserver() = default;
+        explicit ConnectionObserver(Connection& connection);
+        ConnectionObserver(const ConnectionObserver& other) = delete;
+        ConnectionObserver& operator=(const ConnectionObserver& other) = delete;
+        ~ConnectionObserver() = default;
 
     public:
-        virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>& stream) = 0;
+        virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) = 0;
         virtual void DataReceived() = 0;
+
+    private:
+        friend class Connection;
     };
 
-    class ZeroCopyConnection
-        : public infra::Subject<ZeroCopyConnectionObserver>
+    class Connection
+        : public infra::Subject<ConnectionObserver>
     {
     protected:
-        ZeroCopyConnection() = default;
-        ZeroCopyConnection(const ZeroCopyConnection& other) = delete;
-        ZeroCopyConnection& operator=(const ZeroCopyConnection& other) = delete;
-        ~ZeroCopyConnection() = default;
+        Connection() = default;
+        Connection(const Connection& other) = delete;
+        Connection& operator=(const Connection& other) = delete;
+        ~Connection() = default;
 
     public:
         // A new send stream may only be requested when any previous send stream has been destroyed
@@ -48,100 +50,59 @@ namespace services
         virtual void CloseAndDestroy() = 0;
         virtual void AbortAndDestroy() = 0;
 
-        void SetOwnership(const infra::SharedPtr<ZeroCopyConnection>& owner, const infra::SharedPtr<ZeroCopyConnectionObserver>& observer);
-        void ResetOwnership();
-
-    private:
-        infra::SharedPtr<ZeroCopyConnection> owner;
-        infra::SharedPtr<ZeroCopyConnectionObserver> observer;
-    };
-
-    class ZeroCopyConnectionObserverFactory
-    {
-    protected:
-        ZeroCopyConnectionObserverFactory() = default;
-        ZeroCopyConnectionObserverFactory(const ZeroCopyConnectionObserverFactory& other) = delete;
-        ZeroCopyConnectionObserverFactory& operator=(const ZeroCopyConnectionObserverFactory& other) = delete;
-        ~ZeroCopyConnectionObserverFactory() = default;
-
-    public:
-        virtual infra::SharedPtr<ZeroCopyConnectionObserver> ConnectionAccepted(ZeroCopyConnection& newConnection) = 0;
-    };
-
-    class ZeroCopyListenerFactory
-    {
-    protected:
-        ZeroCopyListenerFactory() = default;
-        ZeroCopyListenerFactory(const ZeroCopyListenerFactory& other) = delete;
-        ZeroCopyListenerFactory& operator=(const ZeroCopyListenerFactory& other) = delete;
-        ~ZeroCopyListenerFactory() = default;
-
-    public:
-        virtual infra::SharedPtr<void> Listen(uint16_t port, ZeroCopyConnectionObserverFactory& factory) = 0;
-        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ZeroCopyConnectionObserverFactory& factory) = 0;
-    };
-
-    class Connection;
-
-    class ConnectionObserver
-        : public infra::SingleObserver<ConnectionObserver, Connection>
-    {
-    protected:
-        explicit ConnectionObserver(services::Connection& connection);
-        ~ConnectionObserver() = default;
-
-    public:
-        virtual void DataSent() = 0;
-        virtual void DataReceived(infra::ConstByteRange data) = 0;
-    };
-
-    class Connection
-        : public infra::Subject<ConnectionObserver>
-    {
-    public:
-        virtual void Send(infra::ConstByteRange data) = 0;
-        virtual void CloseAndDestroy() = 0;
-        virtual void AbortAndDestroy() = 0;
+        virtual IPv4Address Ipv4Address() const = 0;
 
         void SwitchObserver(const infra::SharedPtr<ConnectionObserver>& newObserver);
-        void SetOwnership(const infra::SharedPtr<Connection>& connection, const infra::SharedPtr<ConnectionObserver>& observer);
+        void SetOwnership(const infra::SharedPtr<void>& owner, const infra::SharedPtr<ConnectionObserver>& observer);
         void ResetOwnership();
 
-    protected:
-        ~Connection() = default;
-
-    protected:
-        infra::SharedPtr<Connection> Self();
-
     private:
-        infra::SharedPtr<Connection> connection;
+        infra::SharedPtr<void> owner;
         infra::SharedPtr<ConnectionObserver> observer;
     };
 
-    class ConnectionObserverFactory
+    class ServerConnectionObserverFactory
     {
-    public:
-        ConnectionObserverFactory() = default;
-        ConnectionObserverFactory(const ConnectionObserverFactory& other) = delete;
-        ConnectionObserverFactory& operator=(const ConnectionObserverFactory& other) = delete;
-
-        virtual infra::SharedPtr<ConnectionObserver> ConnectionAccepted(Connection& newConnection) = 0;
-
     protected:
-        ~ConnectionObserverFactory() = default;
+        ServerConnectionObserverFactory() = default;
+        ServerConnectionObserverFactory(const ServerConnectionObserverFactory& other) = delete;
+        ServerConnectionObserverFactory& operator=(const ServerConnectionObserverFactory& other) = delete;
+        ~ServerConnectionObserverFactory() = default;
+
+    public:
+        virtual infra::SharedPtr<ConnectionObserver> ConnectionAccepted(Connection& newConnection) = 0;
     };
 
-    class ListenerFactory
+    class ClientConnectionObserverFactory
     {
-    public:
-        ListenerFactory() = default;
-        ListenerFactory(const ListenerFactory& other) = delete;
-        ListenerFactory& operator=(const ListenerFactory& other) = delete;
-
-        virtual infra::SharedPtr<void> Listen(uint16_t port, ConnectionObserverFactory& connectionObserverFactory) = 0;
-
     protected:
-        ~ListenerFactory() = default;
+        ClientConnectionObserverFactory() = default;
+        ClientConnectionObserverFactory(const ClientConnectionObserverFactory& other) = delete;
+        ClientConnectionObserverFactory& operator=(const ClientConnectionObserverFactory& other) = delete;
+        ~ClientConnectionObserverFactory() = default;
+
+    public:
+        enum ConnectFailReason
+        {
+            refused,
+            connectionAllocationFailed
+        };
+
+        virtual infra::SharedPtr<ConnectionObserver> ConnectionEstablished(Connection& newConnection) = 0;
+        virtual void ConnectionFailed(ConnectFailReason reason) = 0;
+    };
+
+    class ConnectionFactory
+    {
+    protected:
+        ConnectionFactory() = default;
+        ConnectionFactory(const ConnectionFactory& other) = delete;
+        ConnectionFactory& operator=(const ConnectionFactory& other) = delete;
+        ~ConnectionFactory() = default;
+
+    public:
+        virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionObserverFactory& factory) = 0;
+        virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory) = 0;
     };
 }
 

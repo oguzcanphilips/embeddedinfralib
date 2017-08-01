@@ -59,6 +59,9 @@ namespace infra
     template<class T>
     class EnableSharedFromThis
     {
+    protected:
+        ~EnableSharedFromThis() = default;
+
     public:
         SharedPtr<T> SharedFromThis();
         SharedPtr<const T> SharedFromThis() const;

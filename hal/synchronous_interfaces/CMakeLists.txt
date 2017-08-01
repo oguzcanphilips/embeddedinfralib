@@ -1,16 +1,17 @@
 ccola_component(synchronous_interfaces static_library)
 
 	ccola_sources(
+		SynchronousEncryptor.hpp
 		SynchronousFlash.cpp
-		SynchronousFlashHomogeneous.cpp
-		SynchronousSpi.cpp
 		SynchronousFlash.hpp
+		SynchronousFlashHomogeneous.cpp
 		SynchronousFlashHomogeneous.hpp
 		SynchronousGpio.hpp
 		SynchronousI2c.hpp
 		SynchronousQuadSpi.hpp
 		SynchronousRandomDataGenerator.hpp
 		SynchronousSerialCommunication.hpp
+		SynchronousSpi.cpp
 		SynchronousSpi.hpp
 		TimeKeeper.hpp
 	)

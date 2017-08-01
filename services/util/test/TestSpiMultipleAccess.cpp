@@ -23,10 +23,10 @@ public:
 
 TEST_F(SpiMultipleAccessTest, FirstSendAndReceiveIsExecuted)
 {
-    std::array<uint8_t, 1> buffer;
+    std::vector<uint8_t> buffer = {0};
 
     EXPECT_CALL(spi, SetChipSelectConfiguratorMock(testing::_));
-    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    EXPECT_CALL(spi, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::stop, testing::_));
     access1.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     ExecuteAllActions();
     spi.chipSelectConfigurator->StartSession();
@@ -34,10 +34,10 @@ TEST_F(SpiMultipleAccessTest, FirstSendAndReceiveIsExecuted)
 
 TEST_F(SpiMultipleAccessTest, SecondSendAndReceiveIsNotExecuted)
 {
-    std::array<uint8_t, 1> buffer;
+    std::vector<uint8_t> buffer = { 0 };
 
     EXPECT_CALL(spi, SetChipSelectConfiguratorMock(testing::_));
-    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    EXPECT_CALL(spi, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::stop, testing::_)).Times(1);
     access1.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     access2.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     ExecuteAllActions();
@@ -45,16 +45,16 @@ TEST_F(SpiMultipleAccessTest, SecondSendAndReceiveIsNotExecuted)
 
 TEST_F(SpiMultipleAccessTest, SecondSendAndReceiveIsExecutedWhenFirstAccessFinishes)
 {
-    std::array<uint8_t, 1> buffer;
+    std::vector<uint8_t> buffer = { 0 };
 
     EXPECT_CALL(spi, SetChipSelectConfiguratorMock(testing::_));
-    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    EXPECT_CALL(spi, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::stop, testing::_)).Times(1);
     access1.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     access2.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     ExecuteAllActions();
 
     EXPECT_CALL(spi, SetChipSelectConfiguratorMock(testing::_));
-    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    EXPECT_CALL(spi, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::stop, testing::_)).Times(1);
     spi.chipSelectConfigurator->StartSession();
     spi.onDone();
     spi.chipSelectConfigurator->EndSession();
@@ -64,10 +64,10 @@ TEST_F(SpiMultipleAccessTest, SecondSendAndReceiveIsExecutedWhenFirstAccessFinis
 
 TEST_F(SpiMultipleAccessTest, AfterSendAndReceiveWithContinueSessionClaimIsNotReleased)
 {
-    std::array<uint8_t, 1> buffer;
+    std::vector<uint8_t> buffer = { 0 };
 
     EXPECT_CALL(spi, SetChipSelectConfiguratorMock(testing::_));
-    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::continueSession)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    EXPECT_CALL(spi, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::continueSession, testing::_)).Times(1);
     access1.SendAndReceive(buffer, buffer, hal::SpiAction::continueSession, infra::emptyFunction);
     access2.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     ExecuteAllActions();
@@ -79,10 +79,10 @@ TEST_F(SpiMultipleAccessTest, AfterSendAndReceiveWithContinueSessionClaimIsNotRe
 
 TEST_F(SpiMultipleAccessTest, ReceiveStopAfterContinueSessionReleasesTheClaim)
 {
-    std::array<uint8_t, 1> buffer;
+    std::vector<uint8_t> buffer = { 0 };
 
     EXPECT_CALL(spi, SetChipSelectConfiguratorMock(testing::_));
-    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::continueSession)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    EXPECT_CALL(spi, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::continueSession, testing::_)).Times(1);
     access1.SendAndReceive(buffer, buffer, hal::SpiAction::continueSession, infra::emptyFunction);
     access2.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     ExecuteAllActions();
@@ -94,7 +94,7 @@ TEST_F(SpiMultipleAccessTest, ReceiveStopAfterContinueSessionReleasesTheClaim)
     testing::Mock::VerifyAndClearExpectations(&spi);
 
     EXPECT_CALL(spi, SetChipSelectConfiguratorMock(testing::_)).Times(2);
-    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 }))).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    EXPECT_CALL(spi, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::stop, testing::_)).Times(2);
     access1.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     ExecuteAllActions();
     spi.onDone();
@@ -107,10 +107,10 @@ TEST_F(SpiMultipleAccessTest, additional_ChipSelectConfigurator_is_invoked)
     hal::ChipSelectConfiguratorMock chipSelectConfiguratorMock;
     access1.SetChipSelectConfigurator(chipSelectConfiguratorMock);
 
-    std::array<uint8_t, 1> buffer;
+    std::vector<uint8_t> buffer = { 0 };
 
     EXPECT_CALL(spi, SetChipSelectConfiguratorMock(testing::_));
-    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    EXPECT_CALL(spi, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::stop, testing::_)).Times(1);
     access1.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     ExecuteAllActions();
     EXPECT_CALL(chipSelectConfiguratorMock, StartSession());
@@ -122,34 +122,34 @@ TEST_F(SpiMultipleAccessTest, additional_ChipSelectConfigurator_is_invoked)
 
 TEST_F(SpiMultipleAccessTest, configurator_is_set_when_first_session_starts)
 {
-    std::array<uint8_t, 1> buffer;
+    std::vector<uint8_t> buffer = { 0 };
 
     testing::StrictMock<hal::CommunicationConfiguratorMock> configurator;
     access1.SetCommunicationConfigurator(configurator);
 
     EXPECT_CALL(spi, SetCommunicationConfigurator(testing::Ref(configurator)));
     EXPECT_CALL(spi, SetChipSelectConfiguratorMock(testing::_));
-    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    EXPECT_CALL(spi, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::stop, testing::_)).Times(1);
     access1.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     ExecuteAllActions();
     spi.chipSelectConfigurator->StartSession();
 
     EXPECT_CALL(spi, SetChipSelectConfiguratorMock(testing::_));
-    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    EXPECT_CALL(spi, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::stop, testing::_)).Times(1);
     access1.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     ExecuteAllActions();
 }
 
 TEST_F(SpiMultipleAccessTest, configurator_is_reset_when_other_session_starts)
 {
-    std::array<uint8_t, 1> buffer;
+    std::vector<uint8_t> buffer = { 0 };
 
     testing::StrictMock<hal::CommunicationConfiguratorMock> configurator;
     access1.SetCommunicationConfigurator(configurator);
 
     EXPECT_CALL(spi, SetCommunicationConfigurator(testing::Ref(configurator)));
     EXPECT_CALL(spi, SetChipSelectConfiguratorMock(testing::_));
-    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    EXPECT_CALL(spi, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::stop, testing::_)).Times(1);
     access1.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     ExecuteAllActions();
     spi.chipSelectConfigurator->StartSession();
@@ -158,7 +158,7 @@ TEST_F(SpiMultipleAccessTest, configurator_is_reset_when_other_session_starts)
 
     EXPECT_CALL(spi, ResetCommunicationConfigurator());
     EXPECT_CALL(spi, SetChipSelectConfiguratorMock(testing::_));
-    EXPECT_CALL(spi, SendAndReceiveMock(testing::_, hal::SpiAction::stop)).WillOnce(testing::Return(std::make_pair(false, std::vector<uint8_t>{ 5 })));
+    EXPECT_CALL(spi, SendAndReceiveMock(buffer, infra::MemoryRange<uint8_t>(buffer), hal::SpiAction::stop, testing::_)).Times(1);
     access2.SendAndReceive(buffer, buffer, hal::SpiAction::stop, infra::emptyFunction);
     ExecuteAllActions();
     spi.chipSelectConfigurator->StartSession();

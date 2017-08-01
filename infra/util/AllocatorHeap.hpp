@@ -22,8 +22,8 @@ namespace infra
     template<class T, class... ConstructionArgs>
     UniquePtr<T> AllocatorHeap<T, void(ConstructionArgs...)>::Allocate(ConstructionArgs... args)
     {
-        T* object = new (std::nothrow) T(args...);
-        if (object)
+        T* object = new (std::nothrow) T(args...);                                                                      //TICS !OAL#011
+        if (object != nullptr)
             return MakeUnique(object, *this);
         else
             return nullptr;

@@ -20,7 +20,7 @@ namespace application
         virtual bool DecryptAndAuthenticate(infra::ByteRange data) override;
 
     private:
-        mbedtls_aes_context ctx;
+        mbedtls2_aes_context ctx;
         size_t currentStreamBlockOffset = 0;
         std::array<uint8_t, blockLength> currentStreamBlock;
         std::array<uint8_t, blockLength> counter;

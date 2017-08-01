@@ -7,6 +7,12 @@ namespace infra
 {
     class AllocatorBase
     {
+    protected:
+        AllocatorBase() = default;
+        AllocatorBase(const AllocatorBase& other) = delete;
+        AllocatorBase& operator=(const AllocatorBase& other) = delete;
+        ~AllocatorBase() = default;
+
     public:
         virtual void Deallocate(void* object) = 0;
     };
@@ -15,7 +21,7 @@ namespace infra
     {
     public:
         Deallocator() = default;
-        Deallocator(AllocatorBase& allocator);
+        explicit Deallocator(AllocatorBase& allocator);
 
         void operator()(void* object);
 

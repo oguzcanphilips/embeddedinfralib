@@ -50,11 +50,11 @@ namespace application
         std::array<uint8_t, 2> length = { static_cast<uint8_t>(size >> 8), static_cast<uint8_t>(size) };
         communication.SendData(length);
 
-        communication.SendData(infra::ReinterpretCastByteRange(infra::MakeRangeFromContainer(port)));
+        communication.SendData(infra::ReinterpretCastByteRange(infra::MakeRange(port)));
         communication.SendData(null);
 
         infra::CrcCcittCalculator crcCalculator;
-        crcCalculator.Update(infra::ReinterpretCastByteRange(infra::MakeRangeFromContainer(port)));
+        crcCalculator.Update(infra::ReinterpretCastByteRange(infra::MakeRange(port)));
         crcCalculator.Update(null);
 
         uint16_t crc = crcCalculator.Result();
@@ -75,15 +75,15 @@ namespace application
         std::array<uint8_t, 2> length = { static_cast<uint8_t>(size >> 8), static_cast<uint8_t>(size) };
         communication.SendData(length);
 
-        communication.SendData(infra::ReinterpretCastByteRange(infra::MakeRangeFromContainer(port)));
+        communication.SendData(infra::ReinterpretCastByteRange(infra::MakeRange(port)));
         communication.SendData(null);
-        communication.SendData(infra::ReinterpretCastByteRange(infra::MakeRangeFromContainer(values)));
+        communication.SendData(infra::ReinterpretCastByteRange(infra::MakeRange(values)));
         communication.SendData(null);
 
         infra::CrcCcittCalculator crcCalculator;
-        crcCalculator.Update(infra::ReinterpretCastByteRange(infra::MakeRangeFromContainer(port)));
+        crcCalculator.Update(infra::ReinterpretCastByteRange(infra::MakeRange(port)));
         crcCalculator.Update(null);
-        crcCalculator.Update(infra::ReinterpretCastByteRange(infra::MakeRangeFromContainer(values)));
+        crcCalculator.Update(infra::ReinterpretCastByteRange(infra::MakeRange(values)));
         crcCalculator.Update(null);
 
         uint16_t crc = crcCalculator.Result();
@@ -132,9 +132,9 @@ namespace application
 
             values.resize(std::min<uint32_t>(values.max_size(), size));
             if (!values.empty())
-                if (!ReceiveData(infra::ReinterpretCastByteRange(infra::MakeRangeFromContainer(values))))
+                if (!ReceiveData(infra::ReinterpretCastByteRange(infra::MakeRange(values))))
                     return false;
-            crcCalculator.Update(infra::ReinterpretCastByteRange(infra::MakeRangeFromContainer(values)));
+            crcCalculator.Update(infra::ReinterpretCastByteRange(infra::MakeRange(values)));
             size -= static_cast<uint16_t>(values.size());
             std::size_t terminatingZero = values.find('\0');
             if (terminatingZero != infra::BoundedString::npos)

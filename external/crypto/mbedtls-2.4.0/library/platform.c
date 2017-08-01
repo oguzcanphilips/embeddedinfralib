@@ -50,21 +50,21 @@ static void platform_free_uninit( void *ptr )
 #define MBEDTLS_PLATFORM_STD_FREE     platform_free_uninit
 #endif /* !MBEDTLS_PLATFORM_STD_FREE */
 
-void * (*mbedtls_calloc)( size_t, size_t ) = MBEDTLS_PLATFORM_STD_CALLOC;
-void (*mbedtls_free)( void * )     = MBEDTLS_PLATFORM_STD_FREE;
+void * (*mbedtls2_calloc)( size_t, size_t ) = MBEDTLS_PLATFORM_STD_CALLOC;
+void (*mbedtls2_free)( void * )     = MBEDTLS_PLATFORM_STD_FREE;
 
-int mbedtls_platform_set_calloc_free( void * (*calloc_func)( size_t, size_t ),
+int mbedtls2_platform_set_calloc_free( void * (*calloc_func)( size_t, size_t ),
                               void (*free_func)( void * ) )
 {
-    mbedtls_calloc = calloc_func;
-    mbedtls_free = free_func;
+    mbedtls2_calloc = calloc_func;
+    mbedtls2_free = free_func;
     return( 0 );
 }
 #endif /* MBEDTLS_PLATFORM_MEMORY */
 
 #if defined(_WIN32)
 #include <stdarg.h>
-int mbedtls_platform_win32_snprintf( char *s, size_t n, const char *fmt, ... )
+int mbedtls2_platform_win32_snprintf( char *s, size_t n, const char *fmt, ... )
 {
     int ret;
     va_list argp;
@@ -107,15 +107,15 @@ static int platform_snprintf_uninit( char * s, size_t n,
 #define MBEDTLS_PLATFORM_STD_SNPRINTF    platform_snprintf_uninit
 #endif /* !MBEDTLS_PLATFORM_STD_SNPRINTF */
 
-int (*mbedtls_snprintf)( char * s, size_t n,
+int (*mbedtls2_snprintf)( char * s, size_t n,
                           const char * format,
                           ... ) = MBEDTLS_PLATFORM_STD_SNPRINTF;
 
-int mbedtls_platform_set_snprintf( int (*snprintf_func)( char * s, size_t n,
+int mbedtls2_platform_set_snprintf( int (*snprintf_func)( char * s, size_t n,
                                                  const char * format,
                                                  ... ) )
 {
-    mbedtls_snprintf = snprintf_func;
+    mbedtls2_snprintf = snprintf_func;
     return( 0 );
 }
 #endif /* MBEDTLS_PLATFORM_SNPRINTF_ALT */
@@ -134,11 +134,11 @@ static int platform_printf_uninit( const char *format, ... )
 #define MBEDTLS_PLATFORM_STD_PRINTF    platform_printf_uninit
 #endif /* !MBEDTLS_PLATFORM_STD_PRINTF */
 
-int (*mbedtls_printf)( const char *, ... ) = MBEDTLS_PLATFORM_STD_PRINTF;
+int (*mbedtls2_printf)( const char *, ... ) = MBEDTLS_PLATFORM_STD_PRINTF;
 
-int mbedtls_platform_set_printf( int (*printf_func)( const char *, ... ) )
+int mbedtls2_platform_set_printf( int (*printf_func)( const char *, ... ) )
 {
-    mbedtls_printf = printf_func;
+    mbedtls2_printf = printf_func;
     return( 0 );
 }
 #endif /* MBEDTLS_PLATFORM_PRINTF_ALT */
@@ -158,12 +158,12 @@ static int platform_fprintf_uninit( FILE *stream, const char *format, ... )
 #define MBEDTLS_PLATFORM_STD_FPRINTF   platform_fprintf_uninit
 #endif /* !MBEDTLS_PLATFORM_STD_FPRINTF */
 
-int (*mbedtls_fprintf)( FILE *, const char *, ... ) =
+int (*mbedtls2_fprintf)( FILE *, const char *, ... ) =
                                         MBEDTLS_PLATFORM_STD_FPRINTF;
 
-int mbedtls_platform_set_fprintf( int (*fprintf_func)( FILE *, const char *, ... ) )
+int mbedtls2_platform_set_fprintf( int (*fprintf_func)( FILE *, const char *, ... ) )
 {
-    mbedtls_fprintf = fprintf_func;
+    mbedtls2_fprintf = fprintf_func;
     return( 0 );
 }
 #endif /* MBEDTLS_PLATFORM_FPRINTF_ALT */
@@ -181,11 +181,11 @@ static void platform_exit_uninit( int status )
 #define MBEDTLS_PLATFORM_STD_EXIT   platform_exit_uninit
 #endif /* !MBEDTLS_PLATFORM_STD_EXIT */
 
-void (*mbedtls_exit)( int status ) = MBEDTLS_PLATFORM_STD_EXIT;
+void (*mbedtls2_exit)( int status ) = MBEDTLS_PLATFORM_STD_EXIT;
 
-int mbedtls_platform_set_exit( void (*exit_func)( int status ) )
+int mbedtls2_platform_set_exit( void (*exit_func)( int status ) )
 {
-    mbedtls_exit = exit_func;
+    mbedtls2_exit = exit_func;
     return( 0 );
 }
 #endif /* MBEDTLS_PLATFORM_EXIT_ALT */
@@ -197,7 +197,7 @@ int mbedtls_platform_set_exit( void (*exit_func)( int status ) )
 /*
  * Make dummy function to prevent NULL pointer dereferences
  */
-static mbedtls_time_t platform_time_uninit( mbedtls_time_t* timer )
+static mbedtls2_time_t platform_time_uninit( mbedtls2_time_t* timer )
 {
     ((void) timer);
     return( 0 );
@@ -206,11 +206,11 @@ static mbedtls_time_t platform_time_uninit( mbedtls_time_t* timer )
 #define MBEDTLS_PLATFORM_STD_TIME   platform_time_uninit
 #endif /* !MBEDTLS_PLATFORM_STD_TIME */
 
-mbedtls_time_t (*mbedtls_time)( mbedtls_time_t* timer ) = MBEDTLS_PLATFORM_STD_TIME;
+mbedtls2_time_t (*mbedtls2_time)( mbedtls2_time_t* timer ) = MBEDTLS_PLATFORM_STD_TIME;
 
-int mbedtls_platform_set_time( mbedtls_time_t (*time_func)( mbedtls_time_t* timer ) )
+int mbedtls2_platform_set_time( mbedtls2_time_t (*time_func)( mbedtls2_time_t* timer ) )
 {
-    mbedtls_time = time_func;
+    mbedtls2_time = time_func;
     return( 0 );
 }
 #endif /* MBEDTLS_PLATFORM_TIME_ALT */
@@ -222,7 +222,7 @@ int mbedtls_platform_set_time( mbedtls_time_t (*time_func)( mbedtls_time_t* time
 /* Default implementations for the platform independent seed functions use
  * standard libc file functions to read from and write to a pre-defined filename
  */
-int mbedtls_platform_std_nv_seed_read( unsigned char *buf, size_t buf_len )
+int mbedtls2_platform_std_nv_seed_read( unsigned char *buf, size_t buf_len )
 {
     FILE *file;
     size_t n;
@@ -240,7 +240,7 @@ int mbedtls_platform_std_nv_seed_read( unsigned char *buf, size_t buf_len )
     return( n );
 }
 
-int mbedtls_platform_std_nv_seed_write( unsigned char *buf, size_t buf_len )
+int mbedtls2_platform_std_nv_seed_write( unsigned char *buf, size_t buf_len )
 {
     FILE *file;
     size_t n;
@@ -288,17 +288,17 @@ static int platform_nv_seed_write_uninit( unsigned char *buf, size_t buf_len )
 #define MBEDTLS_PLATFORM_STD_NV_SEED_WRITE   platform_nv_seed_write_uninit
 #endif /* !MBEDTLS_PLATFORM_STD_NV_SEED_WRITE */
 
-int (*mbedtls_nv_seed_read)( unsigned char *buf, size_t buf_len ) =
+int (*mbedtls2_nv_seed_read)( unsigned char *buf, size_t buf_len ) =
             MBEDTLS_PLATFORM_STD_NV_SEED_READ;
-int (*mbedtls_nv_seed_write)( unsigned char *buf, size_t buf_len ) =
+int (*mbedtls2_nv_seed_write)( unsigned char *buf, size_t buf_len ) =
             MBEDTLS_PLATFORM_STD_NV_SEED_WRITE;
 
-int mbedtls_platform_set_nv_seed(
+int mbedtls2_platform_set_nv_seed(
         int (*nv_seed_read_func)( unsigned char *buf, size_t buf_len ),
         int (*nv_seed_write_func)( unsigned char *buf, size_t buf_len ) )
 {
-    mbedtls_nv_seed_read = nv_seed_read_func;
-    mbedtls_nv_seed_write = nv_seed_write_func;
+    mbedtls2_nv_seed_read = nv_seed_read_func;
+    mbedtls2_nv_seed_write = nv_seed_write_func;
     return( 0 );
 }
 #endif /* MBEDTLS_PLATFORM_NV_SEED_ALT */

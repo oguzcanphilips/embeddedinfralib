@@ -6,8 +6,8 @@ namespace application
         : currentStreamBlock()
         , counter()
     {
-        mbedtls_aes_init(&ctx);
-        mbedtls_aes_setkey_enc(&ctx, key.begin(), key.size() * 8);
+        mbedtls2_aes_init(&ctx);
+        mbedtls2_aes_setkey_enc(&ctx, key.begin(), key.size() * 8);
     }
 
     infra::ByteRange DecryptorAesMbedTls::StateBuffer()
@@ -22,7 +22,7 @@ namespace application
 
     void DecryptorAesMbedTls::DecryptPart(infra::ByteRange data)
     {
-        mbedtls_aes_crypt_ctr(&ctx, data.size(), &currentStreamBlockOffset, counter.data(), currentStreamBlock.data(), data.begin(), data.begin());     //TICS !INT#030
+        mbedtls2_aes_crypt_ctr(&ctx, data.size(), &currentStreamBlockOffset, counter.data(), currentStreamBlock.data(), data.begin(), data.begin());     //TICS !INT#030
     }
 
     bool DecryptorAesMbedTls::DecryptAndAuthenticate(infra::ByteRange data)

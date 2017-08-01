@@ -2,43 +2,15 @@
 
 namespace services
 {
-    void ConnectionMock::Send(infra::ConstByteRange data)
+    infra::SharedPtr<void> ConnectionFactoryMock::Listen(uint16_t port, ServerConnectionObserverFactory& factory)
     {
-        SendMock(std::vector<uint8_t>(data.begin(), data.end()));
+        this->serverConnectionObserverFactory = &factory;
+        return ListenMock(port);
     }
 
-    void ConnectionMock::CloseAndDestroy()
+    bool ConnectionFactoryMock::NewConnection(Connection& connection)
     {
-        CloseAndDestroyMock();
-        ResetOwnership();
-    }
-
-    void ConnectionMock::AbortAndDestroy()
-    {
-        AbortAndDestroyMock();
-        ResetOwnership();
-    }
-
-    void ConnectionMock::DataSent()
-    {
-        GetObserver().DataSent();
-    }
-
-    void ConnectionMock::DataReceived(infra::ConstByteRange data)
-    {
-        GetObserver().DataReceived(data);
-    }
-
-    infra::SharedPtr<void> ListenerMock::Listen(uint16_t port, ConnectionObserverFactory& connectionObserverFactory)
-    {
-        this->connectionObserverFactory = &connectionObserverFactory;
-        ListenMock(port);
-        return nullptr;
-    }
-
-    bool ListenerMock::NewConnection(Connection& connection)
-    {
-        infra::SharedPtr<services::ConnectionObserver> connectionObserver = connectionObserverFactory->ConnectionAccepted(connection);
+        infra::SharedPtr<services::ConnectionObserver> connectionObserver = serverConnectionObserverFactory->ConnectionAccepted(connection);
 
         if (!connectionObserver)
             return false;
@@ -46,4 +18,8 @@ namespace services
         connection.SetOwnership(nullptr, connectionObserver);
         return true;
     }
+
+    ConnectionObserverMock::ConnectionObserverMock(services::Connection& connection)
+        : services::ConnectionObserver(connection)
+    {}
 }

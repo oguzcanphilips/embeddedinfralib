@@ -1,9 +1,11 @@
 ccola_component(synchronous_test_doubles win: static_library other: noncompile)
 
 	ccola_sources(
+		SynchronousEncryptorMock.hpp
 		SynchronousFlashStub.cpp
-		SynchronousSerialCommunicationMock.cpp
 		SynchronousFlashStub.hpp
+		SynchronousRandomDataGeneratorMock.hpp
+		SynchronousSerialCommunicationMock.cpp
 		SynchronousSerialCommunicationMock.hpp
 	)
 

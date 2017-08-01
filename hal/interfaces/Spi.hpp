@@ -2,8 +2,9 @@
 #define HAL_SPI_HPP
 
 #include "hal/interfaces/CommunicationConfigurator.hpp"
-#include "infra/util/AutoResetFunction.hpp"
 #include "infra/util/ByteRange.hpp"
+#include "infra/util/Observer.hpp"
+#include "services/network/Connection.hpp"
 
 namespace hal
 {

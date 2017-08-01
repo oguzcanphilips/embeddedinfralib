@@ -152,7 +152,7 @@ namespace infra
     void IntrusivePriorityQueue<T, Compare>::swapChildAndParentNodes(T& child, T& parent)
     {
         T* parentUp = parent.up;
-        if (parentUp)
+        if (parentUp != nullptr)
         {
             if (parentUp->left == &parent)
                 parentUp->left = &child;
@@ -167,13 +167,13 @@ namespace infra
         parent.left = child.left;
         parent.right = child.right;
 
-        if (parent.left)
+        if (parent.left != nullptr)
             parent.left->up = &parent;
-        if (parent.right)
+        if (parent.right != nullptr)
             parent.right->up = &parent;
 
         parent.up = &child;
-        if (otherChild)
+        if (otherChild != nullptr)
             otherChild->up = &child;
 
         child.left = leftRotate ? &parent : otherChild;
@@ -225,12 +225,12 @@ namespace infra
                 else
                     shiftUpNode = erasingNode.left;
             }
-            else if (erasingNode.left)
+            else if (erasingNode.left != nullptr)
                 shiftUpNode = erasingNode.left;
             else
                 shiftUpNode = erasingNode.right;
 
-            if (shiftUpNode)
+            if (shiftUpNode != nullptr)
                 swapChildAndParentNodes(*shiftUpNode, erasingNode);
             else
                 break;
@@ -256,15 +256,15 @@ namespace infra
             else
                 last.up->right = &last;
 
-            if (last.right)
+            if (last.right != nullptr)
                 last.right->up = &last;
-            if (last.left)
+            if (last.left != nullptr)
                 last.left->up = &last;
 
             // Finally, move lastNode up in the tree, restoring the heap invariant
             while (true)
             {
-                if (!last.up)
+                if (last.up == nullptr)
                     break;
                 if (compare(last, *last.up))
                     break;
@@ -313,22 +313,22 @@ namespace infra
             ++numberOfElements;
             T* node = topNode;
 
-            std::size_t Direction = 1;
-            while (Direction <= numberOfElements)
-                Direction <<= 1;
-            Direction >>= 2;
+            std::size_t direction = 1;
+            while (direction <= numberOfElements)
+                direction <<= 1;
+            direction >>= 2;
 
-            while (Direction != 1)
+            while (direction != 1)
             {
-                if (numberOfElements & Direction)
+                if ((numberOfElements & direction) != 0)
                     node = node->right;
                 else
                     node = node->left;
 
-                Direction >>= 1;
+                direction >>= 1;
             }
 
-            if (numberOfElements & Direction)
+            if ((numberOfElements & direction) != 0)
                 node->right = &value;
             else
                 node->left = &value;
@@ -342,19 +342,19 @@ namespace infra
     {
         T* node = topNode;
 
-        std::size_t Direction = 1;
-        while (Direction <= numberOfElements)
-            Direction <<= 1;
-        Direction >>= 2;
+        std::size_t direction = 1;
+        while (direction <= numberOfElements)
+            direction <<= 1;
+        direction >>= 2;
 
-        while (Direction != 0)
+        while (direction != 0)
         {
-            if (numberOfElements & Direction)
+            if ((numberOfElements & direction) != 0)
                 node = node->right;
             else
                 node = node->left;
 
-            Direction >>= 1;
+            direction >>= 1;
         }
 
         return *node;

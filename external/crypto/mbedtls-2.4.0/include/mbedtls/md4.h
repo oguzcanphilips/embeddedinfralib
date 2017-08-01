@@ -49,21 +49,21 @@ typedef struct
     uint32_t state[4];          /*!< intermediate digest state  */
     unsigned char buffer[64];   /*!< data block being processed */
 }
-mbedtls_md4_context;
+mbedtls2_md4_context;
 
 /**
  * \brief          Initialize MD4 context
  *
  * \param ctx      MD4 context to be initialized
  */
-void mbedtls_md4_init( mbedtls_md4_context *ctx );
+void mbedtls2_md4_init( mbedtls2_md4_context *ctx );
 
 /**
  * \brief          Clear MD4 context
  *
  * \param ctx      MD4 context to be cleared
  */
-void mbedtls_md4_free( mbedtls_md4_context *ctx );
+void mbedtls2_md4_free( mbedtls2_md4_context *ctx );
 
 /**
  * \brief          Clone (the state of) an MD4 context
@@ -71,15 +71,15 @@ void mbedtls_md4_free( mbedtls_md4_context *ctx );
  * \param dst      The destination context
  * \param src      The context to be cloned
  */
-void mbedtls_md4_clone( mbedtls_md4_context *dst,
-                        const mbedtls_md4_context *src );
+void mbedtls2_md4_clone( mbedtls2_md4_context *dst,
+                        const mbedtls2_md4_context *src );
 
 /**
  * \brief          MD4 context setup
  *
  * \param ctx      context to be initialized
  */
-void mbedtls_md4_starts( mbedtls_md4_context *ctx );
+void mbedtls2_md4_starts( mbedtls2_md4_context *ctx );
 
 /**
  * \brief          MD4 process buffer
@@ -88,7 +88,7 @@ void mbedtls_md4_starts( mbedtls_md4_context *ctx );
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
  */
-void mbedtls_md4_update( mbedtls_md4_context *ctx, const unsigned char *input, size_t ilen );
+void mbedtls2_md4_update( mbedtls2_md4_context *ctx, const unsigned char *input, size_t ilen );
 
 /**
  * \brief          MD4 final digest
@@ -96,7 +96,7 @@ void mbedtls_md4_update( mbedtls_md4_context *ctx, const unsigned char *input, s
  * \param ctx      MD4 context
  * \param output   MD4 checksum result
  */
-void mbedtls_md4_finish( mbedtls_md4_context *ctx, unsigned char output[16] );
+void mbedtls2_md4_finish( mbedtls2_md4_context *ctx, unsigned char output[16] );
 
 #ifdef __cplusplus
 }
@@ -117,20 +117,20 @@ extern "C" {
  * \param ilen     length of the input data
  * \param output   MD4 checksum result
  */
-void mbedtls_md4( const unsigned char *input, size_t ilen, unsigned char output[16] );
+void mbedtls2_md4( const unsigned char *input, size_t ilen, unsigned char output[16] );
 
 /**
  * \brief          Checkup routine
  *
  * \return         0 if successful, or 1 if the test failed
  */
-int mbedtls_md4_self_test( int verbose );
+int mbedtls2_md4_self_test( int verbose );
 
 /* Internal use */
-void mbedtls_md4_process( mbedtls_md4_context *ctx, const unsigned char data[64] );
+void mbedtls2_md4_process( mbedtls2_md4_context *ctx, const unsigned char data[64] );
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* mbedtls_md4.h */
+#endif /* mbedtls2_md4.h */

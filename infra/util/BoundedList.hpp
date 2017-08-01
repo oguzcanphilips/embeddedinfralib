@@ -154,10 +154,9 @@ namespace infra
 
         public:
             BoundedListIterator();
-            BoundedListIterator(NodeType* node);
+            explicit BoundedListIterator(NodeType* node);
             template<class T2>
-                BoundedListIterator(const BoundedListIterator<T2>& other);
-
+                BoundedListIterator(const BoundedListIterator<T2>& other);                                              //TICS !INT#001
             template<class T2>
                 BoundedListIterator& operator=(const BoundedListIterator<T2>& other);
 
@@ -400,7 +399,7 @@ namespace infra
         NodeType* oldStart = firstNode;
         firstNode = firstNode->next;
 
-        if (firstNode)
+        if (firstNode != nullptr)
             firstNode->previous = nullptr;
         else
             lastNode = nullptr;
@@ -455,7 +454,7 @@ namespace infra
         NodeType* oldEnd = lastNode;
         lastNode = lastNode->previous;
 
-        if (lastNode)
+        if (lastNode != nullptr)
             lastNode->next = nullptr;
         else
             firstNode = nullptr;
@@ -501,7 +500,7 @@ namespace infra
             node->next = &position.node();
             node->previous = position.node().previous;
 
-            if (node->previous)
+            if (node->previous != nullptr)
                 node->previous->next = node;
             else
                 firstNode = node;
@@ -556,12 +555,12 @@ namespace infra
         NodeType* next = node->next;
         NodeType* previous = node->previous;
 
-        if (next)
+        if (next != nullptr)
             next->previous = previous;
         else
             lastNode = previous;
 
-        if (previous)
+        if (previous != nullptr)
             previous->next = next;
         else
             firstNode = next;
@@ -580,7 +579,7 @@ namespace infra
 
         lastNode = node;
 
-        while (node)
+        while (node != nullptr)
         {
             node->storage.Destruct();
             NodeType* oldFreeList = freeList;
@@ -637,7 +636,7 @@ namespace infra
     template<class T>
     void BoundedList<T>::clear()
     {
-        while (lastNode)
+        while (lastNode != nullptr)
             pop_back();
     }
 
@@ -651,7 +650,7 @@ namespace infra
         node->next = firstNode;
         node->previous = nullptr;
 
-        if (node->next)
+        if (node->next != nullptr)
             node->next->previous = node;
         else
             lastNode = node;
@@ -723,7 +722,7 @@ namespace infra
     {
         NodeType* result;
 
-        if (freeList)
+        if (freeList != nullptr)
         {
             result = freeList;
             freeList = freeList->next;

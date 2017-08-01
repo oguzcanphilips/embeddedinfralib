@@ -40,7 +40,7 @@ extern "C" {
  */
 #define MBEDTLS_ENTROPY_MIN_PLATFORM     32     /**< Minimum for platform source    */
 #define MBEDTLS_ENTROPY_MIN_HAVEGE       32     /**< Minimum for HAVEGE             */
-#define MBEDTLS_ENTROPY_MIN_HARDCLOCK     4     /**< Minimum for mbedtls_timing_hardclock()        */
+#define MBEDTLS_ENTROPY_MIN_HARDCLOCK     4     /**< Minimum for mbedtls2_timing_hardclock()        */
 #if !defined(MBEDTLS_ENTROPY_MIN_HARDWARE)
 #define MBEDTLS_ENTROPY_MIN_HARDWARE     32     /**< Minimum for the hardware source */
 #endif
@@ -49,7 +49,7 @@ extern "C" {
  * \brief           Entropy poll callback that provides 0 entropy.
  */
 #if defined(MBEDTLS_TEST_NULL_ENTROPY)
-    int mbedtls_null_entropy_poll( void *data,
+    int mbedtls2_null_entropy_poll( void *data,
                                 unsigned char *output, size_t len, size_t *olen );
 #endif
 
@@ -57,7 +57,7 @@ extern "C" {
 /**
  * \brief           Platform-specific entropy poll callback
  */
-int mbedtls_platform_entropy_poll( void *data,
+int mbedtls2_platform_entropy_poll( void *data,
                            unsigned char *output, size_t len, size_t *olen );
 #endif
 
@@ -67,15 +67,15 @@ int mbedtls_platform_entropy_poll( void *data,
  *
  * Requires an HAVEGE state as its data pointer.
  */
-int mbedtls_havege_poll( void *data,
+int mbedtls2_havege_poll( void *data,
                  unsigned char *output, size_t len, size_t *olen );
 #endif
 
 #if defined(MBEDTLS_TIMING_C)
 /**
- * \brief           mbedtls_timing_hardclock-based entropy poll callback
+ * \brief           mbedtls2_timing_hardclock-based entropy poll callback
  */
-int mbedtls_hardclock_poll( void *data,
+int mbedtls2_hardclock_poll( void *data,
                     unsigned char *output, size_t len, size_t *olen );
 #endif
 
@@ -88,7 +88,7 @@ int mbedtls_hardclock_poll( void *data,
  *
  * \note            This must accept NULL as its first argument.
  */
-int mbedtls_hardware_poll( void *data,
+int mbedtls2_hardware_poll( void *data,
                            unsigned char *output, size_t len, size_t *olen );
 #endif
 
@@ -98,7 +98,7 @@ int mbedtls_hardware_poll( void *data,
  *
  * \note            This must accept NULL as its first argument.
  */
-int mbedtls_nv_seed_poll( void *data,
+int mbedtls2_nv_seed_poll( void *data,
                           unsigned char *output, size_t len, size_t *olen );
 #endif
 

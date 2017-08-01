@@ -16,6 +16,7 @@
 //  opt = MyClass(2, 3, 4);         // Use the copy constructor for construction
 
 #include "infra/util/StaticStorage.hpp"
+#include <cassert>
 #include <memory>
 #include <type_traits>
 
@@ -226,24 +227,28 @@ namespace infra
     template<class T>
     const T& Optional<T>::operator*() const
     {
+        assert(initialized);
         return *data;
     }
 
     template<class T>
     T& Optional<T>::operator*()
     {
+        assert(initialized);
         return *data;
     }
 
     template<class T>
     const T* Optional<T>::operator->() const
     {
+        assert(initialized);
         return &*data;
     }
 
     template<class T>
     T* Optional<T>::operator->()
     {
+        assert(initialized);
         return &*data;
     }
 

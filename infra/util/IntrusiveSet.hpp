@@ -32,12 +32,12 @@ namespace infra
                 black
             };
 
-            Colour colour;
+            Colour colour = Colour::red;
         };
     }
 
     template<class T, class Compare = std::less<T>>
-    class IntrusiveSet
+    class IntrusiveSet                                                                                                  //TICS !OOP#013
         : public IntrusiveBinarySearchTree<T, Compare>
     {
     public:
@@ -67,7 +67,8 @@ namespace infra
         ~IntrusiveSet();
 
     public:
-        bool invariant_holds() const;   // For test purposes
+        // For test purposes
+        bool invariant_holds() const;                                                                                   //TICS !OOP#011
 
     public:
         void insert(const_reference value);
@@ -128,7 +129,7 @@ namespace infra
 
         const NodeType* node = this->RootNode();
 
-        while (node)
+        while (node != nullptr)
         {
             if (node->colour != Colour::black && node->colour != Colour::red)
                 return false;
@@ -227,7 +228,7 @@ namespace infra
     }
 
     template<class T, class Compare>
-    void IntrusiveSet<T, Compare>::erase(const_reference value)
+    void IntrusiveSet<T, Compare>::erase(const_reference value)                                                         //TICS !CFL#016
     {
         // See http://www.geeksforgeeks.org/red-black-tree-set-3-delete-2/ for the algorithm
 
@@ -238,15 +239,15 @@ namespace infra
 
         {
             // Step 1
-            bool twoChildren = value.left && value.right;
+            bool twoChildren = value.left && value.right;                                                               //TICS !OLC#006
 
-            T* valueParent = value.parent;
+            T* valueParent = value.parent;                                                                              //TICS !OLC#006
             T* replacement;
             T* oldReplacementParent;
             T** oldReplacement;
             std::tie(replacement, oldReplacementParent, oldReplacement) = remove_from_tree(const_cast<T&>(value));
 
-            if (oldReplacementParent)
+            if (oldReplacementParent != nullptr)
             {
                 bool firstRed = replacement && replacement->colour == Colour::red;
                 bool secondRed = oldReplacementParent == &value
@@ -279,13 +280,15 @@ namespace infra
                 }
             }
 
-            if (oldReplacement && *oldReplacement)
-                (*oldReplacement)->colour = replacement->colour;
-            if (replacement)
+            if (replacement != nullptr)
+            {
+                if (oldReplacement != nullptr && *oldReplacement != nullptr)
+                    (*oldReplacement)->colour = replacement->colour;
                 replacement->colour = value.colour;
+            }
         }
 
-        while (doubleBlackParent)
+        while (doubleBlackParent != nullptr)
         {
             T* doubleBlackSibling = &doubleBlackParent->left == doubleBlack ? doubleBlackParent->right : doubleBlackParent->left;
 
@@ -346,7 +349,7 @@ namespace infra
                 }
                 else
                 {
-                    if (doubleBlackParent->parent)
+                    if (doubleBlackParent->parent != nullptr)
                         if (doubleBlackParent->parent->left == doubleBlackParent)
                             doubleBlack = &doubleBlackParent->parent->left;
                         else
@@ -377,7 +380,7 @@ namespace infra
                 abort();
         }
 
-        if (this->RootNode())
+        if (this->RootNode() != nullptr)
             const_cast<T*>(this->RootNode())->colour = Colour::black;
     }
 

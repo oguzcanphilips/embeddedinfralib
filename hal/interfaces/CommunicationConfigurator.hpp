@@ -9,6 +9,7 @@ namespace hal
         CommunicationConfigurator() = default;
         CommunicationConfigurator(const CommunicationConfigurator& other) = delete;
         CommunicationConfigurator& operator=(const CommunicationConfigurator& other) = delete;
+        ~CommunicationConfigurator() = default;
 
     public:
         virtual void ActivateConfiguration() = 0;
