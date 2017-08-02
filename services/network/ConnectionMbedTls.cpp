@@ -297,24 +297,23 @@ namespace services
         randomDataGenerator.GenerateRandomData(data);
     }
 
-    ConnectionMbedTls::SendStreamMbedTls::SendStreamMbedTls(ConnectionMbedTls& connection)
-        : infra::DataOutputStream(static_cast<infra::StreamWriter&>(*this))
-        , connection(connection)
+    ConnectionMbedTls::StreamWriterMbedTls::StreamWriterMbedTls(ConnectionMbedTls& connection)
+        : connection(connection)
     {}
 
-    ConnectionMbedTls::SendStreamMbedTls::~SendStreamMbedTls()
+    ConnectionMbedTls::StreamWriterMbedTls::~StreamWriterMbedTls()
     {
         if (sent != 0)
             connection.TrySend();
     }
 
-    void ConnectionMbedTls::SendStreamMbedTls::Insert(infra::ConstByteRange range)
+    void ConnectionMbedTls::StreamWriterMbedTls::Insert(infra::ConstByteRange range)
     {
         connection.sendBuffer.insert(connection.sendBuffer.end(), range.begin(), range.end());
         sent += range.size();
     }
 
-    void ConnectionMbedTls::SendStreamMbedTls::Insert(uint8_t element)
+    void ConnectionMbedTls::StreamWriterMbedTls::Insert(uint8_t element)
     {
         connection.sendBuffer.push_back(element);
         ++sent;

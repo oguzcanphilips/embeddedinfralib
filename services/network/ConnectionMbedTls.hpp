@@ -71,13 +71,12 @@ namespace services
         void GenerateRandomData(infra::ByteRange data);
 
     private:
-        class SendStreamMbedTls
-            : private infra::StreamWriter
-            , public infra::DataOutputStream
+        class StreamWriterMbedTls
+            : public infra::StreamWriter
         {
         public:
-            explicit SendStreamMbedTls(ConnectionMbedTls& connection);
-            ~SendStreamMbedTls();
+            explicit StreamWriterMbedTls(ConnectionMbedTls& connection);
+            ~StreamWriterMbedTls();
 
         private:
             virtual void Insert(infra::ConstByteRange range) override;
@@ -120,7 +119,7 @@ namespace services
         infra::BoundedDeque<uint8_t>::WithMaxSize<2048> receiveBuffer;
         infra::BoundedDeque<uint8_t>::WithMaxSize<2048> sendBuffer;
 
-        infra::SharedOptional<SendStreamMbedTls> sendStream;
+        infra::SharedOptional<infra::DataOutputStream::WithWriter<StreamWriterMbedTls>> sendStream;
         std::size_t requestedSendSize = 0;
         bool flushScheduled = false;
         infra::SharedOptional<infra::DataInputStream::WithReader<StreamReaderMbedTls>> receiveStream;

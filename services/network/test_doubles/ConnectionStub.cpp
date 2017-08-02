@@ -50,17 +50,16 @@ namespace services
         }, SharedFromThis());
     }
 
-    ConnectionStub::SendStreamStub::SendStreamStub(ConnectionStub& connection)
-        : infra::DataOutputStream(static_cast<infra::StreamWriter&>(*this))
-        , connection(connection)
+    ConnectionStub::StreamWriterStub::StreamWriterStub(ConnectionStub& connection)
+        : connection(connection)
     {}
 
-    void ConnectionStub::SendStreamStub::Insert(infra::ConstByteRange range)
+    void ConnectionStub::StreamWriterStub::Insert(infra::ConstByteRange range)
     {
         connection.sentData.insert(connection.sentData.end(), range.begin(), range.end());
     }
 
-    void ConnectionStub::SendStreamStub::Insert(uint8_t element)
+    void ConnectionStub::StreamWriterStub::Insert(uint8_t element)
     {
         connection.sentData.push_back(element);
     }

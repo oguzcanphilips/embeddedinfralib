@@ -31,12 +31,11 @@ namespace services
         std::vector<uint8_t> sentData;
 
     private:
-        class SendStreamStub
-            : public infra::DataOutputStream
-            , private infra::StreamWriter
+        class StreamWriterStub
+            : public infra::StreamWriter
         {
         public:
-            explicit SendStreamStub(ConnectionStub& connection);
+            explicit StreamWriterStub(ConnectionStub& connection);
 
         private:
             virtual void Insert(infra::ConstByteRange range) override;
@@ -69,7 +68,7 @@ namespace services
         std::size_t receivingIndex = 0;
 
         infra::SharedOptional<infra::DataInputStream::WithReader<StreamReaderStub>> receiveStream;
-        infra::SharedOptional<SendStreamStub> sendStream;
+        infra::SharedOptional<infra::DataOutputStream::WithWriter<StreamWriterStub>> sendStream;
         infra::SharedPtr<infra::DataOutputStream> sendStreamPtr;
     };
 

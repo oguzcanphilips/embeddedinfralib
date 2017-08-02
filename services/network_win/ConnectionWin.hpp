@@ -39,12 +39,11 @@ namespace services
         void TryAllocateSendStream();
 
     private:
-        class SendStream
-            : private infra::StreamWriter
-            , public infra::DataOutputStream
+        class StreamWriterWin
+            : public infra::StreamWriter
         {
         public:
-            SendStream(ConnectionWin& connection);
+            StreamWriterWin(ConnectionWin& connection);
 
         private:
             virtual void Insert(infra::ConstByteRange range) override;
@@ -85,7 +84,7 @@ namespace services
         infra::BoundedDeque<uint8_t>::WithMaxSize<2048> receiveBuffer;
         infra::BoundedDeque<uint8_t>::WithMaxSize<2048> sendBuffer;
 
-        infra::SharedOptional<SendStream> sendStream;
+        infra::SharedOptional<infra::DataOutputStream::WithWriter<StreamWriterWin>> sendStream;
         std::size_t requestedSendSize = 0;
         infra::SharedOptional<infra::DataInputStream::WithReader<StreamReaderWin>> receiveStream;
     };

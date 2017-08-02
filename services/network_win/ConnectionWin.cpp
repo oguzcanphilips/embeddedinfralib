@@ -133,17 +133,16 @@ namespace services
         }
     }
 
-    ConnectionWin::SendStream::SendStream(ConnectionWin& connection)
-        : infra::DataOutputStream(static_cast<infra::StreamWriter&>(*this))
-        , connection(connection)
+    ConnectionWin::StreamWriterWin::StreamWriterWin(ConnectionWin& connection)
+        : connection(connection)
     {}
 
-    void ConnectionWin::SendStream::Insert(infra::ConstByteRange range)
+    void ConnectionWin::StreamWriterWin::Insert(infra::ConstByteRange range)
     {
         connection.sendBuffer.insert(connection.sendBuffer.end(), range.begin(), range.end());
     }
 
-    void ConnectionWin::SendStream::Insert(uint8_t element)
+    void ConnectionWin::StreamWriterWin::Insert(uint8_t element)
     {
         connection.sendBuffer.push_back(element);
     }

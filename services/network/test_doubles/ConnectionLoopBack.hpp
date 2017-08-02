@@ -29,13 +29,12 @@ namespace services
         void TryAllocateSendStream();
 
     private:
-        class SendStreamLoopBackPeer
-            : private infra::StreamWriter
-            , public infra::DataOutputStream
+        class StreamWriterLoopBack
+            : public infra::StreamWriter
         {
         public:
-            explicit SendStreamLoopBackPeer(ConnectionLoopBackPeer& connection);
-            ~SendStreamLoopBackPeer();
+            explicit StreamWriterLoopBack(ConnectionLoopBackPeer& connection);
+            ~StreamWriterLoopBack();
 
         private:
             virtual void Insert(infra::ConstByteRange range) override;
@@ -71,7 +70,7 @@ namespace services
         ConnectionLoopBackPeer& peer;
         ConnectionLoopBack& loopBack;
         infra::BoundedDeque<uint8_t>::WithMaxSize<1024> sendBuffer;
-        infra::SharedOptional<SendStreamLoopBackPeer> sendStream;
+        infra::SharedOptional<infra::DataOutputStream::WithWriter<StreamWriterLoopBack>> sendStream;
         std::size_t requestedSendSize = 0;
         infra::SharedOptional<infra::DataInputStream::WithReader<StreamReaderLoopBack>> receiveStream;
     };

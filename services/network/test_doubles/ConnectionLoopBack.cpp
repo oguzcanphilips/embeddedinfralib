@@ -66,12 +66,11 @@ namespace services
         }
     }
 
-    ConnectionLoopBackPeer::SendStreamLoopBackPeer::SendStreamLoopBackPeer(ConnectionLoopBackPeer& connection)
-        : infra::DataOutputStream(static_cast<infra::StreamWriter&>(*this))
-        , connection(connection)
+    ConnectionLoopBackPeer::StreamWriterLoopBack::StreamWriterLoopBack(ConnectionLoopBackPeer& connection)
+        : connection(connection)
     {}
 
-    ConnectionLoopBackPeer::SendStreamLoopBackPeer::~SendStreamLoopBackPeer()
+    ConnectionLoopBackPeer::StreamWriterLoopBack::~StreamWriterLoopBack()
     {
         if (sent != 0)
         {
@@ -84,13 +83,13 @@ namespace services
         }
     }
 
-    void ConnectionLoopBackPeer::SendStreamLoopBackPeer::Insert(infra::ConstByteRange range)
+    void ConnectionLoopBackPeer::StreamWriterLoopBack::Insert(infra::ConstByteRange range)
     {
         connection.sendBuffer.insert(connection.sendBuffer.end(), range.begin(), range.end());
         sent += range.size();
     }
 
-    void ConnectionLoopBackPeer::SendStreamLoopBackPeer::Insert(uint8_t element)
+    void ConnectionLoopBackPeer::StreamWriterLoopBack::Insert(uint8_t element)
     {
         connection.sendBuffer.push_back(element);
         ++sent;
