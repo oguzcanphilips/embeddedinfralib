@@ -81,6 +81,9 @@ namespace infra
         : public OutputStream
     {
     public:
+        template<class Writer>
+            class WithWriter;
+
         explicit DataOutputStream(StreamWriter& writer);
 
         TextOutputStream operator<<(Text);
@@ -95,6 +98,9 @@ namespace infra
         : public OutputStream
     {
     public:
+        template<class Writer>
+            class WithWriter;
+
         explicit TextOutputStream(StreamWriter& stream);
 
         TextOutputStream operator<<(Hex);
@@ -174,6 +180,30 @@ namespace infra
         infra::Optional<Width> width;
     };
     
+    template<class TheWriter>
+    class DataOutputStream::WithWriter
+        : private detail::StorageHolder<TheWriter, WithWriter<TheWriter>>
+        , public DataOutputStream
+    {
+    public:
+        template<class... Args>
+            WithWriter(Args&&... args);
+
+        TheWriter& Writer();
+    };
+
+    template<class TheWriter>
+    class TextOutputStream::WithWriter
+        : private detail::StorageHolder<TheWriter, WithWriter<TheWriter>>
+        , public TextOutputStream
+    {
+    public:
+        template<class... Args>
+            WithWriter(Args&&... args);
+
+        TheWriter& Writer();
+    };
+
     class AsAsciiHelper
     {
     public:
@@ -239,6 +269,32 @@ namespace infra
         ConstByteRange dataRange(ReinterpretCastByteRange(data));
         Writer().Insert(dataRange);
         return *this;
+    }
+
+    template<class TheWriter>
+    template<class... Args>
+    DataOutputStream::WithWriter<TheWriter>::WithWriter(Args&&... args)
+        : detail::StorageHolder<TheWriter, WithWriter<TheWriter>>(std::forward<Args>(args)...)
+        , DataOutputStream(this->storage)
+    {}
+
+    template<class TheWriter>
+    TheWriter& DataOutputStream::WithWriter<TheWriter>::Writer()
+    {
+        return this->storage;
+    }
+
+    template<class TheWriter>
+    template<class... Args>
+    TextOutputStream::WithWriter<TheWriter>::WithWriter(Args&&... args)
+        : detail::StorageHolder<TheWriter, WithWriter<TheWriter>>(std::forward<Args>(args)...)
+        , TextOutputStream(this->storage)
+    {}
+
+    template<class TheWriter>
+    TheWriter& TextOutputStream::WithWriter<TheWriter>::Writer()
+    {
+        return this->storage;
     }
 
     template<class T>

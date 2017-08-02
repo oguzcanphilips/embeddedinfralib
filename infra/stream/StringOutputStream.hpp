@@ -8,18 +8,13 @@
 
 namespace infra
 {
-    class StringOutputStream                                                                            //TICS !OOP#013
-        : private StreamWriter
-        , public TextOutputStream
+    class StringOutputStreamWriter
+        : public StreamWriter
     {
     public:
-        template<std::size_t Size>
-            using WithStorage = infra::WithStorage<StringOutputStream, BoundedString::WithStorage<Size>>;
-
-        explicit StringOutputStream(BoundedString& string);
-        StringOutputStream(BoundedString& string, SoftFail);
-        StringOutputStream(BoundedString& string, NoFail);
-        ~StringOutputStream() = default;
+        explicit StringOutputStreamWriter(BoundedString& string);
+        StringOutputStreamWriter(BoundedString& string, SoftFail);
+        StringOutputStreamWriter(BoundedString& string, NoFail);
 
         template<class T>
             ReservedProxy<T> Reserve();
@@ -37,10 +32,20 @@ namespace infra
         BoundedString& string;
     };
 
+    class StringOutputStream
+        : public TextOutputStream::WithWriter<StringOutputStreamWriter>
+    {
+    public:
+        template<std::size_t Max>
+            using WithStorage = infra::WithStorage<TextOutputStream::WithWriter<StringOutputStreamWriter>, BoundedString::WithStorage<Max>>;
+
+        using TextOutputStream::WithWriter<StringOutputStreamWriter>::WithWriter;
+    };
+
     ////    Implementation    ////
 
     template<class T>
-    ReservedProxy<T> StringOutputStream::Reserve()
+    ReservedProxy<T> StringOutputStreamWriter::Reserve()
     {
         ByteRange range(ReinterpretCastByteRange(MemoryRange<char>(string.end(), string.end() + sizeof(T))));
         std::size_t spaceLeft = string.max_size() - string.size();

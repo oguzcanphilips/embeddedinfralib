@@ -708,12 +708,12 @@ namespace services
         for (const UsbInterface& interface : interfaces)
             interface.AddConfigDescriptor(stream);
 
-        configurationBuffer[2] = static_cast<uint8_t>(stream.Processed().size());
-        configurationBuffer[3] = static_cast<uint8_t>(stream.Processed().size() >> 8);
+        configurationBuffer[2] = static_cast<uint8_t>(stream.Writer().Processed().size());
+        configurationBuffer[3] = static_cast<uint8_t>(stream.Writer().Processed().size() >> 8);
         
         for (const UsbInterface& interface : interfaces)
             configurationBuffer[4] += interface.NumberOfInterfaces();
 
-        return stream.Processed();
+        return stream.Writer().Processed();
     }
 }

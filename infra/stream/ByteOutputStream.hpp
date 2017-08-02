@@ -1,9 +1,9 @@
 #ifndef INFRA_BYTE_OUTPUT_STREAM_HPP
 #define INFRA_BYTE_OUTPUT_STREAM_HPP
 
-// With a ByteOutputStream, you can easily place all sorts of objects into a block of memory.
-// A ByteOutputStream is created with a MemoryRange as argument, objects streamed out of the
-// ByteOutputStream are taken from that range.
+// With a ByteOutputStreamWriter, you can easily place all sorts of objects into a block of memory.
+// A ByteOutputStreamWriter is created with a MemoryRange as argument, objects streamed out of the
+// ByteOutputStreamWriter are taken from that range.
 //
 // Example:
 //
@@ -11,7 +11,7 @@
 // uint16_t myChecksum = 0x5678;
 //
 // std::array<uint8_t, 20> memory;
-// infra::ByteOutputStream writeStream(memory);
+// infra::ByteOutputStreamWriter writeStream(memory);
 // writeStream << uint8_t(4) << myData << myChecksum;
 //
 // Now memory contains the bytes 0x04, 0x12, 0x34, 0x56, 0x78.
@@ -21,17 +21,13 @@
 
 namespace infra
 {
-    class ByteOutputStream                                                                                      //TICS !OOP#013
-        : private StreamWriter
-        , public DataOutputStream
+    class ByteOutputStreamWriter
+        : public StreamWriter
     {
     public:
-        template<std::size_t Size>
-            using WithStorage = infra::WithStorage<ByteOutputStream, std::array<uint8_t, Size>>;
-
-        explicit ByteOutputStream(ByteRange range);
-        ByteOutputStream(ByteRange range, SoftFail);
-        ByteOutputStream(ByteRange range, NoFail);
+        explicit ByteOutputStreamWriter(ByteRange range);
+        ByteOutputStreamWriter(ByteRange range, SoftFail);
+        ByteOutputStreamWriter(ByteRange range, NoFail);
 
         ByteRange Processed() const;   // Invariant: Processed() ++ Remaining() == range
         ByteRange Remaining() const;
@@ -55,10 +51,20 @@ namespace infra
         std::size_t offset = 0;
     };
 
+    class ByteOutputStream
+        : public DataOutputStream::WithWriter<ByteOutputStreamWriter>
+    {
+    public:
+        template<std::size_t Max>
+            using WithStorage = infra::WithStorage<DataOutputStream::WithWriter<ByteOutputStreamWriter>, std::array<uint8_t, Max>>;
+
+        using DataOutputStream::WithWriter<ByteOutputStreamWriter>::WithWriter;
+    };
+
     ////    Implementation    ////
 
     template<class T>
-    ReservedProxy<T> ByteOutputStream::Reserve()
+    ReservedProxy<T> ByteOutputStreamWriter::Reserve()
     {
         ByteRange reservedRange(streamRange.begin() + offset, streamRange.begin() + offset + sizeof(T));
         std::size_t spaceLeft = streamRange.size() - offset;

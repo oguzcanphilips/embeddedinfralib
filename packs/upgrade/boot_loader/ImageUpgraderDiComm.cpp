@@ -60,7 +60,7 @@ namespace application
         infra::ByteOutputStream properties(buffer);
         properties << infra::text << R"({"mandatory":true,"state":"downloading","size":)" << imageSize << R"(})";
 
-        if (!diComm.PutProps("firmware", infra::BoundedConstString(reinterpret_cast<char*>(properties.Processed().begin()), properties.Processed().size())))
+        if (!diComm.PutProps("firmware", infra::BoundedConstString(reinterpret_cast<char*>(properties.Writer().Processed().begin()), properties.Writer().Processed().size())))
             return false;
 
         return true;
@@ -140,7 +140,7 @@ namespace application
         infra::ByteOutputStream chunkData(buffer);
         chunkData << infra::text << R"({"data":")" << infra::data << infra::MemoryRange<uint8_t>(base64EncodedChunk.begin(), base64EncodedChunk.end()) << infra::text << R"("})";
         infra::BoundedString::WithStorage<128> result;
-        if (!diComm.PutProps("firmware", infra::BoundedConstString(reinterpret_cast<char*>(chunkData.Processed().begin()), chunkData.Processed().size()), result))
+        if (!diComm.PutProps("firmware", infra::BoundedConstString(reinterpret_cast<char*>(chunkData.Writer().Processed().begin()), chunkData.Writer().Processed().size()), result))
             return false;
 
         infra::JsonObject resultProperties = infra::JsonObject(result);

@@ -2,32 +2,26 @@
 
 namespace infra
 {
-    StdStringOutputStream::StdStringOutputStream(std::string& string)
-        : TextOutputStream(static_cast<StreamWriter&>(*this))
-        , string(string)
+    StdStringOutputStreamWriter::StdStringOutputStreamWriter(std::string& string)
+        : string(string)
     {}
 
-    StdStringOutputStream::StdStringOutputStream(std::string& string, SoftFail)
+    StdStringOutputStreamWriter::StdStringOutputStreamWriter(std::string& string, SoftFail)
         : StreamWriter(infra::softFail)
-        , TextOutputStream(static_cast<StreamWriter&>(*this))
         , string(string)
     {}
 
-    StdStringOutputStream::StdStringOutputStream(std::string& string, NoFail)
+    StdStringOutputStreamWriter::StdStringOutputStreamWriter(std::string& string, NoFail)
         : StreamWriter(infra::noFail)
-        , TextOutputStream(static_cast<StreamWriter&>(*this))
         , string(string)
     {}
 
-    StdStringOutputStream::~StdStringOutputStream()
-    {}
-
-    void StdStringOutputStream::Insert(ConstByteRange range)
+    void StdStringOutputStreamWriter::Insert(ConstByteRange range)
     {
         string.append(reinterpret_cast<const char*>(range.begin()), range.size());
     }
 
-    void StdStringOutputStream::Insert(uint8_t element)
+    void StdStringOutputStreamWriter::Insert(uint8_t element)
     {
         string.push_back(static_cast<char>(element));
     }
