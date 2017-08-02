@@ -16,8 +16,8 @@ TEST(ByteOutputStreamTest, StreamToRange)
     stream << from;
 
     EXPECT_EQ((std::array<uint8_t, 4>{{ 0, 1, 4, 5 }}), to);
-    EXPECT_EQ((std::vector<uint8_t>{ 4, 5 }), stream.Remaining());
-    EXPECT_EQ((std::vector<uint8_t>{ 0, 1 }), stream.Processed());
+    EXPECT_EQ((std::vector<uint8_t>{ 4, 5 }), stream.Writer().Remaining());
+    EXPECT_EQ((std::vector<uint8_t>{ 0, 1 }), stream.Writer().Processed());
 }
 
 TEST(ByteOutputStreamTest, StreamFromMemoryRange)
@@ -36,28 +36,28 @@ TEST(ByteOutputStreamTest, WithStorage)
     infra::ByteOutputStream::WithStorage<5> stream;
     stream << uint8_t(1) << uint8_t(2) << uint8_t(3);
 
-    EXPECT_EQ((std::array<uint8_t, 3>{{ 1, 2, 3 }}), stream.Processed());
+    EXPECT_EQ((std::array<uint8_t, 3>{{ 1, 2, 3 }}), stream.Writer().Processed());
 }
 
 TEST(ByteOutputStreamTest, reserve_type)
 {
     infra::ByteOutputStream::WithStorage<5> stream;
     stream << uint8_t(1);
-    auto reservedSpace = stream.Reserve<uint8_t>();
+    auto reservedSpace = stream.Writer().Reserve<uint8_t>();
     stream << uint8_t(3);
     reservedSpace = uint8_t(2);
 
-    EXPECT_EQ((std::array<uint8_t, 3>{{ 1, 2, 3 }}), stream.Processed());
+    EXPECT_EQ((std::array<uint8_t, 3>{{ 1, 2, 3 }}), stream.Writer().Processed());
 }
 
 TEST(ByteOutputStreamTest, reserve_type_without_space)
 {
     infra::ByteOutputStream::WithStorage<2> stream(infra::softFail);
     stream << uint8_t(1);
-    auto reservedSpace = stream.Reserve<uint32_t>();
+    auto reservedSpace = stream.Writer().Reserve<uint32_t>();
     reservedSpace = uint32_t(32);
 
-    EXPECT_TRUE(stream.HasFailed());
+    EXPECT_TRUE(stream.Failed());
 }
 
 TEST(ByteOutputStreamTest, stream_to_saved_point)
@@ -73,7 +73,7 @@ TEST(ByteOutputStreamTest, stream_to_saved_point)
         savedStream << uint8_t(2);
     }
 
-    EXPECT_EQ((std::array<uint8_t, 3>{{ 1, 2, 3 }}), stream.Processed());
+    EXPECT_EQ((std::array<uint8_t, 3>{{ 1, 2, 3 }}), stream.Writer().Processed());
 }
 
 TEST(ByteOutputStreamTest, stream_to_nested_saved_point)
@@ -96,5 +96,5 @@ TEST(ByteOutputStreamTest, stream_to_nested_saved_point)
         }
     }
 
-    EXPECT_EQ((std::array<uint8_t, 5>{{ 1, 2, 3, 4, 5 }}), stream.Processed());
+    EXPECT_EQ((std::array<uint8_t, 5>{{ 1, 2, 3, 4, 5 }}), stream.Writer().Processed());
 }

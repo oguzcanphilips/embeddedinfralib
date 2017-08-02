@@ -81,15 +81,15 @@ TEST(StringInputStreamTest, ExtractHexWithOverflow)
     uint8_t v(1);
     stream >> infra::hex >> v;
     EXPECT_EQ(0, v);
-    EXPECT_TRUE(stream.HasFailed());
+    EXPECT_TRUE(stream.Failed());
 }
 
 TEST(StringInputStreamTest, ExtractHexWithoutGoodCharacters)
 {
-    infra::StringInputStream stream(infra::BoundedString("k"), infra::softFail);
+    infra::StringInputStream stream(infra::BoundedConstString("k"), infra::softFail);
 
     uint8_t v(1);
     stream >> infra::hex >> v;
     EXPECT_EQ(0, v);
-    EXPECT_TRUE(stream.HasFailed());
+    EXPECT_TRUE(stream.Failed());
 }

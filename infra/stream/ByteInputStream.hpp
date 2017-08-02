@@ -2,16 +2,16 @@
 #define INFRA_BYTE_INPUT_STREAM_HPP
 
 #include "infra/stream/InputStream.hpp"
+#include <array>
 
 namespace infra
 {
-    class ByteInputStream                                                                                   //TICS !OOP#013
-        : private StreamReader
-        , public DataInputStream
+    class ByteInputStreamReader
+        : public StreamReader
     {
     public:
-        explicit ByteInputStream(ConstByteRange range);
-        ByteInputStream(ConstByteRange range, SoftFail);
+        explicit ByteInputStreamReader(ConstByteRange range);
+        ByteInputStreamReader(ConstByteRange range, SoftFail);
 
         ConstByteRange Processed() const;   // Invariant: Processed() ++ Remaining() == range
         ConstByteRange Remaining() const;
@@ -21,12 +21,22 @@ namespace infra
         virtual uint8_t ExtractOne() override;
         virtual uint8_t Peek() override;
         virtual ConstByteRange ExtractContiguousRange(std::size_t max) override;
-        virtual bool IsEmpty() const override;
-        virtual std::size_t SizeAvailable() const override;
+        virtual bool Empty() const override;
+        virtual std::size_t Available() const override;
 
     private:
         ConstByteRange range;
         std::size_t offset = 0;
+    };
+
+    class ByteInputStream
+        : public DataInputStream::WithReader<ByteInputStreamReader>
+    {
+    public:
+        template<std::size_t Max>
+            using WithStorage = infra::WithStorage<DataInputStream::WithReader<ByteInputStreamReader>, std::array<uint8_t, Max>>;
+
+        using DataInputStream::WithReader<ByteInputStreamReader>::WithReader;
     };
 }
 

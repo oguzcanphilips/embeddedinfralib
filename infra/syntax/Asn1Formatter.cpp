@@ -142,9 +142,9 @@ namespace infra
         return Asn1ContainerFormatter(stream, marker);
     }
 
-    bool Asn1Formatter::HasFailed() const
+    bool Asn1Formatter::Failed() const
     {
-        return stream.HasFailed();
+        return stream.Failed();
     }
 
     infra::DataOutputStream& Asn1Formatter::Stream()

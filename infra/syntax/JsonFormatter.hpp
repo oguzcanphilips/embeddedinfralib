@@ -32,7 +32,7 @@ namespace infra
         JsonObjectFormatter SubObject(infra::BoundedConstString tagName);
         JsonArrayFormatter SubArray(infra::BoundedConstString tagName);
 
-        bool HasFailed() const;
+        bool Failed() const;
 
     private:
         void InsertSeparation();
@@ -63,7 +63,7 @@ namespace infra
         JsonObjectFormatter SubObject();
         JsonArrayFormatter SubArray();
 
-        bool HasFailed() const;
+        bool Failed() const;
 
     private:
         void InsertSeparation();

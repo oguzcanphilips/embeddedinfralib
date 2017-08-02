@@ -31,12 +31,11 @@ namespace services
         std::vector<uint8_t> sentData;
 
     private:
-        class SendStreamStub
-            : public infra::DataOutputStream
-            , private infra::StreamWriter
+        class StreamWriterStub
+            : public infra::StreamWriter
         {
         public:
-            explicit SendStreamStub(ConnectionStub& connection);
+            explicit StreamWriterStub(ConnectionStub& connection);
 
         private:
             virtual void Insert(infra::ConstByteRange range) override;
@@ -46,20 +45,19 @@ namespace services
             ConnectionStub& connection;
         };
 
-        class ReceiveStreamStub
-            : public infra::DataInputStream
-            , private infra::StreamReader
+        class StreamReaderStub
+            : public infra::StreamReader
         {
         public:
-            explicit ReceiveStreamStub(ConnectionStub& connection);
+            explicit StreamReaderStub(ConnectionStub& connection);
 
         private:
             virtual void Extract(infra::ByteRange range) override;
             virtual uint8_t ExtractOne() override;
             virtual uint8_t Peek() override;
             virtual infra::ConstByteRange ExtractContiguousRange(std::size_t max) override;
-            virtual bool IsEmpty() const override;
-            virtual std::size_t SizeAvailable() const override;
+            virtual bool Empty() const override;
+            virtual std::size_t Available() const override;
 
         private:
             ConnectionStub& connection;
@@ -69,8 +67,8 @@ namespace services
         std::vector<uint8_t> receivingData;
         std::size_t receivingIndex = 0;
 
-        infra::SharedOptional<ReceiveStreamStub> receiveStream;
-        infra::SharedOptional<SendStreamStub> sendStream;
+        infra::SharedOptional<infra::DataInputStream::WithReader<StreamReaderStub>> receiveStream;
+        infra::SharedOptional<infra::DataOutputStream::WithWriter<StreamWriterStub>> sendStream;
         infra::SharedPtr<infra::DataOutputStream> sendStreamPtr;
     };
 

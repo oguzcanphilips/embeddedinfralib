@@ -71,13 +71,12 @@ namespace services
         void GenerateRandomData(infra::ByteRange data);
 
     private:
-        class SendStreamMbedTls
-            : private infra::StreamWriter
-            , public infra::DataOutputStream
+        class StreamWriterMbedTls
+            : public infra::StreamWriter
         {
         public:
-            explicit SendStreamMbedTls(ConnectionMbedTls& connection);
-            ~SendStreamMbedTls();
+            explicit StreamWriterMbedTls(ConnectionMbedTls& connection);
+            ~StreamWriterMbedTls();
 
         private:
             virtual void Insert(infra::ConstByteRange range) override;
@@ -88,12 +87,11 @@ namespace services
             std::size_t sent = 0;
         };
 
-        class ReceiveStreamMbedTls
-            : private infra::StreamReader
-            , public infra::DataInputStream
+        class StreamReaderMbedTls
+            : public infra::StreamReader
         {
         public:
-            explicit ReceiveStreamMbedTls(ConnectionMbedTls& connection);
+            explicit StreamReaderMbedTls(ConnectionMbedTls& connection);
 
             void ConsumeRead();
 
@@ -102,8 +100,8 @@ namespace services
             virtual uint8_t ExtractOne() override;
             virtual uint8_t Peek() override;
             virtual infra::ConstByteRange ExtractContiguousRange(std::size_t max) override;
-            virtual bool IsEmpty() const override;
-            virtual std::size_t SizeAvailable() const override;
+            virtual bool Empty() const override;
+            virtual std::size_t Available() const override;
 
         private:
             ConnectionMbedTls& connection;
@@ -121,10 +119,10 @@ namespace services
         infra::BoundedDeque<uint8_t>::WithMaxSize<2048> receiveBuffer;
         infra::BoundedDeque<uint8_t>::WithMaxSize<2048> sendBuffer;
 
-        infra::SharedOptional<SendStreamMbedTls> sendStream;
+        infra::SharedOptional<infra::DataOutputStream::WithWriter<StreamWriterMbedTls>> sendStream;
         std::size_t requestedSendSize = 0;
         bool flushScheduled = false;
-        infra::SharedOptional<ReceiveStreamMbedTls> receiveStream;
+        infra::SharedOptional<infra::DataInputStream::WithReader<StreamReaderMbedTls>> receiveStream;
 
         infra::SharedPtr<infra::DataOutputStream> encryptedSendStream;
         std::size_t encryptedSendStreamSize = 0;

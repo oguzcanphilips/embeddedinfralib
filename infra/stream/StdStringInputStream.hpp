@@ -8,27 +8,33 @@
 
 namespace infra
 {
-    class StdStringInputStream                                                          //TICS !OOP#013
-        : private StreamReader
-        , public TextInputStream
+    class StdStringInputStreamReader
+        : public StreamReader
     {
     public:
-        using WithStorage = infra::WithStorage<StdStringInputStream, std::string>;
-
-        explicit StdStringInputStream(const std::string& string);
-        StdStringInputStream(const std::string& string, SoftFail);
+        explicit StdStringInputStreamReader(const std::string& string);
+        StdStringInputStreamReader(const std::string& string, SoftFail);
 
     private:
         virtual void Extract(ByteRange range) override;
         virtual uint8_t ExtractOne() override;
         virtual uint8_t Peek() override;
         virtual ConstByteRange ExtractContiguousRange(std::size_t max) override;
-        virtual bool IsEmpty() const override;
-        virtual std::size_t SizeAvailable() const override;
+        virtual bool Empty() const override;
+        virtual std::size_t Available() const override;
 
     private:
         uint32_t offset = 0;
         const std::string& string;
+    };
+
+    class StdStringInputStream
+        : public TextInputStream::WithReader<StdStringInputStreamReader>
+    {
+    public:
+        using WithStorage = infra::WithStorage<TextInputStream::WithReader<StdStringInputStreamReader>, std::string>;
+
+        using TextInputStream::WithReader<StdStringInputStreamReader>::WithReader;
     };
 }
 

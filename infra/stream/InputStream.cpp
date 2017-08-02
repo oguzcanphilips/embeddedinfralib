@@ -3,10 +3,6 @@
 
 namespace infra
 {
-    StreamReader::StreamReader()
-        : softFail(false)
-    {}
-
     StreamReader::StreamReader(SoftFail)
         : softFail(true)
     {}
@@ -31,19 +27,30 @@ namespace infra
         }
         checkedFail = !softFail;
     }
+
+    void StreamReader::SetSoftFail()
+    {
+        softFail = true;
+    }
     
     InputStream::InputStream(StreamReader& reader)
         : reader(reader)
     {}
 
+    InputStream::InputStream(StreamReader& reader, infra::SoftFail)
+        : reader(reader)
+    {
+        reader.SetSoftFail();
+    }
+
     bool InputStream::Empty() const
     {
-        return reader.IsEmpty();
+        return reader.Empty();
     }
 
     std::size_t InputStream::Available() const
     {
-        return reader.SizeAvailable();
+        return reader.Available();
     }
 
     ConstByteRange InputStream::ContiguousRange(std::size_t max)
@@ -51,7 +58,7 @@ namespace infra
         return reader.ExtractContiguousRange(max);
     }
 
-    bool InputStream::HasFailed() const
+    bool InputStream::Failed() const
     {
         return reader.Failed();
     }
@@ -63,6 +70,10 @@ namespace infra
 
     DataInputStream::DataInputStream(StreamReader& reader)
         : InputStream(reader)
+    {}
+
+    DataInputStream::DataInputStream(StreamReader& reader, SoftFail)
+        : InputStream(reader, infra::softFail)
     {}
     
     TextInputStream DataInputStream::operator>>(Text)
@@ -79,6 +90,12 @@ namespace infra
     TextInputStream::TextInputStream(StreamReader& reader)
         : InputStream(reader)
     {}
+
+    TextInputStream::TextInputStream(StreamReader& reader, SoftFail)
+        : InputStream(reader)
+    {
+        Reader().SetSoftFail();
+    }
 
     DataInputStream TextInputStream::operator>>(Data)
     {
@@ -250,7 +267,7 @@ namespace infra
         SkipSpaces();
 
         v = 0;
-        for (std::size_t i = 0; (i != width.ValueOr(std::numeric_limits<std::size_t>::max()) && !Reader().IsEmpty()) || i == 0; ++i)
+        for (std::size_t i = 0; (i != width.ValueOr(std::numeric_limits<std::size_t>::max()) && !Reader().Empty()) || i == 0; ++i)
         {
             char c = static_cast<char>(Reader().Peek());
 
@@ -289,7 +306,7 @@ namespace infra
 
         v = 0;
 
-        for (std::size_t i = 0; (i != width.ValueOr(std::numeric_limits<std::size_t>::max()) && !Reader().IsEmpty()) || i == 0; ++i)
+        for (std::size_t i = 0; (i != width.ValueOr(std::numeric_limits<std::size_t>::max()) && !Reader().Empty()) || i == 0; ++i)
         {
             char c = static_cast<char>(Reader().Peek());
 

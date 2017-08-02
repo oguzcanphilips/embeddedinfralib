@@ -336,7 +336,7 @@ TEST_F(SecondStageToRamLoaderTest, VerifierChecksContents)
     stream << header << secondStageImageHeader << infra::ConstByteRange(secondStageImage);
 
     secondStageToRamLoader.Load(infra::ByteRange(), decryptorSpy, verifierSpy);
-    infra::ByteRange signedData = stream.Processed();
+    infra::ByteRange signedData = stream.Writer().Processed();
     signedData.pop_front(sizeof(application::UpgradePackHeaderPrologue));
     EXPECT_TRUE(infra::ContentsEqual(signedData, infra::ByteRange(verifierSpy.data)));
 }

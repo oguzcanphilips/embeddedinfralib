@@ -8,17 +8,13 @@
 
 namespace infra
 {
-    class StdStringOutputStream                                                         //TICS !OOP#013
-        : private StreamWriter
-        , public TextOutputStream
+    class StdStringOutputStreamWriter
+        : public StreamWriter
     {
     public:
-        using WithStorage = infra::WithStorage<StdStringOutputStream, std::string>;
-
-        explicit StdStringOutputStream(std::string& string);
-        StdStringOutputStream(std::string& string, SoftFail);
-        StdStringOutputStream(std::string& string, NoFail);
-        ~StdStringOutputStream();
+        explicit StdStringOutputStreamWriter(std::string& string);
+        StdStringOutputStreamWriter(std::string& string, SoftFail);
+        StdStringOutputStreamWriter(std::string& string, NoFail);
 
     private:
         virtual void Insert(ConstByteRange range) override;
@@ -26,6 +22,15 @@ namespace infra
 
     private:
         std::string& string;
+    };
+
+    class StdStringOutputStream
+        : public TextOutputStream::WithWriter<StdStringOutputStreamWriter>
+    {
+    public:
+        using WithStorage = infra::WithStorage<TextOutputStream::WithWriter<StdStringOutputStreamWriter>, std::string>;
+
+        using TextOutputStream::WithWriter<StdStringOutputStreamWriter>::WithWriter;
     };
 }
 

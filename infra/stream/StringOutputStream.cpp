@@ -2,24 +2,21 @@
 
 namespace infra
 {
-    StringOutputStream::StringOutputStream(BoundedString& string)
-        : TextOutputStream(static_cast<StreamWriter&>(*this))
-        , string(string)
+    StringOutputStreamWriter::StringOutputStreamWriter(BoundedString& string)
+        : string(string)
     {}
 
-    StringOutputStream::StringOutputStream(BoundedString& string, SoftFail)
+    StringOutputStreamWriter::StringOutputStreamWriter(BoundedString& string, SoftFail)
         : StreamWriter(infra::softFail)
-        , TextOutputStream(static_cast<StreamWriter&>(*this))
         , string(string)
     {}
 
-    StringOutputStream::StringOutputStream(BoundedString& string, NoFail)
+    StringOutputStreamWriter::StringOutputStreamWriter(BoundedString& string, NoFail)
         : StreamWriter(infra::noFail)
-        , TextOutputStream(static_cast<StreamWriter&>(*this))
         , string(string)
     {}
 
-    void StringOutputStream::Insert(ConstByteRange range)
+    void StringOutputStreamWriter::Insert(ConstByteRange range)
     {
         std::size_t spaceLeft = string.max_size() - string.size();
         bool spaceOk = range.size() <= spaceLeft;
@@ -29,7 +26,7 @@ namespace infra
         string.append(reinterpret_cast<const char*>(range.begin()), range.size());
     }
 
-    void StringOutputStream::Insert(uint8_t element)
+    void StringOutputStreamWriter::Insert(uint8_t element)
     {
         bool isOk = !string.full();
         if (isOk)
@@ -37,17 +34,17 @@ namespace infra
         ReportResult(isOk);
     }
 
-    const uint8_t* StringOutputStream::ConstructSaveMarker() const
+    const uint8_t* StringOutputStreamWriter::ConstructSaveMarker() const
     {
         return reinterpret_cast<const uint8_t*>(string.end());
     }
 
-    std::size_t StringOutputStream::GetProcessedBytesSince(const uint8_t* marker) const
+    std::size_t StringOutputStreamWriter::GetProcessedBytesSince(const uint8_t* marker) const
     {
         return std::distance(reinterpret_cast<const char*>(marker), string.cend());
     }
 
-    infra::ByteRange StringOutputStream::SaveState(const uint8_t* marker)
+    infra::ByteRange StringOutputStreamWriter::SaveState(const uint8_t* marker)
     {
         char* copyBegin = string.begin() + std::distance(string.cbegin(), reinterpret_cast<const char*>(marker));
         char* copyEnd = string.end();
@@ -57,7 +54,7 @@ namespace infra
         return infra::ByteRange(reinterpret_cast<uint8_t*>(copyBegin), reinterpret_cast<uint8_t*>(string.end() - std::distance(copyBegin, copyEnd)));
     }
 
-    void StringOutputStream::RestoreState(infra::ByteRange range)
+    void StringOutputStreamWriter::RestoreState(infra::ByteRange range)
     {
         std::copy(reinterpret_cast<char*>(range.end()), string.end(), reinterpret_cast<char*>(range.begin()));
         string.resize(string.size() - range.size());

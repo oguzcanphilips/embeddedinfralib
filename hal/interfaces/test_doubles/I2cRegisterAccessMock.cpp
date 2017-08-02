@@ -15,7 +15,7 @@ namespace hal
             stream >> dataRegister;
 
         if (!stream.Empty())
-            currentSendData.insert(currentSendData.end(), stream.Remaining().begin(), stream.Remaining().end());
+            currentSendData.insert(currentSendData.end(), stream.Reader().Remaining().begin(), stream.Reader().Remaining().end());
 
         if (nextAction != hal::Action::continueSession && !currentSendData.empty())
         {

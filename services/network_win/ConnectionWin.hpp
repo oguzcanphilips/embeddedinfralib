@@ -39,12 +39,11 @@ namespace services
         void TryAllocateSendStream();
 
     private:
-        class SendStream
-            : private infra::StreamWriter
-            , public infra::DataOutputStream
+        class StreamWriterWin
+            : public infra::StreamWriter
         {
         public:
-            SendStream(ConnectionWin& connection);
+            StreamWriterWin(ConnectionWin& connection);
 
         private:
             virtual void Insert(infra::ConstByteRange range) override;
@@ -55,12 +54,11 @@ namespace services
             uint16_t sent = 0;
         };
 
-        class ReceiveStreamWin
-            : private infra::StreamReader
-            , public infra::DataInputStream
+        class StreamReaderWin
+            : public infra::StreamReader
         {
         public:
-            ReceiveStreamWin(ConnectionWin& connection);
+            StreamReaderWin(ConnectionWin& connection);
 
             void ConsumeRead();
 
@@ -69,8 +67,8 @@ namespace services
             virtual uint8_t ExtractOne() override;
             virtual uint8_t Peek() override;
             virtual infra::ConstByteRange ExtractContiguousRange(std::size_t max) override;
-            virtual bool IsEmpty() const override;
-            virtual std::size_t SizeAvailable() const override;
+            virtual bool Empty() const override;
+            virtual std::size_t Available() const override;
 
         private:
             ConnectionWin& connection;
@@ -86,9 +84,9 @@ namespace services
         infra::BoundedDeque<uint8_t>::WithMaxSize<2048> receiveBuffer;
         infra::BoundedDeque<uint8_t>::WithMaxSize<2048> sendBuffer;
 
-        infra::SharedOptional<SendStream> sendStream;
+        infra::SharedOptional<infra::DataOutputStream::WithWriter<StreamWriterWin>> sendStream;
         std::size_t requestedSendSize = 0;
-        infra::SharedOptional<ReceiveStreamWin> receiveStream;
+        infra::SharedOptional<infra::DataInputStream::WithReader<StreamReaderWin>> receiveStream;
     };
 
     using AllocatorConnectionWin = infra::SharedObjectAllocator<ConnectionWin, void(EventDispatcherWithNetwork&, SOCKET)>;
