@@ -43,13 +43,12 @@ namespace services
         err_t Sent(uint16_t len);
 
     private:
-        class SendStreamLwIp
-            : private infra::StreamWriter
-            , public infra::DataOutputStream
+        class StreamWriterLwIp
+            : public infra::StreamWriter
         {
         public:
-            SendStreamLwIp(ConnectionLwIp& connection, infra::ByteRange sendBuffer);
-            ~SendStreamLwIp();
+            StreamWriterLwIp(ConnectionLwIp& connection, infra::ByteRange sendBuffer);
+            ~StreamWriterLwIp();
 
         private:
             virtual void Insert(infra::ConstByteRange range) override;
@@ -61,12 +60,11 @@ namespace services
             uint16_t sent = 0;
         };
 
-        class ReceiveStreamLwIp
-            : private infra::StreamReader
-            , public infra::DataInputStream
+        class StreamReaderLwIp
+            : public infra::StreamReader
         {
         public:
-            ReceiveStreamLwIp(ConnectionLwIp& connection);
+            StreamReaderLwIp(ConnectionLwIp& connection);
 
             void ConsumeRead();
 
@@ -75,8 +73,8 @@ namespace services
             virtual uint8_t ExtractOne() override;
             virtual uint8_t Peek() override;
             virtual infra::ConstByteRange ExtractContiguousRange(std::size_t max) override;
-            virtual bool IsEmpty() const override;
-            virtual std::size_t SizeAvailable() const override;
+            virtual bool Empty() const override;
+            virtual std::size_t Available() const override;
 
         private:
             ConnectionLwIp& connection;
@@ -87,8 +85,8 @@ namespace services
         tcp_pcb* control;
         std::size_t requestedSendSize = 0;
 
-        infra::SharedOptional<SendStreamLwIp> sendStream;
-        infra::SharedOptional<ReceiveStreamLwIp> receiveStream;
+        infra::SharedOptional<infra::DataOutputStream::WithWriter<StreamWriterLwIp>> sendStream;
+        infra::SharedOptional<infra::DataInputStream::WithReader<StreamReaderLwIp>> receiveStream;
 
         infra::ConstByteRange sendBuffer;
         infra::TimerSingleShot retrySendTimer;

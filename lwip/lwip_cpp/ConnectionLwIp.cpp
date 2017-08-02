@@ -46,7 +46,7 @@ namespace services
 
     void ConnectionLwIp::AckReceived()
     {
-        receiveStream->ConsumeRead();
+        receiveStream->Reader().ConsumeRead();
     }
 
     void ConnectionLwIp::CloseAndDestroy()
@@ -189,13 +189,12 @@ namespace services
         return ERR_OK;
     }
 
-    ConnectionLwIp::SendStreamLwIp::SendStreamLwIp(ConnectionLwIp& connection, infra::ByteRange sendBuffer)
-        : infra::DataOutputStream(static_cast<infra::StreamWriter&>(*this))
-        , connection(connection)
+    ConnectionLwIp::StreamWriterLwIp::StreamWriterLwIp(ConnectionLwIp& connection, infra::ByteRange sendBuffer)
+        : connection(connection)
         , sendBuffer(sendBuffer)
     {}
 
-    ConnectionLwIp::SendStreamLwIp::~SendStreamLwIp()
+    ConnectionLwIp::StreamWriterLwIp::~StreamWriterLwIp()
     {
         if (sent != 0)
             connection.SendBuffer(infra::Head(sendBuffer, sent));
@@ -203,33 +202,32 @@ namespace services
             connection.sendMemoryPool.pop_back();
     }
 
-    void ConnectionLwIp::SendStreamLwIp::Insert(infra::ConstByteRange range)
+    void ConnectionLwIp::StreamWriterLwIp::Insert(infra::ConstByteRange range)
     {
         assert(sendBuffer.size() - sent >= range.size());
         std::copy(range.begin(), range.end(), sendBuffer.begin() + sent);
         sent += static_cast<uint16_t>(range.size());
     }
 
-    void ConnectionLwIp::SendStreamLwIp::Insert(uint8_t element)
+    void ConnectionLwIp::StreamWriterLwIp::Insert(uint8_t element)
     {
         assert(sent != sendBuffer.size());
         sendBuffer[sent] = element;
         --sent;
     }
 
-    ConnectionLwIp::ReceiveStreamLwIp::ReceiveStreamLwIp(ConnectionLwIp& connection)
-        : infra::DataInputStream(static_cast<infra::StreamReader&>(*this))
-        , connection(connection)
+    ConnectionLwIp::StreamReaderLwIp::StreamReaderLwIp(ConnectionLwIp& connection)
+        : connection(connection)
     {}
 
-    void ConnectionLwIp::ReceiveStreamLwIp::ConsumeRead()
+    void ConnectionLwIp::StreamReaderLwIp::ConsumeRead()
     {
         tcp_recved(connection.control, sizeRead);
         connection.receiveBuffer.erase(connection.receiveBuffer.begin(), connection.receiveBuffer.begin() + sizeRead);
         sizeRead = 0;
     }
 
-    void ConnectionLwIp::ReceiveStreamLwIp::Extract(infra::ByteRange range)
+    void ConnectionLwIp::StreamReaderLwIp::Extract(infra::ByteRange range)
     {
         while (!range.empty() && !Empty())
         {
@@ -240,7 +238,7 @@ namespace services
         ReportResult(range.empty());
     }
 
-    uint8_t ConnectionLwIp::ReceiveStreamLwIp::ExtractOne()
+    uint8_t ConnectionLwIp::StreamReaderLwIp::ExtractOne()
     {
         bool available = !Empty();
 
@@ -251,7 +249,7 @@ namespace services
             return 0;
     }
 
-    uint8_t ConnectionLwIp::ReceiveStreamLwIp::Peek()
+    uint8_t ConnectionLwIp::StreamReaderLwIp::Peek()
     {
         bool available = !Empty();
 
@@ -262,9 +260,9 @@ namespace services
             return 0;
     }
 
-    infra::ConstByteRange ConnectionLwIp::ReceiveStreamLwIp::ExtractContiguousRange(std::size_t max)
+    infra::ConstByteRange ConnectionLwIp::StreamReaderLwIp::ExtractContiguousRange(std::size_t max)
     {
-        if (IsEmpty())
+        if (Empty())
             return infra::ConstByteRange();
         else
         {
@@ -274,12 +272,12 @@ namespace services
         }
     }
 
-    bool ConnectionLwIp::ReceiveStreamLwIp::IsEmpty() const
+    bool ConnectionLwIp::StreamReaderLwIp::Empty() const
     {
         return sizeRead == connection.receiveBuffer.size();
     }
 
-    std::size_t ConnectionLwIp::ReceiveStreamLwIp::SizeAvailable() const
+    std::size_t ConnectionLwIp::StreamReaderLwIp::Available() const
     {
         return connection.receiveBuffer.size() - sizeRead;
     }
