@@ -1,4 +1,4 @@
-ccola_component(protobuf_infra static_library)
+ccola_component(protobuf_cpp_infra static_library)
 
 	ccola_sources(
 		ProtoParser.cpp
@@ -8,7 +8,6 @@ ccola_component(protobuf_infra static_library)
 	)
 
 	ccola_dependencies(
-		libprotobuf
 		infra.stream
 	)
 

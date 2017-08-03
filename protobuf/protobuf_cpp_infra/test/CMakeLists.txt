@@ -1,4 +1,4 @@
-ccola_component(protobuf_infra_test gmock_test)
+ccola_component(protobuf_cpp_infra_test gmock_test)
 
 	ccola_sources(
 		TestProtoFormatter.cpp
@@ -6,7 +6,7 @@ ccola_component(protobuf_infra_test gmock_test)
 	)
 
 	ccola_dependencies(
-		protobuf_infra
+		protobuf_cpp_infra
 	)
 
 ccola_end_component()

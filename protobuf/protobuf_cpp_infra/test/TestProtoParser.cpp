@@ -1,6 +1,6 @@
 #include "gmock/gmock.h"
 #include "infra/stream/ByteInputStream.hpp"
-#include "protobuf/protobuf_infra/ProtoParser.hpp"
+#include "protobuf/protobuf_cpp_infra/ProtoParser.hpp"
 
 TEST(ProtoParserTest, GetVarUint32_from_a_single_byte)
 {

@@ -1,4 +1,4 @@
-#include "protobuf/protobuf_infra/ProtoParser.hpp"
+#include "protobuf/protobuf_cpp_infra/ProtoParser.hpp"
 #include <cassert>
 #include <cstdlib>
 
