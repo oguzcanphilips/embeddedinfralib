@@ -5,18 +5,34 @@ macro(protocol_buffer input)
 	ccola_set_source_group("Source Files" "${absolute_input}")
 	ccola_get_filename_component_we(source_base ${input})
 
-	get_filename_component(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated/proto" ABSOLUTE)
-	ccola_create_directory_on_demand("${generated_dir}")
+	get_filename_component(generated_dir_cpp "${CMAKE_CURRENT_BINARY_DIR}/generated/proto_cpp" ABSOLUTE)
+	ccola_create_directory_on_demand("${generated_dir_cpp}")
 
 	add_custom_command(
-		OUTPUT "${generated_dir}/${source_base}.pb.cc" "${generated_dir}/${source_base}.pb.h"
-		COMMAND ${CCOLA_PACK_DIR_protoc}/../bin/protoc.exe --proto_path "${CMAKE_CURRENT_SOURCE_DIR}" --cpp_out "${generated_dir}" ${absolute_input}
+		OUTPUT "${generated_dir_cpp}/${source_base}.pb.cc" "${generated_dir_cpp}/${source_base}.pb.h"
+		COMMAND ${CCOLA_PACK_DIR_protoc}/../bin/protoc.exe --proto_path "${CMAKE_CURRENT_SOURCE_DIR}" --cpp_out="${generated_dir_cpp}" ${absolute_input}
 		DEPENDS "${absolute_input}"
-		DEPENDS "${generated_dir}"
+		DEPENDS "${generated_dir_cpp}"
 	)
 
-	ccola_sources("${generated_dir}/${source_base}.pb.cc" "${generated_dir}/${source_base}.pb.h")
-	ccola_set_source_group("Generated Files" "${generated_dir}/${source_base}.pb.cc" "${generated_dir}/${source_base}.pb.h")
+	get_filename_component(generated_dir_cpp_infra "${CMAKE_CURRENT_BINARY_DIR}/generated/proto_cpp_infra" ABSOLUTE)
+	ccola_create_directory_on_demand("${generated_dir_cpp_infra}")
+
+	ccola_get_executable_path(protoc_cpp_infra_plugin_path protobuf.protoc_cpp_infra_plugin)
+	include("${CCOLA_BUILD_DIR}/component_info/protobuf.protoc_cpp_infra_plugin.generic_cpp.inc")
+	set(extra_path "${CCOLA_DEPENDED_COMPONENT_RUNTIME_DIRECTORIES}")
+	ccola_translate_generator_expression(extra_path "${extra_path}")
+
+	add_custom_command(
+		OUTPUT "${generated_dir_cpp_infra}/${source_base}.pb.cc" "${generated_dir_cpp_infra}/${source_base}.pb.h"
+		COMMAND ${CMAKE_COMMAND} -E env "PATH=${extra_path};$ENV{PATH}" ${CCOLA_PACK_DIR_protoc}/../bin/protoc.exe --proto_path "${CMAKE_CURRENT_SOURCE_DIR}" --plugin=protoc-gen-cpp-infra=${protoc_cpp_infra_plugin_path} --cpp-infra_out="${generated_dir_cpp_infra}" ${absolute_input}
+		DEPENDS "${absolute_input}"
+		DEPENDS "${generated_dir_cpp_infra}"
+		DEPENDS protobuf.protoc_cpp_infra_plugin
+	)
+
+	ccola_sources("${generated_dir_cpp}/${source_base}.pb.cc" "${generated_dir_cpp}/${source_base}.pb.h" "${generated_dir_cpp_infra}/${source_base}.pb.cc" "${generated_dir_cpp_infra}/${source_base}.pb.h")
+	ccola_set_source_group("Generated Files" "${generated_dir_cpp}/${source_base}.pb.cc" "${generated_dir_cpp}/${source_base}.pb.h" "${generated_dir_cpp_infra}/${source_base}.pb.cc" "${generated_dir_cpp_infra}/${source_base}.pb.h")
 	ccola_include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 	ccola_dependencies(

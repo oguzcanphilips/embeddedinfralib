@@ -184,117 +184,137 @@ ccola_package(protobuf)
 
 	ccola_end_component()
 
-#	ccola_component(libprotoc win: dynamic_library other: skip)
-#
-#		ccola_compile_options(/wd4018 /wd4065 /wd4244 /wd4251 /wd4267 /wd4273 /wd4305 /wd4309 /wd4506 /wd4661 /wd4800 /wd4838 /wd4996)
-#		ccola_link_options(/ignore:4217)
-#
-#		ccola_definitions(LIBPROTOC_EXPORTS)
-#
-#		ccola_sources(
-#			src/google/protobuf/compiler/code_generator.cc
-#			src/google/protobuf/compiler/command_line_interface.cc
-#			src/google/protobuf/compiler/cpp/cpp_enum.cc
-#			src/google/protobuf/compiler/cpp/cpp_enum_field.cc
-#			src/google/protobuf/compiler/cpp/cpp_extension.cc
-#			src/google/protobuf/compiler/cpp/cpp_field.cc
-#			src/google/protobuf/compiler/cpp/cpp_file.cc
-#			src/google/protobuf/compiler/cpp/cpp_generator.cc
-#			src/google/protobuf/compiler/cpp/cpp_helpers.cc
-#			src/google/protobuf/compiler/cpp/cpp_map_field.cc
-#			src/google/protobuf/compiler/cpp/cpp_message.cc
-#			src/google/protobuf/compiler/cpp/cpp_message_field.cc
-#			src/google/protobuf/compiler/cpp/cpp_primitive_field.cc
-#			src/google/protobuf/compiler/cpp/cpp_service.cc
-#			src/google/protobuf/compiler/cpp/cpp_string_field.cc
-#			src/google/protobuf/compiler/csharp/csharp_doc_comment.cc
-#			src/google/protobuf/compiler/csharp/csharp_enum.cc
-#			src/google/protobuf/compiler/csharp/csharp_enum_field.cc
-#			src/google/protobuf/compiler/csharp/csharp_field_base.cc
-#			src/google/protobuf/compiler/csharp/csharp_generator.cc
-#			src/google/protobuf/compiler/csharp/csharp_helpers.cc
-#			src/google/protobuf/compiler/csharp/csharp_map_field.cc
-#			src/google/protobuf/compiler/csharp/csharp_message.cc
-#			src/google/protobuf/compiler/csharp/csharp_message_field.cc
-#			src/google/protobuf/compiler/csharp/csharp_primitive_field.cc
-#			src/google/protobuf/compiler/csharp/csharp_reflection_class.cc
-#			src/google/protobuf/compiler/csharp/csharp_repeated_enum_field.cc
-#			src/google/protobuf/compiler/csharp/csharp_repeated_message_field.cc
-#			src/google/protobuf/compiler/csharp/csharp_repeated_primitive_field.cc
-#			src/google/protobuf/compiler/csharp/csharp_source_generator_base.cc
-#			src/google/protobuf/compiler/csharp/csharp_wrapper_field.cc
-#			src/google/protobuf/compiler/java/java_context.cc
-#			src/google/protobuf/compiler/java/java_doc_comment.cc
-#			src/google/protobuf/compiler/java/java_enum.cc
-#			src/google/protobuf/compiler/java/java_enum_field.cc
-#			src/google/protobuf/compiler/java/java_enum_field_lite.cc
-#			src/google/protobuf/compiler/java/java_enum_lite.cc
-#			src/google/protobuf/compiler/java/java_extension.cc
-#			src/google/protobuf/compiler/java/java_extension_lite.cc
-#			src/google/protobuf/compiler/java/java_field.cc
-#			src/google/protobuf/compiler/java/java_file.cc
-#			src/google/protobuf/compiler/java/java_generator.cc
-#			src/google/protobuf/compiler/java/java_generator_factory.cc
-#			src/google/protobuf/compiler/java/java_helpers.cc
-#			src/google/protobuf/compiler/java/java_lazy_message_field.cc
-#			src/google/protobuf/compiler/java/java_lazy_message_field_lite.cc
-#			src/google/protobuf/compiler/java/java_map_field.cc
-#			src/google/protobuf/compiler/java/java_map_field_lite.cc
-#			src/google/protobuf/compiler/java/java_message.cc
-#			src/google/protobuf/compiler/java/java_message_builder.cc
-#			src/google/protobuf/compiler/java/java_message_builder_lite.cc
-#			src/google/protobuf/compiler/java/java_message_field.cc
-#			src/google/protobuf/compiler/java/java_message_field_lite.cc
-#			src/google/protobuf/compiler/java/java_message_lite.cc
-#			src/google/protobuf/compiler/java/java_name_resolver.cc
-#			src/google/protobuf/compiler/java/java_primitive_field.cc
-#			src/google/protobuf/compiler/java/java_primitive_field_lite.cc
-#			src/google/protobuf/compiler/java/java_service.cc
-#			src/google/protobuf/compiler/java/java_shared_code_generator.cc
-#			src/google/protobuf/compiler/java/java_string_field.cc
-#			src/google/protobuf/compiler/java/java_string_field_lite.cc
-#			src/google/protobuf/compiler/javanano/javanano_enum.cc
-#			src/google/protobuf/compiler/javanano/javanano_enum_field.cc
-#			src/google/protobuf/compiler/javanano/javanano_extension.cc
-#			src/google/protobuf/compiler/javanano/javanano_field.cc
-#			src/google/protobuf/compiler/javanano/javanano_file.cc
-#			src/google/protobuf/compiler/javanano/javanano_generator.cc
-#			src/google/protobuf/compiler/javanano/javanano_helpers.cc
-#			src/google/protobuf/compiler/javanano/javanano_map_field.cc
-#			src/google/protobuf/compiler/javanano/javanano_message.cc
-#			src/google/protobuf/compiler/javanano/javanano_message_field.cc
-#			src/google/protobuf/compiler/javanano/javanano_primitive_field.cc
-#			src/google/protobuf/compiler/js/js_generator.cc
-#			src/google/protobuf/compiler/js/well_known_types_embed.cc
-#			src/google/protobuf/compiler/objectivec/objectivec_enum.cc
-#			src/google/protobuf/compiler/objectivec/objectivec_enum_field.cc
-#			src/google/protobuf/compiler/objectivec/objectivec_extension.cc
-#			src/google/protobuf/compiler/objectivec/objectivec_field.cc
-#			src/google/protobuf/compiler/objectivec/objectivec_file.cc
-#			src/google/protobuf/compiler/objectivec/objectivec_generator.cc
-#			src/google/protobuf/compiler/objectivec/objectivec_helpers.cc
-#			src/google/protobuf/compiler/objectivec/objectivec_map_field.cc
-#			src/google/protobuf/compiler/objectivec/objectivec_message.cc
-#			src/google/protobuf/compiler/objectivec/objectivec_message_field.cc
-#			src/google/protobuf/compiler/objectivec/objectivec_oneof.cc
-#			src/google/protobuf/compiler/objectivec/objectivec_primitive_field.cc
-#			src/google/protobuf/compiler/php/php_generator.cc
-#			src/google/protobuf/compiler/plugin.cc
-#			src/google/protobuf/compiler/plugin.pb.cc
-#			src/google/protobuf/compiler/profile.pb.cc
-#			src/google/protobuf/compiler/python/python_generator.cc
-#			src/google/protobuf/compiler/ruby/ruby_generator.cc
-#			src/google/protobuf/compiler/subprocess.cc
-#			src/google/protobuf/compiler/zip_writer.cc
-#		)
-#
-#		ccola_dependencies(
-#			libprotobuf
-#		)
-#
-#	ccola_end_component()
-#
-#
+	ccola_component(libprotoc win: dynamic_library other: skip)
+
+		ccola_compile_options(/wd4018 /wd4065 /wd4244 /wd4251 /wd4267 /wd4273 /wd4305 /wd4309 /wd4506 /wd4661 /wd4800 /wd4838 /wd4996)
+		ccola_link_options(/ignore:4217)
+
+		ccola_definitions(LIBPROTOC_EXPORTS)
+
+		ccola_sources(
+			src/google/protobuf/compiler/code_generator.cc
+			src/google/protobuf/compiler/code_generator.h
+			src/google/protobuf/compiler/command_line_interface.cc
+			src/google/protobuf/compiler/command_line_interface.h
+			src/google/protobuf/compiler/cpp/cpp_enum.cc
+			src/google/protobuf/compiler/cpp/cpp_enum.h
+			src/google/protobuf/compiler/cpp/cpp_enum_field.cc
+			src/google/protobuf/compiler/cpp/cpp_enum_field.h
+			src/google/protobuf/compiler/cpp/cpp_extension.cc
+			src/google/protobuf/compiler/cpp/cpp_extension.h
+			src/google/protobuf/compiler/cpp/cpp_field.cc
+			src/google/protobuf/compiler/cpp/cpp_field.h
+			src/google/protobuf/compiler/cpp/cpp_file.cc
+			src/google/protobuf/compiler/cpp/cpp_file.h
+			src/google/protobuf/compiler/cpp/cpp_generator.cc
+			src/google/protobuf/compiler/cpp/cpp_generator.h
+			src/google/protobuf/compiler/cpp/cpp_helpers.cc
+			src/google/protobuf/compiler/cpp/cpp_helpers.h
+			src/google/protobuf/compiler/cpp/cpp_map_field.cc
+			src/google/protobuf/compiler/cpp/cpp_map_field.h
+			src/google/protobuf/compiler/cpp/cpp_message.cc
+			src/google/protobuf/compiler/cpp/cpp_message.h
+			src/google/protobuf/compiler/cpp/cpp_message_field.cc
+			src/google/protobuf/compiler/cpp/cpp_message_field.h
+			src/google/protobuf/compiler/cpp/cpp_primitive_field.cc
+			src/google/protobuf/compiler/cpp/cpp_primitive_field.h
+			src/google/protobuf/compiler/cpp/cpp_service.cc
+			src/google/protobuf/compiler/cpp/cpp_service.h
+			src/google/protobuf/compiler/cpp/cpp_string_field.cc
+			src/google/protobuf/compiler/cpp/cpp_string_field.h
+			#src/google/protobuf/compiler/csharp/csharp_doc_comment.cc
+			#src/google/protobuf/compiler/csharp/csharp_enum.cc
+			#src/google/protobuf/compiler/csharp/csharp_enum_field.cc
+			#src/google/protobuf/compiler/csharp/csharp_field_base.cc
+			#src/google/protobuf/compiler/csharp/csharp_generator.cc
+			#src/google/protobuf/compiler/csharp/csharp_helpers.cc
+			#src/google/protobuf/compiler/csharp/csharp_map_field.cc
+			#src/google/protobuf/compiler/csharp/csharp_message.cc
+			#src/google/protobuf/compiler/csharp/csharp_message_field.cc
+			#src/google/protobuf/compiler/csharp/csharp_primitive_field.cc
+			#src/google/protobuf/compiler/csharp/csharp_reflection_class.cc
+			#src/google/protobuf/compiler/csharp/csharp_repeated_enum_field.cc
+			#src/google/protobuf/compiler/csharp/csharp_repeated_message_field.cc
+			#src/google/protobuf/compiler/csharp/csharp_repeated_primitive_field.cc
+			#src/google/protobuf/compiler/csharp/csharp_source_generator_base.cc
+			#src/google/protobuf/compiler/csharp/csharp_wrapper_field.cc
+			#src/google/protobuf/compiler/java/java_context.cc
+			#src/google/protobuf/compiler/java/java_doc_comment.cc
+			#src/google/protobuf/compiler/java/java_enum.cc
+			#src/google/protobuf/compiler/java/java_enum_field.cc
+			#src/google/protobuf/compiler/java/java_enum_field_lite.cc
+			#src/google/protobuf/compiler/java/java_enum_lite.cc
+			#src/google/protobuf/compiler/java/java_extension.cc
+			#src/google/protobuf/compiler/java/java_extension_lite.cc
+			#src/google/protobuf/compiler/java/java_field.cc
+			#src/google/protobuf/compiler/java/java_file.cc
+			#src/google/protobuf/compiler/java/java_generator.cc
+			#src/google/protobuf/compiler/java/java_generator_factory.cc
+			#src/google/protobuf/compiler/java/java_helpers.cc
+			#src/google/protobuf/compiler/java/java_lazy_message_field.cc
+			#src/google/protobuf/compiler/java/java_lazy_message_field_lite.cc
+			#src/google/protobuf/compiler/java/java_map_field.cc
+			#src/google/protobuf/compiler/java/java_map_field_lite.cc
+			#src/google/protobuf/compiler/java/java_message.cc
+			#src/google/protobuf/compiler/java/java_message_builder.cc
+			#src/google/protobuf/compiler/java/java_message_builder_lite.cc
+			#src/google/protobuf/compiler/java/java_message_field.cc
+			#src/google/protobuf/compiler/java/java_message_field_lite.cc
+			#src/google/protobuf/compiler/java/java_message_lite.cc
+			#src/google/protobuf/compiler/java/java_name_resolver.cc
+			#src/google/protobuf/compiler/java/java_primitive_field.cc
+			#src/google/protobuf/compiler/java/java_primitive_field_lite.cc
+			#src/google/protobuf/compiler/java/java_service.cc
+			#src/google/protobuf/compiler/java/java_shared_code_generator.cc
+			#src/google/protobuf/compiler/java/java_string_field.cc
+			#src/google/protobuf/compiler/java/java_string_field_lite.cc
+			#src/google/protobuf/compiler/javanano/javanano_enum.cc
+			#src/google/protobuf/compiler/javanano/javanano_enum_field.cc
+			#src/google/protobuf/compiler/javanano/javanano_extension.cc
+			#src/google/protobuf/compiler/javanano/javanano_field.cc
+			#src/google/protobuf/compiler/javanano/javanano_file.cc
+			#src/google/protobuf/compiler/javanano/javanano_generator.cc
+			#src/google/protobuf/compiler/javanano/javanano_helpers.cc
+			#src/google/protobuf/compiler/javanano/javanano_map_field.cc
+			#src/google/protobuf/compiler/javanano/javanano_message.cc
+			#src/google/protobuf/compiler/javanano/javanano_message_field.cc
+			#src/google/protobuf/compiler/javanano/javanano_primitive_field.cc
+			#src/google/protobuf/compiler/js/js_generator.cc
+			#src/google/protobuf/compiler/js/well_known_types_embed.cc
+			#src/google/protobuf/compiler/objectivec/objectivec_enum.cc
+			#src/google/protobuf/compiler/objectivec/objectivec_enum_field.cc
+			#src/google/protobuf/compiler/objectivec/objectivec_extension.cc
+			#src/google/protobuf/compiler/objectivec/objectivec_field.cc
+			#src/google/protobuf/compiler/objectivec/objectivec_file.cc
+			#src/google/protobuf/compiler/objectivec/objectivec_generator.cc
+			#src/google/protobuf/compiler/objectivec/objectivec_helpers.cc
+			#src/google/protobuf/compiler/objectivec/objectivec_map_field.cc
+			#src/google/protobuf/compiler/objectivec/objectivec_message.cc
+			#src/google/protobuf/compiler/objectivec/objectivec_message_field.cc
+			#src/google/protobuf/compiler/objectivec/objectivec_oneof.cc
+			#src/google/protobuf/compiler/objectivec/objectivec_primitive_field.cc
+			#src/google/protobuf/compiler/php/php_generator.cc
+			src/google/protobuf/compiler/plugin.cc
+			src/google/protobuf/compiler/plugin.h
+			src/google/protobuf/compiler/plugin.pb.cc
+			src/google/protobuf/compiler/plugin.pb.h
+			src/google/protobuf/compiler/profile.pb.cc
+			src/google/protobuf/compiler/profile.pb.h
+			#src/google/protobuf/compiler/python/python_generator.cc
+			#src/google/protobuf/compiler/ruby/ruby_generator.cc
+			src/google/protobuf/compiler/subprocess.cc
+			src/google/protobuf/compiler/subprocess.h
+			src/google/protobuf/compiler/zip_writer.cc
+			src/google/protobuf/compiler/zip_writer.h
+		)
+
+		ccola_dependencies(
+			libprotobuf
+		)
+
+	ccola_end_component()
+
+
 #	ccola_component(protoc win: executable other: skip)
 #
 #		ccola_compile_options(/wd4018 /wd4065 /wd4244 /wd4251 /wd4267 /wd4305 /wd4309 /wd4506 /wd4661 /wd4800 /wd4838 /wd4996)
@@ -308,5 +328,5 @@ ccola_package(protobuf)
 #		)
 #
 #	ccola_end_component()
-#
-#ccola_end_package()
+
+ccola_end_package()
