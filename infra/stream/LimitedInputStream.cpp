@@ -45,7 +45,7 @@ namespace infra
 
     ConstByteRange LimitedStreamReader::ExtractContiguousRange(std::size_t max)
     {
-        ConstByteRange result = input.ExtractContiguousRange(std::min(length, max));
+        ConstByteRange result = input.ExtractContiguousRange(std::min<uint32_t>(length, max));
         length -= result.size();
         return result;
     }
@@ -57,6 +57,6 @@ namespace infra
 
     std::size_t LimitedStreamReader::Available() const
     {
-        return std::min(length, input.Available());
+        return std::min<uint32_t>(length, input.Available());
     }
 }
