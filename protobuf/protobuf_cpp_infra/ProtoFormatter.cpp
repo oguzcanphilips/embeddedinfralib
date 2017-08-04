@@ -6,7 +6,7 @@ namespace services
     ProtoLengthDelimitedFormatter::ProtoLengthDelimitedFormatter(ProtoFormatter& formatter, uint32_t fieldNumber)
         : formatter(formatter)
     {
-        formatter.PutVarUint32((fieldNumber << 3) | 2);
+        formatter.PutVarInt((fieldNumber << 3) | 2);
         marker = formatter.output.SaveMarker();
     }
 
@@ -24,7 +24,7 @@ namespace services
             uint32_t size = formatter.output.ProcessedBytesSince(marker);
             infra::SavedMarkerDataStream savedStream(formatter.output, marker);
             ProtoFormatter savedFormatter(savedStream);
-            savedFormatter.PutVarUint32(size);
+            savedFormatter.PutVarInt(size);
         }
     }
 
@@ -32,7 +32,7 @@ namespace services
         : output(output.Writer())
     {}
 
-    void ProtoFormatter::PutVarUint32(uint32_t value)
+    void ProtoFormatter::PutVarInt(uint64_t value)
     {
         do
         {
@@ -45,22 +45,57 @@ namespace services
         } while (value != 0);
     }
 
-    void ProtoFormatter::PutUint32(uint32_t value, uint32_t fieldNumber)
+    void ProtoFormatter::PutSignedVarInt(uint64_t value)
     {
-        PutVarUint32((fieldNumber << 3) | 0);
-        PutVarUint32(value);
+        static const bool isArithmeticRightShift = (static_cast<signed int>(-1) >> 1) == static_cast<signed int>(-1);
+        static_assert(isArithmeticRightShift, "");
+        PutVarInt((value << 1) ^ (static_cast<int64_t>(value) >> 63));
     }
 
-    void ProtoFormatter::PutLengthDelimited(infra::ConstByteRange range, uint32_t fieldNumber)
+    void ProtoFormatter::PutFixed32(uint32_t value)
     {
-        PutVarUint32((fieldNumber << 3) | 2);
-        PutVarUint32(range.size());
+        output << value;
+    }
+
+    void ProtoFormatter::PutFixed64(uint64_t value)
+    {
+        output << value;
+    }
+
+    void ProtoFormatter::PutVarIntField(uint64_t value, uint32_t fieldNumber)
+    {
+        PutVarInt((fieldNumber << 3) | 0);
+        PutVarInt(value);
+    }
+
+    void ProtoFormatter::PutSignedVarIntField(uint64_t value, uint32_t fieldNumber)
+    {
+        PutVarInt((fieldNumber << 3) | 0);
+        PutSignedVarInt(value);
+    }
+
+    void ProtoFormatter::PutFixed32Field(uint32_t value, uint32_t fieldNumber)
+    {
+        PutVarInt((fieldNumber << 3) | 0);
+        PutFixed32(value);
+    }
+
+    void ProtoFormatter::PutFixed64Field(uint64_t value, uint32_t fieldNumber)
+    {
+        PutVarInt((fieldNumber << 3) | 0);
+        PutFixed64(value);
+    }
+
+    void ProtoFormatter::PutLengthDelimitedField(infra::ConstByteRange range, uint32_t fieldNumber)
+    {
+        PutVarInt((fieldNumber << 3) | 2);
+        PutVarInt(range.size());
         output << range;
     }
 
-    void ProtoFormatter::PutString(infra::BoundedConstString string, uint32_t fieldNumber)
+    void ProtoFormatter::PutStringField(infra::BoundedConstString string, uint32_t fieldNumber)
     {
-        PutLengthDelimited(infra::StringAsByteRange(string), fieldNumber);
+        PutLengthDelimitedField(infra::StringAsByteRange(string), fieldNumber);
     }
 
     ProtoLengthDelimitedFormatter ProtoFormatter::LengthDelimitedFormatter(uint32_t fieldNumber)
