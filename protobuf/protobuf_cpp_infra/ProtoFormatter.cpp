@@ -62,6 +62,12 @@ namespace services
         output << value;
     }
 
+    void ProtoFormatter::PutString(infra::BoundedConstString string)
+    {
+        PutVarInt(string.size());
+        output << infra::StringAsByteRange(string);
+    }
+
     void ProtoFormatter::PutVarIntField(uint64_t value, uint32_t fieldNumber)
     {
         PutVarInt((fieldNumber << 3) | 0);
@@ -95,7 +101,8 @@ namespace services
 
     void ProtoFormatter::PutStringField(infra::BoundedConstString string, uint32_t fieldNumber)
     {
-        PutLengthDelimitedField(infra::StringAsByteRange(string), fieldNumber);
+        PutVarInt((fieldNumber << 3) | 2);
+        PutString(string);
     }
 
     ProtoLengthDelimitedFormatter ProtoFormatter::LengthDelimitedFormatter(uint32_t fieldNumber)

@@ -30,6 +30,7 @@ namespace services
         void PutSignedVarInt(uint64_t value);
         void PutFixed32(uint32_t value);
         void PutFixed64(uint64_t value);
+        void PutString(infra::BoundedConstString string);
 
         void PutVarIntField(uint64_t value, uint32_t fieldNumber);
         void PutSignedVarIntField(uint64_t value, uint32_t fieldNumber);
