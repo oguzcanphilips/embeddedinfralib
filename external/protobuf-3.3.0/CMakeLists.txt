@@ -184,7 +184,7 @@ ccola_package(protobuf)
 
 	ccola_end_component()
 
-	ccola_component(libprotoc win: dynamic_library other: skip)
+	ccola_component(libprotoc win: static_library other: skip)
 
 		ccola_compile_options(/wd4018 /wd4065 /wd4244 /wd4251 /wd4267 /wd4273 /wd4305 /wd4309 /wd4506 /wd4661 /wd4800 /wd4838 /wd4996)
 		ccola_link_options(/ignore:4217)
