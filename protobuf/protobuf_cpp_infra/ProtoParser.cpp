@@ -42,9 +42,9 @@ namespace services
         return input.Empty();
     }
 
-    uint32_t ProtoParser::GetVarUint32()
+    uint64_t ProtoParser::GetVarInt()
     {
-        uint32_t result = 0;
+        uint64_t result = 0;
         uint8_t byte;
         uint8_t shift = 0;
 
@@ -59,18 +59,36 @@ namespace services
         return result;
     }
 
+    uint32_t ProtoParser::GetFixed32()
+    {
+        uint32_t result = 0;
+        input >> result;
+        return result;
+    }
+
+    uint64_t ProtoParser::GetFixed64()
+    {
+        uint64_t result = 0;
+        input >> result;
+        return result;
+    }
+
     ProtoParser::Field ProtoParser::GetField()
     {
-        uint32_t x = GetVarUint32();
+        uint32_t x = static_cast<uint32_t>(GetVarInt());
         uint8_t type = x & 7;
         uint32_t fieldNumber = x >> 3;
 
         switch (type)
         {
             case 0:
-                return std::make_pair(GetVarUint32(), fieldNumber);
+                return std::make_pair(GetVarInt(), fieldNumber);
+            case 1:
+                return std::make_pair(GetFixed64(), fieldNumber);
             case 2:
-                return std::make_pair(ProtoLengthDelimited(input, GetVarUint32()), fieldNumber);
+                return std::make_pair(ProtoLengthDelimited(input, static_cast<uint32_t>(GetVarInt())), fieldNumber);
+            case 5:
+                return std::make_pair(GetFixed32(), fieldNumber);
             default:
                 std::abort();
         }

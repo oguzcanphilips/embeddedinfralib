@@ -29,12 +29,15 @@ namespace services
     class ProtoParser
     {
     public:
-        using Field = std::pair<infra::Variant<uint32_t, ProtoLengthDelimited>, uint32_t>;
+        using Field = std::pair<infra::Variant<uint32_t, uint64_t, ProtoLengthDelimited>, uint32_t>;
 
         explicit ProtoParser(infra::DataInputStream inputStream);
 
         bool Empty() const;
-        uint32_t GetVarUint32();
+        uint64_t GetVarInt();
+        uint32_t GetFixed32();
+        uint64_t GetFixed64();
+
         Field GetField();
 
     private:
