@@ -14,11 +14,14 @@ namespace infra
 
     class StreamReader
     {
-    public:
+    protected:
         StreamReader() = default;
         StreamReader(SoftFail);
+        StreamReader(const StreamReader& other) = delete;
+        StreamReader& operator=(const StreamReader& other) = delete;
         ~StreamReader();
 
+    public:
         virtual void Extract(ByteRange range) = 0;
         virtual uint8_t ExtractOne() = 0;
         virtual uint8_t Peek() = 0;

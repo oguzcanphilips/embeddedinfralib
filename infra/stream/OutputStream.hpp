@@ -15,14 +15,12 @@ namespace infra
 
     class StreamWriter
     {
-    public:
+    protected:
         StreamWriter() = default;
         explicit StreamWriter(SoftFail);
         explicit StreamWriter(NoFail);
         StreamWriter(const StreamWriter&) = delete;
         StreamWriter& operator=(const StreamWriter&) = delete;
-
-    protected:
         ~StreamWriter();
 
     public:
