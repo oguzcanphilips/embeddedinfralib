@@ -1,7 +1,11 @@
 #include "infra/event/LowPowerEventDispatcher.hpp"
 
 namespace infra
-{    
+{
+	MainClockReference::MainClockReference()
+		: numReferenced(0)
+	{}
+
     void MainClockReference::Refere()
     {
         ++numReferenced;
@@ -22,8 +26,13 @@ namespace infra
         , lowPowerStrategy(lowPowerStrategy)
     {}
 
+    void LowPowerEventDispatcherWorker::RequestExecution()
+    {
+        lowPowerStrategy.RequestExecution();
+    }
+
     void LowPowerEventDispatcherWorker::Idle()
     {
-        lowPowerStrategy.Idle(mainClock);
+        lowPowerStrategy.Idle(*this);
     }
 }
