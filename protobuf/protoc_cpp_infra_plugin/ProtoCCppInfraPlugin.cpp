@@ -88,13 +88,8 @@ namespace application
 
     void FieldGeneratorRepeatedString::GenerateSerializer()
     {
-        printer.Print(R"(    if (!$name$.empty())
-{
-    services::ProtoLengthDelimitedFormatter subFormatter = formatter.LengthDelimitedFormatter($constant$);
-
-    for (auto& subField : $name$)
-        formatter.PutString(subField);
-}
+        printer.Print(R"(for (auto& subField : $name$)
+        formatter.PutStringField(subField, $constant$);
 )"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
