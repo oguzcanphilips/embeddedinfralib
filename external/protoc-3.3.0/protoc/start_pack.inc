@@ -54,6 +54,8 @@ macro(protocol_buffer_cpp_infra input)
 
 	ccola_dependencies(
 		protobuf.libprotobuf
+		protobuf.field_size
+		protobuf.protobuf_cpp_infra
 	)
 
 endmacro()
