@@ -54,7 +54,6 @@ namespace infra
         ConstByteRange ContiguousRange(std::size_t max = std::numeric_limits<std::size_t>::max());
         bool Failed() const;
 
-    protected:
         StreamReader& Reader();
 
     private:
