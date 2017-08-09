@@ -7,6 +7,11 @@ namespace infra
         , length(length)
     {}
 
+    LimitedStreamReader::LimitedStreamReader(const LimitedStreamReader& other)
+        : input(other.input)
+        , length(other.length)
+    {}
+
     void LimitedStreamReader::Extract(ByteRange range)
     {
         input.ReportResult(length >= range.size());

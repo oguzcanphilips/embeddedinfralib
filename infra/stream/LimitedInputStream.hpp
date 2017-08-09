@@ -10,6 +10,7 @@ namespace infra
     {
     public:
         LimitedStreamReader(StreamReader& input, uint32_t length);
+        LimitedStreamReader(const LimitedStreamReader& other);
 
     public:
         virtual void Extract(ByteRange range) override;
