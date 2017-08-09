@@ -42,7 +42,7 @@ namespace application
 
     void FieldGenerator::GenerateFieldConstant()
     {
-        printer.Print("        static const uint32_t $name$ = $index$;\n"
+        printer.Print("    static const uint32_t $name$ = $index$;\n"
             , "name", google::protobuf::compiler::cpp::FieldConstantName(&descriptor)
             , "index", google::protobuf::SimpleItoa(descriptor.number()));
     }
@@ -53,23 +53,23 @@ namespace application
         if (fieldSize == 0)
             throw UnspecifiedFieldSize{ descriptor.name() };
 
-        printer.Print("        infra::BoundedString::WithStorage<$size$> $name$;\n"
+        printer.Print("    infra::BoundedString::WithStorage<$size$> $name$;\n"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "size", google::protobuf::SimpleItoa(fieldSize));
     }
 
     void FieldGeneratorString::GenerateSerializer()
     {
-        printer.Print("        formatter.PutStringField($name$, $constant$);\n"
+        printer.Print("    formatter.PutStringField($name$, $constant$);\n"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorString::GenerateDeserializer()
     {
-        printer.Print(R"(                case $constant$:
-                    field.first.Get<services::ProtoLengthDelimited>().GetString($name$);
-                    break;
+        printer.Print(R"(            case $constant$:
+                field.first.Get<services::ProtoLengthDelimited>().GetString($name$);
+                break;
 )"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
@@ -81,20 +81,20 @@ namespace application
         if (fieldSize == 0)
             throw UnspecifiedFieldSize{ descriptor.name() };
 
-        printer.Print("        infra::BoundedVector<infra::BoundedString::WithStorage<$size$>>::WithMaxSize<$size$> $name$;\n"
+        printer.Print("    infra::BoundedVector<infra::BoundedString::WithStorage<$size$>>::WithMaxSize<$size$> $name$;\n"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "size", google::protobuf::SimpleItoa(fieldSize));
     }
 
     void FieldGeneratorRepeatedString::GenerateSerializer()
     {
-        printer.Print(R"(        if (!$name$.empty())
-        {
-            services::ProtoLengthDelimitedFormatter subFormatter = formatter.LengthDelimitedFormatter($constant$);
+        printer.Print(R"(    if (!$name$.empty())
+{
+    services::ProtoLengthDelimitedFormatter subFormatter = formatter.LengthDelimitedFormatter($constant$);
 
-            for (auto& subField : $name$)
-                formatter.PutString(subField);
-        }
+    for (auto& subField : $name$)
+        formatter.PutString(subField);
+}
 )"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
@@ -102,60 +102,60 @@ namespace application
 
     void FieldGeneratorRepeatedString::GenerateDeserializer()
     {
-        printer.Print(R"(                case $constant$:
-                    $name$.emplace_back();
-                    field.first.Get<services::ProtoLengthDelimited>().GetString($name$.back());
-                    break;
+        printer.Print(R"(            case $constant$:
+                $name$.emplace_back();
+                field.first.Get<services::ProtoLengthDelimited>().GetString($name$.back());
+                break;
 )"
-, "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
-, "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
+            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorUint32::GenerateFieldDeclaration()
     {
-        printer.Print("        uint32_t $name$;\n"
+        printer.Print("    uint32_t $name$;\n"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor));
     }
 
     void FieldGeneratorUint32::GenerateSerializer()
     {
-        printer.Print("        formatter.PutVarIntField($name$, $constant$);\n"
+        printer.Print("    formatter.PutVarIntField($name$, $constant$);\n"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorUint32::GenerateDeserializer()
     {
-        printer.Print(R"(                case $constant$:
-                    $name$ = field.first.Get<uint64_t>();
-                    break;
+        printer.Print(R"(            case $constant$:
+                $name$ = field.first.Get<uint64_t>();
+                break;
 )"
-, "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
-, "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
+            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorMessage::GenerateFieldDeclaration()
     {
-        printer.Print("        $type$ $name$;\n"
+        printer.Print("    $type$ $name$;\n"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "type", descriptor.message_type()->name());
     }
 
     void FieldGeneratorMessage::GenerateSerializer()
     {
-        printer.Print("        $name$.Serialize(formatter);\n"
+        printer.Print("    $name$.Serialize(formatter);\n"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorMessage::GenerateDeserializer()
     {
-        printer.Print(R"(                case $constant$:
-                    $name$.Deserialize(parser);
-                    break;
+        printer.Print(R"(            case $constant$:
+                $name$.Deserialize(parser);
+                break;
 )"
-, "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
-, "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
+            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorRepeatedMessage::GenerateFieldDeclaration()
@@ -164,7 +164,7 @@ namespace application
         if (fieldSize == 0)
             throw UnspecifiedFieldSize{ descriptor.name() };
 
-        printer.Print("        infra::BoundedVector<$type$>::WithMaxSize<$size$> $name$;\n"
+        printer.Print("    infra::BoundedVector<$type$>::WithMaxSize<$size$> $name$;\n"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "type", descriptor.message_type()->name()
             , "size", google::protobuf::SimpleItoa(fieldSize));
@@ -172,13 +172,13 @@ namespace application
 
     void FieldGeneratorRepeatedMessage::GenerateSerializer()
     {
-        printer.Print(R"(        if (!$name$.empty())
-        {
-            services::ProtoLengthDelimitedFormatter subFormatter = formatter.LengthDelimitedFormatter($constant$);
+        printer.Print(R"(    if (!$name$.empty())
+    {
+        services::ProtoLengthDelimitedFormatter subFormatter = formatter.LengthDelimitedFormatter($constant$);
 
-            for (auto& subField : $name$)
-                subField.Serialize(formatter);
-        }
+        for (auto& subField : $name$)
+            subField.Serialize(formatter);
+    }
 )"
 , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
 , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
@@ -186,9 +186,9 @@ namespace application
 
     void FieldGeneratorRepeatedMessage::GenerateDeserializer()
     {
-        printer.Print(R"(                case $constant$:
-                    $name$.emplace_back(field.first.Get<services::ProtoLengthDelimited>().Parser());
-                    break;
+        printer.Print(R"(            case $constant$:
+                $name$.emplace_back(field.first.Get<services::ProtoLengthDelimited>().Parser());
+                break;
 )"
 , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
 , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
@@ -207,7 +207,9 @@ namespace application
     void MessageGenerator::GenerateClassDefinition()
     {
         GenerateClassHeader();
+        printer.Indent(); printer.Indent();
         GenerateNestedMessageHeader();
+        printer.Outdent(); printer.Outdent();
         GenerateFields();
         GenerateFieldConstants();
         GenerateClassFooter();
@@ -260,22 +262,22 @@ namespace application
 
     void MessageGenerator::GenerateClassHeader()
     {
-        printer.Print(R"(    class $classname$
-    {
-    public:
-        $classname$() = default;
-        $classname$(services::ProtoParser& parser);
+        printer.Print(R"(class $classname$
+{
+public:
+    $classname$() = default;
+    $classname$(services::ProtoParser& parser);
 
-        void Serialize(services::ProtoFormatter& formatter);
-        void Deserialize(services::ProtoParser& parser);
+    void Serialize(services::ProtoFormatter& formatter);
+    void Deserialize(services::ProtoParser& parser);
 
-    public:
+public:
 )", "classname", descriptor.name());
     }
 
     void MessageGenerator::GenerateClassFooter()
     {
-        printer.Print("    };\n\n");
+        printer.Print("};\n\n");
     }
 
     void MessageGenerator::GenerateNestedMessageHeader()
@@ -300,10 +302,10 @@ namespace application
 
     void MessageGenerator::GenerateConstructorImplementations()
     {
-        printer.Print(R"(    $fullclassname$::$classname$(services::ProtoParser& parser)
-    {
-        Deserialize(parser);
-    }
+        printer.Print(R"($fullclassname$::$classname$(services::ProtoParser& parser)
+{
+    Deserialize(parser);
+}
 
 )"
             , "classname", descriptor.name()
@@ -319,15 +321,15 @@ namespace application
 
     void MessageGenerator::GenerateSerializerHeader()
     {
-        printer.Print(R"(    void $fullclassname$::Serialize(services::ProtoFormatter& formatter)
-    {
+        printer.Print(R"(void $fullclassname$::Serialize(services::ProtoFormatter& formatter)
+{
 )"
             , "fullclassname", FullClassName());
     }
 
     void MessageGenerator::GenerateSerializerFooter()
     {
-        printer.Print("    }\n\n");
+        printer.Print("}\n\n");
     }
 
     void MessageGenerator::GenerateSerializerFields()
@@ -351,27 +353,27 @@ namespace application
 
     void MessageGenerator::GenerateDeserializerHeader()
     {
-        printer.Print(R"(    void $fullclassname$::Deserialize(services::ProtoParser& parser)
+        printer.Print(R"(void $fullclassname$::Deserialize(services::ProtoParser& parser)
+{
+    while (!parser.Empty())
     {
-        while (!parser.Empty())
-        {
-            services::ProtoParser::Field field = parser.GetField();
+        services::ProtoParser::Field field = parser.GetField();
 
-            switch (field.second)
-            {
+        switch (field.second)
+        {
 )"
             , "fullclassname", FullClassName());
     }
 
     void MessageGenerator::GenerateDeserializerFooter()
     {
-        printer.Print(R"(                default:
-                    if (field.first.Is<services::ProtoLengthDelimited>())
-                        field.first.Get<services::ProtoLengthDelimited>().SkipEverything();
-                    break;
-            }
+        printer.Print(R"(            default:
+                if (field.first.Is<services::ProtoLengthDelimited>())
+                    field.first.Get<services::ProtoLengthDelimited>().SkipEverything();
+                break;
         }
     }
+}
 
 )");
     }
@@ -449,7 +451,10 @@ namespace application
             printer.Print("\n");
 
         for (int i = 0; i < package_parts_.size(); i++)
+        {
             printer.Print("namespace $part$\n{\n", "part", package_parts_[i]);
+            printer.Indent(); printer.Indent();
+        }
     }
 
     void CppInfraGenerator::GenerateNamespaceClosers()
@@ -457,7 +462,10 @@ namespace application
         std::vector<std::string> package_parts_ = google::protobuf::Split(file->package(), ".", true);
 
         for (int i = 0; i != package_parts_.size(); ++i)
+        {
+            printer.Outdent(); printer.Outdent();
             printer.Print("}\n", "part", package_parts_[i]);
+        }
 
         if (!package_parts_.empty())
             printer.Print("\n");
