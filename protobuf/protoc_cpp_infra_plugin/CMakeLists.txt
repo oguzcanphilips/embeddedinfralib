@@ -17,7 +17,3 @@ ccola_component(protoc_cpp_infra_plugin win: executable other: skip)
 	)
 
 ccola_end_component()
-
-ccola_subdirectories(
-	test
-)
