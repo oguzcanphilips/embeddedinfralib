@@ -13,11 +13,11 @@ macro(protocol_buffer_cpp_infra input)
 	set(extra_path "${CCOLA_DEPENDED_COMPONENT_RUNTIME_DIRECTORIES}")
 	ccola_translate_generator_expression(extra_path "${extra_path}")
 
-	message("Bla: ${CCOLA_PACK_DIR_protoc}")
+	SET(old_path $ENV{PATH})
 
 	add_custom_command(
 		OUTPUT "${generated_dir_cpp_infra}/${source_base}.pb.cpp" "${generated_dir_cpp_infra}/${source_base}.pb.hpp"
-		COMMAND ${CMAKE_COMMAND} -E env "PATH=${extra_path};$ENV{PATH}" ${CCOLA_PACK_DIR_protoc}/../bin/protoc.exe --proto_path "${CMAKE_CURRENT_SOURCE_DIR}" --proto_path "${CCOLA_PACK_DIR_protoc}/../../../protobuf/field_size" --plugin=protoc-gen-cpp-infra=${protoc_cpp_infra_plugin_path} --cpp-infra_out="${generated_dir_cpp_infra}" ${absolute_input}
+		COMMAND ${CMAKE_COMMAND} -E env "PATH=${extra_path};${old_path}" ${CCOLA_PACK_DIR_protoc}/../bin/protoc.exe --proto_path "${CMAKE_CURRENT_SOURCE_DIR}" --proto_path "${CCOLA_PACK_DIR_protoc}/../../../protobuf/field_size" --plugin=protoc-gen-cpp-infra=${protoc_cpp_infra_plugin_path} --cpp-infra_out="${generated_dir_cpp_infra}" ${absolute_input}
 		DEPENDS "${absolute_input}"
 		DEPENDS "${generated_dir_cpp_infra}"
 		DEPENDS protobuf.protoc_cpp_infra_plugin
