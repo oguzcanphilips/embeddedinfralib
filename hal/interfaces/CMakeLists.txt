@@ -6,8 +6,10 @@ ccola_component(interfaces static_library)
 		DigitalToAnalogPin.hpp
 		Ethernet.cpp
 		Ethernet.hpp
+    win:
 		FileSystem.cpp
 		FileSystem.hpp
+    all:
 		Flash.cpp
 		Flash.hpp
 		FlashHomogeneous.cpp

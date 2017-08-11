@@ -127,7 +127,7 @@ public:
         header.prologue.magic = application::upgradePackMagic;
         header.prologue.errorCode = 0xffffffff;
         header.prologue.signedContentsLength = sizeof(application::UpgradePackHeaderEpilogue);
-        strcpy(header.epilogue.productName.data(), "test product");
+        std::strncpy(header.epilogue.productName.data(), "test product", header.epilogue.productName.max_size());
         header.epilogue.headerVersion = 1;
         header.epilogue.numberOfImages = numberOfImages;
 
@@ -363,7 +363,7 @@ TEST_F(SecondStageToRamLoaderTest, UpgradeFailsWhenVerificationFails)
 TEST_F(SecondStageToRamLoaderTest, WhenProductNameIsIncorrectPackIsMarkedAsError)
 {
     UpgradePackHeaderNoSecurity header(CreateReadyToDeployHeader(1));
-    strcpy(header.epilogue.productName.data(), "incorrect product");
+    std::strncpy(header.epilogue.productName.data(), "incorrect product", header.epilogue.productName.max_size());
 
     const std::vector<uint8_t> secondStageImage{ 1, 1, 2, 3, 5, 8, 13, 21 };
     application::ImageHeaderPrologue secondStageImageHeader(CreateImageHeader("boot2nd", secondStageImage.size()));

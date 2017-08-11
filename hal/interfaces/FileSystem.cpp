@@ -2,7 +2,7 @@
 
 namespace hal
 {
-    CannotOpenFileException::CannotOpenFileException(const std::string& name)
-        : name(name)
+    CannotOpenFileException::CannotOpenFileException(const hal::filesystem::path& path)
+        : path(path)
     {}
 }

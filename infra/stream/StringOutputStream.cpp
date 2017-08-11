@@ -41,7 +41,7 @@ namespace infra
 
     std::size_t StringOutputStreamWriter::GetProcessedBytesSince(const uint8_t* marker) const
     {
-        return std::distance(reinterpret_cast<const char*>(marker), string.cend());
+        return static_cast<std::size_t>(std::distance(reinterpret_cast<const char*>(marker), string.cend()));
     }
 
     infra::ByteRange StringOutputStreamWriter::SaveState(const uint8_t* marker)

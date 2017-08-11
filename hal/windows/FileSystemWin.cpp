@@ -4,11 +4,11 @@
 
 namespace hal
 {
-    std::vector<std::string> FileSystemWin::ReadFile(const std::string& name)
+    std::vector<std::string> FileSystemWin::ReadFile(const hal::filesystem::path& path)
     {
-        std::ifstream input(name);
+        std::ifstream input(path);
         if (!input)
-            throw CannotOpenFileException(name);
+            throw CannotOpenFileException(path);
 
         std::vector<std::string> result;
 
@@ -22,33 +22,31 @@ namespace hal
         return result;
     }
 
-    void FileSystemWin::WriteFile(const std::string& name, const std::vector<std::string>& contents)
+    void FileSystemWin::WriteFile(const hal::filesystem::path& path, const std::vector<std::string>& contents)
     {
-        std::ofstream output(name);
-
+        std::ofstream output(path);
         if (!output)
-            throw CannotOpenFileException(name);
+            throw CannotOpenFileException(path);
 
         for (std::string line : contents)
             output << line << std::endl;
     }
 
-    std::vector<uint8_t> FileSystemWin::ReadBinaryFile(const std::string& name)
+    std::vector<uint8_t> FileSystemWin::ReadBinaryFile(const hal::filesystem::path& path)
     {
-        std::ifstream input(name, std::ios::binary);
+        std::ifstream input(path, std::ios::binary);
         if (!input)
-            throw CannotOpenFileException(name);
+            throw CannotOpenFileException(path);
 
         std::vector<char> data{ std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>() };
         return std::vector<uint8_t>(reinterpret_cast<const uint8_t*>(data.data()), reinterpret_cast<const uint8_t*>(data.data() + data.size()));
     }
 
-    void FileSystemWin::WriteBinaryFile(const std::string& name, const std::vector<uint8_t>& contents)
+    void FileSystemWin::WriteBinaryFile(const hal::filesystem::path& path, const std::vector<uint8_t>& contents)
     {
-        std::ofstream output(name, std::ios::binary);
-
+        std::ofstream output(path, std::ios::binary);
         if (!output)
-            throw CannotOpenFileException(name);
+            throw CannotOpenFileException(path);
 
         std::copy(contents.data(), (contents.data() + contents.size()), std::ostreambuf_iterator<char>(output));
     }

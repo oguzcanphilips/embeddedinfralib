@@ -226,8 +226,8 @@ struct DoubleVisitor
 
 TEST(VariantTest, TestDoubleVisitor)
 {
-    infra::Variant<bool, int> variant1(5);
-    infra::Variant<bool, int> variant2(true);
+    infra::Variant<uint32_t, int> variant1(infra::InPlaceType<int>(), 5);
+    infra::Variant<uint32_t, int> variant2(infra::InPlaceType<uint32_t>(), 1u);
     DoubleVisitor visitor;
     EXPECT_EQ(2, infra::ApplyVisitor(visitor, variant2, variant2));
     EXPECT_EQ(6, infra::ApplyVisitor(visitor, variant1, variant2));

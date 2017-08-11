@@ -52,7 +52,7 @@ namespace infra
 
     std::size_t ByteOutputStreamWriter::GetProcessedBytesSince(const uint8_t* marker) const
     {
-        return std::distance(marker, streamRange.cbegin() + offset);
+        return static_cast<std::size_t>(std::distance(marker, streamRange.cbegin() + offset));
     }
 
     infra::ByteRange ByteOutputStreamWriter::SaveState(const uint8_t* marker)

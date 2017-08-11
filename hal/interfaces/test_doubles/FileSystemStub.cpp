@@ -3,34 +3,33 @@
 
 namespace hal
 {
-    FileSystemStub::FileSystemStub(const std::string& name, const std::vector<std::string>& contents)
+    FileSystemStub::FileSystemStub(const hal::filesystem::path& path, const std::vector<std::string>& contents)
     {
-        files[name] = contents;
+        files[path] = contents;
     }
 
-    FileSystemStub::FileSystemStub(const std::string& name, const std::vector<uint8_t>& contents)
+    FileSystemStub::FileSystemStub(const hal::filesystem::path& path, const std::vector<uint8_t>& contents)
     {
-        binaryFiles[name] = contents;
+        binaryFiles[path] = contents;
     }
 
-    std::vector<std::string> FileSystemStub::ReadFile(const std::string& name)
+    std::vector<std::string> FileSystemStub::ReadFile(const hal::filesystem::path& path)
     {
-        return files[name];
+        return files[path];
     }
 
-    void FileSystemStub::WriteFile(const std::string& name, const std::vector<std::string>& contents)
+    void FileSystemStub::WriteFile(const hal::filesystem::path& path, const std::vector<std::string>& contents)
     {
-        files[name] = contents;
+        files[path] = contents;
     }
 
-    std::vector<uint8_t> FileSystemStub::ReadBinaryFile(const std::string& name)
+    std::vector<uint8_t> FileSystemStub::ReadBinaryFile(const hal::filesystem::path& path)
     {
-        return binaryFiles[name];
+        return binaryFiles[path];
     }
 
-    void FileSystemStub::WriteBinaryFile(const std::string& name, const std::vector<uint8_t>& contents)
+    void FileSystemStub::WriteBinaryFile(const hal::filesystem::path& path, const std::vector<uint8_t>& contents)
     {
-        binaryFiles[name] = contents;
+        binaryFiles[path] = contents;
     }
-
 }

@@ -353,6 +353,7 @@ TEST(BoundedStringTest, TestEraseChar)
 {
     infra::BoundedString::WithStorage<5> string("abcd");
     infra::BoundedString::WithStorage<5>::const_iterator i = string.erase(string.begin() + 1);
+    EXPECT_EQ('c', *i);
     EXPECT_EQ("acd", string);
     EXPECT_EQ(3, string.size());
 }
@@ -361,6 +362,7 @@ TEST(BoundedStringTest, TestEraseRange)
 {
     infra::BoundedString::WithStorage<5> string("abcd");
     infra::BoundedString::WithStorage<5>::const_iterator i = string.erase(string.begin() + 1, string.begin() + 3);
+    EXPECT_EQ('d', *i);
     EXPECT_EQ("ad", string);
     EXPECT_EQ(2, string.size());
 }
