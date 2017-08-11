@@ -11,3 +11,11 @@ message TestString {
 message TestRepeatedString {
   repeated string value = 1 [(field_size) = 20];
 }
+
+message TestUint32 {
+  uint32 value = 1;
+}
+
+message TestNestedMessage{
+  TestUint32 message = 1;
+}

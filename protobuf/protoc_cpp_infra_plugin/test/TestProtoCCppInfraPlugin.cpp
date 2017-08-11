@@ -52,3 +52,47 @@ TEST(ProtoCCppInfraPluginTest, deserialize_repeated_string)
     expected.push_back("ef");
     EXPECT_EQ(expected, message.value);
 }
+
+TEST(ProtoCCppInfraPluginTest, serialize_uint32)
+{
+    test_messages::TestUint32 message;
+    message.value = 5;
+
+    infra::ByteOutputStream::WithStorage<100> stream;
+    services::ProtoFormatter formatter(stream);
+    message.Serialize(formatter);
+
+    EXPECT_EQ((std::array<uint8_t, 2>{ 1 << 3, 5 }), stream.Writer().Processed());
+}
+
+TEST(ProtoCCppInfraPluginTest, deserialize_uint32)
+{
+    std::array<uint8_t, 2> data{ 1 << 3, 5 };
+    infra::ByteInputStream stream(data);
+    services::ProtoParser parser(stream);
+
+    test_messages::TestUint32 message(parser);
+    EXPECT_EQ(5, message.value);
+}
+
+TEST(ProtoCCppInfraPluginTest, serialize_message)
+{
+    test_messages::TestNestedMessage message;
+    message.message.value = 5;
+
+    infra::ByteOutputStream::WithStorage<100> stream;
+    services::ProtoFormatter formatter(stream);
+    message.Serialize(formatter);
+
+    EXPECT_EQ((std::array<uint8_t, 4>{ (1 << 3) | 2, 2, 1 << 3, 5 }), stream.Writer().Processed());
+}
+
+TEST(ProtoCCppInfraPluginTest, deserialize_message)
+{
+    std::array<uint8_t, 4> data{ (1 << 3) | 2, 2, 1 << 3, 5 };
+    infra::ByteInputStream stream(data);
+    services::ProtoParser parser(stream);
+
+    test_messages::TestNestedMessage message(parser);
+    EXPECT_EQ(5, message.message.value);
+}

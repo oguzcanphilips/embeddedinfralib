@@ -23,12 +23,12 @@ namespace application
 
             return true;
         }
-        catch (UnsupportedFieldType exception)
+        catch (UnsupportedFieldType& exception)
         {
             *error = "Unsupported field type " + google::protobuf::SimpleItoa(exception.type) + " of field " + exception.fieldName;
             return false;
         }
-        catch (UnspecifiedFieldSize exception)
+        catch (UnspecifiedFieldSize& exception)
         {
             *error = "Field " + exception.fieldName + " needs a field_size specifying its maximum number of elements";
             return false;
@@ -88,7 +88,7 @@ namespace application
 
     void FieldGeneratorRepeatedString::GenerateSerializer()
     {
-        printer.Print(R"(for (auto& subField : $name$)
+        printer.Print(R"(    for (auto& subField : $name$)
         formatter.PutStringField(subField, $constant$);
 )"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
@@ -122,7 +122,7 @@ namespace application
     void FieldGeneratorUint32::GenerateDeserializer()
     {
         printer.Print(R"(            case $constant$:
-                $name$ = field.first.Get<uint64_t>();
+                $name$ = static_cast<uint32_t>(field.first.Get<uint64_t>());
                 break;
 )"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
@@ -138,7 +138,11 @@ namespace application
 
     void FieldGeneratorMessage::GenerateSerializer()
     {
-        printer.Print("    $name$.Serialize(formatter);\n"
+        printer.Print(R"(    {
+        services::ProtoLengthDelimitedFormatter nestedMessage(formatter, $constant$);
+        $name$.Serialize(formatter);
+    }
+)"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
@@ -194,7 +198,7 @@ namespace application
         , printer(printer)
     {
         for (int i = 0; i != descriptor.nested_type_count(); ++i)
-            messageGenerators.emplace_back(new MessageGenerator(*descriptor.nested_type(i), printer));
+            messageGenerators.emplace_back(std::make_unique<MessageGenerator>(*descriptor.nested_type(i), printer));
 
         CreateFieldGenerators();
     }
@@ -230,10 +234,10 @@ namespace application
             switch (fieldDescriptor.type())
             {
                 case google::protobuf::FieldDescriptor::TYPE_STRING:
-                    fieldGenerators.emplace_back(new FieldGeneratorRepeatedString(fieldDescriptor, printer));
+                    fieldGenerators.emplace_back(std::make_unique<FieldGeneratorRepeatedString>(fieldDescriptor, printer));
                     break;
                 case google::protobuf::FieldDescriptor::TYPE_MESSAGE:
-                    fieldGenerators.emplace_back(new FieldGeneratorRepeatedMessage(fieldDescriptor, printer));
+                    fieldGenerators.emplace_back(std::make_unique<FieldGeneratorRepeatedMessage>(fieldDescriptor, printer));
                     break;
                 default:
                     throw UnsupportedFieldType{ fieldDescriptor.name(), fieldDescriptor.type() };
@@ -242,13 +246,13 @@ namespace application
             switch (fieldDescriptor.type())
             {
                 case google::protobuf::FieldDescriptor::TYPE_STRING:
-                    fieldGenerators.emplace_back(new FieldGeneratorString(fieldDescriptor, printer));
+                    fieldGenerators.emplace_back(std::make_unique<FieldGeneratorString>(fieldDescriptor, printer));
                     break;
                 case google::protobuf::FieldDescriptor::TYPE_MESSAGE:
-                    fieldGenerators.emplace_back(new FieldGeneratorMessage(fieldDescriptor, printer));
+                    fieldGenerators.emplace_back(std::make_unique<FieldGeneratorMessage>(fieldDescriptor, printer));
                     break;
                 case google::protobuf::FieldDescriptor::TYPE_UINT32:
-                    fieldGenerators.emplace_back(new FieldGeneratorUint32(fieldDescriptor, printer));
+                    fieldGenerators.emplace_back(std::make_unique<FieldGeneratorUint32>(fieldDescriptor, printer));
                     break;
                 default:
                     throw UnsupportedFieldType{ fieldDescriptor.name(), fieldDescriptor.type() };
@@ -395,7 +399,7 @@ public:
         , file(file)
     {
         for (int i = 0; i != file->message_type_count(); ++i)
-            messageGenerators.emplace_back(new MessageGenerator(*file->message_type(i), printer));
+            messageGenerators.emplace_back(std::make_unique<MessageGenerator>(*file->message_type(i), printer));
     }
 
     void CppInfraGenerator::GenerateHeader()

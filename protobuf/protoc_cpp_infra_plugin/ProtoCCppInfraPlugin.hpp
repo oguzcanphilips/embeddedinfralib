@@ -1,5 +1,5 @@
-#ifndef PROTOBUF_PROTO_C_INFRA_PLUGIN_HPP
-#define PROTOBUF_PROTO_C_INFRA_PLUGIN_HPP
+#ifndef PROTOBUF_PROTO_C_CPP_INFRA_PLUGIN_HPP
+#define PROTOBUF_PROTO_C_CPP_INFRA_PLUGIN_HPP
 
 #include "google/protobuf/compiler/code_generator.h"
 #include "google/protobuf/io/printer.h"
@@ -30,7 +30,11 @@ namespace application
     {
     public:
         FieldGenerator(const google::protobuf::FieldDescriptor& descriptor, google::protobuf::io::Printer& printer);
+        FieldGenerator(const FieldGenerator& other) = delete;
+        FieldGenerator& operator=(const FieldGenerator& other) = delete;
+        virtual ~FieldGenerator() = default;
 
+    public:
         virtual void GenerateFieldDeclaration() = 0;
         void GenerateFieldConstant();
         virtual void GenerateSerializer() = 0;
@@ -38,7 +42,7 @@ namespace application
 
     protected:
         const google::protobuf::FieldDescriptor& descriptor;
-        google::protobuf::io::Printer& printer;
+        google::protobuf::io::Printer& printer;                                                                         //TICS !INT#002
     };
 
     class FieldGeneratorString
@@ -100,6 +104,9 @@ namespace application
     {
     public:
         MessageGenerator(const google::protobuf::Descriptor& descriptor, google::protobuf::io::Printer& printer);
+        MessageGenerator(const MessageGenerator& other) = delete;
+        MessageGenerator& operator=(const MessageGenerator& other) = delete;
+        ~MessageGenerator() = default;
 
     public:
         void GenerateClassDefinition();
@@ -136,6 +143,9 @@ namespace application
     {
     public:
         CppInfraGenerator(google::protobuf::compiler::GeneratorContext* generatorContext, const std::string& name, const google::protobuf::FileDescriptor* file);
+        CppInfraGenerator(const CppInfraGenerator& other) = delete;
+        CppInfraGenerator& operator=(const CppInfraGenerator& other) = delete;
+        ~CppInfraGenerator() = default;
 
     public:
         void GenerateHeader();

@@ -87,3 +87,18 @@ TEST(ProtoParserTest, GetField_returns_nested_object)
     EXPECT_EQ(5, nestedField.first.Get<uint64_t>());
     EXPECT_EQ(1, nestedField.second);
 }
+
+TEST(ProtoParserTest, SkipEverything_skips_LengthDelimited)
+{
+    infra::ByteInputStream stream(std::array<uint8_t, 6>{ (1 << 3) | 2, 2, 1 << 3, 5, 1 << 3, 5 });
+    services::ProtoParser parser(stream);
+
+    services::ProtoParser::Field field = parser.GetField();
+    infra::BoundedString::WithStorage<10> string;
+
+    field.first.Get<services::ProtoLengthDelimited>().SkipEverything();
+    
+    field = parser.GetField();
+    EXPECT_EQ(5, field.first.Get<uint64_t>());
+    EXPECT_EQ(1, field.second);
+}
