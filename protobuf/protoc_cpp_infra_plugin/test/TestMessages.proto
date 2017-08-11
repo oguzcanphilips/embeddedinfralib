@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "field_size.proto";
+
+package test_messages;
+
+message TestString {
+  string value = 1 [(field_size) = 20];
+}
+
+message TestRepeatedString {
+  repeated string value = 1 [(field_size) = 20];
+}
