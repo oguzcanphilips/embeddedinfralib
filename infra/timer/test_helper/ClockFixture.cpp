@@ -42,6 +42,7 @@ namespace infra
         const char format[] = "%Y-%m-%d %H:%M:%S";
 
         std::tm* gmTime = std::gmtime(&systemTime);
+        assert(gmTime != nullptr);
         std::string buffer(40, ' ');
         std::size_t size = strftime(&buffer.front(), buffer.size(), format, gmTime);
         buffer.resize(size);

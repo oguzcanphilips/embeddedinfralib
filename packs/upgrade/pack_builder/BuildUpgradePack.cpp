@@ -40,9 +40,6 @@ namespace application
     UpgradePackBuilderFacade::UpgradePackBuilderFacade(const application::UpgradePackBuilder::HeaderInfo& headerInfo)
         : headerInfo(headerInfo)
     {
-        // Hopefully unneeded, but just in case anyone uses the rand() function seed it with something quasi-random
-        std::srand(static_cast<unsigned int>(std::time(nullptr)) * static_cast<unsigned int>(GetCurrentProcessId()));
-
         // Initialize the MbedTLS memory pool
         unsigned char memory_buf[100000];
         mbedtls2_memory_buffer_alloc_init(memory_buf, sizeof(memory_buf));
@@ -98,7 +95,7 @@ namespace application
         }
         catch (hal::CannotOpenFileException& exception)
         {
-            std::cout << "Cannot open file " << exception.name << std::endl;
+            std::cout << "Cannot open file " << exception.path << std::endl;
             result = 1;
         }
         catch (application::SignatureDoesNotVerifyException&)

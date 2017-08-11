@@ -34,11 +34,10 @@ TEST_F(TracerWithDateTimeTest, trace_inserts_date_time)
     timePoint.tm_mon = 6;
     timePoint.tm_year = 116;
 
-    tm emptyTimePoint = {};
-
     time_t nullTime = 100000;
-    struct tm localUtcDiff = *gmtime(&nullTime);
-    time_t diff = mktime(&localUtcDiff);
+    std::tm* localUtcDiff = gmtime(&nullTime);
+    assert(localUtcDiff != nullptr);
+    time_t diff = mktime(localUtcDiff);
 
     ForwardTime(std::chrono::seconds(mktime(&timePoint) + nullTime - diff) + std::chrono::microseconds(1));
     TracerWithDateTimeTestImpl tracer(systemTimerService);

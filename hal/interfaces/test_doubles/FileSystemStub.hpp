@@ -12,17 +12,17 @@ namespace hal
     {
     public:
         FileSystemStub() = default;
-        FileSystemStub(const std::string& name, const std::vector<std::string>& contents);
-        FileSystemStub(const std::string& name, const std::vector<uint8_t>& contents);
+        FileSystemStub(const hal::filesystem::path& path, const std::vector<std::string>& contents);
+        FileSystemStub(const hal::filesystem::path& path, const std::vector<uint8_t>& contents);
 
-        virtual std::vector<std::string> ReadFile(const std::string& name) override;
-        virtual void WriteFile(const std::string& name, const std::vector<std::string>& contents) override;
+        virtual std::vector<std::string> ReadFile(const hal::filesystem::path& path) override;
+        virtual void WriteFile(const hal::filesystem::path& path, const std::vector<std::string>& contents) override;
 
-        virtual std::vector<uint8_t> ReadBinaryFile(const std::string& name) override;
-        virtual void WriteBinaryFile(const std::string& name, const std::vector<uint8_t>& contents) override;
+        virtual std::vector<uint8_t> ReadBinaryFile(const hal::filesystem::path& path) override;
+        virtual void WriteBinaryFile(const hal::filesystem::path& path, const std::vector<uint8_t>& contents) override;
 
-        std::map<std::string, std::vector<std::string>> files;
-        std::map<std::string, std::vector<uint8_t>> binaryFiles;
+        std::map<hal::filesystem::path, std::vector<std::string>> files;
+        std::map<hal::filesystem::path, std::vector<uint8_t>> binaryFiles;
     };
 }
 

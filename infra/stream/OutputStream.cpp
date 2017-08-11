@@ -312,19 +312,15 @@ namespace infra
 
     TextOutputStream& TextOutputStream::operator<<(float v)
     {
-        float vv = 0;
         if (v < 0)
-        {
             *this << "-";
-            vv = -v;
-        }
-        else
-            vv = v;
 
-        *this << static_cast<uint32_t>(vv);
-        vv -= static_cast<uint32_t>(vv);
+        v = std::abs(v);
+
+        *this << static_cast<uint32_t>(v);
+        v -= static_cast<uint32_t>(v);
         *this << ".";
-        *this << infra::Width(3,'0') << static_cast<uint32_t>(vv * 1000);
+        *this << infra::Width(3,'0') << static_cast<uint32_t>(v * 1000);
         return *this;
     }
 
