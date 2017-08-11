@@ -34,7 +34,7 @@
 #include <google/protobuf/message_lite.h>
 
 #if LANG_CXX11
-#define PROTOBUF_CONSTEXPR constexpr
+#define PROTOBUF_CONSTEXPR 
 
 // We require C++11 and Clang to use constexpr for variables, as GCC 4.8
 // requires constexpr to be consistent between declarations of variables

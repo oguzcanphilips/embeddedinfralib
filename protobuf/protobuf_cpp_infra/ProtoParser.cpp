@@ -45,14 +45,14 @@ namespace services
     uint64_t ProtoParser::GetVarInt()
     {
         uint64_t result = 0;
-        uint8_t byte;
+        uint8_t byte = 0;
         uint8_t shift = 0;
 
         do
         {
             input >> byte;
 
-            result += (byte & 0x7f) << shift;
+            result += (byte & 0x7f) << shift;                                                                           //TICS !POR#006
             shift += 7;
         } while ((byte & 0x80) != 0);
 
