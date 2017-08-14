@@ -21,11 +21,17 @@ namespace infra
     namespace detail
     {
         template<class T>
+        struct BoundedListNodeBase
+        {
+            BoundedListNodeBase<T>* next = nullptr;
+            BoundedListNodeBase<T>* previous = nullptr;
+        };
+
+        template<class T>
         struct BoundedListNode
+            : BoundedListNodeBase<T>
         {
             StaticStorage<T> storage;
-            BoundedListNode<T>* next;
-            BoundedListNode<T>* previous;
         };
 
         template<class T>
@@ -50,7 +56,6 @@ namespace infra
         typedef std::size_t size_type;
 
     public:
-        BoundedList();
         BoundedList(const BoundedList& other) = delete;
         explicit BoundedList(infra::MemoryRange<infra::StaticStorage<detail::BoundedListNode<T>>> storage);
         BoundedList(infra::MemoryRange<infra::StaticStorage<detail::BoundedListNode<T>>> storage, size_type n, const value_type& value = value_type());
@@ -126,7 +131,7 @@ namespace infra
         bool operator>=(const BoundedList& other) const;
 
     private:
-        typedef detail::BoundedListNode<typename std::remove_const<T>::type> NodeType;
+        typedef detail::BoundedListNodeBase<typename std::remove_const<T>::type> NodeType;
 
     private:
         NodeType* AllocateNode();
@@ -135,22 +140,28 @@ namespace infra
         infra::MemoryRange<infra::StaticStorage<detail::BoundedListNode<T>>> storage;
         size_type numAllocated = 0;
         size_type numInitialized = 0;
-        NodeType* firstNode = nullptr;
-        NodeType* lastNode = nullptr;
+        mutable detail::BoundedListNodeBase<T> endNode;
+        NodeType* firstNode = static_cast<detail::BoundedListNode<T>*>(&endNode);
         NodeType* freeList = nullptr;
     };
 
     template<class T>
         void swap(BoundedList<T>& x, BoundedList<T>& y);
+    template<class T, std::size_t Max>
+        void swap(BoundedList<T>::WithMaxSize<Max>& x, BoundedList<T>::WithMaxSize<Max>& y);
+    template<class T, std::size_t Max>
+        void swap(BoundedList<T>& x, BoundedList<T>::WithMaxSize<Max>& y);
+    template<class T, std::size_t Max>
+        void swap(BoundedList<T>::WithMaxSize<Max>& x, BoundedList<T>& y);
 
     namespace detail
     {
         template<class T>
         class BoundedListIterator
-            : public std::iterator<std::forward_iterator_tag, T>
+            : public std::iterator<std::bidirectional_iterator_tag, T>
         {
         private:
-            typedef detail::BoundedListNode<typename std::remove_const<T>::type> NodeType;
+            typedef detail::BoundedListNodeBase<typename std::remove_const<T>::type> NodeType;
 
         public:
             BoundedListIterator();
@@ -179,16 +190,12 @@ namespace infra
             template<class>
             friend class BoundedListIterator;
 
-            NodeType* mNode;
+            mutable NodeType* mNode;
         };
     }
 
     ////    Implementation    ////
  
-    template<class T>
-    BoundedList<T>::BoundedList()
-    {}
-
     template<class T>
     BoundedList<T>::BoundedList(infra::MemoryRange<infra::StaticStorage<detail::BoundedListNode<T>>> storage)
         : storage(storage)
@@ -286,13 +293,13 @@ namespace infra
     template<class T>
     typename BoundedList<T>::iterator BoundedList<T>::end()
     {
-        return iterator();
+        return iterator(&endNode);
     }
 
     template<class T>
     typename BoundedList<T>::const_iterator BoundedList<T>::end() const
     {
-        return const_iterator();
+        return const_iterator(&endNode);
     }
 
     template<class T>
@@ -304,7 +311,7 @@ namespace infra
     template<class T>
     typename BoundedList<T>::const_iterator BoundedList<T>::cend() const
     {
-        return const_iterator();
+        return const_iterator(&endNode);
     }
 
     template<class T>
@@ -334,41 +341,37 @@ namespace infra
     template<class T>
     typename BoundedList<T>::value_type& BoundedList<T>::front()
     {
-        return *firstNode->storage;
+        return *static_cast<detail::BoundedListNode<T>*>(firstNode)->storage;
     }
 
     template<class T>
     const typename BoundedList<T>::value_type& BoundedList<T>::front() const
     {
-        return *firstNode->storage;
+        return *static_cast<detail::BoundedListNode<T>*>(firstNode)->storage;
     }
 
     template<class T>
     typename BoundedList<T>::value_type& BoundedList<T>::back()
     {
-        return *lastNode->storage;
+        return *static_cast<detail::BoundedListNode<T>*>(endNode.previous)->storage;
     }
 
     template<class T>
     const typename BoundedList<T>::value_type& BoundedList<T>::back() const
     {
-        return *lastNode->storage;
+        return *static_cast<detail::BoundedListNode<T>*>(endNode.previous)->storage;
     }
 
     template<class T>
     void BoundedList<T>::push_front(const value_type& value)
     {
         NodeType* node = AllocateNode();
-        node->storage.Construct(value);
+        static_cast<detail::BoundedListNode<T>*>(node)->storage.Construct(value);
 
         node->next = firstNode;
         node->previous = nullptr;
+        firstNode->previous = node;
         firstNode = node;
-
-        if (!node->next)
-            lastNode = node;
-        else
-            node->next->previous = node;
 
         ++numAllocated;
     }
@@ -377,16 +380,12 @@ namespace infra
     void BoundedList<T>::push_front(value_type&& value)
     {
         NodeType* node = AllocateNode();
-        node->storage.Construct(std::move(value));
+        static_cast<detail::BoundedListNode<T>*>(node)->storage.Construct(std::move(value));
 
         node->next = firstNode;
         node->previous = nullptr;
+        firstNode->previous = node;
         firstNode = node;
-
-        if (!node->next)
-            lastNode = node;
-        else
-            node->next->previous = node;
 
         ++numAllocated;
     }
@@ -394,15 +393,11 @@ namespace infra
     template<class T>
     void BoundedList<T>::pop_front()
     {
-        firstNode->storage.Destruct();
+        static_cast<detail::BoundedListNode<T>*>(firstNode)->storage.Destruct();
             
         NodeType* oldStart = firstNode;
         firstNode = firstNode->next;
-
-        if (firstNode != nullptr)
-            firstNode->previous = nullptr;
-        else
-            lastNode = nullptr;
+        firstNode->previous = nullptr;
 
         oldStart->next = freeList;
         freeList = oldStart;
@@ -414,11 +409,11 @@ namespace infra
     void BoundedList<T>::push_back(const value_type& value)
     {
         NodeType* node = AllocateNode();
-        node->storage.Construct(value);
+        static_cast<detail::BoundedListNode<T>*>(node)->storage.Construct(value);
 
-        node->previous = lastNode;
-        node->next = nullptr;
-        lastNode = node;
+        node->previous = endNode.previous;
+        node->next = &endNode;
+        endNode.previous = node;
 
         if (!node->previous)
             firstNode = node;
@@ -432,11 +427,11 @@ namespace infra
     void BoundedList<T>::push_back(value_type&& value)
     {
         NodeType* node = AllocateNode();
-        node->storage.Construct(std::move(value));
+        static_cast<detail::BoundedListNode<T>*>(node)->storage.Construct(std::move(value));
 
-        node->previous = lastNode;
-        node->next = nullptr;
-        lastNode = node;
+        node->previous = endNode.previous;
+        node->next = &endNode;
+        endNode.previous = node;
 
         if (!node->previous)
             firstNode = node;
@@ -449,15 +444,10 @@ namespace infra
     template<class T>
     void BoundedList<T>::pop_back()
     {
-        firstNode->storage.Destruct();
+        NodeType* oldEnd = endNode.previous;
+        static_cast<detail::BoundedListNode<T>*>(oldEnd)->storage.Destruct();
 
-        NodeType* oldEnd = lastNode;
-        lastNode = lastNode->previous;
-
-        if (lastNode != nullptr)
-            lastNode->next = nullptr;
-        else
-            firstNode = nullptr;
+        endNode.previous = oldEnd->previous;
 
         oldEnd->next = freeList;
         freeList = oldEnd;
@@ -468,11 +458,11 @@ namespace infra
     template<class T>
     void BoundedList<T>::insert(iterator position, const value_type& value)
     {
-        NodeType* node = AllocateNode();
-        node->storage.Construct(value);
-
         if (position != end())
         {
+            NodeType* node = AllocateNode();
+            static_cast<detail::BoundedListNode<T>*>(node)->storage.Construct(value);
+
             node->next = &position.node();
             node->previous = position.node().previous;
 
@@ -482,21 +472,21 @@ namespace infra
                 firstNode = node;
 
             position.node().previous = node;
+
+            ++numAllocated;
         }
         else
             push_back(value);
-
-        ++numAllocated;
     }
 
     template<class T>
     void BoundedList<T>::insert(iterator position, value_type&& value)
     {
-        NodeType* node = AllocateNode();
-        node->storage.Construct(std::move(value));
-
         if (position != end())
         {
+            NodeType* node = AllocateNode();
+            static_cast<detail::BoundedListNode<T>*>(node)->storage.Construct(std::move(value));
+
             node->next = &position.node();
             node->previous = position.node().previous;
 
@@ -506,11 +496,11 @@ namespace infra
                 firstNode = node;
 
             position.node().previous = node;
+
+            ++numAllocated;
         }
         else
             push_back(std::move(value));
-
-        ++numAllocated;
     }
 
     template<class T>
@@ -555,10 +545,7 @@ namespace infra
         NodeType* next = node->next;
         NodeType* previous = node->previous;
 
-        if (next != nullptr)
-            next->previous = previous;
-        else
-            lastNode = previous;
+        next->previous = previous;
 
         if (previous != nullptr)
             previous->next = next;
@@ -575,13 +562,12 @@ namespace infra
     void BoundedList<T>::erase_all_after(iterator position)
     {
         NodeType* node = position.node().next;
-        position.node().next = nullptr;
+        position.node().next = &endNode;
+        endNode.previous = &position.node();
 
-        lastNode = node;
-
-        while (node != nullptr)
+        while (node != &endNode)
         {
-            node->storage.Destruct();
+            static_cast<detail::BoundedListNode<T>*>(node)->storage.Destruct();
             NodeType* oldFreeList = freeList;
             freeList = node;
             node = node->next;
@@ -636,7 +622,7 @@ namespace infra
     template<class T>
     void BoundedList<T>::clear()
     {
-        while (lastNode != nullptr)
+        while (!empty())
             pop_back();
     }
 
@@ -645,15 +631,11 @@ namespace infra
     void BoundedList<T>::emplace_front(Args&&... args)
     {
         NodeType* node = AllocateNode();
-        node->storage.Construct(std::forward<Args>(args)...);
+        static_cast<detail::BoundedListNode<T>*>(node)->storage.Construct(std::forward<Args>(args)...);
 
         node->next = firstNode;
         node->previous = nullptr;
-
-        if (node->next != nullptr)
-            node->next->previous = node;
-        else
-            lastNode = node;
+        node->next->previous = node;
 
         firstNode = node;
 
@@ -665,17 +647,16 @@ namespace infra
     void BoundedList<T>::emplace_back(Args&&... args)
     {
         NodeType* node = AllocateNode();
-        node->storage.Construct(std::forward<Args>(args)...);
+        static_cast<detail::BoundedListNode<T>*>(node)->storage.Construct(std::forward<Args>(args)...);
 
-        node->previous = lastNode;
-        node->next = nullptr;
+        node->previous = endNode.previous;
+        endNode.previous = node;
+        node->next = &endNode;
 
         if (node->previous)
             node->previous->next = node;
         else
             firstNode = node;
-
-        lastNode = node;
 
         ++numAllocated;
     }
@@ -742,9 +723,26 @@ namespace infra
         x.swap(y);
     }
 
+    template<class T, std::size_t Max>
+    void swap(BoundedList<T>::WithMaxSize<Max>& x, BoundedList<T>::WithMaxSize<Max>& y)
+    {
+        swap(static_cast<BoundedList<T>&>(x), static_cast<BoundedList<T>&>(y));
+    }
+
+    template<class T, std::size_t Max>
+    void swap(BoundedList<T>& x, BoundedList<T>::WithMaxSize<Max>& y)
+    {
+        swap(x, static_cast<BoundedList<T>&>(y));
+    }
+
+    template<class T, std::size_t Max>
+    void swap(BoundedList<T>::WithMaxSize<Max>& x, BoundedList<T>& y)
+    {
+        swap(static_cast<BoundedList<T>&>(x), y);
+    }
+
     namespace detail
     {
-
         template<class T>
         BoundedListIterator<T>::BoundedListIterator()
             : mNode(0)
@@ -773,13 +771,13 @@ namespace infra
         template<class T>
         T& BoundedListIterator<T>::operator*() const
         {
-            return *mNode->storage;
+            return *static_cast<detail::BoundedListNode<typename std::remove_const<T>::type>*>(mNode)->storage;
         }
 
         template<class T>
         T* BoundedListIterator<T>::operator->() const
         {
-            return &*mNode->storage;
+            return &*static_cast<detail::BoundedListNode<typename std::remove_const<T>::type>*>(mNode)->storage;
         }
 
         template<class T>
@@ -823,7 +821,7 @@ namespace infra
         template<class T2>
         bool BoundedListIterator<T>::operator==(const BoundedListIterator<T2>& other) const
         {
-            return mNode == other.mNode;
+            return mNode == other.mNode || ((mNode == nullptr || mNode->next == nullptr) && (other.mNode == nullptr || other.mNode->next == nullptr));
         }
 
         template<class T>

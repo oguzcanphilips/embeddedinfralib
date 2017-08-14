@@ -78,6 +78,15 @@ TEST(BoundedList, TestAssignment)
     EXPECT_EQ(4, copy.front());
 }
 
+TEST(BoundedList, TestSelfAssignment)
+{
+    infra::BoundedList<int>::WithMaxSize<5> original(std::size_t(2), 4);
+    original = original;
+
+    EXPECT_EQ(2, original.size());
+    EXPECT_EQ(4, original.front());
+}
+
 TEST(BoundedList, TestMove)
 {
     infra::BoundedList<infra::MoveConstructible>::WithMaxSize<5> original;
@@ -114,6 +123,16 @@ TEST(BoundedList, TestFront)
     infra::BoundedList<int>::WithMaxSize<5> list(range, range + 3);
 
     EXPECT_EQ(0, list.front());
+    EXPECT_EQ(0, static_cast<const infra::BoundedList<int>&>(list).front());
+}
+
+TEST(BoundedList, TestBack)
+{
+    int range[3] = { 0, 1, 2 };
+    infra::BoundedList<int>::WithMaxSize<5> list(range, range + 3);
+
+    EXPECT_EQ(2, list.back());
+    EXPECT_EQ(2, static_cast<const infra::BoundedList<int>&>(list).back());
 }
 
 TEST(BoundedList, TestAssignRange)
@@ -154,11 +173,46 @@ TEST(BoundedList, TestMoveFromRange)
 
 TEST(BoundedList, TestPushFront)
 {
-    infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(2), 4);
+    infra::BoundedList<int>::WithMaxSize<5> list;
+    int i(1);
+    list.push_front(i);
+
+    EXPECT_EQ(1, list.size());
+    EXPECT_EQ(1, list.front());
+
+    ++i;
+    list.push_front(i);
+
+    EXPECT_EQ(2, list.size());
+    EXPECT_EQ(2, list.front());
+}
+
+TEST(BoundedList, TestPushFrontRvalue)
+{
+    infra::BoundedList<int>::WithMaxSize<5> list;
     list.push_front(1);
 
-    EXPECT_EQ(3, list.size());
+    EXPECT_EQ(1, list.size());
     EXPECT_EQ(1, list.front());
+
+    list.push_front(2);
+
+    EXPECT_EQ(2, list.size());
+    EXPECT_EQ(2, list.front());
+}
+
+TEST(BoundedList, TestEmplaceFront)
+{
+    infra::BoundedList<int>::WithMaxSize<5> list;
+    list.emplace_front(1);
+
+    EXPECT_EQ(1, list.size());
+    EXPECT_EQ(1, list.front());
+
+    list.emplace_front(2);
+
+    EXPECT_EQ(2, list.size());
+    EXPECT_EQ(2, list.front());
 }
 
 TEST(BoundedList, TestPopFront)
@@ -168,6 +222,10 @@ TEST(BoundedList, TestPopFront)
 
     EXPECT_EQ(1, list.size());
     EXPECT_EQ(4, list.front());
+
+    list.pop_front();
+
+    EXPECT_TRUE(list.empty());
 }
 
 TEST(BoundedList, TestPushBack)
@@ -177,6 +235,20 @@ TEST(BoundedList, TestPushBack)
 
     EXPECT_EQ(3, list.size());
     EXPECT_EQ(1, list.back());
+}
+
+TEST(BoundedList, TestEmplaceBack)
+{
+    infra::BoundedList<int>::WithMaxSize<5> list;
+    list.emplace_back(1);
+
+    EXPECT_EQ(1, list.size());
+    EXPECT_EQ(1, list.back());
+
+    list.emplace_back(2);
+
+    EXPECT_EQ(2, list.size());
+    EXPECT_EQ(2, list.back());
 }
 
 TEST(BoundedList, TestPopBack)
@@ -233,10 +305,42 @@ TEST(BoundedList, TestClear)
 TEST(BoundedList, TestInsert)
 {
     infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(1), 4);
+    int i(2);
+    list.insert(list.begin(), i);
+
+    EXPECT_EQ(2, list.size());
+    EXPECT_EQ(2, list.front());
+
+    ++i;
+    list.insert(std::next(list.begin()), i);
+
+    EXPECT_EQ(3, list.size());
+    EXPECT_EQ(3, *std::next(list.begin()));
+
+    ++i;
+    list.insert(list.end(), i);
+
+    EXPECT_EQ(4, list.size());
+    EXPECT_EQ(4, list.back());
+}
+
+TEST(BoundedList, TestInsertRvalue)
+{
+    infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(1), 4);
     list.insert(list.begin(), 2);
 
     EXPECT_EQ(2, list.size());
     EXPECT_EQ(2, list.front());
+
+    list.insert(std::next(list.begin()), 3);
+
+    EXPECT_EQ(3, list.size());
+    EXPECT_EQ(3, *std::next(list.begin()));
+
+    list.insert(list.end(), 4);
+
+    EXPECT_EQ(4, list.size());
+    EXPECT_EQ(4, list.back());
 }
 
 TEST(BoundedList, TestErase)
@@ -245,6 +349,14 @@ TEST(BoundedList, TestErase)
     list.erase(std::next(list.begin()));
     EXPECT_EQ(2, list.size());
     EXPECT_EQ(2, std::distance(list.begin(), list.end()));
+
+    list.erase(std::prev(list.end()));
+    EXPECT_EQ(1, list.size());
+    EXPECT_EQ(1, std::distance(list.begin(), list.end()));
+
+    list.erase(list.begin());
+    EXPECT_EQ(0, list.size());
+    EXPECT_EQ(0, std::distance(list.begin(), list.end()));
 }
 
 TEST(BoundedList, TestEraseAllAfter)
