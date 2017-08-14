@@ -102,6 +102,15 @@ TEST(OptionalTest, TestMoveAssign)
     EXPECT_TRUE(*o2);
 }
 
+TEST(OptionalTest, TestMoveAssignWithEmpty)
+{
+    infra::Optional<bool> o1;
+    infra::Optional<bool> o2;
+    o2 = std::move(o1);
+    EXPECT_FALSE(static_cast<bool>(o1));
+    EXPECT_FALSE(static_cast<bool>(o2));
+}
+
 TEST(OptionalTest, TestAssignValue)
 {
     infra::Optional<bool> o;
@@ -190,6 +199,7 @@ TEST(OptionalTest, TestIndirect)
 
     infra::Optional<X> o(infra::inPlace, X());
     EXPECT_TRUE(o->x);
+    EXPECT_TRUE(const_cast<infra::Optional<X>&>(o)->x);
 }
 
 TEST(OptionalTest, TestMakeOptional)
@@ -227,6 +237,14 @@ struct PolymorphicBool
     bool value;
 };
 
+struct PolymorphicBoolDescendant
+    : PolymorphicBool
+{
+    using PolymorphicBool::PolymorphicBool;
+
+    int additional;
+};
+
 TEST(OptionalForPolymorphicObjectsTest, TestConstructedEmpty)
 {
     infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o;
@@ -256,7 +274,28 @@ TEST(OptionalForPolymorphicObjectsTest, TestConstructedWithMovedValue)
     EXPECT_TRUE(*o);
 }
 
-TEST(OptionalForPolymorphicObjectsTest, TestAssignValue)
+TEST(OptionalForPolymorphicObjectsTest, TestConstructedWithDescendant)
+{
+    infra::OptionalForPolymorphicObjects<PolymorphicBoolDescendant, 0> descendant(infra::InPlaceType<PolymorphicBoolDescendant>(), true);
+    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o(descendant);
+    EXPECT_TRUE(static_cast<bool>(o));
+    EXPECT_TRUE(*o);
+
+    infra::OptionalForPolymorphicObjects<PolymorphicBoolDescendant, 0> emptyDescendant;
+    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> x(emptyDescendant);
+    EXPECT_FALSE(static_cast<bool>(x));
+}
+
+TEST(OptionalForPolymorphicObjectsTest, TestAssignLValue)
+{
+    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o;
+    bool b = true;
+    o = b;
+    EXPECT_TRUE(static_cast<bool>(o));
+    EXPECT_TRUE(*o);
+}
+
+TEST(OptionalForPolymorphicObjectsTest, TestAssignRValue)
 {
     infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o;
     o = true;
@@ -269,6 +308,20 @@ TEST(OptionalForPolymorphicObjectsTest, TestAssignNone)
     infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o(infra::InPlaceType<PolymorphicBool>(), true);
     o = infra::none;
     EXPECT_FALSE(static_cast<bool>(o));
+}
+
+TEST(OptionalForPolymorphicObjectsTest, TestAssignDescendant)
+{
+    infra::OptionalForPolymorphicObjects<PolymorphicBoolDescendant, 0> descendant(infra::InPlaceType<PolymorphicBoolDescendant>(), true);
+    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> o;
+    o = descendant;
+    EXPECT_TRUE(static_cast<bool>(o));
+    EXPECT_TRUE(*o);
+
+    infra::OptionalForPolymorphicObjects<PolymorphicBoolDescendant, 0> emptyDescendant;
+    infra::OptionalForPolymorphicObjects<PolymorphicBool, 4> x;
+    x = emptyDescendant;
+    EXPECT_FALSE(static_cast<bool>(x));
 }
 
 TEST(OptionalForPolymorphicObjectsTest, TestCompareToNone)
@@ -294,6 +347,7 @@ TEST(OptionalForPolymorphicObjectsTest, TestCompare)
     EXPECT_FALSE(t == u);
 
     EXPECT_FALSE(f == u);
+    EXPECT_TRUE(f != u);
 }
 
 TEST(OptionalForPolymorphicObjectsTest, TestCompareToValue)
@@ -335,6 +389,7 @@ TEST(OptionalForPolymorphicObjectsTest, TestIndirect)
 
     infra::OptionalForPolymorphicObjects<X, 4> o{ infra::InPlaceType<X>(), X() };
     EXPECT_TRUE(o->x);
+    EXPECT_TRUE((const_cast<const infra::OptionalForPolymorphicObjects<X, 4>&>(o)->x));
 }
 
 TEST(OptionalForPolymorphicObjectsTest, ConstructDescendant)

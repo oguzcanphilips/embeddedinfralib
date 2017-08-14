@@ -36,7 +36,7 @@ namespace infra
     {
     public:
         template<std::size_t Max>
-            using WithMaxSize = infra::WithStorage<BoundedForwardList<T>, std::array<StaticStorage<detail::BoundedForwardListNode<T>>, Max>>;
+        using WithMaxSize = infra::WithStorage<BoundedForwardList<T>, std::array<StaticStorage<detail::BoundedForwardListNode<T>>, Max>>;
 
         typedef T value_type;
         typedef T& reference;
@@ -49,12 +49,11 @@ namespace infra
         typedef std::size_t size_type;
 
     public:
-        BoundedForwardList();
         BoundedForwardList(const BoundedForwardList& other) = delete;
         explicit BoundedForwardList(infra::MemoryRange<infra::StaticStorage<detail::BoundedForwardListNode<T>>> storage);
         BoundedForwardList(infra::MemoryRange<infra::StaticStorage<detail::BoundedForwardListNode<T>>> storage, size_type n, const value_type& value = value_type());
         template<class InputIterator>
-            BoundedForwardList(infra::MemoryRange<infra::StaticStorage<detail::BoundedForwardListNode<T>>> storage, InputIterator first, InputIterator last);
+        BoundedForwardList(infra::MemoryRange<infra::StaticStorage<detail::BoundedForwardListNode<T>>> storage, InputIterator first, InputIterator last);
         BoundedForwardList(infra::MemoryRange<infra::StaticStorage<detail::BoundedForwardListNode<T>>> storage, std::initializer_list<T> initializerList);
         BoundedForwardList(infra::MemoryRange<infra::StaticStorage<detail::BoundedForwardListNode<T>>> storage, const BoundedForwardList& other);
         BoundedForwardList(infra::MemoryRange<infra::StaticStorage<detail::BoundedForwardListNode<T>>> storage, BoundedForwardList&& other);
@@ -93,10 +92,10 @@ namespace infra
         void insert_after(iterator position, value_type&& value);
 
         template<class InputIterator>
-            void assign(InputIterator first, InputIterator last);
+        void assign(InputIterator first, InputIterator last);
         void assign(size_type n, const value_type& value);
         template<class InputIterator>
-            void move_from_range(InputIterator first, InputIterator last);
+        void move_from_range(InputIterator first, InputIterator last);
 
         void erase_slow(iterator position);
         void erase_all_after(iterator position);
@@ -106,7 +105,7 @@ namespace infra
         void clear();
 
         template<class... Args>
-            void emplace_front(Args&&... args);
+        void emplace_front(Args&&... args);
 
     public:
         bool operator==(const BoundedForwardList& other) const;
@@ -121,7 +120,7 @@ namespace infra
 
     private:
         NodeType* AllocateNode();
-        
+
     private:
         infra::MemoryRange<infra::StaticStorage<detail::BoundedForwardListNode<T>>> storage;
         size_type numAllocated = 0;
@@ -131,7 +130,13 @@ namespace infra
     };
 
     template<class T>
-        void swap(BoundedForwardList<T>& x, BoundedForwardList<T>& y);
+    void swap(BoundedForwardList<T>& x, BoundedForwardList<T>& y);
+    template<class T, std::size_t Max>
+    void swap(BoundedForwardList<T>::WithMaxSize<Max>& x, BoundedForwardList<T>::WithMaxSize<Max>& y);
+    template<class T, std::size_t Max>
+    void swap(BoundedForwardList<T>::WithMaxSize<Max>& x, BoundedForwardList<T>& y);
+    template<class T, std::size_t Max>
+    void swap(BoundedForwardList<T>& x, BoundedForwardList<T>::WithMaxSize<Max>& y);
 
     namespace detail
     {
@@ -146,9 +151,9 @@ namespace infra
             BoundedForwardListIterator();
             explicit BoundedForwardListIterator(NodeType* node);
             template<class T2>
-                BoundedForwardListIterator(const BoundedForwardListIterator<T2>& other);                                //TICS !INT#001
+            BoundedForwardListIterator(const BoundedForwardListIterator<T2>& other);                                //TICS !INT#001
             template<class T2>
-                BoundedForwardListIterator& operator=(const BoundedForwardListIterator<T2>& other);
+            BoundedForwardListIterator& operator=(const BoundedForwardListIterator<T2>& other);
 
             T& operator*() const;
             T* operator->() const;
@@ -159,9 +164,9 @@ namespace infra
             BoundedForwardListIterator operator++(int);
 
             template<class T2>
-                bool operator==(const BoundedForwardListIterator<T2>& other) const;
+            bool operator==(const BoundedForwardListIterator<T2>& other) const;
             template<class T2>
-                bool operator!=(const BoundedForwardListIterator<T2>& other) const;
+            bool operator!=(const BoundedForwardListIterator<T2>& other) const;
 
         private:
             template<class>
@@ -172,10 +177,6 @@ namespace infra
     }
 
     ////    Implementation    ////
- 
-    template<class T>
-    BoundedForwardList<T>::BoundedForwardList()
-    {}
 
     template<class T>
     BoundedForwardList<T>::BoundedForwardList(infra::MemoryRange<infra::StaticStorage<detail::BoundedForwardListNode<T>>> storage)
@@ -359,7 +360,7 @@ namespace infra
     void BoundedForwardList<T>::pop_front()
     {
         firstNode->storage.Destruct();
-            
+
         NodeType* oldStart = firstNode;
         firstNode = firstNode->next;
         oldStart->next = freeList;
@@ -627,6 +628,24 @@ namespace infra
     void swap(BoundedForwardList<T>& x, BoundedForwardList<T>& y)
     {
         x.swap(y);
+    }
+
+    template<class T, std::size_t Max>
+    void swap(BoundedForwardList<T>::WithMaxSize<Max>& x, BoundedForwardList<T>::WithMaxSize<Max>& y)
+    {
+        swap(static_cast<BoundedForwardList<T>&>(x), static_cast<BoundedForwardList<T>&>(y));
+    }
+
+    template<class T, std::size_t Max>
+    void swap(BoundedForwardList<T>::WithMaxSize<Max>& x, BoundedForwardList<T>& y)
+    {
+        swap(static_cast<BoundedForwardList<T>&>(x), y);
+    }
+
+    template<class T, std::size_t Max>
+    void swap(BoundedForwardList<T>& x, BoundedForwardList<T>::WithMaxSize<Max>& y)
+    {
+        swap(x, static_cast<BoundedForwardList<T>&>(y));
     }
 
     namespace detail

@@ -129,6 +129,17 @@ TEST_F(SharedPtrTest, move_copy_SharedPtr)
     EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 }
 
+TEST_F(SharedPtrTest, self_assign_SharedPtr)
+{
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
+    infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
+
+    object = object;
+    EXPECT_TRUE(static_cast<bool>(object));
+
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
+}
+
 TEST_F(SharedPtrTest, convert_SharedPtr_to_and_from_const)
 {
     EXPECT_CALL(objectConstructionMock, Construct(testing::_));
@@ -218,6 +229,25 @@ TEST_F(SharedPtrTest, construct_WeakPtr)
     EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
 }
 
+TEST_F(SharedPtrTest, copy_construct_WeakPtr)
+{
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
+    infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
+    infra::WeakPtr<MySharedObject> weakObject(object);
+    infra::WeakPtr<MySharedObjectBase> weakObject2(weakObject);
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
+}
+
+TEST_F(SharedPtrTest, copy_assign_WeakPtr)
+{
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
+    infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
+    infra::WeakPtr<MySharedObject> weakObject(object);
+    infra::WeakPtr<MySharedObject> weakObject2;
+    weakObject2 = weakObject;
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
+}
+
 TEST_F(SharedPtrTest, construct_SharedPtr_from_WeakPtr)
 {
     infra::SharedPtr<MySharedObject> sharedObject;
@@ -229,6 +259,13 @@ TEST_F(SharedPtrTest, construct_SharedPtr_from_WeakPtr)
     }
 
     EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
+}
+
+TEST_F(SharedPtrTest, construct_SharedPtr_from_empty_WeakPtr)
+{
+    infra::WeakPtr<MySharedObject> weakObject;
+    infra::SharedPtr<MySharedObject> sharedObject = weakObject.lock();
+    EXPECT_FALSE(sharedObject);
 }
 
 TEST_F(SharedPtrTest, convert_WeakPtr_to_SharedPtr)

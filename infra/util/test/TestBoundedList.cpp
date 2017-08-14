@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 
-TEST(BoundedList, TestConstructedEmpty)
+TEST(BoundedListTest, TestConstructedEmpty)
 {
     infra::BoundedList<int>::WithMaxSize<5> list;
 
@@ -14,7 +14,7 @@ TEST(BoundedList, TestConstructedEmpty)
     EXPECT_EQ(5, list.max_size());
 }
 
-TEST(BoundedList, TestConstructionWith2Elements)
+TEST(BoundedListTest, TestConstructionWith2Elements)
 {
     infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(2), 4);
 
@@ -26,7 +26,7 @@ TEST(BoundedList, TestConstructionWith2Elements)
     EXPECT_EQ(4, *std::next(list.begin()));
 }
 
-TEST(BoundedList, TestConstructionWithRange)
+TEST(BoundedListTest, TestConstructionWithRange)
 {
     int range[3] = { 0, 1, 2};
     infra::BoundedList<int>::WithMaxSize<5> list(range, range + 3);
@@ -38,7 +38,7 @@ TEST(BoundedList, TestConstructionWithRange)
     EXPECT_EQ(2, *std::next(list.begin(), 2));
 }
 
-TEST(BoundedList, TestConstructionWithInitializerList)
+TEST(BoundedListTest, TestConstructionWithInitializerList)
 {
     infra::BoundedList<int>::WithMaxSize<5> list({ 0, 1, 2 });
 
@@ -49,7 +49,7 @@ TEST(BoundedList, TestConstructionWithInitializerList)
     EXPECT_EQ(2, *std::next(list.begin(), 2));
 }
 
-TEST(BoundedList, TestCopyConstruction)
+TEST(BoundedListTest, TestCopyConstruction)
 {
     infra::BoundedList<int>::WithMaxSize<5> original(std::size_t(2), 4);
     infra::BoundedList<int>::WithMaxSize<5> copy(original);
@@ -58,7 +58,7 @@ TEST(BoundedList, TestCopyConstruction)
     EXPECT_EQ(4, copy.front());
 }
 
-TEST(BoundedList, TestMoveConstruction)
+TEST(BoundedListTest, TestMoveConstruction)
 {
     infra::BoundedList<infra::MoveConstructible>::WithMaxSize<5> original;
     original.emplace_front(2);
@@ -68,7 +68,7 @@ TEST(BoundedList, TestMoveConstruction)
     EXPECT_EQ(2, copy.front().x);
 }
 
-TEST(BoundedList, TestAssignment)
+TEST(BoundedListTest, TestAssignment)
 {
     infra::BoundedList<int>::WithMaxSize<5> original(std::size_t(2), 4);
     infra::BoundedList<int>::WithMaxSize<5> copy;
@@ -78,7 +78,7 @@ TEST(BoundedList, TestAssignment)
     EXPECT_EQ(4, copy.front());
 }
 
-TEST(BoundedList, TestSelfAssignment)
+TEST(BoundedListTest, TestSelfAssignment)
 {
     infra::BoundedList<int>::WithMaxSize<5> original(std::size_t(2), 4);
     original = original;
@@ -87,7 +87,7 @@ TEST(BoundedList, TestSelfAssignment)
     EXPECT_EQ(4, original.front());
 }
 
-TEST(BoundedList, TestMove)
+TEST(BoundedListTest, TestMove)
 {
     infra::BoundedList<infra::MoveConstructible>::WithMaxSize<5> original;
     original.emplace_front(2);
@@ -98,7 +98,7 @@ TEST(BoundedList, TestMove)
     EXPECT_EQ(2, copy.front().x);
 }
 
-TEST(BoundedList, TestBeginAndEnd)
+TEST(BoundedListTest, TestBeginAndEnd)
 {
     int range[3] = { 0, 1, 2};
     infra::BoundedList<int>::WithMaxSize<5> list(range, range + 3);
@@ -110,14 +110,14 @@ TEST(BoundedList, TestBeginAndEnd)
     EXPECT_EQ(0, *list.begin());
 }
 
-TEST(BoundedList, TestFull)
+TEST(BoundedListTest, TestFull)
 {
     infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(5), 4);
 
     EXPECT_TRUE(list.full());
 }
 
-TEST(BoundedList, TestFront)
+TEST(BoundedListTest, TestFront)
 {
     int range[3] = { 0, 1, 2};
     infra::BoundedList<int>::WithMaxSize<5> list(range, range + 3);
@@ -126,7 +126,7 @@ TEST(BoundedList, TestFront)
     EXPECT_EQ(0, static_cast<const infra::BoundedList<int>&>(list).front());
 }
 
-TEST(BoundedList, TestBack)
+TEST(BoundedListTest, TestBack)
 {
     int range[3] = { 0, 1, 2 };
     infra::BoundedList<int>::WithMaxSize<5> list(range, range + 3);
@@ -135,7 +135,7 @@ TEST(BoundedList, TestBack)
     EXPECT_EQ(2, static_cast<const infra::BoundedList<int>&>(list).back());
 }
 
-TEST(BoundedList, TestAssignRange)
+TEST(BoundedListTest, TestAssignRange)
 {
     int range[3] = { 0, 1, 2};
     infra::BoundedList<int>::WithMaxSize<5> list(range, range + 3);
@@ -148,7 +148,7 @@ TEST(BoundedList, TestAssignRange)
     EXPECT_EQ(5, *std::next(list.begin()));
 }
 
-TEST(BoundedList, TestAssignN)
+TEST(BoundedListTest, TestAssignN)
 {
     int range[3] = { 0, 1, 2};
     infra::BoundedList<int>::WithMaxSize<5> list(range, range + 3);
@@ -160,7 +160,7 @@ TEST(BoundedList, TestAssignN)
     EXPECT_EQ(4, *std::next(list.begin()));
 }
 
-TEST(BoundedList, TestMoveFromRange)
+TEST(BoundedListTest, TestMoveFromRange)
 {
     infra::BoundedList<infra::MoveConstructible>::WithMaxSize<5> original;
     original.emplace_front(2);
@@ -171,7 +171,7 @@ TEST(BoundedList, TestMoveFromRange)
     EXPECT_EQ(2, copy.front().x);
 }
 
-TEST(BoundedList, TestPushFront)
+TEST(BoundedListTest, TestPushFront)
 {
     infra::BoundedList<int>::WithMaxSize<5> list;
     int i(1);
@@ -187,7 +187,7 @@ TEST(BoundedList, TestPushFront)
     EXPECT_EQ(2, list.front());
 }
 
-TEST(BoundedList, TestPushFrontRvalue)
+TEST(BoundedListTest, TestPushFrontRvalue)
 {
     infra::BoundedList<int>::WithMaxSize<5> list;
     list.push_front(1);
@@ -201,7 +201,7 @@ TEST(BoundedList, TestPushFrontRvalue)
     EXPECT_EQ(2, list.front());
 }
 
-TEST(BoundedList, TestEmplaceFront)
+TEST(BoundedListTest, TestEmplaceFront)
 {
     infra::BoundedList<int>::WithMaxSize<5> list;
     list.emplace_front(1);
@@ -215,7 +215,7 @@ TEST(BoundedList, TestEmplaceFront)
     EXPECT_EQ(2, list.front());
 }
 
-TEST(BoundedList, TestPopFront)
+TEST(BoundedListTest, TestPopFront)
 {
     infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(2), 4);
     list.pop_front();
@@ -228,7 +228,7 @@ TEST(BoundedList, TestPopFront)
     EXPECT_TRUE(list.empty());
 }
 
-TEST(BoundedList, TestPushBack)
+TEST(BoundedListTest, TestPushBack)
 {
     infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(2), 4);
     list.push_back(1);
@@ -237,7 +237,7 @@ TEST(BoundedList, TestPushBack)
     EXPECT_EQ(1, list.back());
 }
 
-TEST(BoundedList, TestEmplaceBack)
+TEST(BoundedListTest, TestEmplaceBack)
 {
     infra::BoundedList<int>::WithMaxSize<5> list;
     list.emplace_back(1);
@@ -251,7 +251,7 @@ TEST(BoundedList, TestEmplaceBack)
     EXPECT_EQ(2, list.back());
 }
 
-TEST(BoundedList, TestPopBack)
+TEST(BoundedListTest, TestPopBack)
 {
     infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(2), 4);
     list.pop_front();
@@ -260,7 +260,7 @@ TEST(BoundedList, TestPopBack)
     EXPECT_EQ(4, list.back());
 }
 
-TEST(BoundedList, TestSwap)
+TEST(BoundedListTest, TestSwap)
 {
     int range1[3] = { 0, 1, 2};
     infra::BoundedList<int>::WithMaxSize<5> list1(range1, range1 + 3);
@@ -275,7 +275,7 @@ TEST(BoundedList, TestSwap)
     EXPECT_EQ(expectedList2, list2);
 }
 
-TEST(BoundedList, TestSwapDifferentSizes)
+TEST(BoundedListTest, TestSwapDifferentSizes)
 {
     int range1[3] = { 0, 1, 2};
     infra::BoundedList<int>::WithMaxSize<5> list1(range1, range1 + 3);
@@ -290,7 +290,7 @@ TEST(BoundedList, TestSwapDifferentSizes)
     EXPECT_EQ(expectedList2, list2);
 }
 
-TEST(BoundedList, TestClear)
+TEST(BoundedListTest, TestClear)
 {
     infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(2), 4);
     list.clear();
@@ -302,7 +302,7 @@ TEST(BoundedList, TestClear)
     EXPECT_EQ(expectedList, list);
 }
 
-TEST(BoundedList, TestInsert)
+TEST(BoundedListTest, TestInsert)
 {
     infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(1), 4);
     int i(2);
@@ -324,7 +324,7 @@ TEST(BoundedList, TestInsert)
     EXPECT_EQ(4, list.back());
 }
 
-TEST(BoundedList, TestInsertRvalue)
+TEST(BoundedListTest, TestInsertRvalue)
 {
     infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(1), 4);
     list.insert(list.begin(), 2);
@@ -343,7 +343,7 @@ TEST(BoundedList, TestInsertRvalue)
     EXPECT_EQ(4, list.back());
 }
 
-TEST(BoundedList, TestErase)
+TEST(BoundedListTest, TestErase)
 {
     infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(3), 4);
     list.erase(std::next(list.begin()));
@@ -359,7 +359,7 @@ TEST(BoundedList, TestErase)
     EXPECT_EQ(0, std::distance(list.begin(), list.end()));
 }
 
-TEST(BoundedList, TestEraseAllAfter)
+TEST(BoundedListTest, TestEraseAllAfter)
 {
     infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(3), 4);
 
@@ -368,7 +368,7 @@ TEST(BoundedList, TestEraseAllAfter)
     EXPECT_EQ(1, std::distance(list.begin(), list.end()));
 }
 
-TEST(BoundedList, TestEraseAllAfterNothing)
+TEST(BoundedListTest, TestEraseAllAfterNothing)
 {
     infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(1), 4);
 
@@ -377,7 +377,30 @@ TEST(BoundedList, TestEraseAllAfterNothing)
     EXPECT_EQ(1, std::distance(list.begin(), list.end()));
 }
 
-TEST(BoundedList, TestEquals)
+TEST(BoundedListTest, IteratorCopyConstruct)
+{
+    infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(1), 4);
+
+    infra::BoundedList<int>::iterator i(list.begin());
+    EXPECT_EQ(4, *i);
+}
+
+TEST(BoundedListTest, IteratorArrow)
+{
+    infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(1), 4);
+
+    EXPECT_EQ(4, *(list.begin().operator->()));
+}
+
+TEST(BoundedListTest, IteratorPostInc)
+{
+    infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(1), 4);
+
+    infra::BoundedList<int>::iterator i(list.begin());
+    EXPECT_EQ(4, *i++);
+}
+
+TEST(BoundedListTest, TestEquals)
 {
     int range1[3] = { 0, 1, 2 };
     infra::BoundedList<int>::WithMaxSize<5> list1(range1, range1 + 3);
@@ -392,7 +415,7 @@ TEST(BoundedList, TestEquals)
     EXPECT_FALSE(deque3 == list1);
 }
 
-TEST(BoundedList, TestUnequals)
+TEST(BoundedListTest, TestUnequals)
 {
     int range1[3] = { 0, 1, 2 };
     infra::BoundedList<int>::WithMaxSize<5> list1(range1, range1 + 3);
@@ -400,7 +423,7 @@ TEST(BoundedList, TestUnequals)
     EXPECT_FALSE(list1 != list1);
 }
 
-TEST(BoundedList, TestLessThan)
+TEST(BoundedListTest, TestLessThan)
 {
     int range1[3] = { 0, 1, 2 };
     infra::BoundedList<int>::WithMaxSize<5> list1(range1, range1 + 3);
@@ -414,7 +437,7 @@ TEST(BoundedList, TestLessThan)
     EXPECT_FALSE(list1 < list1);
 }
 
-TEST(BoundedList, TestGreaterThan)
+TEST(BoundedListTest, TestGreaterThan)
 {
     int range1[3] = { 0, 1, 2 };
     infra::BoundedList<int>::WithMaxSize<5> list1(range1, range1 + 3);
@@ -422,7 +445,7 @@ TEST(BoundedList, TestGreaterThan)
     EXPECT_FALSE(list1 > list1);
 }
 
-TEST(BoundedList, TestLessThanOrEqual)
+TEST(BoundedListTest, TestLessThanOrEqual)
 {
     int range1[3] = { 0, 1, 2 };
     infra::BoundedList<int>::WithMaxSize<5> list1(range1, range1 + 3);
@@ -430,7 +453,7 @@ TEST(BoundedList, TestLessThanOrEqual)
     EXPECT_TRUE(list1 <= list1);
 }
 
-TEST(BoundedList, TestGreaterThanOrEqual)
+TEST(BoundedListTest, TestGreaterThanOrEqual)
 {
     int range1[3] = { 0, 1, 2 };
     infra::BoundedList<int>::WithMaxSize<5> list1(range1, range1 + 3);

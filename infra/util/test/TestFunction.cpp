@@ -21,6 +21,16 @@ TEST(FunctionTest, TestConstructedNotEmpty)
     EXPECT_TRUE(static_cast<bool>(f));
 }
 
+void function()
+{}
+
+TEST(FunctionTest, TestConstructedWithFunctionPointer)
+{
+    infra::Function<void()> f(function);
+    EXPECT_TRUE(static_cast<bool>(f));
+    infra::Function<void()> g(f);
+}
+
 TEST(FunctionTest, TestConstructedWithTheEmptyFunction)
 {
     infra::Function<void()> f(infra::emptyFunction);

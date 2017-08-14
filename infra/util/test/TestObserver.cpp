@@ -17,6 +17,7 @@ public:
     using infra::Observer<MyObserver, MySubject>::Attached;
     using infra::Observer<MyObserver, MySubject>::Attach;
     using infra::Observer<MyObserver, MySubject>::Detach;
+    using infra::Observer<MyObserver, MySubject>::Subject;
 
     MOCK_METHOD0(Callback, void());
     MOCK_METHOD0(Query, int());
@@ -73,6 +74,7 @@ TEST(ObserverTest, ConstructWithRegistration)
 
     MyObserver observer(subject);
     EXPECT_TRUE(observer.Attached());
+    EXPECT_EQ(&subject, &observer.Subject());
 }
 
 TEST(ObserverTest, TwoRegistrations)
@@ -102,7 +104,7 @@ TEST(ObserverTest, RegisterAfterConstruction)
     EXPECT_TRUE(observer.Attached());
 
     EXPECT_CALL(observer, Callback());
-    subject.NotifyObservers([](MyObserver& o) { o.Callback(); });
+    subject.NotifyObservers([](const MyObserver& o) { const_cast<MyObserver&>(o).Callback(); });
 }
 
 TEST(ObserverTest, Detach)

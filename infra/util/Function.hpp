@@ -284,13 +284,13 @@ namespace infra
             *this = std::move(other);
             other = std::move(temp);
         }
-        else if (Initialized() && !other.Initialized())
+        else if (Initialized())
         {
             CopyConstruct(invokerFunctions, other.invokerFunctions);
             Destruct(invokerFunctions);
             invokerFunctions.virtualMethodTable = nullptr;
         }
-        else if (!Initialized() && other.Initialized())
+        else if (other.Initialized())
         {
             CopyConstruct(other.invokerFunctions, invokerFunctions);
             Destruct(other.invokerFunctions);

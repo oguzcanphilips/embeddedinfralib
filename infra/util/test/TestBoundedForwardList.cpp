@@ -78,6 +78,15 @@ TEST(BoundedForwardListTest, TestAssignment)
     EXPECT_EQ(4, copy.front());
 }
 
+TEST(BoundedForwardListTest, TestSelfAssignment)
+{
+    infra::BoundedForwardList<int>::WithMaxSize<5> original(std::size_t(2), 4);
+    original = original;
+
+    EXPECT_EQ(2, original.size());
+    EXPECT_EQ(4, original.front());
+}
+
 TEST(BoundedForwardListTest, TestMove)
 {
     infra::BoundedForwardList<infra::MoveConstructible>::WithMaxSize<5> original;
@@ -225,9 +234,13 @@ TEST(BoundedForwardList, TestErase)
 {
     infra::BoundedForwardList<int>::WithMaxSize<5> list(std::size_t(3), 4);
 
-    list.erase_slow(std::next(list.begin()));
+    list.erase_slow(std::next(list.begin(), 2));
     EXPECT_EQ(2, list.size());
     EXPECT_EQ(2, std::distance(list.begin(), list.end()));
+
+    list.erase_slow(list.begin());
+    EXPECT_EQ(1, list.size());
+    EXPECT_EQ(1, std::distance(list.begin(), list.end()));
 }
 
 TEST(BoundedForwardListTest, TestEraseAllAfter)
@@ -246,6 +259,29 @@ TEST(BoundedForwardListTest, TestEraseAllAfterNothing)
     list.erase_all_after(list.begin());
     EXPECT_EQ(1, list.size());
     EXPECT_EQ(1, std::distance(list.begin(), list.end()));
+}
+
+TEST(BoundedForwardListTest, CopyConstructIterator)
+{
+    infra::BoundedForwardList<int>::WithMaxSize<5> list(std::size_t(1), 4);
+
+    infra::BoundedForwardList<int>::iterator i(list.begin());
+    EXPECT_EQ(4, *i);
+}
+
+TEST(BoundedForwardListTest, Arrow)
+{
+    infra::BoundedForwardList<int>::WithMaxSize<5> list(std::size_t(1), 4);
+
+    EXPECT_EQ(4, *(list.begin().operator->()));
+}
+
+TEST(BoundedForwardListTest, PostInc)
+{
+    infra::BoundedForwardList<int>::WithMaxSize<5> list(std::size_t(1), 4);
+
+    infra::BoundedForwardList<int>::iterator i(list.begin());
+    EXPECT_EQ(4, *i++);
 }
 
 TEST(BoundedForwardListTest, TestEquals)

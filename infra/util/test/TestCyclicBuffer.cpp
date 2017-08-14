@@ -35,12 +35,28 @@ TEST_F(CyclicBufferTest, PushRange)
     EXPECT_EQ((std::vector<uint8_t>{ 3, 7 }), buffer.ContiguousRange());
 }
 
+TEST_F(CyclicBufferTest, PushEmptyRange)
+{
+    buffer.Push(std::vector<uint8_t>{ });
+
+    EXPECT_TRUE(buffer.Empty());
+    EXPECT_FALSE(buffer.Full());
+    EXPECT_EQ((std::vector<uint8_t>{ }), buffer.ContiguousRange());
+}
+
 TEST_F(CyclicBufferTest, PushFull)
 {
     buffer.Push(std::vector<uint8_t>{ 2, 3, 7, 11 });
 
     EXPECT_TRUE(buffer.Full());
     EXPECT_EQ((std::vector<uint8_t>{ 2, 3, 7, 11 }), buffer.ContiguousRange());
+
+    infra::CyclicBuffer<uint8_t>::WithStorage<4> buffer2;
+    buffer2.Push(std::vector<uint8_t>{ 2, 3, 7 });
+    buffer2.Push(11);
+
+    EXPECT_TRUE(buffer2.Full());
+    EXPECT_EQ((std::vector<uint8_t>{ 2, 3, 7, 11 }), buffer2.ContiguousRange());
 }
 
 TEST_F(CyclicBufferTest, Pop)
@@ -49,6 +65,14 @@ TEST_F(CyclicBufferTest, Pop)
     buffer.Pop(1);
 
     EXPECT_TRUE(buffer.Empty());
+}
+
+TEST_F(CyclicBufferTest, PopNothing)
+{
+    buffer.Push(5);
+    buffer.Pop(0);
+
+    EXPECT_FALSE(buffer.Empty());
 }
 
 TEST_F(CyclicBufferTest, PushBeyondEnd)
