@@ -36,6 +36,8 @@ namespace infra
 
         const StorageType& Storage() const;
         StorageType& Storage();
+
+        friend void swap(WithStorage& x, WithStorage& y) { using std::swap; swap(static_cast<Base&>(x), static_cast<Base&>(y)); }
     };
 
     namespace detail

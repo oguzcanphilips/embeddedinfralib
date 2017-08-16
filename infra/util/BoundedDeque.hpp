@@ -141,12 +141,6 @@ namespace infra
 
     template<class T>
         void swap(BoundedDeque<T>& x, BoundedDeque<T>& y);
-    template<class T, std::size_t Max>
-        void swap(BoundedDeque<T>::WithMaxSize<Max>& x, BoundedDeque<T>::WithMaxSize<Max>& y);
-    template<class T, std::size_t Max>
-        void swap(BoundedDeque<T>& x, BoundedDeque<T>::WithMaxSize<Max>& y);
-    template<class T, std::size_t Max>
-        void swap(BoundedDeque<T>::WithMaxSize<Max>& x, BoundedDeque<T>& y);
 
     namespace detail
     {
@@ -741,24 +735,6 @@ namespace infra
     void swap(BoundedDeque<T>& x, BoundedDeque<T>& y)
     {
         x.swap(y);
-    }
-
-    template<class T, std::size_t Max>
-    void swap(BoundedDeque<T>::WithMaxSize<Max>& x, BoundedDeque<T>::WithMaxSize<Max>& y)
-    {
-        swap(static_cast<BoundedDeque<T>&>(x), static_cast<BoundedDeque<T>&>(y));
-    }
-
-    template<class T, std::size_t Max>
-    void swap(BoundedDeque<T>& x, BoundedDeque<T>::WithMaxSize<Max>& y)
-    {
-        swap(x, static_cast<BoundedDeque<T>&>(y));
-    }
-
-    template<class T, std::size_t Max>
-    void swap(BoundedDeque<T>::WithMaxSize<Max>& x, BoundedDeque<T>& y)
-    {
-        swap(static_cast<BoundedDeque<T>&>(x), y);
     }
 
     namespace detail

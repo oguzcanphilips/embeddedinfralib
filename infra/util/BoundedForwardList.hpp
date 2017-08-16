@@ -130,13 +130,7 @@ namespace infra
     };
 
     template<class T>
-    void swap(BoundedForwardList<T>& x, BoundedForwardList<T>& y);
-    template<class T, std::size_t Max>
-    void swap(BoundedForwardList<T>::WithMaxSize<Max>& x, BoundedForwardList<T>::WithMaxSize<Max>& y);
-    template<class T, std::size_t Max>
-    void swap(BoundedForwardList<T>::WithMaxSize<Max>& x, BoundedForwardList<T>& y);
-    template<class T, std::size_t Max>
-    void swap(BoundedForwardList<T>& x, BoundedForwardList<T>::WithMaxSize<Max>& y);
+        void swap(BoundedForwardList<T>& x, BoundedForwardList<T>& y);
 
     namespace detail
     {
@@ -628,24 +622,6 @@ namespace infra
     void swap(BoundedForwardList<T>& x, BoundedForwardList<T>& y)
     {
         x.swap(y);
-    }
-
-    template<class T, std::size_t Max>
-    void swap(BoundedForwardList<T>::WithMaxSize<Max>& x, BoundedForwardList<T>::WithMaxSize<Max>& y)
-    {
-        swap(static_cast<BoundedForwardList<T>&>(x), static_cast<BoundedForwardList<T>&>(y));
-    }
-
-    template<class T, std::size_t Max>
-    void swap(BoundedForwardList<T>::WithMaxSize<Max>& x, BoundedForwardList<T>& y)
-    {
-        swap(static_cast<BoundedForwardList<T>&>(x), y);
-    }
-
-    template<class T, std::size_t Max>
-    void swap(BoundedForwardList<T>& x, BoundedForwardList<T>::WithMaxSize<Max>& y)
-    {
-        swap(x, static_cast<BoundedForwardList<T>&>(y));
     }
 
     namespace detail

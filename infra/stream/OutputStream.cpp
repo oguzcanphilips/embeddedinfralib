@@ -1,4 +1,5 @@
 #include "infra/stream/OutputStream.hpp"
+#include <cmath>
 
 namespace infra
 {
@@ -58,14 +59,14 @@ namespace infra
 
     void StreamWriterDummy::Insert(ConstByteRange range)
     {}
-    
+
     void StreamWriterDummy::Insert(uint8_t element)
     {}
 
     OutputStream::OutputStream(StreamWriter& writer)
         : writer(writer)
     {}
-    
+
     void OutputStream::SetNoFail()
     {
         writer.SetNoFail();
