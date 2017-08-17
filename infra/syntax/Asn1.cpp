@@ -66,7 +66,11 @@ namespace infra
         if (!currentValue.range.empty())
         {
             range = infra::ConstByteRange(currentValue.range.end(), range.end());
-            currentValue = MakeValue();
+
+            if (range.empty())
+                currentValue = Asn1Value(0, infra::ConstByteRange());
+            else
+                currentValue = MakeValue();
         }
 
         return *this;
