@@ -5,17 +5,37 @@ import "field_size.proto";
 package test_messages;
 
 message TestString {
-  string value = 1 [(field_size) = 20];
+  string value = 1 [(string_size) = 20];
 }
 
 message TestRepeatedString {
-  repeated string value = 1 [(field_size) = 20];
+  repeated string value = 1 [(string_size) = 20, (array_size) = 10];
 }
 
 message TestUint32 {
   uint32 value = 1;
 }
 
-message TestNestedMessage{
+message TestMessageWithMessageField {
   TestUint32 message = 1;
+}
+
+message TestNestedMessage
+{
+	message NestedMessage
+	{
+		uint32 value = 1;
+	}
+
+	NestedMessage message = 1;
+}
+
+message TestNestedRepeatedMessage
+{
+	message NestedMessage
+	{
+		uint32 value = 1;
+	}
+
+	repeated NestedMessage message = 1 [(array_size) = 10];
 }

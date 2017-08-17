@@ -28,9 +28,14 @@ namespace application
             *error = "Unsupported field type " + google::protobuf::SimpleItoa(exception.type) + " of field " + exception.fieldName;
             return false;
         }
-        catch (UnspecifiedFieldSize& exception)
+        catch (UnspecifiedStringSize& exception)
         {
-            *error = "Field " + exception.fieldName + " needs a field_size specifying its maximum number of elements";
+            *error = "Field " + exception.fieldName + " needs a string_size specifying its maximum number of characters";
+            return false;
+        }
+        catch (UnspecifiedArraySize& exception)
+        {
+            *error = "Field " + exception.fieldName + " needs an array_size specifying its maximum number of elements";
             return false;
         }
     }
@@ -49,13 +54,13 @@ namespace application
 
     void FieldGeneratorString::GenerateFieldDeclaration()
     {
-        uint32_t fieldSize = descriptor.options().GetExtension(field_size);
-        if (fieldSize == 0)
-            throw UnspecifiedFieldSize{ descriptor.name() };
+        uint32_t stringSize = descriptor.options().GetExtension(string_size);
+        if (stringSize == 0)
+            throw UnspecifiedStringSize{ descriptor.name() };
 
         printer.Print("    infra::BoundedString::WithStorage<$size$> $name$;\n"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
-            , "size", google::protobuf::SimpleItoa(fieldSize));
+            , "size", google::protobuf::SimpleItoa(stringSize));
     }
 
     void FieldGeneratorString::GenerateSerializer()
@@ -75,15 +80,28 @@ namespace application
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
+    void FieldGeneratorString::GenerateConstructorParameter()
+    {
+        printer.Print("infra::BoundedConstString $name$", "name", google::protobuf::compiler::cpp::FieldName(&descriptor));
+    }
+
+    FieldGeneratorRepeatedString::FieldGeneratorRepeatedString(const google::protobuf::FieldDescriptor& descriptor, google::protobuf::io::Printer& printer)
+        : FieldGenerator(descriptor, printer)
+        , stringSize(descriptor.options().GetExtension(string_size))
+        , arraySize(descriptor.options().GetExtension(array_size))
+    {
+        if (stringSize == 0)
+            throw UnspecifiedStringSize{ descriptor.name() };
+        if (arraySize == 0)
+            throw UnspecifiedArraySize{ descriptor.name() };
+    }
+
     void FieldGeneratorRepeatedString::GenerateFieldDeclaration()
     {
-        uint32_t fieldSize = descriptor.options().GetExtension(field_size);
-        if (fieldSize == 0)
-            throw UnspecifiedFieldSize{ descriptor.name() };
-
-        printer.Print("    infra::BoundedVector<infra::BoundedString::WithStorage<$size$>>::WithMaxSize<$size$> $name$;\n"
+        printer.Print("    infra::BoundedVector<infra::BoundedString::WithStorage<$string_size$>>::WithMaxSize<$array_size$> $name$;\n"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
-            , "size", google::protobuf::SimpleItoa(fieldSize));
+            , "string_size", google::protobuf::SimpleItoa(stringSize)
+            , "array_size", google::protobuf::SimpleItoa(arraySize));
     }
 
     void FieldGeneratorRepeatedString::GenerateSerializer()
@@ -104,6 +122,13 @@ namespace application
 )"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
+    }
+
+    void FieldGeneratorRepeatedString::GenerateConstructorParameter()
+    {
+        printer.Print("const infra::BoundedVector<infra::BoundedString::WithStorage<$string_size$>>& $name$"
+            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "string_size", google::protobuf::SimpleItoa(stringSize));
     }
 
     void FieldGeneratorUint32::GenerateFieldDeclaration()
@@ -127,6 +152,11 @@ namespace application
 )"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
+    }
+
+    void FieldGeneratorUint32::GenerateConstructorParameter()
+    {
+        printer.Print("uint32_t $name$", "name", google::protobuf::compiler::cpp::FieldName(&descriptor));
     }
 
     void FieldGeneratorMessage::GenerateFieldDeclaration()
@@ -157,16 +187,23 @@ namespace application
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
+    void FieldGeneratorMessage::GenerateConstructorParameter()
+    {
+        printer.Print("const $type$& $name$"
+            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "type", descriptor.message_type()->name());
+    }
+
     void FieldGeneratorRepeatedMessage::GenerateFieldDeclaration()
     {
-        uint32_t fieldSize = descriptor.options().GetExtension(field_size);
-        if (fieldSize == 0)
-            throw UnspecifiedFieldSize{ descriptor.name() };
+        uint32_t arraySize = descriptor.options().GetExtension(array_size);
+        if (arraySize == 0)
+            throw UnspecifiedArraySize{ descriptor.name() };
 
         printer.Print("    infra::BoundedVector<$type$>::WithMaxSize<$size$> $name$;\n"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "type", descriptor.message_type()->name()
-            , "size", google::protobuf::SimpleItoa(fieldSize));
+            , "size", google::protobuf::SimpleItoa(arraySize));
     }
 
     void FieldGeneratorRepeatedMessage::GenerateSerializer()
@@ -191,6 +228,13 @@ namespace application
 )"
 , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
 , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
+    }
+
+    void FieldGeneratorRepeatedMessage::GenerateConstructorParameter()
+    {
+        printer.Print("const infra::BoundedVector<$type$>& $name$"
+            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "type", descriptor.message_type()->name());
     }
 
     MessageGenerator::MessageGenerator(const google::protobuf::Descriptor& descriptor, google::protobuf::io::Printer& printer)
@@ -263,9 +307,35 @@ namespace application
     {
         printer.Print(R"(class $classname$
 {
-public:
+)", "classname", descriptor.name());
+        if (!messageGenerators.empty())
+        {
+            printer.Print("public:\n");
+            printer.Indent(); printer.Indent();
+
+            for (auto& messageGenerator : messageGenerators)
+                messageGenerator->GenerateForwardDeclaration();
+
+            printer.Outdent(); printer.Outdent();
+        }
+
+        printer.Print(R"(public:
     $classname$() = default;
-    $classname$(services::ProtoParser& parser);
+)", "classname", descriptor.name());
+
+        printer.Print("    $classname$(", "classname", descriptor.name());
+
+        for (auto& fieldGenerator : fieldGenerators)
+        {
+            if (&fieldGenerator != &fieldGenerators.front())
+                printer.Print(", ");
+
+            fieldGenerator->GenerateConstructorParameter();
+        }
+
+        printer.Print(");\n");
+
+        printer.Print(R"(    $classname$(services::ProtoParser& parser);
 
     void Serialize(services::ProtoFormatter& formatter);
     void Deserialize(services::ProtoParser& parser);
@@ -348,6 +418,11 @@ public:
     {
         for (auto& messageGenerator : messageGenerators)
             messageGenerator->GenerateClassImplementation();
+    }
+
+    void MessageGenerator::GenerateForwardDeclaration()
+    {
+        printer.Print("class $classname$;\n", "classname", descriptor.name());
     }
 
     void MessageGenerator::GenerateDeserializerHeader()

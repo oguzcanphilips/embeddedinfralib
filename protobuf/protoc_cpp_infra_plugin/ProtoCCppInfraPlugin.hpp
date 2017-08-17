@@ -13,7 +13,12 @@ namespace application
         google::protobuf::FieldDescriptor::Type type;
     };
 
-    struct UnspecifiedFieldSize
+    struct UnspecifiedStringSize
+    {
+        std::string fieldName;
+    };
+
+    struct UnspecifiedArraySize
     {
         std::string fieldName;
     };
@@ -39,6 +44,7 @@ namespace application
         void GenerateFieldConstant();
         virtual void GenerateSerializer() = 0;
         virtual void GenerateDeserializer() = 0;
+        virtual void GenerateConstructorParameter() = 0;
 
     protected:
         const google::protobuf::FieldDescriptor& descriptor;
@@ -54,17 +60,23 @@ namespace application
         virtual void GenerateFieldDeclaration() override;
         virtual void GenerateSerializer() override;
         virtual void GenerateDeserializer() override;
+        virtual void GenerateConstructorParameter() override;
     };
 
     class FieldGeneratorRepeatedString
         : public FieldGenerator
     {
     public:
-        using FieldGenerator::FieldGenerator;
+        FieldGeneratorRepeatedString(const google::protobuf::FieldDescriptor& descriptor, google::protobuf::io::Printer& printer);
 
         virtual void GenerateFieldDeclaration() override;
         virtual void GenerateSerializer() override;
         virtual void GenerateDeserializer() override;
+        virtual void GenerateConstructorParameter() override;
+
+    private:
+        uint32_t stringSize = 0;
+        uint32_t arraySize = 0;
     };
 
     class FieldGeneratorUint32
@@ -76,6 +88,7 @@ namespace application
         virtual void GenerateFieldDeclaration() override;
         virtual void GenerateSerializer() override;
         virtual void GenerateDeserializer() override;
+        virtual void GenerateConstructorParameter() override;
     };
 
     class FieldGeneratorMessage
@@ -87,6 +100,7 @@ namespace application
         virtual void GenerateFieldDeclaration() override;
         virtual void GenerateSerializer() override;
         virtual void GenerateDeserializer() override;
+        virtual void GenerateConstructorParameter() override;
     };
 
     class FieldGeneratorRepeatedMessage
@@ -98,6 +112,7 @@ namespace application
         virtual void GenerateFieldDeclaration() override;
         virtual void GenerateSerializer() override;
         virtual void GenerateDeserializer() override;
+        virtual void GenerateConstructorParameter() override;
     };
 
     class MessageGenerator
@@ -130,6 +145,7 @@ namespace application
         void GenerateDeserializerFooter();
         void GenerateDeserializerFields();
         void GenerateNestedClassImplementations();
+        void GenerateForwardDeclaration();
         std::string FullClassName() const;
 
     private:

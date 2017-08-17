@@ -77,7 +77,7 @@ TEST(ProtoCCppInfraPluginTest, deserialize_uint32)
 
 TEST(ProtoCCppInfraPluginTest, serialize_message)
 {
-    test_messages::TestNestedMessage message;
+    test_messages::TestMessageWithMessageField message;
     message.message.value = 5;
 
     infra::ByteOutputStream::WithStorage<100> stream;
@@ -93,6 +93,51 @@ TEST(ProtoCCppInfraPluginTest, deserialize_message)
     infra::ByteInputStream stream(data);
     services::ProtoParser parser(stream);
 
+    test_messages::TestMessageWithMessageField message(parser);
+    EXPECT_EQ(5, message.message.value);
+}
+
+TEST(ProtoCCppInfraPluginTest, serialize_nested_message)
+{
+    test_messages::TestNestedMessage message;
+    message.message.value = 5;
+
+    infra::ByteOutputStream::WithStorage<100> stream;
+    services::ProtoFormatter formatter(stream);
+    message.Serialize(formatter);
+
+    EXPECT_EQ((std::array<uint8_t, 4>{ (1 << 3) | 2, 2, 1 << 3, 5 }), stream.Writer().Processed());
+}
+
+TEST(ProtoCCppInfraPluginTest, deserialize_nested_message)
+{
+    std::array<uint8_t, 4> data{ (1 << 3) | 2, 2, 1 << 3, 5 };
+    infra::ByteInputStream stream(data);
+    services::ProtoParser parser(stream);
+
     test_messages::TestNestedMessage message(parser);
     EXPECT_EQ(5, message.message.value);
+}
+
+TEST(ProtoCCppInfraPluginTest, serialize_nested_repeated_message)
+{
+    test_messages::TestNestedRepeatedMessage message;
+    message.message.push_back(test_messages::TestNestedRepeatedMessage::NestedMessage());
+    message.message[0].value = 5;
+
+    infra::ByteOutputStream::WithStorage<100> stream;
+    services::ProtoFormatter formatter(stream);
+    message.Serialize(formatter);
+
+    EXPECT_EQ((std::array<uint8_t, 4>{ (1 << 3) | 2, 2, 1 << 3, 5 }), stream.Writer().Processed());
+}
+
+TEST(ProtoCCppInfraPluginTest, deserialize_nested_repeated_message)
+{
+    std::array<uint8_t, 4> data{ (1 << 3) | 2, 2, 1 << 3, 5 };
+    infra::ByteInputStream stream(data);
+    services::ProtoParser parser(stream);
+
+    test_messages::TestNestedRepeatedMessage message(parser);
+    EXPECT_EQ(5, message.message[0].value);
 }
