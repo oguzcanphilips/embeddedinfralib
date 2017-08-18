@@ -519,29 +519,29 @@ $hash$include "protobuf/protobuf_cpp_infra/ProtoParser.hpp")"
 
     void CppInfraGenerator::GenerateNamespaceOpeners()
     {
-        std::vector<std::string> package_parts_ = google::protobuf::Split(file->package(), ".", true);
+        std::vector<std::string> packageParts = google::protobuf::Split(file->package(), ".", true);
 
-        if (!package_parts_.empty())
+        if (!packageParts.empty())
             printer.Print("\n");
 
-        for (std::size_t i = 0; i != package_parts_.size(); ++i)
+        for (std::size_t i = 0; i != packageParts.size(); ++i)
         {
-            printer.Print("namespace $part$\n{\n", "part", package_parts_[i]);
+            printer.Print("namespace $part$\n{\n", "part", packageParts[i]);
             printer.Indent(); printer.Indent();
         }
     }
 
     void CppInfraGenerator::GenerateNamespaceClosers()
     {
-        std::vector<std::string> package_parts_ = google::protobuf::Split(file->package(), ".", true);
+        std::vector<std::string> packageParts = google::protobuf::Split(file->package(), ".", true);
 
-        for (std::size_t i = 0; i != package_parts_.size(); ++i)
+        for (std::size_t i = 0; i != packageParts.size(); ++i)
         {
             printer.Outdent(); printer.Outdent();
-            printer.Print("}\n", "part", package_parts_[i]);
+            printer.Print("}\n", "part", packageParts[i]);
         }
 
-        if (!package_parts_.empty())
+        if (!packageParts.empty())
             printer.Print("\n");
     }
 
