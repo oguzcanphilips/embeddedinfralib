@@ -501,6 +501,11 @@ namespace infra
         return stream;
     }
 
+    infra::TextOutputStream& operator<<(infra::TextOutputStream&& stream, const AsBase64Helper& asBase64Helper)
+    {
+        return stream << asBase64Helper;
+    }
+
     AsAsciiHelper AsAscii(infra::ConstByteRange data)
     {
         return AsAsciiHelper(data);

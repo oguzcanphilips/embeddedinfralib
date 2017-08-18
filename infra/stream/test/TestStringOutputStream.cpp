@@ -357,6 +357,10 @@ TEST(StringOutputStreamTest, stream_byte_range_as_base64)
     infra::StringOutputStream::WithStorage<64> stream4;
     stream4 << infra::AsBase64(std::array<uint8_t, 4>{ 'a', 'b', 'c', 'd' });
     EXPECT_EQ("YWJjZA==", stream4.Storage());
+
+    infra::StringOutputStream::WithStorage<64> stream5;
+    stream5 << infra::data << infra::text << infra::AsBase64(std::array<uint8_t, 1>{ 'a' });
+    EXPECT_EQ("YQ==", stream5.Storage());
 }
 
 TEST(StringOutputStreamTest, reserve_type)

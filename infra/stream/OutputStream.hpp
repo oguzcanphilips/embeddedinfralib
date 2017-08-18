@@ -230,6 +230,7 @@ namespace infra
         explicit AsBase64Helper(infra::ConstByteRange data);
 
         friend infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const AsBase64Helper& asBase64Helper);
+        friend infra::TextOutputStream& operator<<(infra::TextOutputStream&& stream, const AsBase64Helper& asBase64Helper);
 
     private:
         infra::ConstByteRange data;
