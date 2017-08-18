@@ -36,6 +36,8 @@ namespace infra
         BoundedVector(const BoundedVector& other) = delete;
         explicit BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage);
         BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, size_type n, const value_type& value = value_type());
+        BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, infra::MemoryRange<typename std::remove_const<T>::type> initData);
+        BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, infra::MemoryRange<const T> initData);
         template<class InputIterator>
             BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, InputIterator first, InputIterator last);
         BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, std::initializer_list<T> initializerList);
@@ -84,6 +86,8 @@ namespace infra
         const value_type* data() const;
 
     public:
+        void assign(infra::MemoryRange<typename std::remove_const<T>::type> initData);
+        void assign(infra::MemoryRange<const T> initData);
         template<class InputIterator>
             void assign(InputIterator first, InputIterator last);
         void assign(size_type n, const value_type& value);
@@ -145,6 +149,20 @@ namespace infra
         : storage(storage)
     {
         resize(n, value);
+    }
+
+    template<class T>
+    BoundedVector<T>::BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, infra::MemoryRange<typename std::remove_const<T>::type> initData)
+        : storage(storage)
+    {
+        assign(initData);
+    }
+
+    template<class T>
+    BoundedVector<T>::BoundedVector(infra::MemoryRange<infra::StaticStorage<T>> storage, infra::MemoryRange<const T> initData)
+        : storage(storage)
+    {
+        assign(initData);
     }
 
     template<class T>
@@ -389,6 +407,18 @@ namespace infra
     const typename BoundedVector<T>::value_type* BoundedVector<T>::data() const
     {
         return begin();
+    }
+
+    template<class T>
+    void BoundedVector<T>::assign(infra::MemoryRange<typename std::remove_const<T>::type> initData)
+    {
+        assign(initData.begin(), initData.end());
+    }
+
+    template<class T>
+    void BoundedVector<T>::assign(infra::MemoryRange<const T> initData)
+    {
+        assign(initData.begin(), initData.end());
     }
 
     template<class T>

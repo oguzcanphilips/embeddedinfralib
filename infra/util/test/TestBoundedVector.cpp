@@ -38,6 +38,30 @@ TEST(BoundedVectorTest, TestConstructionWithRange)
     EXPECT_EQ(2, vector[2]);
 }
 
+TEST(BoundedVectorTest, TestConstructionWithMemoryRange)
+{
+    std::array<int, 3> data = { { 0, 1, 2 } };
+    infra::BoundedVector<int>::WithMaxSize<5> vector(infra::MakeRange(data));
+
+    EXPECT_EQ(3, vector.size());
+
+    EXPECT_EQ(0, vector[0]);
+    EXPECT_EQ(1, vector[1]);
+    EXPECT_EQ(2, vector[2]);
+}
+
+TEST(BoundedVectorTest, TestConstructionWithConstMemoryRange)
+{
+    const std::array<int, 3> data = { { 0, 1, 2 } };
+    infra::BoundedVector<int>::WithMaxSize<5> vector(infra::MakeRange(data));
+
+    EXPECT_EQ(3, vector.size());
+
+    EXPECT_EQ(0, vector[0]);
+    EXPECT_EQ(1, vector[1]);
+    EXPECT_EQ(2, vector[2]);
+}
+
 TEST(BoundedVectorTest, TestConstructionWithInitializerList)
 {
     int range[3] = { 0, 1, 2 };

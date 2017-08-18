@@ -295,7 +295,7 @@ namespace infra
     template<class T, std::size_t N>
     MemoryRange<const T> MakeRange(const std::array<T, N>& container)
     {
-        return MemoryRange<const T>(container.begin(), container.end());
+        return MemoryRange<const T>(container.data(), container.data() + container.size());
     }
 
     template<class T>
