@@ -26,12 +26,15 @@ namespace application
         : public Entity
     {
     public:
+        explicit Entities(bool insertNewlineBetweenEntities);
+
         void Add(std::unique_ptr<Entity>&& newEntity);
 
         virtual void PrintHeader(google::protobuf::io::Printer& printer) const override;
         virtual void PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const override;
 
     private:
+        bool insertNewlineBetweenEntities;
         std::vector<std::unique_ptr<Entity>> entities;
     };
 

@@ -36,7 +36,7 @@ public:
 
 TEST_F(CppFormatterTest, empty_Entities_prints_nothing)
 {
-    application::Entities entities;
+    application::Entities entities(false);
     entities.PrintHeader(*printer);
     entities.PrintSource(*printer, "scope::");
     ExpectPrinted("");
@@ -44,7 +44,7 @@ TEST_F(CppFormatterTest, empty_Entities_prints_nothing)
 
 TEST_F(CppFormatterTest, Entities_prints_header_of_one_entity)
 {
-    application::Entities entities;
+    application::Entities entities(false);
     std::unique_ptr<EntityMock> entity(std::make_unique<EntityMock>());
     EXPECT_CALL(*entity, PrintHeader(testing::Ref(*printer)));
     entities.Add(std::move(entity));
@@ -53,16 +53,30 @@ TEST_F(CppFormatterTest, Entities_prints_header_of_one_entity)
 
 TEST_F(CppFormatterTest, Entities_prints_source_of_one_entity)
 {
-    application::Entities entities;
+    application::Entities entities(false);
     std::unique_ptr<EntityMock> entity(std::make_unique<EntityMock>());
     EXPECT_CALL(*entity, PrintSource(testing::Ref(*printer), "scope::"));
     entities.Add(std::move(entity));
     entities.PrintSource(*printer, "scope::");
 }
 
-TEST_F(CppFormatterTest, multiple_entities_in_header_are_separated_with_a_newline)
+TEST_F(CppFormatterTest, multiple_entities_in_header)
 {
-    application::Entities entities;
+    application::Entities entities(false);
+    std::unique_ptr<EntityMock> entity1(std::make_unique<EntityMock>());
+    EXPECT_CALL(*entity1, PrintHeader(testing::Ref(*printer))).WillOnce(infra::Lambda([](google::protobuf::io::Printer& printer) { printer.Print("a"); }));
+    entities.Add(std::move(entity1));
+    std::unique_ptr<EntityMock> entity2(std::make_unique<EntityMock>());
+    EXPECT_CALL(*entity2, PrintHeader(testing::Ref(*printer))).WillOnce(infra::Lambda([](google::protobuf::io::Printer& printer) { printer.Print("b"); }));
+    entities.Add(std::move(entity2));
+    entities.PrintHeader(*printer);
+
+    ExpectPrinted("ab");
+}
+
+TEST_F(CppFormatterTest, multiple_entities_in_header_separated_by_newline)
+{
+    application::Entities entities(true);
     std::unique_ptr<EntityMock> entity1(std::make_unique<EntityMock>());
     EXPECT_CALL(*entity1, PrintHeader(testing::Ref(*printer))).WillOnce(infra::Lambda([](google::protobuf::io::Printer& printer) { printer.Print("a"); }));
     entities.Add(std::move(entity1));
@@ -74,9 +88,23 @@ TEST_F(CppFormatterTest, multiple_entities_in_header_are_separated_with_a_newlin
     ExpectPrinted("a\nb");
 }
 
-TEST_F(CppFormatterTest, multiple_entities_in_source_are_separated_with_a_newline)
+TEST_F(CppFormatterTest, multiple_entities_in_source)
 {
-    application::Entities entities;
+    application::Entities entities(false);
+    std::unique_ptr<EntityMock> entity1(std::make_unique<EntityMock>());
+    EXPECT_CALL(*entity1, PrintSource(testing::Ref(*printer), "scope::")).WillOnce(infra::Lambda([](google::protobuf::io::Printer& printer, const std::string& scope) { printer.Print("a"); }));
+    entities.Add(std::move(entity1));
+    std::unique_ptr<EntityMock> entity2(std::make_unique<EntityMock>());
+    EXPECT_CALL(*entity2, PrintSource(testing::Ref(*printer), "scope::")).WillOnce(infra::Lambda([](google::protobuf::io::Printer& printer, const std::string& scope) { printer.Print("b"); }));
+    entities.Add(std::move(entity2));
+    entities.PrintSource(*printer, "scope::");
+
+    ExpectPrinted("ab");
+}
+
+TEST_F(CppFormatterTest, multiple_entities_in_source_separated_with_a_newline)
+{
+    application::Entities entities(true);
     std::unique_ptr<EntityMock> entity1(std::make_unique<EntityMock>());
     EXPECT_CALL(*entity1, PrintSource(testing::Ref(*printer), "scope::")).WillOnce(infra::Lambda([](google::protobuf::io::Printer& printer, const std::string& scope) { printer.Print("a"); }));
     entities.Add(std::move(entity1));
@@ -138,6 +166,7 @@ TEST_F(CppFormatterTest, Class_prints_nested_entities_in_source_separated_by_new
 TEST_F(CppFormatterTest, Access_prints_level_in_header)
 {
     application::Access access("public");
+    printer->Indent();
     access.PrintHeader(*printer);
     ExpectPrinted("public:\n");
 }
@@ -148,8 +177,9 @@ TEST_F(CppFormatterTest, Access_prints_nested_entities_in_header)
     std::unique_ptr<EntityMock> entity1(std::make_unique<EntityMock>());
     EXPECT_CALL(*entity1, PrintHeader(testing::Ref(*printer))).WillOnce(infra::Lambda([](google::protobuf::io::Printer& printer) { printer.Print("a"); }));
     access.Add(std::move(entity1));
+    printer->Indent();
     access.PrintHeader(*printer);
-    ExpectPrinted("public:\na");
+    ExpectPrinted("public:\n    a");
 }
 
 TEST_F(CppFormatterTest, Access_prints_nested_entities_in_source)
@@ -243,6 +273,15 @@ TEST_F(CppFormatterTest, Function_prints_source)
 )");
 }
 
+TEST_F(CppFormatterTest, Function_prints_source_with_empty_body)
+{
+    application::Function function("name", "", "result", 0);
+    function.PrintSource(*printer, "scope::");
+    ExpectPrinted(R"(result scope::name()
+{}
+)");
+}
+
 TEST_F(CppFormatterTest, const_Function_prints_source)
 {
     application::Function function("name", "body\n", "result", application::Function::fConst);
@@ -312,6 +351,15 @@ TEST_F(CppFormatterTest, Constructor_prints_source)
 {
     body
 }
+)");
+}
+
+TEST_F(CppFormatterTest, Constructor_prints_source_with_empty_body)
+{
+    application::Constructor constructor("name", "", 0);
+    constructor.PrintSource(*printer, "scope::");
+    ExpectPrinted(R"(scope::name()
+{}
 )");
 }
 

@@ -4,6 +4,7 @@
 #include "google/protobuf/compiler/code_generator.h"
 #include "google/protobuf/io/printer.h"
 #include "google/protobuf/descriptor.h"
+#include "protobuf/protoc_cpp_infra_plugin/CppFormatter.hpp"
 
 namespace application
 {
@@ -34,21 +35,20 @@ namespace application
     class FieldGenerator
     {
     public:
-        FieldGenerator(const google::protobuf::FieldDescriptor& descriptor, google::protobuf::io::Printer& printer);
+        FieldGenerator(const google::protobuf::FieldDescriptor& descriptor);
         FieldGenerator(const FieldGenerator& other) = delete;
         FieldGenerator& operator=(const FieldGenerator& other) = delete;
         virtual ~FieldGenerator() = default;
 
     public:
-        virtual void GenerateFieldDeclaration() = 0;
-        void GenerateFieldConstant();
-        virtual void GenerateSerializer() = 0;
-        virtual void GenerateDeserializer() = 0;
-        virtual void GenerateConstructorParameter() = 0;
+        virtual void GenerateFieldDeclaration(Entities& formatter) = 0;
+        void GenerateFieldConstant(Entities& formatter);
+        virtual void SerializerBody(google::protobuf::io::Printer& printer) = 0;
+        virtual void DeserializerBody(google::protobuf::io::Printer& printer) = 0;
+        virtual void GenerateConstructorParameter(Constructor& constructor) = 0;
 
     protected:
         const google::protobuf::FieldDescriptor& descriptor;
-        google::protobuf::io::Printer& printer;                                                                         //TICS !INT#002
     };
 
     class FieldGeneratorString
@@ -57,22 +57,22 @@ namespace application
     public:
         using FieldGenerator::FieldGenerator;
 
-        virtual void GenerateFieldDeclaration() override;
-        virtual void GenerateSerializer() override;
-        virtual void GenerateDeserializer() override;
-        virtual void GenerateConstructorParameter() override;
+        virtual void GenerateFieldDeclaration(Entities& formatter) override;
+        virtual void SerializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void DeserializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void GenerateConstructorParameter(Constructor& constructor) override;
     };
 
     class FieldGeneratorRepeatedString
         : public FieldGenerator
     {
     public:
-        FieldGeneratorRepeatedString(const google::protobuf::FieldDescriptor& descriptor, google::protobuf::io::Printer& printer);
+        FieldGeneratorRepeatedString(const google::protobuf::FieldDescriptor& descriptor);
 
-        virtual void GenerateFieldDeclaration() override;
-        virtual void GenerateSerializer() override;
-        virtual void GenerateDeserializer() override;
-        virtual void GenerateConstructorParameter() override;
+        virtual void GenerateFieldDeclaration(Entities& formatter) override;
+        virtual void SerializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void DeserializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void GenerateConstructorParameter(Constructor& constructor) override;
 
     private:
         uint32_t stringSize = 0;
@@ -85,10 +85,10 @@ namespace application
     public:
         using FieldGenerator::FieldGenerator;
 
-        virtual void GenerateFieldDeclaration() override;
-        virtual void GenerateSerializer() override;
-        virtual void GenerateDeserializer() override;
-        virtual void GenerateConstructorParameter() override;
+        virtual void GenerateFieldDeclaration(Entities& formatter) override;
+        virtual void SerializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void DeserializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void GenerateConstructorParameter(Constructor& constructor) override;
     };
 
     class FieldGeneratorMessage
@@ -97,10 +97,10 @@ namespace application
     public:
         using FieldGenerator::FieldGenerator;
 
-        virtual void GenerateFieldDeclaration() override;
-        virtual void GenerateSerializer() override;
-        virtual void GenerateDeserializer() override;
-        virtual void GenerateConstructorParameter() override;
+        virtual void GenerateFieldDeclaration(Entities& formatter) override;
+        virtual void SerializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void DeserializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void GenerateConstructorParameter(Constructor& constructor) override;
     };
 
     class FieldGeneratorRepeatedMessage
@@ -109,48 +109,35 @@ namespace application
     public:
         using FieldGenerator::FieldGenerator;
 
-        virtual void GenerateFieldDeclaration() override;
-        virtual void GenerateSerializer() override;
-        virtual void GenerateDeserializer() override;
-        virtual void GenerateConstructorParameter() override;
+        virtual void GenerateFieldDeclaration(Entities& formatter) override;
+        virtual void SerializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void DeserializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void GenerateConstructorParameter(Constructor& constructor) override;
     };
 
     class MessageGenerator
     {
     public:
-        MessageGenerator(const google::protobuf::Descriptor& descriptor, google::protobuf::io::Printer& printer);
+        MessageGenerator(const google::protobuf::Descriptor& descriptor, Entities& formatter);
         MessageGenerator(const MessageGenerator& other) = delete;
         MessageGenerator& operator=(const MessageGenerator& other) = delete;
         ~MessageGenerator() = default;
 
-    public:
-        void GenerateClassDefinition();
-        void GenerateClassImplementation();
-
     private:
         void CreateFieldGenerators();
         void CreateFieldGenerator(const google::protobuf::FieldDescriptor& fieldDescriptor);
-        void GenerateClassHeader();
-        void GenerateClassFooter();
-        void GenerateNestedMessageHeader();
-        void GenerateFields();
+        void GenerateConstructors();
+        void GenerateFunctions();
+        void GenerateNestedMessageForwardDeclarations();
+        void GenerateNestedMessages();
+        void GenerateFieldDeclarations();
         void GenerateFieldConstants();
-        void GenerateConstructorImplementations();
-        void GenerateSerializer();
-        void GenerateSerializerHeader();
-        void GenerateSerializerFooter();
-        void GenerateSerializerFields();
-        void GenerateDeserializer();
-        void GenerateDeserializerHeader();
-        void GenerateDeserializerFooter();
-        void GenerateDeserializerFields();
-        void GenerateNestedClassImplementations();
-        void GenerateForwardDeclaration();
-        std::string FullClassName() const;
+        std::string SerializerBody();
+        std::string DeserializerBody();
 
     private:
         const google::protobuf::Descriptor& descriptor;
-        google::protobuf::io::Printer& printer;
+        Class* classFormatter;
         std::vector<std::unique_ptr<MessageGenerator>> messageGenerators;
         std::vector<std::unique_ptr<FieldGenerator>> fieldGenerators;
     };
@@ -170,15 +157,11 @@ namespace application
     private:
         void GenerateTopHeaderGuard();
         void GenerateBottomHeaderGuard();
-        void GenerateNamespaceOpeners();
-        void GenerateNamespaceClosers();
-        void GenerateMessageClassDefinitions();
-        void GenerateMessageClassImplementations();
-        void GenerateSourceIncludes();
 
     private:
         google::protobuf::scoped_ptr<google::protobuf::io::ZeroCopyOutputStream> stream;
         google::protobuf::io::Printer printer;
+        Entities formatter;
         const google::protobuf::FileDescriptor* file;
 
         std::vector<std::unique_ptr<MessageGenerator>> messageGenerators;

@@ -33,6 +33,10 @@ namespace application
         }
     }
 
+    Entities::Entities(bool insertNewlineBetweenEntities)
+        : insertNewlineBetweenEntities(insertNewlineBetweenEntities)
+    {}
+
     void Entities::Add(std::unique_ptr<Entity>&& newEntity)
     {
         entities.push_back(std::move(newEntity));
@@ -40,16 +44,25 @@ namespace application
 
     void Entities::PrintHeader(google::protobuf::io::Printer& printer) const
     {
-        ForEach(entities, [&printer](const std::unique_ptr<Entity>& entity) { entity->PrintHeader(printer); }, [&printer]() { printer.Print("\n"); });
+        if (insertNewlineBetweenEntities)
+            ForEach(entities, [&printer](const std::unique_ptr<Entity>& entity) { entity->PrintHeader(printer); }, [&printer]() { printer.Print("\n"); });
+        else
+            for (auto& entity : entities)
+                entity->PrintHeader(printer);
     }
 
     void Entities::PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const
     {
-        ForEach(entities, [&printer, &scope](const std::unique_ptr<Entity>& entity) { entity->PrintSource(printer, scope); }, [&printer]() { printer.Print("\n"); });
+        if (insertNewlineBetweenEntities)
+            ForEach(entities, [&printer, &scope](const std::unique_ptr<Entity>& entity) { entity->PrintSource(printer, scope); }, [&printer]() { printer.Print("\n"); });
+        else
+            for (auto& entity : entities)
+                entity->PrintSource(printer, scope);
     }
 
     Class::Class(const std::string& name)
-        : name(name)
+        : Entities(true)
+        , name(name)
     {}
 
     void Class::PrintHeader(google::protobuf::io::Printer& printer) const
@@ -70,17 +83,21 @@ namespace application
     }
 
     Access::Access(const std::string& level)
-        : level(level)
+        : Entities(false)
+        , level(level)
     {}
 
     void Access::PrintHeader(google::protobuf::io::Printer& printer) const
     {
+        printer.Outdent();
         printer.Print("$level$:\n", "level", level);
+        printer.Indent();
         Entities::PrintHeader(printer);
     }
 
     Namespace::Namespace(const std::string& name)
-        : name(name)
+        : Entities(true)
+        , name(name)
     {}
 
     void Namespace::PrintHeader(google::protobuf::io::Printer& printer) const
@@ -127,16 +144,23 @@ namespace application
 
     void Function::PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const
     {
-        printer.Print(R"($result$ $scope$$name$($parameters$)$const$
-{
-    $body$}
-)"
+        printer.Print("$result$ $scope$$name$($parameters$)$const$\n"
             , "result", result
             , "scope", scope
             , "name", name
             , "parameters", Parameters()
-            , "const", (flags & fConst) != 0 ? " const" : ""
-            , "body", body);
+            , "const", (flags & fConst) != 0 ? " const" : "");
+
+        if (body.empty())
+            printer.Print("{}\n");
+        else
+        {
+            printer.Print("{\n");
+            printer.Indent();
+            printer.PrintRaw(body);
+            printer.Outdent();
+            printer.Print("}\n");
+        }
     }
 
     std::string Function::Parameters() const
@@ -185,10 +209,16 @@ namespace application
             PrintInitializers(printer);
             printer.Outdent();
         
-            printer.Print(R"({
-    $body$}
-)"
-                , "body", body);
+            if (body.empty())
+                printer.Print("{}\n");
+            else
+            {
+                printer.Print("{\n");
+                printer.Indent();
+                printer.PrintRaw(body);
+                printer.Outdent();
+                printer.Print("}\n");
+            }
         };
     }
 
