@@ -562,9 +562,3 @@ $hash$include "protobuf/protobuf_cpp_infra/ProtoParser.hpp")"
         printer.Print(R"(#include "generated/proto_cpp_infra/$name$.pb.hpp")""\n", "name", google::protobuf::compiler::cpp::StripProto(file->name()));
     }
 }
-
-int main(int argc, char* argv[])
-{
-    application::CppInfraCodeGenerator generator;
-    return google::protobuf::compiler::PluginMain(argc, argv, &generator);
-}
