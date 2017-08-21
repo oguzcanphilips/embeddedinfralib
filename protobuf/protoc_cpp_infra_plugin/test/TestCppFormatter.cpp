@@ -88,23 +88,9 @@ TEST_F(CppFormatterTest, multiple_entities_in_header_separated_by_newline)
     ExpectPrinted("a\nb");
 }
 
-TEST_F(CppFormatterTest, multiple_entities_in_source)
-{
-    application::Entities entities(false);
-    std::unique_ptr<EntityMock> entity1(std::make_unique<EntityMock>());
-    EXPECT_CALL(*entity1, PrintSource(testing::Ref(*printer), "scope::")).WillOnce(infra::Lambda([](google::protobuf::io::Printer& printer, const std::string& scope) { printer.Print("a"); }));
-    entities.Add(std::move(entity1));
-    std::unique_ptr<EntityMock> entity2(std::make_unique<EntityMock>());
-    EXPECT_CALL(*entity2, PrintSource(testing::Ref(*printer), "scope::")).WillOnce(infra::Lambda([](google::protobuf::io::Printer& printer, const std::string& scope) { printer.Print("b"); }));
-    entities.Add(std::move(entity2));
-    entities.PrintSource(*printer, "scope::");
-
-    ExpectPrinted("ab");
-}
-
 TEST_F(CppFormatterTest, multiple_entities_in_source_separated_with_a_newline)
 {
-    application::Entities entities(true);
+    application::Entities entities(false);
     std::unique_ptr<EntityMock> entity1(std::make_unique<EntityMock>());
     EXPECT_CALL(*entity1, PrintSource(testing::Ref(*printer), "scope::")).WillOnce(infra::Lambda([](google::protobuf::io::Printer& printer, const std::string& scope) { printer.Print("a"); }));
     entities.Add(std::move(entity1));
@@ -448,31 +434,35 @@ TEST_F(CppFormatterTest, DataMember_prints_nothing_in_source)
     ExpectPrinted("");
 }
 
-TEST_F(CppFormatterTest, IncludeByHeader_prints_header)
+TEST_F(CppFormatterTest, IncludesByHeader_prints_header)
 {
-    application::IncludeByHeader include("path");
+    application::IncludesByHeader include;
+    include.Path("path");
     include.PrintHeader(*printer);
     ExpectPrinted(R"(#include "path"
 )");
 }
 
-TEST_F(CppFormatterTest, IncludeByHeader_prints_no_source)
+TEST_F(CppFormatterTest, IncludesByHeader_prints_no_source)
 {
-    application::IncludeByHeader include("path");
+    application::IncludesByHeader include;;
+    include.Path("path");
     include.PrintSource(*printer, "scope");
     ExpectPrinted("");
 }
 
-TEST_F(CppFormatterTest, IncludeBySource_prints_no_header)
+TEST_F(CppFormatterTest, IncludesBySource_prints_no_header)
 {
-    application::IncludeBySource include("path");
+    application::IncludesBySource include;
+    include.Path("path");
     include.PrintHeader(*printer);
     ExpectPrinted("");
 }
 
-TEST_F(CppFormatterTest, IncludeBySource_prints_source)
+TEST_F(CppFormatterTest, IncludesBySource_prints_source)
 {
-    application::IncludeBySource include("path");
+    application::IncludesBySource include;
+    include.Path("path");
     include.PrintSource(*printer, "scope");
     ExpectPrinted(R"(#include "path"
 )");

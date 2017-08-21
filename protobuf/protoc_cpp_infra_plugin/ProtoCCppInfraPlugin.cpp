@@ -48,7 +48,7 @@ namespace application
 
     void FieldGenerator::GenerateFieldConstant(Entities& entities)
     {
-        entities.Add(std::make_unique<DataMember>(google::protobuf::compiler::cpp::FieldConstantName(&descriptor) + " = " + google::protobuf::SimpleItoa(descriptor.number()), "static const uint32_t"));
+        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldConstantName(&descriptor) + " = " + google::protobuf::SimpleItoa(descriptor.number()), "static const uint32_t"));
     }
 
     void FieldGeneratorString::GenerateFieldDeclaration(Entities& entities)
@@ -57,7 +57,7 @@ namespace application
         if (stringSize == 0)
             throw UnspecifiedStringSize{ descriptor.name() };
 
-        entities.Add(std::make_unique<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), "infra::BoundedString::WithStorage<" + google::protobuf::SimpleItoa(stringSize) + ">"));
+        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), "infra::BoundedString::WithStorage<" + google::protobuf::SimpleItoa(stringSize) + ">"));
     }
 
     void FieldGeneratorString::SerializerBody(google::protobuf::io::Printer& printer)
@@ -95,7 +95,7 @@ namespace application
 
     void FieldGeneratorRepeatedString::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_unique<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor)
+        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "infra::BoundedVector<infra::BoundedString::WithStorage<" + google::protobuf::SimpleItoa(stringSize) + ">>::WithMaxSize<" + google::protobuf::SimpleItoa(arraySize) + ">"));
     }
 
@@ -126,7 +126,7 @@ namespace application
 
     void FieldGeneratorUint32::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_unique<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), "uint32_t"));
+        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), "uint32_t"));
     }
 
     void FieldGeneratorUint32::SerializerBody(google::protobuf::io::Printer& printer)
@@ -153,7 +153,7 @@ namespace application
 
     void FieldGeneratorMessage::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_unique<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), descriptor.message_type()->name()));
+        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), descriptor.message_type()->name()));
     }
 
     void FieldGeneratorMessage::SerializerBody(google::protobuf::io::Printer& printer)
@@ -188,7 +188,7 @@ namespace application
         if (arraySize == 0)
             throw UnspecifiedArraySize{ descriptor.name() };
 
-        entities.Add(std::make_unique<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor)
+        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "infra::BoundedVector<" + descriptor.message_type()->name() + ">::WithMaxSize<" + google::protobuf::SimpleItoa(arraySize) + ">"));
     }
 
@@ -224,7 +224,7 @@ namespace application
     MessageGenerator::MessageGenerator(const google::protobuf::Descriptor& descriptor, Entities& formatter)
         : descriptor(descriptor)
     {
-        auto class_ = std::make_unique<Class>(descriptor.name());
+        auto class_ = std::make_shared<Class>(descriptor.name());
         classFormatter = class_.get();
         formatter.Add(std::move(class_));
 
@@ -249,10 +249,10 @@ namespace application
             switch (fieldDescriptor.type())
             {
                 case google::protobuf::FieldDescriptor::TYPE_STRING:
-                    fieldGenerators.emplace_back(std::make_unique<FieldGeneratorRepeatedString>(fieldDescriptor));
+                    fieldGenerators.emplace_back(std::make_shared<FieldGeneratorRepeatedString>(fieldDescriptor));
                     break;
                 case google::protobuf::FieldDescriptor::TYPE_MESSAGE:
-                    fieldGenerators.emplace_back(std::make_unique<FieldGeneratorRepeatedMessage>(fieldDescriptor));
+                    fieldGenerators.emplace_back(std::make_shared<FieldGeneratorRepeatedMessage>(fieldDescriptor));
                     break;
                 default:
                     throw UnsupportedFieldType{ fieldDescriptor.name(), fieldDescriptor.type() };
@@ -261,13 +261,13 @@ namespace application
             switch (fieldDescriptor.type())
             {
                 case google::protobuf::FieldDescriptor::TYPE_STRING:
-                    fieldGenerators.emplace_back(std::make_unique<FieldGeneratorString>(fieldDescriptor));
+                    fieldGenerators.emplace_back(std::make_shared<FieldGeneratorString>(fieldDescriptor));
                     break;
                 case google::protobuf::FieldDescriptor::TYPE_MESSAGE:
-                    fieldGenerators.emplace_back(std::make_unique<FieldGeneratorMessage>(fieldDescriptor));
+                    fieldGenerators.emplace_back(std::make_shared<FieldGeneratorMessage>(fieldDescriptor));
                     break;
                 case google::protobuf::FieldDescriptor::TYPE_UINT32:
-                    fieldGenerators.emplace_back(std::make_unique<FieldGeneratorUint32>(fieldDescriptor));
+                    fieldGenerators.emplace_back(std::make_shared<FieldGeneratorUint32>(fieldDescriptor));
                     break;
                 default:
                     throw UnsupportedFieldType{ fieldDescriptor.name(), fieldDescriptor.type() };
@@ -276,15 +276,15 @@ namespace application
 
     void MessageGenerator::GenerateConstructors()
     {
-        auto constructors = std::make_unique<Access>("public");
-        constructors->Add(std::make_unique<Constructor>(descriptor.name(), "", Constructor::cDefault));
+        auto constructors = std::make_shared<Access>("public");
+        constructors->Add(std::make_shared<Constructor>(descriptor.name(), "", Constructor::cDefault));
 
-        auto constructByMembers = std::make_unique<Constructor>(descriptor.name(), "", 0);
+        auto constructByMembers = std::make_shared<Constructor>(descriptor.name(), "", 0);
         for (auto& fieldGenerator : fieldGenerators)
             fieldGenerator->GenerateConstructorParameter(*constructByMembers);
         constructors->Add(std::move(constructByMembers));
 
-        auto constructByProtoParser = std::make_unique<Constructor>(descriptor.name(), "Deserialize(parser);\n", 0);
+        auto constructByProtoParser = std::make_shared<Constructor>(descriptor.name(), "Deserialize(parser);\n", 0);
         constructByProtoParser->Parameter("services::ProtoParser& parser");
         constructors->Add(std::move(constructByProtoParser));
         classFormatter->Add(std::move(constructors));
@@ -292,12 +292,12 @@ namespace application
 
     void MessageGenerator::GenerateFunctions()
     {
-        auto functions = std::make_unique<Access>("public");
-        auto serialize = std::make_unique<Function>("Serialize", SerializerBody(), "void", 0);
+        auto functions = std::make_shared<Access>("public");
+        auto serialize = std::make_shared<Function>("Serialize", SerializerBody(), "void", 0);
         serialize->Parameter("services::ProtoFormatter& formatter");
         functions->Add(std::move(serialize));
 
-        auto deserialize = std::make_unique<Function>("Deserialize", DeserializerBody(), "void", 0);
+        auto deserialize = std::make_shared<Function>("Deserialize", DeserializerBody(), "void", 0);
         deserialize->Parameter("services::ProtoParser& parser");
         functions->Add(std::move(deserialize));
         classFormatter->Add(std::move(functions));
@@ -307,10 +307,10 @@ namespace application
     {
         if (descriptor.nested_type_count() != 0)
         {
-            auto forwardDeclarations = std::make_unique<Access>("public");
+            auto forwardDeclarations = std::make_shared<Access>("public");
 
             for (int i = 0; i != descriptor.nested_type_count(); ++i)
-                forwardDeclarations->Add(std::make_unique<ClassForwardDeclaration>(descriptor.nested_type(i)->name()));
+                forwardDeclarations->Add(std::make_shared<ClassForwardDeclaration>(descriptor.nested_type(i)->name()));
 
             classFormatter->Add(std::move(forwardDeclarations));
         }
@@ -320,7 +320,7 @@ namespace application
     {
         if (descriptor.nested_type_count() != 0)
         {
-            auto nestedMessages = std::make_unique<Access>("public");
+            auto nestedMessages = std::make_shared<Access>("public");
 
             for (int i = 0; i != descriptor.nested_type_count(); ++i)
                 MessageGenerator(*descriptor.nested_type(i), *nestedMessages);
@@ -333,7 +333,7 @@ namespace application
     {
         if (!fieldGenerators.empty())
         {
-            auto fields = std::make_unique<Access>("public");
+            auto fields = std::make_shared<Access>("public");
 
             for (auto& fieldGenerator : fieldGenerators)
                 fieldGenerator->GenerateFieldDeclaration(*fields);
@@ -346,7 +346,7 @@ namespace application
     {
         if (!fieldGenerators.empty())
         {
-            auto fields = std::make_unique<Access>("public");
+            auto fields = std::make_shared<Access>("public");
 
             for (auto& fieldGenerator : fieldGenerators)
                 fieldGenerator->GenerateFieldConstant(*fields);
@@ -384,10 +384,10 @@ namespace application
     {
 )");
 
-            printer.Indent();
+            printer.Indent(); printer.Indent();
             for (auto& fieldGenerator : fieldGenerators)
                 fieldGenerator->DeserializerBody(printer);
-            printer.Outdent();
+            printer.Outdent(); printer.Outdent();
         
             printer.Print(R"(        default:
             if (field.first.Is<services::ProtoLengthDelimited>())
@@ -404,27 +404,31 @@ namespace application
     CppInfraGenerator::CppInfraGenerator(google::protobuf::compiler::GeneratorContext* generatorContext, const std::string& name, const google::protobuf::FileDescriptor* file)
         : stream(generatorContext->Open(name))
         , printer(stream.get(), '$', nullptr)
-        , formatter(false)
+        , formatter(true)
         , file(file)
     {
-        formatter.Add(std::make_unique<IncludeByHeader>("infra/util/BoundedString.hpp"));
-        formatter.Add(std::make_unique<IncludeByHeader>("infra/util/BoundedVector.hpp"));
-        formatter.Add(std::make_unique<IncludeByHeader>("protobuf/protobuf_cpp_infra/ProtoFormatter.hpp"));
-        formatter.Add(std::make_unique<IncludeByHeader>("protobuf/protobuf_cpp_infra/ProtoParser.hpp"));
-        formatter.Add(std::make_unique<IncludeBySource>("generated/proto_cpp_infra/" + google::protobuf::compiler::cpp::StripProto(file->name()) + ".pb.hpp"));
+        auto includesByHeader = std::make_shared<IncludesByHeader>();
+        includesByHeader->Path("infra/util/BoundedString.hpp");
+        includesByHeader->Path("infra/util/BoundedVector.hpp");
+        includesByHeader->Path("protobuf/protobuf_cpp_infra/ProtoFormatter.hpp");
+        includesByHeader->Path("protobuf/protobuf_cpp_infra/ProtoParser.hpp");
+        formatter.Add(std::move(includesByHeader));
+        auto includesBySource = std::make_shared<IncludesBySource>();
+        includesBySource->Path("generated/proto_cpp_infra/" + google::protobuf::compiler::cpp::StripProto(file->name()) + ".pb.hpp");
+        formatter.Add(std::move(includesBySource));
 
         Entities* currentEntity = &formatter;
         std::vector<std::string> packageParts = google::protobuf::Split(file->package(), ".", true);
         for (auto& package : packageParts)
         {
-            auto newNamespace = std::make_unique<Namespace>(package);
+            auto newNamespace = std::make_shared<Namespace>(package);
             auto newEntity = newNamespace.get();
             currentEntity->Add(std::move(newNamespace));
             currentEntity = newEntity;
         }
 
         for (int i = 0; i != file->message_type_count(); ++i)
-            messageGenerators.emplace_back(std::make_unique<MessageGenerator>(*file->message_type(i), *currentEntity));
+            messageGenerators.emplace_back(std::make_shared<MessageGenerator>(*file->message_type(i), *currentEntity));
     }
 
     void CppInfraGenerator::GenerateHeader()
@@ -438,6 +442,7 @@ namespace application
     {
         printer.Print(R"(// Generated by the protocol buffer compiler.  DO NOT EDIT!
 // source: $filename$
+
 )"
 , "filename", file->name());
 

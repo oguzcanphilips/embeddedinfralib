@@ -138,8 +138,8 @@ namespace application
     private:
         const google::protobuf::Descriptor& descriptor;
         Class* classFormatter;
-        std::vector<std::unique_ptr<MessageGenerator>> messageGenerators;
-        std::vector<std::unique_ptr<FieldGenerator>> fieldGenerators;
+        std::vector<std::shared_ptr<MessageGenerator>> messageGenerators;
+        std::vector<std::shared_ptr<FieldGenerator>> fieldGenerators;
     };
 
     class CppInfraGenerator
@@ -164,7 +164,7 @@ namespace application
         Entities formatter;
         const google::protobuf::FileDescriptor* file;
 
-        std::vector<std::unique_ptr<MessageGenerator>> messageGenerators;
+        std::vector<std::shared_ptr<MessageGenerator>> messageGenerators;
     };
 }
 

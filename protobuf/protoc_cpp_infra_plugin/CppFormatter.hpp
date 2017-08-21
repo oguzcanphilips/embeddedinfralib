@@ -10,7 +10,7 @@ namespace application
     class Entity
     {
     protected:
-        Entity() = default;
+        explicit Entity(bool hasHeaderCode = true, bool hasSourceCode = true);
         Entity(const Entity& other) = delete;
         Entity& operator=(const Entity& other) = delete;
         
@@ -20,6 +20,13 @@ namespace application
     public:
         virtual void PrintHeader(google::protobuf::io::Printer& printer) const = 0;
         virtual void PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const = 0;
+
+        virtual bool HasHeaderCode() const;
+        virtual bool HasSourceCode() const;
+
+    private:
+        bool hasHeaderCode;
+        bool hasSourceCode;
     };
 
     class Entities
@@ -28,14 +35,18 @@ namespace application
     public:
         explicit Entities(bool insertNewlineBetweenEntities);
 
-        void Add(std::unique_ptr<Entity>&& newEntity);
+        void Add(std::shared_ptr<Entity>&& newEntity);
 
         virtual void PrintHeader(google::protobuf::io::Printer& printer) const override;
         virtual void PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const override;
 
+    protected:
+        bool EntitiesHaveHeaderCode() const;
+        bool EntitiesHaveSourceCode() const;
+
     private:
         bool insertNewlineBetweenEntities;
-        std::vector<std::unique_ptr<Entity>> entities;
+        std::vector<std::shared_ptr<Entity>> entities;
     };
 
     class Class
@@ -58,6 +69,8 @@ namespace application
         Access(const std::string& level);
 
         virtual void PrintHeader(google::protobuf::io::Printer& printer) const override;
+
+        virtual bool HasSourceCode() const override;
 
     private:
         std::string level;
@@ -119,6 +132,8 @@ namespace application
         virtual void PrintHeader(google::protobuf::io::Printer& printer) const override;
         virtual void PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const override;
 
+        virtual bool HasSourceCode() const;
+
     private:
         std::string Parameters() const;
         void PrintInitializers(google::protobuf::io::Printer& printer) const;
@@ -146,30 +161,34 @@ namespace application
         std::string type;
     };
 
-    class IncludeByHeader
+    class IncludesByHeader
         : public Entity
     {
     public:
-        IncludeByHeader(const std::string& path);
+        IncludesByHeader();
+
+        void Path(const std::string& path);
 
         virtual void PrintHeader(google::protobuf::io::Printer& printer) const override;
         virtual void PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const override;
 
     private:
-        std::string path;
+        std::vector<std::string> paths;
     };
 
-    class IncludeBySource
+    class IncludesBySource
         : public Entity
     {
     public:
-        IncludeBySource(const std::string& path);
+        IncludesBySource();
+
+        void Path(const std::string& path);
 
         virtual void PrintHeader(google::protobuf::io::Printer& printer) const override;
         virtual void PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const override;
 
     private:
-        std::string path;
+        std::vector<std::string> paths;
     };
 
     class ClassForwardDeclaration

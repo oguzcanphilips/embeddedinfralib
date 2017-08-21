@@ -33,11 +33,38 @@ namespace application
         }
     }
 
+    template<class C>
+    C Filter(const C& elements, std::function<bool(const typename C::value_type&)> filter)
+    {
+        C result;
+
+        for (auto& element : elements)
+            if (filter(element))
+                result.push_back(element);
+
+        return result;
+    }
+
+    Entity::Entity(bool hasHeaderCode, bool hasSourceCode)
+        : hasHeaderCode(hasHeaderCode)
+        , hasSourceCode(hasSourceCode)
+    {}
+
+    bool Entity::HasHeaderCode() const
+    {
+        return hasHeaderCode;
+    }
+
+    bool Entity::HasSourceCode() const
+    {
+        return hasSourceCode;
+    }
+
     Entities::Entities(bool insertNewlineBetweenEntities)
         : insertNewlineBetweenEntities(insertNewlineBetweenEntities)
     {}
 
-    void Entities::Add(std::unique_ptr<Entity>&& newEntity)
+    void Entities::Add(std::shared_ptr<Entity>&& newEntity)
     {
         entities.push_back(std::move(newEntity));
     }
@@ -45,7 +72,7 @@ namespace application
     void Entities::PrintHeader(google::protobuf::io::Printer& printer) const
     {
         if (insertNewlineBetweenEntities)
-            ForEach(entities, [&printer](const std::unique_ptr<Entity>& entity) { entity->PrintHeader(printer); }, [&printer]() { printer.Print("\n"); });
+            ForEach(Filter(entities, [](const std::shared_ptr<Entity>& entity) { return entity->HasHeaderCode(); }), [&printer](const std::shared_ptr<Entity>& entity) { entity->PrintHeader(printer); }, [&printer]() { printer.Print("\n"); });
         else
             for (auto& entity : entities)
                 entity->PrintHeader(printer);
@@ -53,11 +80,25 @@ namespace application
 
     void Entities::PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const
     {
-        if (insertNewlineBetweenEntities)
-            ForEach(entities, [&printer, &scope](const std::unique_ptr<Entity>& entity) { entity->PrintSource(printer, scope); }, [&printer]() { printer.Print("\n"); });
-        else
-            for (auto& entity : entities)
-                entity->PrintSource(printer, scope);
+        ForEach(Filter(entities, [](const std::shared_ptr<Entity>& entity) { return entity->HasSourceCode(); }), [&printer, &scope](const std::shared_ptr<Entity>& entity) { entity->PrintSource(printer, scope); }, [&printer]() { printer.Print("\n"); });
+    }
+
+    bool Entities::EntitiesHaveHeaderCode() const
+    {
+        for (auto& entity : entities)
+            if (entity->HasHeaderCode())
+                return true;
+
+        return false;
+    }
+
+    bool Entities::EntitiesHaveSourceCode() const
+    {
+        for (auto& entity : entities)
+            if (entity->HasSourceCode())
+                return true;
+
+        return false;
     }
 
     Class::Class(const std::string& name)
@@ -93,6 +134,11 @@ namespace application
         printer.Print("$level$:\n", "level", level);
         printer.Indent();
         Entities::PrintHeader(printer);
+    }
+
+    bool Access::HasSourceCode() const
+    {
+        return EntitiesHaveSourceCode();
     }
 
     Namespace::Namespace(const std::string& name)
@@ -157,7 +203,7 @@ namespace application
         {
             printer.Print("{\n");
             printer.Indent();
-            printer.PrintRaw(body);
+            printer.Print(body.c_str());
             printer.Outdent();
             printer.Print("}\n");
         }
@@ -215,11 +261,16 @@ namespace application
             {
                 printer.Print("{\n");
                 printer.Indent();
-                printer.PrintRaw(body);
+                printer.Print(body.c_str());
                 printer.Outdent();
                 printer.Print("}\n");
             }
         };
+    }
+
+    bool Constructor::HasSourceCode() const
+    {
+        return flags == 0;
     }
 
     std::string Constructor::Parameters() const
@@ -241,7 +292,8 @@ namespace application
     }
 
     DataMember::DataMember(const std::string& name, const std::string& type)
-        : name(name)
+        : Entity(true, false)
+        , name(name)
         , type(type)
     {}
 
@@ -253,34 +305,47 @@ namespace application
     void DataMember::PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const
     {}
 
-    IncludeByHeader::IncludeByHeader(const std::string& path)
-        : path(path)
+    IncludesByHeader::IncludesByHeader()
+        : Entity(true, false)
     {}
 
-    void IncludeByHeader::PrintHeader(google::protobuf::io::Printer& printer) const
+    void IncludesByHeader::Path(const std::string& path)
     {
-        printer.Print(R"(#include "$path$"
+        paths.push_back(path);
+    }
+
+    void IncludesByHeader::PrintHeader(google::protobuf::io::Printer& printer) const
+    {
+        for (auto& path : paths)
+            printer.Print(R"(#include "$path$"
 )", "path", path);
     }
 
-    void IncludeByHeader::PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const
+    void IncludesByHeader::PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const
     {}
 
-    IncludeBySource::IncludeBySource(const std::string& path)
-        : path(path)
+    IncludesBySource::IncludesBySource()
+        : Entity(false, true)
     {}
 
-    void IncludeBySource::PrintHeader(google::protobuf::io::Printer& printer) const
-    {}
-
-    void IncludeBySource::PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const
+    void IncludesBySource::Path(const std::string& path)
     {
-        printer.Print(R"(#include "$path$"
+        paths.push_back(path);
+    }
+
+    void IncludesBySource::PrintHeader(google::protobuf::io::Printer& printer) const
+    {}
+
+    void IncludesBySource::PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const
+    {
+        for (auto& path : paths)
+            printer.Print(R"(#include "$path$"
 )", "path", path);
     }
 
     ClassForwardDeclaration::ClassForwardDeclaration(const std::string& name)
-        : name(name)
+        : Entity(true, false)
+        , name(name)
     {}
 
     void ClassForwardDeclaration::PrintHeader(google::protobuf::io::Printer& printer) const
