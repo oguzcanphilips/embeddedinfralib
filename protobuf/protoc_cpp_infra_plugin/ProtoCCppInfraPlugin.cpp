@@ -1,13 +1,10 @@
 #include "generated/proto_cpp/field_size.pb.h"
 #include "google/protobuf/compiler/cpp/cpp_helpers.h"
 #include "google/protobuf/compiler/plugin.h"
-#include "google/protobuf/descriptor.h"
-#include "google/protobuf/io/zero_copy_stream.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
 #include "google/protobuf/stubs/strutil.h"
 #include "protobuf/protoc_cpp_infra_plugin/ProtoCCppInfraPlugin.hpp"
 #include <sstream>
-#include <string>
 
 namespace application
 {
@@ -279,10 +276,13 @@ namespace application
         auto constructors = std::make_shared<Access>("public");
         constructors->Add(std::make_shared<Constructor>(descriptor.name(), "", Constructor::cDefault));
 
-        auto constructByMembers = std::make_shared<Constructor>(descriptor.name(), "", 0);
-        for (auto& fieldGenerator : fieldGenerators)
-            fieldGenerator->GenerateConstructorParameter(*constructByMembers);
-        constructors->Add(std::move(constructByMembers));
+        if (!fieldGenerators.empty())
+        {
+            auto constructByMembers = std::make_shared<Constructor>(descriptor.name(), "", 0);
+            for (auto& fieldGenerator : fieldGenerators)
+                fieldGenerator->GenerateConstructorParameter(*constructByMembers);
+            constructors->Add(std::move(constructByMembers));
+        }
 
         auto constructByProtoParser = std::make_shared<Constructor>(descriptor.name(), "Deserialize(parser);\n", 0);
         constructByProtoParser->Parameter("services::ProtoParser& parser");

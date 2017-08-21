@@ -35,7 +35,7 @@ namespace application
     class FieldGenerator
     {
     public:
-        FieldGenerator(const google::protobuf::FieldDescriptor& descriptor);
+        explicit FieldGenerator(const google::protobuf::FieldDescriptor& descriptor);
         FieldGenerator(const FieldGenerator& other) = delete;
         FieldGenerator& operator=(const FieldGenerator& other) = delete;
         virtual ~FieldGenerator() = default;
@@ -67,7 +67,7 @@ namespace application
         : public FieldGenerator
     {
     public:
-        FieldGeneratorRepeatedString(const google::protobuf::FieldDescriptor& descriptor);
+        explicit FieldGeneratorRepeatedString(const google::protobuf::FieldDescriptor& descriptor);
 
         virtual void GenerateFieldDeclaration(Entities& formatter) override;
         virtual void SerializerBody(google::protobuf::io::Printer& printer) override;
