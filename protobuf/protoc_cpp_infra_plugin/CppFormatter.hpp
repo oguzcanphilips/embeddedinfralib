@@ -53,7 +53,7 @@ namespace application
         : public Entities
     {
     public:
-        Class(const std::string& name);
+        explicit Class(const std::string& name);
 
         virtual void PrintHeader(google::protobuf::io::Printer& printer) const override;
         virtual void PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const override;
@@ -66,7 +66,7 @@ namespace application
         : public Entities
     {
     public:
-        Access(const std::string& level);
+        explicit Access(const std::string& level);
 
         virtual void PrintHeader(google::protobuf::io::Printer& printer) const override;
 
@@ -80,10 +80,13 @@ namespace application
         : public Entities
     {
     public:
-        Namespace(const std::string& name);
+        explicit Namespace(const std::string& name);
 
         virtual void PrintHeader(google::protobuf::io::Printer& printer) const override;
         virtual void PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const override;
+
+        virtual bool HasHeaderCode() const override;
+        virtual bool HasSourceCode() const override;
 
     private:
         std::string name;
@@ -195,7 +198,7 @@ namespace application
         : public Entity
     {
     public:
-        ClassForwardDeclaration(const std::string& name);
+        explicit ClassForwardDeclaration(const std::string& name);
 
         virtual void PrintHeader(google::protobuf::io::Printer& printer) const override;
         virtual void PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const override;

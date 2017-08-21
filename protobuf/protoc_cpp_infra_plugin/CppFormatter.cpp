@@ -4,21 +4,6 @@
 namespace application
 {
     template<class C>
-    void ForEach(C& elements, std::function<void(typename C::value_type&)> each, std::function<void()> between)
-    {
-        if (!elements.empty())
-        {
-            each(elements.front());
-
-            for (auto element = std::next(elements.begin()); element != elements.end(); ++element)
-            {
-                between();
-                each(*element);
-            }
-        }
-    }
-
-    template<class C>
     void ForEach(const C& elements, std::function<void(const typename C::value_type&)> each, std::function<void()> between)
     {
         if (!elements.empty())
@@ -164,6 +149,16 @@ namespace application
         printer.Print("}\n");
     }
 
+    bool Namespace::HasHeaderCode() const
+    {
+        return EntitiesHaveHeaderCode();
+    }
+
+    bool Namespace::HasSourceCode() const
+    {
+        return EntitiesHaveSourceCode();
+    }
+
     Function::Function(const std::string& name, const std::string& body, const std::string& result, uint32_t flags)
         : name(name)
         , body(body)
@@ -211,9 +206,9 @@ namespace application
 
     std::string Function::Parameters() const
     {
-        std::string result;
-        ForEach(parameters, [&result](const std::string& parameter) { result += parameter; }, [&result]() { result += ", "; });
-        return result;
+        std::string res;
+        ForEach(parameters, [&res](const std::string& parameter) { res += parameter; }, [&res]() { res += ", "; });
+        return res;
     }
 
     Constructor::Constructor(const std::string& name, const std::string& body, uint32_t flags)
