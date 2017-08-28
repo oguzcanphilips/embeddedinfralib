@@ -174,7 +174,7 @@ void Printer::Print(const std::map<string, string>& variables,
 }
 
 void Printer::Print(const char* text) {
-  static std::map<string, string> empty;
+  std::map<string, string> empty;
   Print(empty, text);
 }
 
@@ -291,7 +291,7 @@ void Printer::Print(const char* text,
 }
 
 void Printer::Indent() {
-  indent_ += "  ";
+  indent_ += "    ";
 }
 
 void Printer::Outdent() {
@@ -300,7 +300,7 @@ void Printer::Outdent() {
     return;
   }
 
-  indent_.resize(indent_.size() - 2);
+  indent_.resize(indent_.size() - 4);
 }
 
 void Printer::PrintRaw(const string& data) {

@@ -8,8 +8,16 @@ if(${CCOLA_ARCH} STREQUAL win)
 
 	set(save_exe_install_dir "${CCOLA_EXE_INSTALL_DIR}")
 	set(CCOLA_EXE_INSTALL_DIR "${CCOLA_TEST_EXE_INSTALL_DIR}")
+
+	string(REPLACE "<CCOLA_CONFIGURATION>" ${CCOLA_SYSTEM_CONFIGURATION}-$<CONFIG> runtime_directories "${CCOLA_COMPONENT_RUNTIME_DIRECTORIES}")
+	
 	include("${CCOLA_PACK_DIR_cpp}/components/component_executable/end.inc")
 	set(CCOLA_EXE_INSTALL_DIR "${save_exe_install_dir}")
+
+	if (runtime_directories)
+		file(TO_NATIVE_PATH ${runtime_directories} runtime_directories_n)
+		set_property(TEST ${CCOLA_COMPONENT_NAME} PROPERTY ENVIRONMENT "PATH=${runtime_directories_n};$ENV{PATH}")
+	endif()
 
 	add_custom_command(
 		TARGET ${CCOLA_COMPONENT_NAME}

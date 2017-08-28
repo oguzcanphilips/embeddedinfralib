@@ -39,3 +39,7 @@ message TestNestedRepeatedMessage
 
 	repeated NestedMessage message = 1 [(array_size) = 10];
 }
+
+message TestEmptyMessage
+{
+}
