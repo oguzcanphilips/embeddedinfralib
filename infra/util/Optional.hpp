@@ -294,8 +294,8 @@ namespace infra
     void Optional<T>::Emplace(Args&&... args)
     {
         Reset();
-        data.Construct(std::forward<Args>(args)...);
         initialized = true;
+        data.Construct(std::forward<Args>(args)...);
     }
 
     template<class T>
@@ -303,8 +303,8 @@ namespace infra
     void Optional<T>::Emplace(std::initializer_list<U> list, Args&&... args)
     {
         Reset();
-        data.Construct(list, std::forward<Args>(args)...);
         initialized = true;
+        data.Construct(list, std::forward<Args>(args)...);
     }
 
     template<class T>
@@ -439,8 +439,8 @@ namespace infra
     void OptionalForPolymorphicObjects<T, ExtraSize>::Emplace(Args&&... args)
     {
         Reset();
-        data.template Construct<Derived>(std::forward<Args>(args)...);
         initialized = true;
+        data.template Construct<Derived>(std::forward<Args>(args)...);
     }
 
     template<class T, std::size_t ExtraSize>
