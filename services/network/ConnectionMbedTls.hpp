@@ -58,6 +58,7 @@ namespace services
 
         virtual void TlsReadFailure(int reason);
         virtual void TlsWriteFailure(int reason);
+        virtual void TlsLog(int level, const char* file, int line, const char* message);
 
     private:
         void TryAllocateSendStream();
@@ -69,6 +70,7 @@ namespace services
         void TrySend();
         static int StaticGenerateRandomData(void* data, unsigned char* output, std::size_t size);
         void GenerateRandomData(infra::ByteRange data);
+        static void StaticDebugWrapper(void* context, int level, const char* file, int line, const char* message);
 
     private:
         class StreamWriterMbedTls
