@@ -16,7 +16,9 @@ namespace hal
         {
             std::string line;
             std::getline(input, line);
-            result.push_back(line);
+
+            if (input)
+                result.push_back(line);
         }
 
         return result;
