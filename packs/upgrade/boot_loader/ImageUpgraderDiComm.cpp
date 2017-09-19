@@ -20,7 +20,7 @@ namespace application
             && InitializeProperties()
             && PrepareDownload(imageSize)
             && SendFirmware(flash, imageAddress, imageSize)
-            && WaitForIdle())
+            && WaitForState("idle"))
             return 0;
         else
             return upgradeErrorCodeExternalImageUpgradeFailed;
@@ -63,6 +63,9 @@ namespace application
         if (!diComm.PutProps("firmware", infra::BoundedConstString(reinterpret_cast<char*>(properties.Writer().Processed().begin()), properties.Writer().Processed().size())))
             return false;
 
+        if (!WaitForState("downloading"))
+            return false;
+
         return true;
     }
 
@@ -73,7 +76,7 @@ namespace application
         return writer.SendFirmware();
     }
 
-    bool ImageUpgraderDiComm::WaitForIdle()
+    bool ImageUpgraderDiComm::WaitForState(infra::BoundedConstString expectedState)
     {
         bool ready;
 
@@ -90,7 +93,7 @@ namespace application
             if (state == "error")
                 return false;
 
-            ready = state == "idle";
+            ready = state == expectedState;
         } while (!ready);
 
         return true;

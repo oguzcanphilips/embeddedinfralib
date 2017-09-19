@@ -24,7 +24,7 @@ namespace application
         bool InitializeProperties();
         bool PrepareDownload(uint32_t imageSize);
         bool SendFirmware(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize);
-        bool WaitForIdle();
+        bool WaitForState(infra::BoundedConstString expectedState);
         bool ResetState();
 
     private:
