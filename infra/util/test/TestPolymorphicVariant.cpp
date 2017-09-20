@@ -146,6 +146,14 @@ TEST(PolymorphicVariantTest, assign_State2_after_construction)
     EXPECT_EQ(2, v->Identifier());
 }
 
+TEST(PolymorphicVariantTest, Emplace_returns_reference_to_constructed_object)
+{
+    infra::PolymorphicVariant<State, State1, State2> v;
+
+    State1& state1 = v.Emplace<State1>();
+    EXPECT_EQ(1, state1.Identifier());
+}
+
 TEST(PolymorphicVariantTest, create_State1_by_copy)
 {
     infra::PolymorphicVariant<CopyableState, CopyableState1, CopyableState2> v((CopyableState1()));

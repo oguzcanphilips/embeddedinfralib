@@ -30,7 +30,7 @@ namespace infra
         ~PolymorphicVariant();
 
         template<class U, class... Args>
-            void Emplace(Args&&... args);
+            U& Emplace(Args&&... args);
 
         const Base& Get() const;
         Base& Get();
@@ -81,7 +81,7 @@ namespace infra
         friend struct detail::ConstructPolymorphicVisitor;
 
         template<class U, class... Args>
-            void ConstructInEmptyVariant(Args&&... args);
+            U& ConstructInEmptyVariant(Args&&... args);
         void Destruct();
 
     private:
@@ -164,10 +164,10 @@ namespace infra
 
     template<class Base, class... T>
     template<class U, class... Args>
-    void PolymorphicVariant<Base, T...>::Emplace(Args&&... args)
+    U& PolymorphicVariant<Base, T...>::Emplace(Args&&... args)
     {
         Destruct();
-        ConstructInEmptyVariant<U>(std::forward<Args>(args)...);
+        return ConstructInEmptyVariant<U>(std::forward<Args>(args)...);
     }
 
     template<class Base, class... T>
@@ -329,10 +329,11 @@ namespace infra
 
     template<class Base, class... T>
     template<class U, class... Args>
-    void PolymorphicVariant<Base, T...>::ConstructInEmptyVariant(Args&&... args)
+    U& PolymorphicVariant<Base, T...>::ConstructInEmptyVariant(Args&&... args)
     {
         dataIndex = IndexInTypeList<U, T...>::value;
         storage.template Construct<U>(std::forward<Args>(args)...);
+        return reinterpret_cast<U&>(*storage);
     }
 
     template<class Base, class... T>
