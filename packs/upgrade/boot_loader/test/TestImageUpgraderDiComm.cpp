@@ -17,7 +17,7 @@ public:
 
     application::DecryptorNone decryptor;
     testing::StrictMock<application::MockDiComm> diComm;
-    application::ImageUpgraderDiComm::WithStorage<128> upgrader;
+    application::ImageUpgraderDiComm upgrader;
     hal::SynchronousFlashStub upgradePackFlash;
     testing::InSequence s;
 };
@@ -323,7 +323,7 @@ public:
 
     testing::StrictMock<application::MockDecryptor> decryptor;
     testing::StrictMock<application::MockDiComm> diComm;
-    application::ImageUpgraderDiComm::WithStorage<128> upgrader;
+    application::ImageUpgraderDiComm upgrader;
     hal::SynchronousFlashStub upgradePackFlash;
 };
 
