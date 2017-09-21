@@ -17,7 +17,7 @@ public:
 
     application::DecryptorNone decryptor;
     testing::StrictMock<application::MockDiComm> diComm;
-    application::ImageUpgraderDiComm::WithStorage<128> upgrader;
+    application::ImageUpgraderDiComm upgrader;
     hal::SynchronousFlashStub upgradePackFlash;
     testing::InSequence s;
 };
@@ -155,12 +155,26 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenPutPropsFails)
     EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 10, 0));
 }
 
+TEST_F(ImageUpgraderDiCommTest, UpgradeWaitsForStateDownloadingWhenStateIsPreparing)
+{
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
+    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
+    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"preparing"})")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
+    EXPECT_CALL(diComm, PutPropsMock("firmware", testing::_)).WillOnce(testing::Throw<Ok>(Ok()));
+
+    EXPECT_THROW(upgrader.Upgrade(upgradePackFlash, 0, 4, 0), Ok);
+}
+
 TEST_F(ImageUpgraderDiCommTest, OneChunkIsSent)
 {
     EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Throw<Ok>(Ok()));
 
     upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
@@ -173,6 +187,7 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenChunkFails)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(false, "")));
 
     upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
@@ -185,6 +200,7 @@ TEST_F(ImageUpgraderDiCommTest, ASmallChunkIsSentWhenSizeIsRestricted)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle","maxchunksize":3})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":8})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJj"})")).WillOnce(testing::Throw<Ok>(Ok()));
 
     upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
@@ -198,6 +214,7 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenErrorIsReturnedInsteadOfProgress
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"error"})")));
 
     upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
@@ -211,6 +228,7 @@ TEST_F(ImageUpgraderDiCommTest, NextChunkIsSentAfterPreviousHasBeenProcessed)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle","maxchunksize":3})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":6})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJj"})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":3})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"ZGVm"})")).WillOnce(testing::Throw<Ok>(Ok()));
 
@@ -225,6 +243,7 @@ TEST_F(ImageUpgraderDiCommTest, StateIsPolledAfterDownloadComplete)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":4})")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Throw<Ok>(Ok()));
 
@@ -239,6 +258,7 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenPollForIdleFails)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":4})")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(false, "")));
 
@@ -253,6 +273,7 @@ TEST_F(ImageUpgraderDiCommTest, WhenStateIsNotIdleStateIsPolledAgain)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":4})")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"programming"})")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Throw<Ok>(Ok()));
@@ -268,6 +289,7 @@ TEST_F(ImageUpgraderDiCommTest, WhenStateIsErrorUpgradeIsNotSuccessful)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":4})")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"error"})")));
 
@@ -282,6 +304,7 @@ TEST_F(ImageUpgraderDiCommTest, AfterStateIsIdleUpgradeIsSuccessful)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":4})")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
 
@@ -300,7 +323,7 @@ public:
 
     testing::StrictMock<application::MockDecryptor> decryptor;
     testing::StrictMock<application::MockDiComm> diComm;
-    application::ImageUpgraderDiComm::WithStorage<128> upgrader;
+    application::ImageUpgraderDiComm upgrader;
     hal::SynchronousFlashStub upgradePackFlash;
 };
 
@@ -311,6 +334,7 @@ TEST_F(ImageUpgraderDiCommDecryptionTest, FirmwareIsDecrypted)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(decryptor, DecryptPartMock(std::vector<uint8_t>{ 'a', 'b', 'c', 'd' })).WillOnce(testing::Return(std::vector<uint8_t>{ 'e', 'f', 'g', 'h' }));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"ZWZnaA=="})")).WillOnce(testing::Throw<Ok>(Ok()));
 

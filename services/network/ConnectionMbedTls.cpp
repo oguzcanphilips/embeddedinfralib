@@ -49,6 +49,7 @@ namespace services
         mbedtls2_ssl_init(&sslContext);
         mbedtls2_ssl_config_init(&sslConfig);
         mbedtls2_ctr_drbg_init(&ctr_drbg);
+    	mbedtls2_ssl_conf_dbg(&sslConfig, StaticDebugWrapper, this);
 
         int result;
 
@@ -176,6 +177,9 @@ namespace services
     void ConnectionMbedTls::TlsWriteFailure(int reason)
     {}
 
+    void ConnectionMbedTls::TlsLog(int level, const char* file, int line, const char* message)
+    {}
+
     void ConnectionMbedTls::TryAllocateSendStream()
     {
         assert(sendStream.Allocatable());
@@ -226,7 +230,7 @@ namespace services
                 }, SharedFromThis());
             }
 
-             return buffer.size();
+            return buffer.size();
         }
         else
             return MBEDTLS_ERR_SSL_WANT_WRITE;
@@ -295,6 +299,11 @@ namespace services
     void ConnectionMbedTls::GenerateRandomData(infra::ByteRange data)
     {
         randomDataGenerator.GenerateRandomData(data);
+    }
+
+    void ConnectionMbedTls::StaticDebugWrapper(void* context, int level, const char* file, int line, const char* message)
+    {
+    	reinterpret_cast<ConnectionMbedTls*>(context)->TlsLog(level, file, line, message);
     }
 
     ConnectionMbedTls::StreamWriterMbedTls::StreamWriterMbedTls(ConnectionMbedTls& connection)

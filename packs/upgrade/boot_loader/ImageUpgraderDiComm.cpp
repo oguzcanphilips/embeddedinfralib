@@ -8,10 +8,9 @@ namespace application
     const uint32_t ImageUpgraderDiComm::chunkSizeDefault;
     const uint32_t ImageUpgraderDiComm::chunkSizeMax;
 
-    ImageUpgraderDiComm::ImageUpgraderDiComm(infra::ByteRange buffer, const char* targetName, Decryptor& decryptor, DiComm& diComm)
+    ImageUpgraderDiComm::ImageUpgraderDiComm(const char* targetName, Decryptor& decryptor, DiComm& diComm)
         : ImageUpgrader(targetName, decryptor)
         , diComm(diComm)
-        , buffer(buffer)
     {}
 
     uint32_t ImageUpgraderDiComm::Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress)
@@ -20,7 +19,7 @@ namespace application
             && InitializeProperties()
             && PrepareDownload(imageSize)
             && SendFirmware(flash, imageAddress, imageSize)
-            && WaitForIdle())
+            && WaitForState("idle"))
             return 0;
         else
             return upgradeErrorCodeExternalImageUpgradeFailed;
@@ -40,7 +39,7 @@ namespace application
         if (!diComm.PutProps("firmware", R"({"state":"idle"})"))
             return false;
 
-        infra::BoundedString firmwarePropertiesString(infra::ReinterpretCastMemoryRange<char>(buffer));
+        infra::BoundedString::WithStorage<256> firmwarePropertiesString;
         if (!diComm.GetProps("firmware", firmwarePropertiesString))
             return false;
 
@@ -57,10 +56,13 @@ namespace application
 
     bool ImageUpgraderDiComm::PrepareDownload(uint32_t imageSize)
     {
-        infra::ByteOutputStream properties(buffer);
+        infra::ByteOutputStream::WithStorage<64> properties;
         properties << infra::text << R"({"mandatory":true,"state":"downloading","size":)" << imageSize << R"(})";
 
         if (!diComm.PutProps("firmware", infra::BoundedConstString(reinterpret_cast<char*>(properties.Writer().Processed().begin()), properties.Writer().Processed().size())))
+            return false;
+
+        if (!WaitForState("downloading"))
             return false;
 
         return true;
@@ -68,18 +70,18 @@ namespace application
 
     bool ImageUpgraderDiComm::SendFirmware(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize)
     {
-        FirmwareWriter writer(ImageDecryptor(), diComm, flash, imageAddress, imageSize, maxChunkSize, buffer);
+        FirmwareWriter writer(ImageDecryptor(), diComm, flash, imageAddress, imageSize, maxChunkSize);
 
         return writer.SendFirmware();
     }
 
-    bool ImageUpgraderDiComm::WaitForIdle()
+    bool ImageUpgraderDiComm::WaitForState(infra::BoundedConstString expectedState)
     {
         bool ready;
 
         do
         {
-            infra::BoundedString firmwarePropertiesString(infra::ReinterpretCastMemoryRange<char>(buffer));
+            infra::BoundedString::WithStorage<256> firmwarePropertiesString;
             infra::JsonObject firmwareProperties(firmwarePropertiesString);
 
             if (!diComm.GetProps("firmware", firmwarePropertiesString))
@@ -90,7 +92,7 @@ namespace application
             if (state == "error")
                 return false;
 
-            ready = state == "idle";
+            ready = state == expectedState;
         } while (!ready);
 
         return true;
@@ -104,14 +106,13 @@ namespace application
         return true;
     }
 
-    ImageUpgraderDiComm::FirmwareWriter::FirmwareWriter(Decryptor& decryptor, DiComm& diComm, hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t maxChunkSize, infra::ByteRange buffer)
+    ImageUpgraderDiComm::FirmwareWriter::FirmwareWriter(Decryptor& decryptor, DiComm& diComm, hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t maxChunkSize)
         : decryptor(decryptor)
         , diComm(diComm)
         , flash(flash)
         , imageAddress(imageAddress)
         , imageSize(imageSize)
         , maxChunkSize(maxChunkSize)
-        , buffer(buffer)
     {}
 
     bool ImageUpgraderDiComm::FirmwareWriter::SendFirmware()
@@ -129,7 +130,7 @@ namespace application
 
     void ImageUpgraderDiComm::FirmwareWriter::ReadChunkFromFlash()
     {
-        chunk.resize(std::min(imageSize - imageSizeSent, maxChunkSize));
+        chunk.resize(std::min<uint32_t>(std::min(imageSize - imageSizeSent, maxChunkSize), chunk.max_size()));
         flash.ReadBuffer(infra::MakeRange(chunk), imageAddress + imageSizeSent);
         decryptor.DecryptPart(infra::MakeRange(chunk));
         ConvertChunkToBase64();
@@ -137,7 +138,7 @@ namespace application
 
     bool ImageUpgraderDiComm::FirmwareWriter::SendChunk()
     {
-        infra::ByteOutputStream chunkData(buffer);
+        infra::ByteOutputStream::WithStorage<base64ChunkSizeMax> chunkData;
         chunkData << infra::text << R"({"data":")" << infra::data << infra::MemoryRange<uint8_t>(base64EncodedChunk.begin(), base64EncodedChunk.end()) << infra::text << R"("})";
         infra::BoundedString::WithStorage<128> result;
         if (!diComm.PutProps("firmware", infra::BoundedConstString(reinterpret_cast<char*>(chunkData.Writer().Processed().begin()), chunkData.Writer().Processed().size()), result))

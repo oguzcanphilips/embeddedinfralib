@@ -25,7 +25,6 @@ namespace infra
         void ProcessTicks();
 
     private:
-        bool testMode = false;
         TimePoint systemTime = TimePoint();
         Duration resolution;
 

@@ -970,7 +970,8 @@ namespace infra
     void CleanJsonContents(infra::BoundedString& contents)
     {
         infra::JsonTokenizer tokenizer(contents);
-        infra::BoundedString newContents(infra::MakeRange(contents.begin(), contents.end()));
+        infra::BoundedString newContents(contents);
+        newContents.clear();
         infra::StringOutputStream stream(newContents);
 
         for (infra::JsonToken::Token token = tokenizer.Token(); !token.Is<infra::JsonToken::End>() && !token.Is<infra::JsonToken::Error>(); token = tokenizer.Token())

@@ -14,6 +14,7 @@ namespace services
 
         virtual void TlsReadFailure(int reason) override;
         virtual void TlsWriteFailure(int reason) override;
+        virtual void TlsLog(int level, const char* file, int line, const char* message) override;
 
     private:
         Tracer& tracer;
@@ -40,6 +41,16 @@ namespace services
         : public ConnectionFactoryMbedTls
     {
     public:
+    	enum DebugLevel
+    	{
+    		NoDebug,
+    		Error,
+    		StateChange,
+    		Informational,
+    		Verbose
+    	};
+
+    public:
         template<std::size_t MaxConnections, std::size_t MaxListeners, std::size_t MaxConnectors>
         using WithMaxConnectionsListenersAndConnectors = infra::WithStorage<infra::WithStorage<infra::WithStorage<TracingConnectionFactoryMbedTls
             , AllocatorTracingConnectionMbedTls::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxConnections>>
@@ -47,7 +58,7 @@ namespace services
             , AllocatorConnectionMbedTlsConnector::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxConnectors>>;
 
         TracingConnectionFactoryMbedTls(AllocatorTracingConnectionMbedTls& connectionAllocator, AllocatorConnectionMbedTlsListener& listenerAllocator, AllocatorConnectionMbedTlsConnector& connectorAllocator, //TICS !OLC#020
-            ConnectionFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, Tracer& tracer);
+            ConnectionFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, Tracer& tracer, DebugLevel level);
 
     private:
         AllocatorTracingConnectionMbedTlsAdapter allocatorAdapter;
