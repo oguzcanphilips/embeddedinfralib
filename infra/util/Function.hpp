@@ -31,7 +31,7 @@
 #include <type_traits>
 
 #ifndef INFRA_DEFAULT_FUNCTION_EXTRA_SIZE                                                                   //TICS !POR#021
-#define INFRA_DEFAULT_FUNCTION_EXTRA_SIZE 8
+#define INFRA_DEFAULT_FUNCTION_EXTRA_SIZE 12
 #endif
 
 #ifndef UTIL_FUNCTION_ALIGNMENT                                                                             //TICS !POR#021
