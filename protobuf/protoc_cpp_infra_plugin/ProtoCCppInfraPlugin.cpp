@@ -380,20 +380,29 @@ namespace application
 {
     services::ProtoParser::Field field = parser.GetField();
 
-    switch (field.second)
+)");
+            if (!fieldGenerators.empty())
+            {
+                printer.Print(R"(    switch (field.second)
     {
 )");
 
-            printer.Indent(); printer.Indent();
-            for (auto& fieldGenerator : fieldGenerators)
-                fieldGenerator->DeserializerBody(printer);
-            printer.Outdent(); printer.Outdent();
+                printer.Indent(); printer.Indent();
+                for (auto& fieldGenerator : fieldGenerators)
+                    fieldGenerator->DeserializerBody(printer);
+                printer.Outdent(); printer.Outdent();
         
-            printer.Print(R"(        default:
+                printer.Print(R"(        default:
             if (field.first.Is<services::ProtoLengthDelimited>())
                 field.first.Get<services::ProtoLengthDelimited>().SkipEverything();
             break;
     }
+}
+)");
+            }
+            else
+                printer.Print(R"(    if (field.first.Is<services::ProtoLengthDelimited>())
+        field.first.Get<services::ProtoLengthDelimited>().SkipEverything();
 }
 )");
         }
