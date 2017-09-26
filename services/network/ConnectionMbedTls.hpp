@@ -44,6 +44,7 @@ namespace services
         // ConnectionObserver
         virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) override;
         virtual void DataReceived() override;
+        virtual void ClosingConnection() override;
 
         // Connection
         virtual void RequestSendStream(std::size_t sendSize) override;

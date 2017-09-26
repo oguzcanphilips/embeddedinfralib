@@ -131,6 +131,12 @@ namespace services
             }, SharedFromThis());
     }
 
+    void ConnectionMbedTls::ClosingConnection()
+    {
+        encryptedSendStream = nullptr;
+        GetObserver().ClosingConnection();
+    }
+
     void ConnectionMbedTls::RequestSendStream(std::size_t sendSize)
     {
         assert(requestedSendSize == 0);

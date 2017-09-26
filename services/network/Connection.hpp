@@ -23,6 +23,7 @@ namespace services
     public:
         virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) = 0;
         virtual void DataReceived() = 0;
+        virtual void ClosingConnection() {}
 
     private:
         friend class Connection;
