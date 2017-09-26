@@ -29,8 +29,9 @@ namespace application
         uint32_t maxChunkSize = 0;
 
         static const uint32_t chunkSizeDefault = 128;
+        static const uint32_t jsonOverhead = 12;
         static const uint32_t chunkSizeMax = 1024;
-        static const uint32_t base64ChunkSizeMax = (chunkSizeMax + 2) / 3 * 4;
+        static const uint32_t base64ChunkSizeMax = (chunkSizeMax + 2) / 3 * 4 + jsonOverhead;
         
         class FirmwareWriter
         {
