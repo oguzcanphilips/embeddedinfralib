@@ -134,7 +134,8 @@ namespace services
     void ConnectionMbedTls::ClosingConnection()
     {
         encryptedSendStream = nullptr;
-        GetObserver().ClosingConnection();
+        if (HasObserver())
+        	GetObserver().ClosingConnection();
     }
 
     void ConnectionMbedTls::RequestSendStream(std::size_t sendSize)
