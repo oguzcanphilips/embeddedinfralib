@@ -137,3 +137,11 @@ TEST_F(ConnectionMbedTlsTest, reopen_connection)
         observer1->Subject().AbortAndDestroy();
     }
 }
+
+TEST_F(ConnectionMbedTlsTest, test)
+{
+    //Connection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator,
+    //bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession
+    services::ConnectionMbedTls con(*mbedTlsConnection, mbedTlsCertific)
+}
+

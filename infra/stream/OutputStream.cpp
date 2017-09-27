@@ -87,6 +87,11 @@ namespace infra
         return writer.GetProcessedBytesSince(marker);
     }
 
+    std::size_t OutputStream::Available() const
+    {
+        return writer.Available();
+    }
+    
     StreamWriter& OutputStream::Writer()
     {
         return writer;

@@ -31,6 +31,11 @@ namespace infra
         return streamRange.begin();
     }
 
+    size_t SavedMarkerTextStream::Available() const
+    {
+        return stream.Available();
+    }
+
     std::size_t SavedMarkerTextStream::GetProcessedBytesSince(const uint8_t* marker) const
     {
         return static_cast<std::size_t>(std::distance(marker, streamRange.cbegin()));
@@ -73,6 +78,11 @@ namespace infra
     {
         streamRange.front() = element;
         streamRange.pop_front();
+    }
+
+    size_t SavedMarkerDataStream::Available() const
+    {
+        return stream.Available();
     }
 
     const uint8_t* SavedMarkerDataStream::ConstructSaveMarker() const

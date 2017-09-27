@@ -98,3 +98,14 @@ TEST(ByteOutputStreamTest, stream_to_nested_saved_point)
 
     EXPECT_EQ((std::array<uint8_t, 5>{{ 1, 2, 3, 4, 5 }}), stream.Writer().Processed());
 }
+
+TEST(ByteOutputStreamTest, ByteOutputStream_available_returns_streamWriter_available)
+{
+    infra::ByteOutputStream::WithStorage<64> stream;
+    EXPECT_EQ(64, stream.Available());
+    
+    uint32_t integer = 33;
+    stream << integer;
+
+    EXPECT_EQ(60, stream.Available());
+}

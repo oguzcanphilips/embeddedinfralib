@@ -18,7 +18,7 @@ namespace infra
 
     void StringOutputStreamWriter::Insert(ConstByteRange range)
     {
-        std::size_t spaceLeft = string.max_size() - string.size();
+        std::size_t spaceLeft = Available();
         bool spaceOk = range.size() <= spaceLeft;
         ReportResult(spaceOk);
         if (!spaceOk)
@@ -32,6 +32,11 @@ namespace infra
         if (isOk)
             string.push_back(static_cast<char>(element));
         ReportResult(isOk);
+    }
+
+    size_t StringOutputStreamWriter::Available() const
+    {
+        return string.max_size() - string.size();
     }
 
     const uint8_t* StringOutputStreamWriter::ConstructSaveMarker() const

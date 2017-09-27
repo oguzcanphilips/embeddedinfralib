@@ -19,6 +19,11 @@ namespace services
         Insert(infra::MakeByteRange(element));
     }
 
+    std::size_t StreamWriterOnSerialCommunication::Available() const
+    {
+        return std::numeric_limits<size_t>::max();
+    }
+
     void StreamWriterOnSerialCommunication::TrySend()
     {
         if (!buffer.Empty() && !communicating)

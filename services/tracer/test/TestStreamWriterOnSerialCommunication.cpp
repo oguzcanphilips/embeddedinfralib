@@ -55,3 +55,8 @@ TEST_F(StreamWriterOnSerialCommunicationTest, on_overflow_rest_is_discarded)
     EXPECT_CALL(communication, SendDataMock(std::vector<uint8_t>{ 1, 2, 3, 4 }));
     streamWriter.Insert(std::vector<uint8_t>{ 1, 2, 3, 4, 5 });
 }
+
+TEST_F(StreamWriterOnSerialCommunicationTest, available_returns_max)
+{
+    EXPECT_EQ(std::numeric_limits<size_t>::max(), streamWriter.Available());
+}

@@ -422,3 +422,12 @@ TEST(StringOutputStreamTest, stream_to_nested_saved_point)
 
     EXPECT_EQ("a123456c", stream.Storage());
 }
+
+TEST(StringOutputStreamTest, available_retuns_remaining_space)
+{
+    infra::StringOutputStream::WithStorage<4> sos;
+    EXPECT_EQ(4, sos.Available());
+
+    sos << 1234;
+    EXPECT_EQ(0, sos.Available());
+}

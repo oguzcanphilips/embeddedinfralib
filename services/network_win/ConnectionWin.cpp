@@ -147,6 +147,11 @@ namespace services
         connection.sendBuffer.push_back(element);
     }
 
+    std::size_t ConnectionWin::StreamWriterWin::Available() const
+    {
+        return connection.MaxSendStreamSize();
+    }
+
     ConnectionWin::StreamReaderWin::StreamReaderWin(ConnectionWin& connection)
         : connection(connection)
     {}
