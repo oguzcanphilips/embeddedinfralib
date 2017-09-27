@@ -14,7 +14,7 @@ namespace services
 
         virtual void Insert(infra::ConstByteRange range) override;
         virtual void Insert(uint8_t element) override;
-        virtual size_t Available() const override;
+        virtual std::size_t Available() const override;
 
     private:
         hal::SynchronousSerialCommunication& communication;

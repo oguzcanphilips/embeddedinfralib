@@ -31,7 +31,7 @@ namespace infra
         return streamRange.begin();
     }
 
-    size_t SavedMarkerTextStream::Available() const
+    std::size_t SavedMarkerTextStream::Available() const
     {
         return stream.Available();
     }

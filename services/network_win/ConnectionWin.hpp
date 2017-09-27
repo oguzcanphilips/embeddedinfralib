@@ -52,7 +52,6 @@ namespace services
 
         private:
             ConnectionWin& connection;
-            uint16_t sent = 0;
         };
 
         class StreamReaderWin

@@ -34,7 +34,7 @@ namespace infra
         ReportResult(isOk);
     }
 
-    size_t StringOutputStreamWriter::Available() const
+    std::size_t StringOutputStreamWriter::Available() const
     {
         return string.max_size() - string.size();
     }
