@@ -105,6 +105,10 @@ namespace services
         virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionObserverFactory& factory) = 0;
         virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory) = 0;
     };
+
+    static const uint32_t ethernetMtu = 1500;
+    static const uint32_t tcpPacketOverhead = 54;
+    static const uint32_t maxPacketPayload = ethernetMtu - tcpPacketOverhead;
 }
 
 #endif
