@@ -95,6 +95,11 @@ namespace services
         ++sent;
     }
 
+    std::size_t ConnectionLoopBackPeer::StreamWriterLoopBack::Available() const
+    {
+        return connection.sendBuffer.size() - sent;
+    }
+
     ConnectionLoopBackPeer::StreamReaderLoopBack::StreamReaderLoopBack(ConnectionLoopBackPeer& connection)
         : connection(connection)
     {}

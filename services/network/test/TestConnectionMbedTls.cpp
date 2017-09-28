@@ -31,8 +31,6 @@ public:
     services::ConnectionLoopBackFactory loopBackNetwork;
     hal::SynchronousRandomDataGeneratorWin randomDataGenerator;
     infra::SharedPtr<void> thisListener;
-    services::ServerConnectionObserverFactory* mbedTlsObserverFactory;
-    services::Connection* mbedTlsConnection;
     services::MbedTlsCertificates serverCertificates;
     services::MbedTlsCertificates clientCertificates;
     services::ConnectionFactoryMbedTls::WithMaxConnectionsListenersAndConnectors<2, 1, 1> connectionFactory;

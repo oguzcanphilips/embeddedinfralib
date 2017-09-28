@@ -64,6 +64,11 @@ namespace services
         connection.sentData.push_back(element);
     }
 
+    std::size_t ConnectionStub::StreamWriterStub::Available() const
+    {
+        return connection.MaxSendStreamSize();
+    }
+
     ConnectionStub::StreamReaderStub::StreamReaderStub(ConnectionStub& connection)
         : infra::StreamReader(infra::softFail)
         , connection(connection)

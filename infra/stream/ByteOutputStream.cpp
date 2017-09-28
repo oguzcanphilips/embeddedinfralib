@@ -45,6 +45,11 @@ namespace infra
         ++offset;
     }
 
+    std::size_t ByteOutputStreamWriter::Available() const
+    {
+        return streamRange.size() - offset;
+    }
+
     const uint8_t* ByteOutputStreamWriter::ConstructSaveMarker() const
     {
         return streamRange.begin() + offset;

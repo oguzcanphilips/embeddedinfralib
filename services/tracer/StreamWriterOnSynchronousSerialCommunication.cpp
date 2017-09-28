@@ -15,4 +15,10 @@ namespace services
     {
         Insert(infra::MakeByteRange(element));
     }
+
+    std::size_t StreamWriterOnSynchronousSerialCommunication::Available() const
+    {
+        return std::numeric_limits<size_t>::max();
+    }
+
 }

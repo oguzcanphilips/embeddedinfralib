@@ -335,6 +335,11 @@ namespace services
         ++sent;
     }
 
+    std::size_t ConnectionMbedTls::StreamWriterMbedTls::Available() const
+    {
+        return connection.sendBuffer.size() - sent;
+    }
+
     ConnectionMbedTls::StreamReaderMbedTls::StreamReaderMbedTls(ConnectionMbedTls& connection)
         : infra::StreamReader(infra::softFail)
         , connection(connection)

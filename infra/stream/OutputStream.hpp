@@ -26,6 +26,7 @@ namespace infra
     public:
         virtual void Insert(ConstByteRange range) = 0;
         virtual void Insert(uint8_t element) = 0;
+        virtual std::size_t Available() const = 0;
 
         virtual const uint8_t* ConstructSaveMarker() const;
         virtual std::size_t GetProcessedBytesSince(const uint8_t* marker) const;
@@ -55,6 +56,8 @@ namespace infra
     public:
         virtual void Insert(ConstByteRange range);
         virtual void Insert(uint8_t element);
+        virtual std::size_t Available() const;
+
     };    
 
     class OutputStream
@@ -68,6 +71,7 @@ namespace infra
         bool Failed() const;
         const uint8_t* SaveMarker() const;
         std::size_t ProcessedBytesSince(const uint8_t* marker) const;
+        std::size_t Available() const;
 
         StreamWriter& Writer();
 
