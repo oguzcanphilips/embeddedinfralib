@@ -113,6 +113,11 @@ namespace services
                 receiveBuffer.resize(newBufferStart);
                 break;
             }
+            else if (result == MBEDTLS_ERR_SSL_BAD_INPUT_DATA)  // Precondition failure
+            {
+                TlsReadFailure(result);
+                std::abort();
+            }
             else if (result < 0)
             {
                 encryptedSendStream = nullptr;
@@ -268,6 +273,11 @@ namespace services
                 : mbedtls2_ssl_write(&sslContext, reinterpret_cast<const unsigned char*>(range.begin()), range.size());
             if (result == MBEDTLS_ERR_SSL_WANT_WRITE || result == MBEDTLS_ERR_SSL_WANT_READ)
                 return;
+            else if (result == MBEDTLS_ERR_SSL_BAD_INPUT_DATA)  // Precondition failure
+            {
+                TlsWriteFailure(result);
+                std::abort();
+            }
             else if (result < 0)
             {
                 encryptedSendStream = nullptr;
