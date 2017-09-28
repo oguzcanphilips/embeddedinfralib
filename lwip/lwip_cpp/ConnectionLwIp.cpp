@@ -213,7 +213,12 @@ namespace services
     {
         assert(sent != sendBuffer.size());
         sendBuffer[sent] = element;
-        --sent;
+        ++sent;
+    }
+
+    std::size_t ConnectionLwIp::StreamWriterLwIp::Available() const
+    {
+        return sendBuffer.size() - sent;
     }
 
     ConnectionLwIp::StreamReaderLwIp::StreamReaderLwIp(ConnectionLwIp& connection)
