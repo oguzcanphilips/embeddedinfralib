@@ -149,6 +149,34 @@ TEST_F(CppFormatterTest, Class_prints_nested_entities_in_source_separated_by_new
     ExpectPrinted("a\nb");
 }
 
+TEST_F(CppFormatterTest, Class_prints_parent_in_class_header)
+{
+    application::Class class_("name");
+    class_.Parent("parent");
+    class_.PrintHeader(*printer);
+    ExpectPrinted(R"(class name
+    : parent
+{
+};
+)");
+}
+
+TEST_F(CppFormatterTest, Class_prints_more_parent_in_class_header)
+{
+    application::Class class_("name");
+    class_.Parent("parent");
+    class_.Parent("parent2");
+    class_.Parent("parent3");
+    class_.PrintHeader(*printer);
+    ExpectPrinted(R"(class name
+    : parent
+    , parent2
+    , parent3
+{
+};
+)");
+}
+
 TEST_F(CppFormatterTest, Access_prints_level_in_header)
 {
     application::Access access("public");

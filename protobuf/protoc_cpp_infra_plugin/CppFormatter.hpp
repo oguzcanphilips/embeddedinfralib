@@ -55,11 +55,17 @@ namespace application
     public:
         explicit Class(const std::string& name);
 
+        void Parent(const std::string& parentName);
+
         virtual void PrintHeader(google::protobuf::io::Printer& printer) const override;
         virtual void PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const override;
 
     private:
+        std::string Parents() const;
+
+    private:
         std::string name;
+        std::vector<std::string> parents;
     };
 
     class Access
