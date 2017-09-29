@@ -5,8 +5,9 @@ namespace services
 {
     CyclicStore::CyclicStore(hal::Flash& flash)
         : flash(flash)
-        , claimer(resource)
-        , recoverClaimer(resource)
+        , claimerAdd(resource)
+        , claimerClear(resource)
+        , claimerRecover(resource)
         , blockHeader()
     {
         Recover();
@@ -20,7 +21,7 @@ namespace services
             remainingPartialSize -= range.size();
 
         onAddDone = onDone;
-        claimer.Claim([this, range]()
+        claimerAdd.Claim([this, range]()
         {
             assert(sequencer.Finished());
             sequencer.Load([this, range]()
@@ -33,7 +34,7 @@ namespace services
                 WriteRange(range);
                 sequencer.Execute([this]()
                 {
-                    claimer.Release();
+                    claimerAdd.Release();
                     onAddDone();
                 });
             });
@@ -51,20 +52,21 @@ namespace services
     void CyclicStore::Clear(infra::Function<void()> onDone)
     {
         onClearDone = onDone;
-        claimer.Claim([this]()
+        claimerClear.Claim([this]()
         {
             endAddress = 0;
             startAddress = 0;
 
             assert(sequencer.Finished());
-            sequencer.Load([this]() {
+            sequencer.Load([this]()
+            {
                 sequencer.Step([this]()
                 {
                     flash.EraseAll([this]() { sequencer.Continue(); });
                 });
                 sequencer.Execute([this]()
                 {
-                    claimer.Release();
+                    claimerClear.Release();
                     onClearDone();
                 });
             });
@@ -78,7 +80,7 @@ namespace services
 
     void CyclicStore::Recover()
     {
-        recoverClaimer.Claim([this]()
+        claimerRecover.Claim([this]()
         {
             endAddress = 0;
             startAddress = 0;
@@ -100,7 +102,7 @@ namespace services
                 sequencer.EndIf();
                 sequencer.Execute([this]()
                 {
-                    recoverClaimer.Release();
+                    claimerRecover.Release();
                     recoverPhase = RecoverPhase::done;
                 });
             });
