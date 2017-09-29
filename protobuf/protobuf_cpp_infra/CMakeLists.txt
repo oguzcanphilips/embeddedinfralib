@@ -1,6 +1,8 @@
 ccola_component(protobuf_cpp_infra static_library)
 
 	ccola_sources(
+		Echo.cpp
+		Echo.hpp
 		ProtoParser.cpp
 		ProtoParser.hpp
 		ProtoFormatter.cpp

@@ -37,6 +37,16 @@ namespace application
             *error = "Field " + exception.fieldName + " needs an array_size specifying its maximum number of elements";
             return false;
         }
+        catch (UnspecifiedServiceId& exception)
+        {
+            *error = "Field " + exception.service + " needs a service_id specifying its id";
+            return false;
+        }
+        catch (UnspecifiedMethodId& exception)
+        {
+            *error = "Field " + exception.service + "." + exception.method + " needs a method_id specifying its id";
+            return false;
+        }
     }
 
     FieldGenerator::FieldGenerator(const google::protobuf::FieldDescriptor& descriptor)
@@ -223,7 +233,7 @@ namespace application
     {
         auto class_ = std::make_shared<Class>(descriptor.name());
         classFormatter = class_.get();
-        formatter.Add(std::move(class_));
+        formatter.Add(class_);
 
         CreateFieldGenerators();
         GenerateNestedMessageForwardDeclarations();
@@ -281,26 +291,26 @@ namespace application
             auto constructByMembers = std::make_shared<Constructor>(descriptor.name(), "", 0);
             for (auto& fieldGenerator : fieldGenerators)
                 fieldGenerator->GenerateConstructorParameter(*constructByMembers);
-            constructors->Add(std::move(constructByMembers));
+            constructors->Add(constructByMembers);
         }
 
         auto constructByProtoParser = std::make_shared<Constructor>(descriptor.name(), "Deserialize(parser);\n", 0);
         constructByProtoParser->Parameter("services::ProtoParser& parser");
-        constructors->Add(std::move(constructByProtoParser));
-        classFormatter->Add(std::move(constructors));
+        constructors->Add(constructByProtoParser);
+        classFormatter->Add(constructors);
     }
 
     void MessageGenerator::GenerateFunctions()
     {
         auto functions = std::make_shared<Access>("public");
-        auto serialize = std::make_shared<Function>("Serialize", SerializerBody(), "void", 0);
+        auto serialize = std::make_shared<Function>("Serialize", SerializerBody(), "void", Function::fConst);
         serialize->Parameter("services::ProtoFormatter& formatter");
-        functions->Add(std::move(serialize));
+        functions->Add(serialize);
 
         auto deserialize = std::make_shared<Function>("Deserialize", DeserializerBody(), "void", 0);
         deserialize->Parameter("services::ProtoParser& parser");
-        functions->Add(std::move(deserialize));
-        classFormatter->Add(std::move(functions));
+        functions->Add(deserialize);
+        classFormatter->Add(functions);
     }
 
     void MessageGenerator::GenerateNestedMessageForwardDeclarations()
@@ -312,7 +322,7 @@ namespace application
             for (int i = 0; i != descriptor.nested_type_count(); ++i)
                 forwardDeclarations->Add(std::make_shared<ClassForwardDeclaration>(descriptor.nested_type(i)->name()));
 
-            classFormatter->Add(std::move(forwardDeclarations));
+            classFormatter->Add(forwardDeclarations);
         }
     }
 
@@ -325,7 +335,7 @@ namespace application
             for (int i = 0; i != descriptor.nested_type_count(); ++i)
                 MessageGenerator(*descriptor.nested_type(i), *nestedMessages);
 
-            classFormatter->Add(std::move(nestedMessages));
+            classFormatter->Add(nestedMessages);
         }
     }
 
@@ -338,7 +348,7 @@ namespace application
             for (auto& fieldGenerator : fieldGenerators)
                 fieldGenerator->GenerateFieldDeclaration(*fields);
 
-            classFormatter->Add(std::move(fields));
+            classFormatter->Add(fields);
         }
     }
 
@@ -351,7 +361,7 @@ namespace application
             for (auto& fieldGenerator : fieldGenerators)
                 fieldGenerator->GenerateFieldConstant(*fields);
 
-            classFormatter->Add(std::move(fields));
+            classFormatter->Add(fields);
         }
     }
 
@@ -410,6 +420,152 @@ namespace application
         return result.str();
     }
 
+    ServiceGenerator::ServiceGenerator(const google::protobuf::ServiceDescriptor& service, Entities& formatter)
+        : service(service)
+    {
+        auto serviceClass = std::make_shared<Class>(service.name());
+        serviceClass->Parent("public services::Service");
+        serviceFormatter = serviceClass.get();
+        formatter.Add(serviceClass);
+
+        auto serviceProxyClass = std::make_shared<Class>(service.name() + "Proxy");
+        serviceProxyClass->Parent("public services::ServiceProxy");
+        serviceProxyFormatter = serviceProxyClass.get();
+        formatter.Add(serviceProxyClass);
+
+        GenerateServiceConstructors();
+        GenerateServiceProxyConstructors();
+        GenerateServiceFunctions();
+        GenerateServiceProxyFunctions();
+        GenerateFieldConstants();
+    }
+
+    void ServiceGenerator::GenerateServiceConstructors()
+    {
+        auto constructors = std::make_shared<Access>("public");
+        auto constructor = std::make_shared<Constructor>(service.name(), "", 0);
+        constructor->Parameter("services::Echo& echo");
+        constructor->Initializer("services::Service(echo, serviceId)");
+
+        constructors->Add(constructor);
+        serviceFormatter->Add(constructors);
+    }
+
+    void ServiceGenerator::GenerateServiceProxyConstructors()
+    {
+        auto constructors = std::make_shared<Access>("public");
+        auto constructor = std::make_shared<Constructor>(service.name() + "Proxy", "", 0);
+        constructor->Parameter("services::Echo& echo");
+        constructor->Initializer("services::ServiceProxy(echo, serviceId)");
+
+        constructors->Add(constructor);
+        serviceProxyFormatter->Add(constructors);
+    }
+
+    void ServiceGenerator::GenerateServiceFunctions()
+    {
+        auto functions = std::make_shared<Access>("public");
+
+        for (int i = 0; i != service.method_count(); ++i)
+        {
+            auto serviceMethod = std::make_shared<Function>(service.method(i)->name(), "", "void", Function::fVirtual | Function::fAbstract);
+            serviceMethod->Parameter("const " + QualifiedName(*service.method(i)->input_type()) + "& argument");
+            functions->Add(serviceMethod);
+        }
+
+        auto handle = std::make_shared<Function>("Handle", HandleBody(), "void", Function::fVirtual | Function::fOverride);
+        handle->Parameter("uint32_t methodId");
+        handle->Parameter("services::ProtoParser& parser");
+        functions->Add(handle);
+
+        serviceFormatter->Add(functions);
+    }
+
+    void ServiceGenerator::GenerateServiceProxyFunctions()
+    {
+        auto functions = std::make_shared<Access>("public");
+
+        for (int i = 0; i != service.method_count(); ++i)
+        {
+            auto serviceMethod = std::make_shared<Function>(service.method(i)->name(), ProxyMethodBody(*service.method(i)), "void", 0);
+            serviceMethod->Parameter("const " + QualifiedName(*service.method(i)->input_type()) + "& argument");
+            functions->Add(serviceMethod);
+        }
+
+        serviceProxyFormatter->Add(functions);
+    }
+
+    void ServiceGenerator::GenerateFieldConstants()
+    {
+        auto fields = std::make_shared<Access>("private");
+
+        uint32_t serviceId = service.options().GetExtension(service_id);
+        if (serviceId == 0)
+            throw UnspecifiedServiceId{ service.name() };
+
+        fields->Add(std::make_shared<DataMember>("serviceId = " + google::protobuf::SimpleItoa(serviceId), "static const uint32_t"));
+
+        for (int i = 0; i != service.method_count(); ++i)
+        {
+            uint32_t methodId = service.method(i)->options().GetExtension(method_id);
+            if (methodId == 0)
+                throw UnspecifiedMethodId{ service.name(), service.method(i)->name() };
+
+            fields->Add(std::make_shared<DataMember>("id" + service.method(i)->name() + " = " + google::protobuf::SimpleItoa(methodId), "static const uint32_t"));
+        }
+
+        serviceFormatter->Add(fields);
+        serviceProxyFormatter->Add(fields);
+    }
+
+    std::string ServiceGenerator::HandleBody() const
+    {
+        std::ostringstream result;
+        {
+            google::protobuf::io::OstreamOutputStream stream(&result);
+            google::protobuf::io::Printer printer(&stream, '$', nullptr);
+
+            printer.Print("switch (methodId)\n{\n");
+
+            for (int i = 0; i != service.method_count(); ++i)
+            {
+                printer.Print(R"(    case id$name$:
+    {
+        $argument$ argument(parser);
+        $name$(argument);
+    }
+)", "name", service.method(i)->name(), "argument", QualifiedName(*service.method(i)->input_type()));
+            }
+
+            printer.Print("}\n");
+        }
+
+        return result.str();
+    }
+
+    std::string ServiceGenerator::ProxyMethodBody(const google::protobuf::MethodDescriptor& descriptor) const
+    {
+        std::ostringstream result;
+        {
+            google::protobuf::io::OstreamOutputStream stream(&result);
+            google::protobuf::io::Printer printer(&stream, '$', nullptr);
+
+            printer.Print("services::ProtoFormatter formatter(Rpc().SendStream());\nformatter.PutVarInt(serviceId);\n");
+            printer.Print("formatter.PutVarInt(id$name$);\n", "name", descriptor.name());
+            printer.Print("argument.Serialize(formatter);\nRpc().Send();\n");
+        }
+
+        return result.str();
+    }
+
+    std::string ServiceGenerator::QualifiedName(const google::protobuf::Descriptor& descriptor) const
+    {
+        if (descriptor.containing_type() != nullptr)
+            return QualifiedName(*descriptor.containing_type()) + "::" + descriptor.name();
+        else
+            return descriptor.name();
+    }
+
     CppInfraGenerator::CppInfraGenerator(google::protobuf::compiler::GeneratorContext* generatorContext, const std::string& name, const google::protobuf::FileDescriptor* file)
         : stream(generatorContext->Open(name))
         , printer(stream.get(), '$', nullptr)
@@ -419,12 +575,13 @@ namespace application
         auto includesByHeader = std::make_shared<IncludesByHeader>();
         includesByHeader->Path("infra/util/BoundedString.hpp");
         includesByHeader->Path("infra/util/BoundedVector.hpp");
+        includesByHeader->Path("protobuf/protobuf_cpp_infra/Echo.hpp");
         includesByHeader->Path("protobuf/protobuf_cpp_infra/ProtoFormatter.hpp");
         includesByHeader->Path("protobuf/protobuf_cpp_infra/ProtoParser.hpp");
-        formatter.Add(std::move(includesByHeader));
+        formatter.Add(includesByHeader);
         auto includesBySource = std::make_shared<IncludesBySource>();
         includesBySource->Path("generated/proto_cpp_infra/" + google::protobuf::compiler::cpp::StripProto(file->name()) + ".pb.hpp");
-        formatter.Add(std::move(includesBySource));
+        formatter.Add(includesBySource);
 
         Entities* currentEntity = &formatter;
         std::vector<std::string> packageParts = google::protobuf::Split(file->package(), ".", true);
@@ -432,12 +589,15 @@ namespace application
         {
             auto newNamespace = std::make_shared<Namespace>(package);
             auto newEntity = newNamespace.get();
-            currentEntity->Add(std::move(newNamespace));
+            currentEntity->Add(newNamespace);
             currentEntity = newEntity;
         }
 
         for (int i = 0; i != file->message_type_count(); ++i)
             messageGenerators.emplace_back(std::make_shared<MessageGenerator>(*file->message_type(i), *currentEntity));
+
+        for (int i = 0; i != file->service_count(); ++i)
+            serviceGenerators.emplace_back(std::make_shared<ServiceGenerator>(*file->service(i), *currentEntity));
     }
 
     void CppInfraGenerator::GenerateHeader()

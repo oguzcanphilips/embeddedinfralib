@@ -24,6 +24,17 @@ namespace application
         std::string fieldName;
     };
 
+    struct UnspecifiedServiceId
+    {
+        std::string service;
+    };
+
+    struct UnspecifiedMethodId
+    {
+        std::string service;
+        std::string method;
+    };
+
     class CppInfraCodeGenerator
         : public google::protobuf::compiler::CodeGenerator
     {
@@ -142,6 +153,31 @@ namespace application
         std::vector<std::shared_ptr<FieldGenerator>> fieldGenerators;
     };
 
+    class ServiceGenerator
+    {
+    public:
+        ServiceGenerator(const google::protobuf::ServiceDescriptor& service, Entities& formatter);
+        ServiceGenerator(const ServiceGenerator& other) = delete;
+        ServiceGenerator& operator=(const ServiceGenerator& other) = delete;
+        ~ServiceGenerator() = default;
+
+    private:
+        void GenerateServiceConstructors();
+        void GenerateServiceProxyConstructors();
+        void GenerateServiceFunctions();
+        void GenerateServiceProxyFunctions();
+        void GenerateFieldConstants();
+
+        std::string HandleBody() const;
+        std::string ProxyMethodBody(const google::protobuf::MethodDescriptor& descriptor) const;
+        std::string QualifiedName(const google::protobuf::Descriptor& descriptor) const;
+
+    private:
+        const google::protobuf::ServiceDescriptor& service;
+        Class* serviceFormatter;
+        Class* serviceProxyFormatter;
+    };
+
     class CppInfraGenerator
     {
     public:
@@ -165,6 +201,7 @@ namespace application
         const google::protobuf::FileDescriptor* file;
 
         std::vector<std::shared_ptr<MessageGenerator>> messageGenerators;
+        std::vector<std::shared_ptr<ServiceGenerator>> serviceGenerators;
     };
 }
 
