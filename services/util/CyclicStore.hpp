@@ -40,8 +40,9 @@ namespace services
         infra::Sequencer sequencer;
         uint32_t sectorIndex = 0;
         mutable infra::ClaimableResource resource;
-        infra::ClaimableResource::Claimer::WithSize<12> claimer;
-        infra::ClaimableResource::Claimer::WithSize<12> recoverClaimer;
+        infra::ClaimableResource::Claimer::WithSize<12> claimerAdd;
+        infra::ClaimableResource::Claimer::WithSize<12> claimerClear;
+        infra::ClaimableResource::Claimer::WithSize<12> claimerRecover;
         infra::AutoResetFunction<void()> onAddDone;
         infra::AutoResetFunction<void()> onClearDone;
         uint32_t remainingPartialSize = 0;
