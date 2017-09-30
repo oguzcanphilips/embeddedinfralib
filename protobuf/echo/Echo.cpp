@@ -1,5 +1,5 @@
-#include "protobuf/protobuf_cpp_infra/Echo.hpp"
-#include "protobuf/protobuf_cpp_infra/ProtoFormatter.hpp"
+#include "protobuf/echo/Echo.hpp"
+#include "protobuf/echo/ProtoFormatter.hpp"
 
 namespace services
 {

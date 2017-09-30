@@ -1,5 +1,5 @@
 #include "infra/stream/SavedMarkerStream.hpp"
-#include "protobuf/protobuf_cpp_infra/ProtoFormatter.hpp"
+#include "protobuf/echo/ProtoFormatter.hpp"
 
 namespace services
 {

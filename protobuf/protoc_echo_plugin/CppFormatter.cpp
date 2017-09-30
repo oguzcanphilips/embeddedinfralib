@@ -1,4 +1,4 @@
-#include "protobuf/protoc_cpp_infra_plugin/CppFormatter.hpp"
+#include "protobuf/protoc_echo_plugin/CppFormatter.hpp"
 #include <functional>
 
 namespace application

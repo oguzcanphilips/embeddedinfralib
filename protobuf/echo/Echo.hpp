@@ -2,7 +2,7 @@
 #define PROTOBUF_ECHO_HPP
 
 #include "infra/util/Function.hpp"
-#include "protobuf/protobuf_cpp_infra/ProtoParser.hpp"
+#include "protobuf/echo/ProtoParser.hpp"
 #include "services/network/Connection.hpp"
 
 namespace services

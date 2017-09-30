@@ -1,4 +1,4 @@
-ccola_component(protobuf_cpp_infra static_library)
+ccola_component(echo static_library)
 
 	ccola_sources(
 		Echo.cpp

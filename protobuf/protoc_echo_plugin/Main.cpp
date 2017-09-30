@@ -1,5 +1,5 @@
 #include "google/protobuf/compiler/plugin.h"
-#include "protobuf/protoc_cpp_infra_plugin/ProtoCCppInfraPlugin.hpp"
+#include "protobuf/protoc_echo_plugin/ProtoCEchoPlugin.hpp"
 #include <crtdbg.h>
 
 int main(int argc, char* argv[])
