@@ -58,6 +58,11 @@ namespace application
         entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldConstantName(&descriptor) + " = " + google::protobuf::SimpleItoa(descriptor.number()), "static const uint32_t"));
     }
 
+    void FieldGenerator::CompareEqualBody(google::protobuf::io::Printer& printer)
+    {
+        printer.Print("\n&& $name$ == other.$name$", "name", google::protobuf::compiler::cpp::FieldName(&descriptor));
+    }
+
     void FieldGeneratorString::GenerateFieldDeclaration(Entities& entities)
     {
         uint32_t stringSize = descriptor.options().GetExtension(string_size);
@@ -87,6 +92,7 @@ namespace application
     void FieldGeneratorString::GenerateConstructorParameter(Constructor& constructor)
     {
         constructor.Parameter("infra::BoundedConstString " + google::protobuf::compiler::cpp::FieldName(&descriptor));
+        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
     }
 
     FieldGeneratorRepeatedString::FieldGeneratorRepeatedString(const google::protobuf::FieldDescriptor& descriptor)
@@ -129,6 +135,7 @@ namespace application
     void FieldGeneratorRepeatedString::GenerateConstructorParameter(Constructor& constructor)
     {
         constructor.Parameter("const infra::BoundedVector<infra::BoundedString::WithStorage<" + google::protobuf::SimpleItoa(stringSize) + ">>& " + google::protobuf::compiler::cpp::FieldName(&descriptor));
+        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
     }
 
     void FieldGeneratorUint32::GenerateFieldDeclaration(Entities& entities)
@@ -156,6 +163,7 @@ namespace application
     void FieldGeneratorUint32::GenerateConstructorParameter(Constructor& constructor)
     {
         constructor.Parameter("uint32_t " + google::protobuf::compiler::cpp::FieldName(&descriptor));
+        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
     }
 
     void FieldGeneratorMessage::GenerateFieldDeclaration(Entities& entities)
@@ -187,6 +195,7 @@ namespace application
     void FieldGeneratorMessage::GenerateConstructorParameter(Constructor& constructor)
     {
         constructor.Parameter("const " + descriptor.message_type()->name() + "& " + google::protobuf::compiler::cpp::FieldName(&descriptor));
+        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
     }
 
     void FieldGeneratorRepeatedMessage::GenerateFieldDeclaration(Entities& entities)
@@ -226,6 +235,7 @@ namespace application
     void FieldGeneratorRepeatedMessage::GenerateConstructorParameter(Constructor& constructor)
     {
         constructor.Parameter("const infra::BoundedVector<" + descriptor.message_type()->name() + ">& " + google::protobuf::compiler::cpp::FieldName(&descriptor));
+        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
     }
 
     MessageGenerator::MessageGenerator(const google::protobuf::Descriptor& descriptor, Entities& formatter)
@@ -303,6 +313,7 @@ namespace application
     void MessageGenerator::GenerateFunctions()
     {
         auto functions = std::make_shared<Access>("public");
+
         auto serialize = std::make_shared<Function>("Serialize", SerializerBody(), "void", Function::fConst);
         serialize->Parameter("services::ProtoFormatter& formatter");
         functions->Add(serialize);
@@ -310,6 +321,15 @@ namespace application
         auto deserialize = std::make_shared<Function>("Deserialize", DeserializerBody(), "void", 0);
         deserialize->Parameter("services::ProtoParser& parser");
         functions->Add(deserialize);
+
+        auto compareEqual = std::make_shared<Function>("operator==", CompareEqualBody(), "bool", Function::fConst);
+        compareEqual->Parameter("const " + descriptor.name() + "& other");
+        functions->Add(compareEqual);
+
+        auto compareUnEqual = std::make_shared<Function>("operator!=", CompareUnEqualBody(), "bool", Function::fConst);
+        compareUnEqual->Parameter("const " + descriptor.name() + "& other");
+        functions->Add(compareUnEqual);
+
         classFormatter->Add(functions);
     }
 
@@ -415,6 +435,39 @@ namespace application
         field.first.Get<services::ProtoLengthDelimited>().SkipEverything();
 }
 )");
+        }
+
+        return result.str();
+    }
+
+    std::string MessageGenerator::CompareEqualBody() const
+    {
+        std::ostringstream result;
+        {
+            google::protobuf::io::OstreamOutputStream stream(&result);
+            google::protobuf::io::Printer printer(&stream, '$', nullptr);
+
+            printer.Print("return true");
+
+            printer.Indent();
+            for (auto& fieldGenerator : fieldGenerators)
+                fieldGenerator->CompareEqualBody(printer);
+            printer.Outdent();
+
+            printer.Print(";\n");
+        }
+
+        return result.str();
+    }
+
+    std::string MessageGenerator::CompareUnEqualBody() const
+    {
+        std::ostringstream result;
+        {
+            google::protobuf::io::OstreamOutputStream stream(&result);
+            google::protobuf::io::Printer printer(&stream, '$', nullptr);
+
+            printer.Print("return !(*this == other);\n");
         }
 
         return result.str();
@@ -550,9 +603,14 @@ namespace application
             google::protobuf::io::OstreamOutputStream stream(&result);
             google::protobuf::io::Printer printer(&stream, '$', nullptr);
 
-            printer.Print("services::ProtoFormatter formatter(Rpc().SendStream());\nformatter.PutVarInt(serviceId);\n");
-            printer.Print("formatter.PutVarInt(id$name$);\n", "name", descriptor.name());
-            printer.Print("argument.Serialize(formatter);\nRpc().Send();\n");
+            printer.Print(R"(services::ProtoFormatter formatter(Rpc().SendStream());
+formatter.PutVarInt(serviceId);
+{
+    services::ProtoLengthDelimitedFormatter argumentFormatter = formatter.LengthDelimitedFormatter(id$name$);
+    argument.Serialize(formatter);
+}
+Rpc().Send();
+)", "name", descriptor.name());
         }
 
         return result.str();

@@ -45,6 +45,8 @@ namespace services
         , public services::ConnectionObserver
     {
     public:
+        Echo(services::Connection& connection);
+
         virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) override;
         virtual void DataReceived() override;
 

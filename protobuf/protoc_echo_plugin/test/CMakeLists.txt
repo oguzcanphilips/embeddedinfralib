@@ -11,6 +11,9 @@ ccola_component(protoc_echo_plugin_test gmock_test)
 
 	ccola_dependencies(
 		protoc_echo_plugin_lib
+		infra.event_test_helper
+		infra.util_test_helper
+		services.network_test_doubles
 	)
 
 ccola_end_component()

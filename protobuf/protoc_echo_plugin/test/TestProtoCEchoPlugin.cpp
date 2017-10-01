@@ -2,8 +2,10 @@
 #include "generated/echo/TestMessages.pb.hpp"
 #include "infra/stream/ByteInputStream.hpp"
 #include "infra/stream/ByteOutputStream.hpp"
+#include "infra/util/test_helper/MockCallback.hpp"
 #include "protobuf/echo/ProtoFormatter.hpp"
 #include "protobuf/echo/ProtoParser.hpp"
+#include "services/network/test_doubles/ConnectionMock.hpp"
 
 TEST(ProtoCEchoPluginTest, serialize_string)
 {
@@ -140,4 +142,47 @@ TEST(ProtoCEchoPluginTest, deserialize_nested_repeated_message)
 
     test_messages::TestNestedRepeatedMessage message(parser);
     EXPECT_EQ(5, message.message[0].value);
+}
+
+TEST(ProtoCEchoPluginTest, invoke_service_proxy_method)
+{
+    services::ConnectionMock connection;
+    services::Echo echo(connection);
+    test_messages::TestService1Proxy service(echo);
+
+    testing::StrictMock<infra::MockCallback<void()>> onGranted;
+    EXPECT_CALL(connection, RequestSendStream(1024));
+    service.RequestSend([&onGranted]() { onGranted.callback(); });
+
+    infra::ByteOutputStream::WithStorage<128> stream;
+    auto streamPtr = infra::UnOwnedSharedPtr(stream);
+    EXPECT_CALL(onGranted, callback());
+    connection.GetObserver().SendStreamAvailable(streamPtr);
+
+    service.Method(test_messages::TestUint32(5));
+    EXPECT_EQ((std::vector<uint8_t>{ 1, 10, 2, 8, 5 }), (std::vector<uint8_t>(stream.Storage().begin(), stream.Storage().begin() + 5)));
+}
+
+class TestService1Mock
+    : public test_messages::TestService1
+{
+public:
+    using test_messages::TestService1::TestService1;
+
+    MOCK_METHOD1(Method, void(const test_messages::TestUint32& argument));
+};
+
+TEST(ProtoCEchoPluginTest, service_method_is_invoked)
+{
+    testing::StrictMock<services::ConnectionMock> connection;
+    services::Echo echo(connection);
+    testing::StrictMock<TestService1Mock> service(echo);
+
+    infra::ByteInputStream::WithStorage<128> stream;
+    infra::Copy(infra::MakeRange(std::array<uint8_t, 5>{ 1, 10, 2, 8, 5 }), infra::Head(infra::MakeRange(stream.Storage()), 5));
+    auto streamPtr = infra::UnOwnedSharedPtr(stream);
+    EXPECT_CALL(connection, ReceiveStream()).WillOnce(testing::Return(streamPtr));
+    EXPECT_CALL(service, Method(test_messages::TestUint32(5)));
+    EXPECT_CALL(connection, AckReceived());
+    connection.GetObserver().DataReceived();
 }

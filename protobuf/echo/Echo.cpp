@@ -39,6 +39,10 @@ namespace services
         onGranted();
     }
 
+    Echo::Echo(services::Connection& connection)
+        : services::ConnectionObserver(connection)
+    {}
+
     void Echo::SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream)
     {
         sendStream = stream;

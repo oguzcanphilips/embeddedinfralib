@@ -11,6 +11,7 @@ ccola_component(echo static_library)
 
 	ccola_dependencies(
 		infra.stream
+		services.network
 	)
 
 ccola_end_component()

@@ -56,6 +56,7 @@ namespace application
         void GenerateFieldConstant(Entities& formatter);
         virtual void SerializerBody(google::protobuf::io::Printer& printer) = 0;
         virtual void DeserializerBody(google::protobuf::io::Printer& printer) = 0;
+        void CompareEqualBody(google::protobuf::io::Printer& printer);
         virtual void GenerateConstructorParameter(Constructor& constructor) = 0;
 
     protected:
@@ -145,6 +146,8 @@ namespace application
         void GenerateFieldConstants();
         std::string SerializerBody();
         std::string DeserializerBody();
+        std::string CompareEqualBody() const;
+        std::string CompareUnEqualBody() const;
 
     private:
         const google::protobuf::Descriptor& descriptor;
