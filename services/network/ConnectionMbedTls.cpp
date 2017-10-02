@@ -67,7 +67,9 @@ namespace services
             mbedtls2_ssl_conf_session_cache(&sslConfig, serverCache, mbedtls2_ssl_cache_get, mbedtls2_ssl_cache_set);
 
         result = mbedtls2_ssl_setup(&sslContext, &sslConfig);
-        assert(result == 0);
+        if (result != 0)
+            TlsInitFailure(result);
+        really_assert(result == 0);
 
         if (!server)
         {
@@ -177,6 +179,9 @@ namespace services
     {
         return ConnectionObserver::Subject().Ipv4Address();
     }
+
+    void ConnectionMbedTls::TlsInitFailure(int reason)
+    {}
 
     void ConnectionMbedTls::TlsReadFailure(int reason)
     {}

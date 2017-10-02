@@ -12,9 +12,13 @@ namespace services
     public:
         TracingConnectionMbedTls(Connection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession, Tracer& tracer);
 
+        virtual void TlsInitFailure(int reason) override;
         virtual void TlsReadFailure(int reason) override;
         virtual void TlsWriteFailure(int reason) override;
         virtual void TlsLog(int level, const char* file, int line, const char* message) override;
+
+    private:
+        void LogFailure(const char* what, int reason);
 
     private:
         Tracer& tracer;

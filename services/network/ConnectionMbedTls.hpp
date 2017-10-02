@@ -57,6 +57,7 @@ namespace services
 
         virtual IPv4Address Ipv4Address() const override;
 
+        virtual void TlsInitFailure(int reason);
         virtual void TlsReadFailure(int reason);
         virtual void TlsWriteFailure(int reason);
         virtual void TlsLog(int level, const char* file, int line, const char* message);

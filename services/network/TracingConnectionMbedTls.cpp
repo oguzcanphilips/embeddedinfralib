@@ -9,22 +9,19 @@ namespace services
         , tracer(tracer)
     {}
 
+    void TracingConnectionMbedTls::TlsInitFailure(int reason)
+    {
+        LogFailure("TracingConnectionMbedTls::TlsInitFailure", reason);
+    }
+
     void TracingConnectionMbedTls::TlsReadFailure(int reason)
     {
-    	infra::BoundedString::WithStorage<128> description;
-    	mbedtls2_strerror(reason, description.data(), description.max_size());
-
-    	tracer.Trace() << "TracingConnectionMbedTls::TlsReadFailure: " << description
-    			       << " (-0x" << infra::hex << infra::Width(4, '0') << std::abs(reason) << ")";
+        LogFailure("TracingConnectionMbedTls::TlsReadFailure", reason);
     }
 
     void TracingConnectionMbedTls::TlsWriteFailure(int reason)
     {
-    	infra::BoundedString::WithStorage<128> description;
-    	mbedtls2_strerror(reason, description.data(), description.max_size());
-
-    	tracer.Trace() << "TracingConnectionMbedTls::TlsWriteFailure: " << description
-    			       << " (-0x" << infra::hex << infra::Width(4, '0') << std::abs(reason) << ")";
+        LogFailure("TracingConnectionMbedTls::TlsWriteFailure", reason);
     }
 
     void TracingConnectionMbedTls::TlsLog(int level, const char* file, int line, const char* message)
@@ -33,6 +30,15 @@ namespace services
 
     	tracer.Trace() << "[" << fileCopy.substr(fileCopy.find_last_of('\\') + 1) << ":" << line
     			       << "] (" << level << "): " << message;
+    }
+
+    void TracingConnectionMbedTls::LogFailure(const char* what, int reason)
+    {
+        infra::BoundedString::WithStorage<128> description;
+        mbedtls2_strerror(reason, description.data(), description.max_size());
+
+        tracer.Trace() << what << ": " << description
+            << " (-0x" << infra::hex << infra::Width(4, '0') << std::abs(reason) << ")";
     }
 
     AllocatorTracingConnectionMbedTlsAdapter::AllocatorTracingConnectionMbedTlsAdapter(AllocatorTracingConnectionMbedTls& allocator, Tracer& tracer)
