@@ -8,15 +8,13 @@ namespace services
         return ListenMock(port);
     }
 
-    bool ConnectionFactoryMock::NewConnection(Connection& connection)
+    void ConnectionFactoryMock::NewConnection(Connection& connection)
     {
-        infra::SharedPtr<services::ConnectionObserver> connectionObserver = serverConnectionObserverFactory->ConnectionAccepted(connection);
-
-        if (!connectionObserver)
-            return false;
-
-        connection.SetOwnership(nullptr, connectionObserver);
-        return true;
+        serverConnectionObserverFactory->ConnectionAccepted([&connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
+        {
+            connectionObserver->Attach(connection);
+            connection.SetOwnership(nullptr, connectionObserver);
+        });
     }
 
     ConnectionObserverMock::ConnectionObserverMock(services::Connection& connection)

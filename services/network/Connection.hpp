@@ -3,6 +3,7 @@
 
 #include "infra/stream/InputStream.hpp"
 #include "infra/stream/OutputStream.hpp"
+#include "infra/util/AutoResetFunction.hpp"
 #include "infra/util/Observer.hpp"
 #include "infra/util/SharedPtr.hpp"
 #include "services/network/Address.hpp"
@@ -15,6 +16,7 @@ namespace services
         : public infra::SingleObserver<ConnectionObserver, Connection>
     {
     protected:
+        ConnectionObserver() = default;
         explicit ConnectionObserver(Connection& connection);
         ConnectionObserver(const ConnectionObserver& other) = delete;
         ConnectionObserver& operator=(const ConnectionObserver& other) = delete;
@@ -24,6 +26,8 @@ namespace services
         virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) = 0;
         virtual void DataReceived() = 0;
         virtual void ClosingConnection() {}
+
+        using infra::SingleObserver<ConnectionObserver, Connection>::Attach;
 
     private:
         friend class Connection;
@@ -71,7 +75,7 @@ namespace services
         ~ServerConnectionObserverFactory() = default;
 
     public:
-        virtual infra::SharedPtr<ConnectionObserver> ConnectionAccepted(Connection& newConnection) = 0;
+        virtual void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver) = 0;
     };
 
     class ClientConnectionObserverFactory
@@ -89,7 +93,7 @@ namespace services
             connectionAllocationFailed
         };
 
-        virtual infra::SharedPtr<ConnectionObserver> ConnectionEstablished(Connection& newConnection) = 0;
+        virtual void ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver) = 0;
         virtual void ConnectionFailed(ConnectFailReason reason) = 0;
     };
 

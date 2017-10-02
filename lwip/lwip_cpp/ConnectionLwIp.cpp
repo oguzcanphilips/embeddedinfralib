@@ -311,13 +311,19 @@ namespace services
         infra::SharedPtr<ConnectionLwIp> connection = allocator.Allocate(newPcb);
         if (connection)
         {
-            infra::SharedPtr<ConnectionObserver> observer = factory.ConnectionAccepted(*connection);
-
-            if (observer)
+            factory.ConnectionAccepted([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
             {
-                connection->SetOwnership(connection, observer);
+                if (connectionObserver)
+                {
+                    connectionObserver->Attach(*connection);
+                    connection->SetOwnership(connection, connectionObserver);
+                }
+            });
+
+            infra::WeakPtr<ConnectionLwIp> weakConnection = connection;
+            connection = nullptr;
+            if (weakConnection.lock())
                 return ERR_OK;
-            }
             else
                 return ERR_ABRT;
         }
@@ -367,13 +373,19 @@ namespace services
         if (connection)
         {
             control = nullptr;
-            infra::SharedPtr<ConnectionObserver> observer = factory.ConnectionEstablished(*connection);
-
-            if (observer)
+            factory.ConnectionEstablished([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
             {
-                connection->SetOwnership(connection, observer);
+                if (connectionObserver)
+                {
+                    connectionObserver->Attach(*connection);
+                    connection->SetOwnership(connection, connectionObserver);
+                }
+            });
+
+            infra::WeakPtr<ConnectionLwIp> weakConnection = connection;
+            connection = nullptr;
+            if (weakConnection.lock())
                 return ERR_OK;
-            }
             else
                 return ERR_ABRT;
         }

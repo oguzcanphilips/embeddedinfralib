@@ -226,13 +226,14 @@ namespace services
             std::abort();
 
         infra::SharedPtr<ConnectionWin> connection = infra::MakeSharedOnHeap<ConnectionWin>(network, acceptedSocket);
-        infra::SharedPtr<services::ConnectionObserver> observer = factory.ConnectionAccepted(*connection);
-
-        if (observer)
+        factory.ConnectionAccepted([this, connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
         {
-            connection->SetOwnership(connection, observer);
-            network.RegisterConnection(connection);
-        }
+            if (connectionObserver)
+            {
+                connection->SetOwnership(connection, connectionObserver);
+                network.RegisterConnection(connection);
+            }
+        });
     }
 
     EventDispatcherWithNetwork::EventDispatcherWithNetwork()

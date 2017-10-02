@@ -187,18 +187,24 @@ namespace services
     void ConnectionLoopBackListener::Accept(ClientConnectionObserverFactory& clientObserverFactory)
     {
         infra::SharedPtr<ConnectionLoopBack> connection = infra::MakeSharedOnHeap<ConnectionLoopBack>();
-        infra::SharedPtr<ConnectionObserver> serverObserver = connectionObserverFactory.ConnectionAccepted(connection->Server());
-        if (serverObserver)
+        connectionObserverFactory.ConnectionAccepted([&clientObserverFactory, connection](infra::SharedPtr<services::ConnectionObserver> serverObserver)
         {
-            infra::SharedPtr<ConnectionObserver> clientObserver = clientObserverFactory.ConnectionEstablished(connection->Client());
-            if (clientObserver)
+            if (serverObserver)
             {
-                connection->Server().SetOwnership(connection, serverObserver);
-                connection->Client().SetOwnership(connection, clientObserver);
+                serverObserver->Attach(connection->Server());
+                clientObserverFactory.ConnectionEstablished([connection, serverObserver](infra::SharedPtr<services::ConnectionObserver> clientObserver)
+                {
+                    if (clientObserver)
+                    {
+                        clientObserver->Attach(connection->Client());
+                        connection->Server().SetOwnership(connection, serverObserver);
+                        connection->Client().SetOwnership(connection, clientObserver);
+                    }
+                });
             }
-        }
-        else
-            clientObserverFactory.ConnectionFailed(services::ClientConnectionObserverFactory::ConnectFailReason::connectionAllocationFailed);
+            else
+                clientObserverFactory.ConnectionFailed(services::ClientConnectionObserverFactory::ConnectFailReason::connectionAllocationFailed);
+        });
     }
 
     ConnectionLoopBackFactory::~ConnectionLoopBackFactory()
