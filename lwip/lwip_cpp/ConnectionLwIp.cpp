@@ -142,7 +142,7 @@ namespace services
                 receiveBuffer.insert(receiveBuffer.end(), reinterpret_cast<uint8_t*>(q->payload), reinterpret_cast<uint8_t*>(q->payload) + q->len);
             pbuf_free(p);
 
-            if (!dataReceivedScheduled)
+            if (!dataReceivedScheduled && HasObserver())
             {
                 dataReceivedScheduled = true;
                 infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectionLwIp>& object)
