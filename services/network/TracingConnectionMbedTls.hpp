@@ -10,18 +10,22 @@ namespace services
         : public ConnectionMbedTls
     {
     public:
-        TracingConnectionMbedTls(Connection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession, Tracer& tracer);
+        TracingConnectionMbedTls(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession, Tracer& tracer);
 
+        virtual void TlsInitFailure(int reason) override;
         virtual void TlsReadFailure(int reason) override;
         virtual void TlsWriteFailure(int reason) override;
         virtual void TlsLog(int level, const char* file, int line, const char* message) override;
+
+    private:
+        void LogFailure(const char* what, int reason);
 
     private:
         Tracer& tracer;
     };
 
     using AllocatorTracingConnectionMbedTls = infra::SharedObjectAllocator<TracingConnectionMbedTls,
-        void(Connection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession, Tracer& tracer)>;
+        void(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession, Tracer& tracer)>;
 
     class AllocatorTracingConnectionMbedTlsAdapter
         : public AllocatorConnectionMbedTls
@@ -29,8 +33,8 @@ namespace services
     public:
         AllocatorTracingConnectionMbedTlsAdapter(AllocatorTracingConnectionMbedTls& allocator, Tracer& tracer);
 
-        virtual infra::SharedPtr<ConnectionMbedTls> Allocate(Connection& connection, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator,
-            bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession) override;
+        virtual infra::SharedPtr<ConnectionMbedTls> Allocate(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver,
+            MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession) override;
 
     private:
         AllocatorTracingConnectionMbedTls& allocator;

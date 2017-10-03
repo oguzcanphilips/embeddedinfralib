@@ -77,6 +77,7 @@ namespace services
         : public services::ConnectionObserver
     {
     public:
+        ConnectionObserverStub() = default;
         ConnectionObserverStub(services::Connection& connection)
             : services::ConnectionObserver(connection)
         {}
