@@ -1,5 +1,6 @@
 #include <gmock/gmock.h>
 #include "infra/util/SharedOptional.hpp"
+#include "infra/util/test_helper/MockCallback.hpp"
 
 TEST(SharedOptionalTest, Emplace_returns_SharedPtr)
 {
@@ -48,4 +49,17 @@ TEST(SharedOptionalTest, only_after_WeakPtr_destruction_SharedOptional_is_alloca
     EXPECT_FALSE(s.Allocatable());
     wp = nullptr;
     EXPECT_TRUE(s.Allocatable());
+}
+
+TEST(SharedOptionalTest, NotifyingSharedPtr_notifies_after_becoming_allocatable)
+{
+    infra::MockCallback<void()> callback;
+    infra::NotifyingSharedOptional<int> s([&callback]() { callback.callback(); });
+
+    infra::SharedPtr<int> p = s.Emplace(5);
+    infra::WeakPtr<int> wp = p;
+    p = nullptr;
+
+    EXPECT_CALL(callback, callback());
+    wp = nullptr;
 }

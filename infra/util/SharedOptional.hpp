@@ -1,6 +1,7 @@
 #ifndef INFRA_SHARED_OPTIONAL_HPP
 #define INFRA_SHARED_OPTIONAL_HPP
 
+#include "infra/util/Function.hpp"
 #include "infra/util/Optional.hpp"
 #include "infra/util/SharedObjectAllocator.hpp"
 
@@ -8,7 +9,7 @@ namespace infra
 {
     template<class T>
     class SharedOptional
-        : private SharedObjectDeleter
+        : protected SharedObjectDeleter
     {
     public:
         SharedOptional();
@@ -29,7 +30,7 @@ namespace infra
         explicit operator bool() const;
         bool operator!() const;
 
-    private:
+    protected:
         virtual void Destruct(const void* object) override;
         virtual void Deallocate(void* control) override;
 
@@ -37,6 +38,20 @@ namespace infra
         infra::Optional<T> object;
         detail::SharedPtrControl control;
         bool allocatable = true;
+    };
+
+    template<class T>
+    class NotifyingSharedOptional
+        : public SharedOptional<T>
+    {
+    public:
+        NotifyingSharedOptional(infra::Function<void()> onAllocatable);
+
+    protected:
+        virtual void Deallocate(void* control) override;
+
+    private:
+        infra::Function<void()> onAllocatable;
     };
 
     ////    Implementation    ////
@@ -116,6 +131,17 @@ namespace infra
         allocatable = true;
     }
 
+    template<class T>
+    NotifyingSharedOptional<T>::NotifyingSharedOptional(infra::Function<void()> onAllocatable)
+        : onAllocatable(onAllocatable)
+    {}
+
+    template<class T>
+    void NotifyingSharedOptional<T>::Deallocate(void* control)
+    {
+        SharedOptional<T>::Deallocate(control);
+        onAllocatable();
+    }
 }
 
 #endif
