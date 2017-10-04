@@ -18,9 +18,10 @@ namespace services
         return serviceId;
     }
 
-    ServiceProxy::ServiceProxy(Echo& echo, uint32_t id)
+    ServiceProxy::ServiceProxy(Echo& echo, uint32_t id, uint32_t maxMessageSize)
         : echo(echo)
         , serviceId(id)
+        , maxMessageSize(maxMessageSize)
     {}
 
     Echo& ServiceProxy::Rpc()
@@ -37,6 +38,11 @@ namespace services
     void ServiceProxy::GrantSend()
     {
         onGranted();
+    }
+
+    uint32_t ServiceProxy::MaxMessageSize() const
+    {
+        return maxMessageSize;
     }
 
     Echo::Echo(services::Connection& connection)
@@ -71,7 +77,7 @@ namespace services
     void Echo::RequestSend(ServiceProxy& serviceProxy)
     {
         if (sendRequesters.empty() && !sendStream)
-            services::ConnectionObserver::Subject().RequestSendStream(maxMessageSize);
+            services::ConnectionObserver::Subject().RequestSendStream(serviceProxy.MaxMessageSize());
 
         sendRequesters.push_back(serviceProxy);
     }
@@ -86,7 +92,7 @@ namespace services
         sendStream = nullptr;
 
         if (!sendRequesters.empty())
-            services::ConnectionObserver::Subject().RequestSendStream(maxMessageSize);
+            services::ConnectionObserver::Subject().RequestSendStream(sendRequesters.front().MaxMessageSize());
     }
 
     void Echo::ExecuteMethod(uint32_t serviceId, uint32_t methodId, services::ProtoParser& argument)

@@ -54,6 +54,7 @@ namespace application
     public:
         virtual void GenerateFieldDeclaration(Entities& formatter) = 0;
         void GenerateFieldConstant(Entities& formatter);
+        virtual std::string MaxMessageSize() const = 0;
         virtual void SerializerBody(google::protobuf::io::Printer& printer) = 0;
         virtual void DeserializerBody(google::protobuf::io::Printer& printer) = 0;
         void CompareEqualBody(google::protobuf::io::Printer& printer);
@@ -67,12 +68,16 @@ namespace application
         : public FieldGenerator
     {
     public:
-        using FieldGenerator::FieldGenerator;
+        explicit FieldGeneratorString(const google::protobuf::FieldDescriptor& descriptor);
 
         virtual void GenerateFieldDeclaration(Entities& formatter) override;
+        virtual std::string MaxMessageSize() const override;
         virtual void SerializerBody(google::protobuf::io::Printer& printer) override;
         virtual void DeserializerBody(google::protobuf::io::Printer& printer) override;
         virtual void GenerateConstructorParameter(Constructor& constructor) override;
+
+    private:
+        uint32_t stringSize;
     };
 
     class FieldGeneratorRepeatedString
@@ -82,6 +87,7 @@ namespace application
         explicit FieldGeneratorRepeatedString(const google::protobuf::FieldDescriptor& descriptor);
 
         virtual void GenerateFieldDeclaration(Entities& formatter) override;
+        virtual std::string MaxMessageSize() const override;
         virtual void SerializerBody(google::protobuf::io::Printer& printer) override;
         virtual void DeserializerBody(google::protobuf::io::Printer& printer) override;
         virtual void GenerateConstructorParameter(Constructor& constructor) override;
@@ -98,6 +104,7 @@ namespace application
         using FieldGenerator::FieldGenerator;
 
         virtual void GenerateFieldDeclaration(Entities& formatter) override;
+        virtual std::string MaxMessageSize() const override;
         virtual void SerializerBody(google::protobuf::io::Printer& printer) override;
         virtual void DeserializerBody(google::protobuf::io::Printer& printer) override;
         virtual void GenerateConstructorParameter(Constructor& constructor) override;
@@ -110,6 +117,7 @@ namespace application
         using FieldGenerator::FieldGenerator;
 
         virtual void GenerateFieldDeclaration(Entities& formatter) override;
+        virtual std::string MaxMessageSize() const override;
         virtual void SerializerBody(google::protobuf::io::Printer& printer) override;
         virtual void DeserializerBody(google::protobuf::io::Printer& printer) override;
         virtual void GenerateConstructorParameter(Constructor& constructor) override;
@@ -119,12 +127,16 @@ namespace application
         : public FieldGenerator
     {
     public:
-        using FieldGenerator::FieldGenerator;
+        explicit FieldGeneratorRepeatedMessage(const google::protobuf::FieldDescriptor& descriptor);
 
         virtual void GenerateFieldDeclaration(Entities& formatter) override;
+        virtual std::string MaxMessageSize() const override;
         virtual void SerializerBody(google::protobuf::io::Printer& printer) override;
         virtual void DeserializerBody(google::protobuf::io::Printer& printer) override;
         virtual void GenerateConstructorParameter(Constructor& constructor) override;
+
+    private:
+        uint32_t arraySize;
     };
 
     class MessageGenerator
@@ -144,6 +156,7 @@ namespace application
         void GenerateNestedMessages();
         void GenerateFieldDeclarations();
         void GenerateFieldConstants();
+        void GenerateMaxMessageSize();
         std::string SerializerBody();
         std::string DeserializerBody();
         std::string CompareEqualBody() const;
@@ -171,12 +184,14 @@ namespace application
         void GenerateServiceProxyFunctions();
         void GenerateFieldConstants();
 
+        std::string MaxMessageSize() const;
         std::string HandleBody() const;
         std::string ProxyMethodBody(const google::protobuf::MethodDescriptor& descriptor) const;
         std::string QualifiedName(const google::protobuf::Descriptor& descriptor) const;
 
     private:
         const google::protobuf::ServiceDescriptor& service;
+        uint32_t serviceId;
         Class* serviceFormatter;
         Class* serviceProxyFormatter;
     };

@@ -28,15 +28,17 @@ namespace services
         : public infra::IntrusiveList<ServiceProxy>::NodeType
     {
     public:
-        ServiceProxy(Echo& echo, uint32_t id);
+        ServiceProxy(Echo& echo, uint32_t id, uint32_t maxMessageSize);
 
         Echo& Rpc();
         void RequestSend(infra::Function<void()> onGranted);
         void GrantSend();
+        uint32_t MaxMessageSize() const;
 
     private:
         Echo& echo;
         uint32_t serviceId;
+        uint32_t maxMessageSize;
         infra::Function<void()> onGranted;
     };
 

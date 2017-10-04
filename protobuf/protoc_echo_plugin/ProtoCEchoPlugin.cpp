@@ -8,6 +8,22 @@
 
 namespace application
 {
+    namespace
+    {
+        uint32_t MaxVarIntSize(uint32_t value)
+        {
+            uint32_t result = 1;
+
+            while (value > 127)
+            {
+                value >>= 7;
+                ++result;
+            }
+
+            return result;
+        }
+    }
+
     bool CppInfraCodeGenerator::Generate(const google::protobuf::FileDescriptor* file, const std::string& parameter,
         google::protobuf::compiler::GeneratorContext* generatorContext, std::string* error) const
     {
@@ -63,13 +79,22 @@ namespace application
         printer.Print("\n&& $name$ == other.$name$", "name", google::protobuf::compiler::cpp::FieldName(&descriptor));
     }
 
-    void FieldGeneratorString::GenerateFieldDeclaration(Entities& entities)
+    FieldGeneratorString::FieldGeneratorString(const google::protobuf::FieldDescriptor& descriptor)
+        : FieldGenerator(descriptor)
+        , stringSize(descriptor.options().GetExtension(string_size))
     {
-        uint32_t stringSize = descriptor.options().GetExtension(string_size);
         if (stringSize == 0)
             throw UnspecifiedStringSize{ descriptor.name() };
+    }
 
+    void FieldGeneratorString::GenerateFieldDeclaration(Entities& entities)
+    {
         entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), "infra::BoundedString::WithStorage<" + google::protobuf::SimpleItoa(stringSize) + ">"));
+    }
+
+    std::string FieldGeneratorString::MaxMessageSize() const
+    {
+        return google::protobuf::SimpleItoa(stringSize + MaxVarIntSize(stringSize) + MaxVarIntSize((descriptor.number() << 3) | 2));
     }
 
     void FieldGeneratorString::SerializerBody(google::protobuf::io::Printer& printer)
@@ -112,6 +137,11 @@ namespace application
             , "infra::BoundedVector<infra::BoundedString::WithStorage<" + google::protobuf::SimpleItoa(stringSize) + ">>::WithMaxSize<" + google::protobuf::SimpleItoa(arraySize) + ">"));
     }
 
+    std::string FieldGeneratorRepeatedString::MaxMessageSize() const
+    {
+        return google::protobuf::SimpleItoa(arraySize * (stringSize + MaxVarIntSize(stringSize) + MaxVarIntSize((descriptor.number() << 3) | 2)));
+    }
+
     void FieldGeneratorRepeatedString::SerializerBody(google::protobuf::io::Printer& printer)
     {
         printer.Print(R"(for (auto& subField : $name$)
@@ -143,6 +173,11 @@ namespace application
         entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), "uint32_t"));
     }
 
+    std::string FieldGeneratorUint32::MaxMessageSize() const
+    {
+        return google::protobuf::SimpleItoa(MaxVarIntSize(std::numeric_limits<uint32_t>::max()) + MaxVarIntSize((descriptor.number() << 3) | 2));
+    }
+
     void FieldGeneratorUint32::SerializerBody(google::protobuf::io::Printer& printer)
     {
         printer.Print("formatter.PutVarIntField($name$, $constant$);\n"
@@ -169,6 +204,11 @@ namespace application
     void FieldGeneratorMessage::GenerateFieldDeclaration(Entities& entities)
     {
         entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), descriptor.message_type()->name()));
+    }
+
+    std::string FieldGeneratorMessage::MaxMessageSize() const
+    {
+        return descriptor.message_type()->name() + "::maxMessageSize + " + google::protobuf::SimpleItoa(MaxVarIntSize((descriptor.number() << 3) | 2));
     }
 
     void FieldGeneratorMessage::SerializerBody(google::protobuf::io::Printer& printer)
@@ -198,14 +238,24 @@ namespace application
         constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
     }
 
-    void FieldGeneratorRepeatedMessage::GenerateFieldDeclaration(Entities& entities)
+    FieldGeneratorRepeatedMessage::FieldGeneratorRepeatedMessage(const google::protobuf::FieldDescriptor& descriptor)
+        : FieldGenerator(descriptor)
+        , arraySize(descriptor.options().GetExtension(array_size))
     {
-        uint32_t arraySize = descriptor.options().GetExtension(array_size);
         if (arraySize == 0)
             throw UnspecifiedArraySize{ descriptor.name() };
+    }
 
+    void FieldGeneratorRepeatedMessage::GenerateFieldDeclaration(Entities& entities)
+    {
         entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor)
             , "infra::BoundedVector<" + descriptor.message_type()->name() + ">::WithMaxSize<" + google::protobuf::SimpleItoa(arraySize) + ">"));
+    }
+
+    std::string FieldGeneratorRepeatedMessage::MaxMessageSize() const
+    {
+        return google::protobuf::SimpleItoa(arraySize) + " * " + descriptor.message_type()->name() + "::maxMessageSize + " + 
+            google::protobuf::SimpleItoa(arraySize * MaxVarIntSize((descriptor.number() << 3) | 2));
     }
 
     void FieldGeneratorRepeatedMessage::SerializerBody(google::protobuf::io::Printer& printer)
@@ -252,6 +302,7 @@ namespace application
         GenerateNestedMessages();
         GenerateFieldDeclarations();
         GenerateFieldConstants();
+        GenerateMaxMessageSize();
     }
 
     void MessageGenerator::CreateFieldGenerators()
@@ -385,6 +436,21 @@ namespace application
         }
     }
 
+    void MessageGenerator::GenerateMaxMessageSize()
+    {
+        auto fields = std::make_shared<Access>("public");
+
+        std::string maxMessageSize = "0";
+        for (auto& fieldGenerator : fieldGenerators)
+        {
+            maxMessageSize += " + " + fieldGenerator->MaxMessageSize();
+        }
+
+        fields->Add(std::make_shared<DataMember>("maxMessageSize = " + maxMessageSize, "static const uint32_t"));
+        
+        classFormatter->Add(fields);
+    }
+
     std::string MessageGenerator::SerializerBody()
     {
         std::ostringstream result;
@@ -475,7 +541,11 @@ namespace application
 
     ServiceGenerator::ServiceGenerator(const google::protobuf::ServiceDescriptor& service, Entities& formatter)
         : service(service)
+        , serviceId(service.options().GetExtension(service_id))
     {
+        if (serviceId == 0)
+            throw UnspecifiedServiceId{ service.name() };
+
         auto serviceClass = std::make_shared<Class>(service.name());
         serviceClass->Parent("public services::Service");
         serviceFormatter = serviceClass.get();
@@ -509,7 +579,7 @@ namespace application
         auto constructors = std::make_shared<Access>("public");
         auto constructor = std::make_shared<Constructor>(service.name() + "Proxy", "", 0);
         constructor->Parameter("services::Echo& echo");
-        constructor->Initializer("services::ServiceProxy(echo, serviceId)");
+        constructor->Initializer("services::ServiceProxy(echo, serviceId, " + MaxMessageSize() + ")");
 
         constructors->Add(constructor);
         serviceProxyFormatter->Add(constructors);
@@ -552,10 +622,6 @@ namespace application
     {
         auto fields = std::make_shared<Access>("private");
 
-        uint32_t serviceId = service.options().GetExtension(service_id);
-        if (serviceId == 0)
-            throw UnspecifiedServiceId{ service.name() };
-
         fields->Add(std::make_shared<DataMember>("serviceId = " + google::protobuf::SimpleItoa(serviceId), "static const uint32_t"));
 
         for (int i = 0; i != service.method_count(); ++i)
@@ -569,6 +635,22 @@ namespace application
 
         serviceFormatter->Add(fields);
         serviceProxyFormatter->Add(fields);
+    }
+
+    std::string ServiceGenerator::MaxMessageSize() const
+    {
+        std::string result = "0";
+        
+        for (int i = 0; i != service.method_count(); ++i)
+        {
+            uint32_t methodId = service.method(i)->options().GetExtension(method_id);
+            if (methodId == 0)
+                throw UnspecifiedMethodId{ service.name(), service.method(i)->name() };
+
+            result = "std::max<uint32_t>(" + google::protobuf::SimpleItoa(MaxVarIntSize(serviceId) + MaxVarIntSize((methodId << 3) | 2)) + " + " + QualifiedName(*service.method(i)->input_type()) + "::maxMessageSize, " + result + ")";
+        }
+
+        return result;
     }
 
     std::string ServiceGenerator::HandleBody() const
