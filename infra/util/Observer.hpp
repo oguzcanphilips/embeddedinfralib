@@ -1,7 +1,6 @@
 #ifndef INFRA_OBSERVER_HPP
 #define INFRA_OBSERVER_HPP
 
-#include "infra/util/Function.hpp"
 #include "infra/util/IntrusiveList.hpp"
 #include <cassert>
 
@@ -76,8 +75,10 @@ namespace infra
         ~Subject();
 
     public:
-        void NotifyObservers(Function<void(const ObserverType&)> callback) const;
-        void NotifyObservers(Function<void(ObserverType&)> callback);
+        template<class F>
+            void NotifyObservers(F callback) const;
+        template<class F>
+            void NotifyObservers(F callback);
 
     private:
         using SubjectType = typename ObserverType::SubjectType;
@@ -206,7 +207,8 @@ namespace infra
     }
 
     template<class ObserverType>
-    void Subject<ObserverType, void>::NotifyObservers(Function<void(const ObserverType&)> callback) const
+    template<class F>
+    void Subject<ObserverType, void>::NotifyObservers(F callback) const
     {
         for (typename IntrusiveList<Observer<ObserverType, SubjectType>>::const_iterator i = observers.begin(); i != observers.end(); )
         {
@@ -217,7 +219,8 @@ namespace infra
     }
 
     template<class ObserverType>
-    void Subject<ObserverType, void>::NotifyObservers(Function<void(ObserverType&)> callback)
+    template<class F>
+    void Subject<ObserverType, void>::NotifyObservers(F callback)
     {
         for (typename IntrusiveList<Observer<ObserverType, SubjectType>>::iterator i = observers.begin(); i != observers.end();)
         {

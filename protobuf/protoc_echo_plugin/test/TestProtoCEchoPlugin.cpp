@@ -1,11 +1,13 @@
 #include "gmock/gmock.h"
-#include "generated/proto_cpp_infra/TestMessages.pb.hpp"
+#include "generated/echo/TestMessages.pb.hpp"
 #include "infra/stream/ByteInputStream.hpp"
 #include "infra/stream/ByteOutputStream.hpp"
-#include "protobuf/protobuf_cpp_infra/ProtoFormatter.hpp"
-#include "protobuf/protobuf_cpp_infra/ProtoParser.hpp"
+#include "infra/util/test_helper/MockCallback.hpp"
+#include "protobuf/echo/ProtoFormatter.hpp"
+#include "protobuf/echo/ProtoParser.hpp"
+#include "services/network/test_doubles/ConnectionMock.hpp"
 
-TEST(ProtoCCppInfraPluginTest, serialize_string)
+TEST(ProtoCEchoPluginTest, serialize_string)
 {
     test_messages::TestString message;
     message.value = "abcd";
@@ -17,7 +19,7 @@ TEST(ProtoCCppInfraPluginTest, serialize_string)
     EXPECT_EQ((std::array<uint8_t, 6>{ 10, 4, 'a', 'b', 'c', 'd' }), stream.Writer().Processed());
 }
 
-TEST(ProtoCCppInfraPluginTest, deserialize_string)
+TEST(ProtoCEchoPluginTest, deserialize_string)
 {
     std::array<uint8_t, 6> data{ 10, 4, 'a', 'b', 'c', 'd' };
     infra::ByteInputStream stream(data);
@@ -27,7 +29,7 @@ TEST(ProtoCCppInfraPluginTest, deserialize_string)
     EXPECT_EQ("abcd", message.value);
 }
 
-TEST(ProtoCCppInfraPluginTest, serialize_repeated_string)
+TEST(ProtoCEchoPluginTest, serialize_repeated_string)
 {
     test_messages::TestRepeatedString message;
     message.value.push_back("abcd");
@@ -40,7 +42,7 @@ TEST(ProtoCCppInfraPluginTest, serialize_repeated_string)
     EXPECT_EQ((std::array<uint8_t, 10>{ 10, 4, 'a', 'b', 'c', 'd', 10, 2, 'e', 'f' }), stream.Writer().Processed());
 }
 
-TEST(ProtoCCppInfraPluginTest, deserialize_repeated_string)
+TEST(ProtoCEchoPluginTest, deserialize_repeated_string)
 {
     std::array<uint8_t, 10> data{ 10, 4, 'a', 'b', 'c', 'd', 10, 2, 'e', 'f' };
     infra::ByteInputStream stream(data);
@@ -53,7 +55,7 @@ TEST(ProtoCCppInfraPluginTest, deserialize_repeated_string)
     EXPECT_EQ(expected, message.value);
 }
 
-TEST(ProtoCCppInfraPluginTest, serialize_uint32)
+TEST(ProtoCEchoPluginTest, serialize_uint32)
 {
     test_messages::TestUint32 message;
     message.value = 5;
@@ -65,7 +67,7 @@ TEST(ProtoCCppInfraPluginTest, serialize_uint32)
     EXPECT_EQ((std::array<uint8_t, 2>{ 1 << 3, 5 }), stream.Writer().Processed());
 }
 
-TEST(ProtoCCppInfraPluginTest, deserialize_uint32)
+TEST(ProtoCEchoPluginTest, deserialize_uint32)
 {
     std::array<uint8_t, 2> data{ 1 << 3, 5 };
     infra::ByteInputStream stream(data);
@@ -75,7 +77,7 @@ TEST(ProtoCCppInfraPluginTest, deserialize_uint32)
     EXPECT_EQ(5, message.value);
 }
 
-TEST(ProtoCCppInfraPluginTest, serialize_message)
+TEST(ProtoCEchoPluginTest, serialize_message)
 {
     test_messages::TestMessageWithMessageField message;
     message.message.value = 5;
@@ -87,7 +89,7 @@ TEST(ProtoCCppInfraPluginTest, serialize_message)
     EXPECT_EQ((std::array<uint8_t, 4>{ (1 << 3) | 2, 2, 1 << 3, 5 }), stream.Writer().Processed());
 }
 
-TEST(ProtoCCppInfraPluginTest, deserialize_message)
+TEST(ProtoCEchoPluginTest, deserialize_message)
 {
     std::array<uint8_t, 4> data{ (1 << 3) | 2, 2, 1 << 3, 5 };
     infra::ByteInputStream stream(data);
@@ -97,7 +99,7 @@ TEST(ProtoCCppInfraPluginTest, deserialize_message)
     EXPECT_EQ(5, message.message.value);
 }
 
-TEST(ProtoCCppInfraPluginTest, serialize_nested_message)
+TEST(ProtoCEchoPluginTest, serialize_nested_message)
 {
     test_messages::TestNestedMessage message;
     message.message.value = 5;
@@ -109,7 +111,7 @@ TEST(ProtoCCppInfraPluginTest, serialize_nested_message)
     EXPECT_EQ((std::array<uint8_t, 4>{ (1 << 3) | 2, 2, 1 << 3, 5 }), stream.Writer().Processed());
 }
 
-TEST(ProtoCCppInfraPluginTest, deserialize_nested_message)
+TEST(ProtoCEchoPluginTest, deserialize_nested_message)
 {
     std::array<uint8_t, 4> data{ (1 << 3) | 2, 2, 1 << 3, 5 };
     infra::ByteInputStream stream(data);
@@ -119,7 +121,7 @@ TEST(ProtoCCppInfraPluginTest, deserialize_nested_message)
     EXPECT_EQ(5, message.message.value);
 }
 
-TEST(ProtoCCppInfraPluginTest, serialize_nested_repeated_message)
+TEST(ProtoCEchoPluginTest, serialize_nested_repeated_message)
 {
     test_messages::TestNestedRepeatedMessage message;
     message.message.push_back(test_messages::TestNestedRepeatedMessage::NestedMessage());
@@ -132,7 +134,7 @@ TEST(ProtoCCppInfraPluginTest, serialize_nested_repeated_message)
     EXPECT_EQ((std::array<uint8_t, 4>{ (1 << 3) | 2, 2, 1 << 3, 5 }), stream.Writer().Processed());
 }
 
-TEST(ProtoCCppInfraPluginTest, deserialize_nested_repeated_message)
+TEST(ProtoCEchoPluginTest, deserialize_nested_repeated_message)
 {
     std::array<uint8_t, 4> data{ (1 << 3) | 2, 2, 1 << 3, 5 };
     infra::ByteInputStream stream(data);
@@ -140,4 +142,47 @@ TEST(ProtoCCppInfraPluginTest, deserialize_nested_repeated_message)
 
     test_messages::TestNestedRepeatedMessage message(parser);
     EXPECT_EQ(5, message.message[0].value);
+}
+
+TEST(ProtoCEchoPluginTest, invoke_service_proxy_method)
+{
+    services::ConnectionMock connection;
+    services::Echo echo(connection);
+    test_messages::TestService1Proxy service(echo);
+
+    testing::StrictMock<infra::MockCallback<void()>> onGranted;
+    EXPECT_CALL(connection, RequestSendStream(1024));
+    service.RequestSend([&onGranted]() { onGranted.callback(); });
+
+    infra::ByteOutputStream::WithStorage<128> stream;
+    auto streamPtr = infra::UnOwnedSharedPtr(stream);
+    EXPECT_CALL(onGranted, callback());
+    connection.GetObserver().SendStreamAvailable(streamPtr);
+
+    service.Method(test_messages::TestUint32(5));
+    EXPECT_EQ((std::vector<uint8_t>{ 1, 10, 2, 8, 5 }), (std::vector<uint8_t>(stream.Storage().begin(), stream.Storage().begin() + 5)));
+}
+
+class TestService1Mock
+    : public test_messages::TestService1
+{
+public:
+    using test_messages::TestService1::TestService1;
+
+    MOCK_METHOD1(Method, void(const test_messages::TestUint32& argument));
+};
+
+TEST(ProtoCEchoPluginTest, service_method_is_invoked)
+{
+    testing::StrictMock<services::ConnectionMock> connection;
+    services::Echo echo(connection);
+    testing::StrictMock<TestService1Mock> service(echo);
+
+    infra::ByteInputStream::WithStorage<128> stream;
+    infra::Copy(infra::MakeRange(std::array<uint8_t, 5>{ 1, 10, 2, 8, 5 }), infra::Head(infra::MakeRange(stream.Storage()), 5));
+    auto streamPtr = infra::UnOwnedSharedPtr(stream);
+    EXPECT_CALL(connection, ReceiveStream()).WillOnce(testing::Return(streamPtr));
+    EXPECT_CALL(service, Method(test_messages::TestUint32(5)));
+    EXPECT_CALL(connection, AckReceived());
+    connection.GetObserver().DataReceived();
 }

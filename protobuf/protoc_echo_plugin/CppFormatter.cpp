@@ -1,4 +1,4 @@
-#include "protobuf/protoc_cpp_infra_plugin/CppFormatter.hpp"
+#include "protobuf/protoc_echo_plugin/CppFormatter.hpp"
 #include <functional>
 
 namespace application
@@ -91,11 +91,20 @@ namespace application
         , name(name)
     {}
 
+    void Class::Parent(const std::string& parentName)
+    {
+        parents.push_back(parentName);
+    }
+
     void Class::PrintHeader(google::protobuf::io::Printer& printer) const
     {
         printer.Print(R"(class $name$
-{
 )", "name", name);
+
+        if (!parents.empty())
+            printer.Print("    : $parents$\n", "parents", Parents());
+
+        printer.Print("{\n");
         printer.Indent();
         Entities::PrintHeader(printer);
         printer.Outdent();
@@ -106,6 +115,13 @@ namespace application
     void Class::PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const
     {
         Entities::PrintSource(printer, scope + name + "::");
+    }
+
+    std::string Class::Parents() const
+    {
+        std::string res;
+        ForEach(parents, [&res](const std::string& parent) { res += parent; }, [&res]() { res += "\n    , "; });
+        return res;
     }
 
     Access::Access(const std::string& level)

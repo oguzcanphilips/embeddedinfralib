@@ -4,7 +4,7 @@
 #include "google/protobuf/compiler/code_generator.h"
 #include "google/protobuf/io/printer.h"
 #include "google/protobuf/descriptor.h"
-#include "protobuf/protoc_cpp_infra_plugin/CppFormatter.hpp"
+#include "protobuf/protoc_echo_plugin/CppFormatter.hpp"
 
 namespace application
 {
@@ -22,6 +22,17 @@ namespace application
     struct UnspecifiedArraySize
     {
         std::string fieldName;
+    };
+
+    struct UnspecifiedServiceId
+    {
+        std::string service;
+    };
+
+    struct UnspecifiedMethodId
+    {
+        std::string service;
+        std::string method;
     };
 
     class CppInfraCodeGenerator
@@ -45,6 +56,7 @@ namespace application
         void GenerateFieldConstant(Entities& formatter);
         virtual void SerializerBody(google::protobuf::io::Printer& printer) = 0;
         virtual void DeserializerBody(google::protobuf::io::Printer& printer) = 0;
+        void CompareEqualBody(google::protobuf::io::Printer& printer);
         virtual void GenerateConstructorParameter(Constructor& constructor) = 0;
 
     protected:
@@ -134,6 +146,8 @@ namespace application
         void GenerateFieldConstants();
         std::string SerializerBody();
         std::string DeserializerBody();
+        std::string CompareEqualBody() const;
+        std::string CompareUnEqualBody() const;
 
     private:
         const google::protobuf::Descriptor& descriptor;
@@ -142,13 +156,38 @@ namespace application
         std::vector<std::shared_ptr<FieldGenerator>> fieldGenerators;
     };
 
-    class CppInfraGenerator
+    class ServiceGenerator
     {
     public:
-        CppInfraGenerator(google::protobuf::compiler::GeneratorContext* generatorContext, const std::string& name, const google::protobuf::FileDescriptor* file);
-        CppInfraGenerator(const CppInfraGenerator& other) = delete;
-        CppInfraGenerator& operator=(const CppInfraGenerator& other) = delete;
-        ~CppInfraGenerator() = default;
+        ServiceGenerator(const google::protobuf::ServiceDescriptor& service, Entities& formatter);
+        ServiceGenerator(const ServiceGenerator& other) = delete;
+        ServiceGenerator& operator=(const ServiceGenerator& other) = delete;
+        ~ServiceGenerator() = default;
+
+    private:
+        void GenerateServiceConstructors();
+        void GenerateServiceProxyConstructors();
+        void GenerateServiceFunctions();
+        void GenerateServiceProxyFunctions();
+        void GenerateFieldConstants();
+
+        std::string HandleBody() const;
+        std::string ProxyMethodBody(const google::protobuf::MethodDescriptor& descriptor) const;
+        std::string QualifiedName(const google::protobuf::Descriptor& descriptor) const;
+
+    private:
+        const google::protobuf::ServiceDescriptor& service;
+        Class* serviceFormatter;
+        Class* serviceProxyFormatter;
+    };
+
+    class EchoGenerator
+    {
+    public:
+        EchoGenerator(google::protobuf::compiler::GeneratorContext* generatorContext, const std::string& name, const google::protobuf::FileDescriptor* file);
+        EchoGenerator(const EchoGenerator& other) = delete;
+        EchoGenerator& operator=(const EchoGenerator& other) = delete;
+        ~EchoGenerator() = default;
 
     public:
         void GenerateHeader();
@@ -165,6 +204,7 @@ namespace application
         const google::protobuf::FileDescriptor* file;
 
         std::vector<std::shared_ptr<MessageGenerator>> messageGenerators;
+        std::vector<std::shared_ptr<ServiceGenerator>> serviceGenerators;
     };
 }
 

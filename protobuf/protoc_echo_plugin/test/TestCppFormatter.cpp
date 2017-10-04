@@ -2,7 +2,7 @@
 #include "google/protobuf/io/zero_copy_stream_impl.h"
 #include "infra/util/Optional.hpp"
 #include "infra/util/test_helper/MockHelpers.hpp"
-#include "protobuf/protoc_cpp_infra_plugin/CppFormatter.hpp"
+#include "protobuf/protoc_echo_plugin/CppFormatter.hpp"
 #include <sstream>
 
 class EntityMock
@@ -147,6 +147,34 @@ TEST_F(CppFormatterTest, Class_prints_nested_entities_in_source_separated_by_new
     class_.Add(std::move(entity2));
     class_.PrintSource(*printer, "scope::");
     ExpectPrinted("a\nb");
+}
+
+TEST_F(CppFormatterTest, Class_prints_parent_in_class_header)
+{
+    application::Class class_("name");
+    class_.Parent("parent");
+    class_.PrintHeader(*printer);
+    ExpectPrinted(R"(class name
+    : parent
+{
+};
+)");
+}
+
+TEST_F(CppFormatterTest, Class_prints_more_parent_in_class_header)
+{
+    application::Class class_("name");
+    class_.Parent("parent");
+    class_.Parent("parent2");
+    class_.Parent("parent3");
+    class_.PrintHeader(*printer);
+    ExpectPrinted(R"(class name
+    : parent
+    , parent2
+    , parent3
+{
+};
+)");
 }
 
 TEST_F(CppFormatterTest, Access_prints_level_in_header)

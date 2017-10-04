@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "field_size.proto";
+import "echo_attributes.proto";
 
 package test_messages;
 
@@ -42,4 +42,18 @@ message TestNestedRepeatedMessage
 
 message TestEmptyMessage
 {
+}
+
+service TestService1
+{
+  option (service_id) = 1;
+
+  rpc Method(TestUint32) returns (Nothing) { option (method_id) = 1; }
+}
+
+service TestService2
+{
+  option (service_id) = 2;
+
+  rpc Search (TestString) returns (Nothing) { option (method_id) = 1; }
 }

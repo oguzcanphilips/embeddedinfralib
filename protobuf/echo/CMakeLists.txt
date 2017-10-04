@@ -1,6 +1,8 @@
-ccola_component(protobuf_cpp_infra static_library)
+ccola_component(echo static_library)
 
 	ccola_sources(
+		Echo.cpp
+		Echo.hpp
 		ProtoParser.cpp
 		ProtoParser.hpp
 		ProtoFormatter.cpp
@@ -9,6 +11,7 @@ ccola_component(protobuf_cpp_infra static_library)
 
 	ccola_dependencies(
 		infra.stream
+		services.network
 	)
 
 ccola_end_component()
