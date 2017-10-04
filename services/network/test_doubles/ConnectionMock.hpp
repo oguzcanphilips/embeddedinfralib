@@ -26,6 +26,7 @@ namespace services
         : public services::ConnectionObserver
     {
     public:
+        ConnectionObserverMock() = default;
         explicit ConnectionObserverMock(services::Connection& connection);
 
         using services::ConnectionObserver::Subject;
@@ -44,7 +45,7 @@ namespace services
 
         MOCK_METHOD1(ListenMock, infra::SharedPtr<void>(uint16_t));
 
-        bool NewConnection(Connection& connection);
+        void NewConnection(Connection& connection);
 
     private:
         ServerConnectionObserverFactory* serverConnectionObserverFactory = nullptr;
@@ -54,14 +55,16 @@ namespace services
         : public services::ServerConnectionObserverFactory
     {
     public:
-        MOCK_METHOD1(ConnectionAccepted, infra::SharedPtr<services::ConnectionObserver>(services::Connection& newConnection));
+        void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) { ConnectionAcceptedMock(createdObserver.Clone()); }
+        MOCK_METHOD1(ConnectionAcceptedMock, void(infra::Function<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver));
     };
 
     class ClientConnectionObserverFactoryMock
         : public services::ClientConnectionObserverFactory
     {
     public:
-        MOCK_METHOD1(ConnectionEstablished, infra::SharedPtr<ConnectionObserver>(Connection& newConnection));
+        void ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) { ConnectionEstablishedMock(createdObserver.Clone()); }
+        MOCK_METHOD1(ConnectionEstablishedMock, void(infra::Function<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver));
         MOCK_METHOD1(ConnectionFailed, void(ConnectFailReason reason));
     };
 }

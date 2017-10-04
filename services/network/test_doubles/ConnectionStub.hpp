@@ -40,6 +40,7 @@ namespace services
         private:
             virtual void Insert(infra::ConstByteRange range) override;
             virtual void Insert(uint8_t element) override;
+            virtual std::size_t Available() const override;
 
         private:
             ConnectionStub& connection;
@@ -76,6 +77,7 @@ namespace services
         : public services::ConnectionObserver
     {
     public:
+        ConnectionObserverStub() = default;
         ConnectionObserverStub(services::Connection& connection)
             : services::ConnectionObserver(connection)
         {}

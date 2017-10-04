@@ -25,4 +25,10 @@ namespace infra
     {
         string.push_back(static_cast<char>(element));
     }
+
+    std::size_t StdStringOutputStreamWriter::Available() const
+    {
+        return std::numeric_limits<size_t>::max();
+    }
+
 }

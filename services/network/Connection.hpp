@@ -3,6 +3,7 @@
 
 #include "infra/stream/InputStream.hpp"
 #include "infra/stream/OutputStream.hpp"
+#include "infra/util/AutoResetFunction.hpp"
 #include "infra/util/Observer.hpp"
 #include "infra/util/SharedPtr.hpp"
 #include "services/network/Address.hpp"
@@ -15,6 +16,7 @@ namespace services
         : public infra::SingleObserver<ConnectionObserver, Connection>
     {
     protected:
+        ConnectionObserver() = default;
         explicit ConnectionObserver(Connection& connection);
         ConnectionObserver(const ConnectionObserver& other) = delete;
         ConnectionObserver& operator=(const ConnectionObserver& other) = delete;
@@ -23,6 +25,9 @@ namespace services
     public:
         virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) = 0;
         virtual void DataReceived() = 0;
+        virtual void ClosingConnection() {}
+
+        using infra::SingleObserver<ConnectionObserver, Connection>::Attach;
 
     private:
         friend class Connection;
@@ -70,7 +75,7 @@ namespace services
         ~ServerConnectionObserverFactory() = default;
 
     public:
-        virtual infra::SharedPtr<ConnectionObserver> ConnectionAccepted(Connection& newConnection) = 0;
+        virtual void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) = 0;
     };
 
     class ClientConnectionObserverFactory
@@ -88,7 +93,7 @@ namespace services
             connectionAllocationFailed
         };
 
-        virtual infra::SharedPtr<ConnectionObserver> ConnectionEstablished(Connection& newConnection) = 0;
+        virtual void ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) = 0;
         virtual void ConnectionFailed(ConnectFailReason reason) = 0;
     };
 
@@ -104,6 +109,10 @@ namespace services
         virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionObserverFactory& factory) = 0;
         virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory) = 0;
     };
+
+    static const uint32_t ethernetMtu = 1500;
+    static const uint32_t tcpPacketOverhead = 54;
+    static const uint32_t maxPacketPayload = ethernetMtu - tcpPacketOverhead;
 }
 
 #endif

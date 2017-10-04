@@ -19,6 +19,7 @@ namespace infra
     private:
         virtual void Insert(ConstByteRange range) override;
         virtual void Insert(uint8_t element) override;
+        virtual std::size_t Available() const override;
 
     private:
         std::string& string;

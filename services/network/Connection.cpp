@@ -21,7 +21,12 @@ namespace services
     void Connection::ResetOwnership()
     {
         if (observer != nullptr)
-            observer->Detach();     // Someone may be keeping the observer alive, so detach it first so that the owner is not observed anymore
+        {
+            // Someone may be keeping the observer alive, so give it the opportunity to close any open send/receive streams,
+            // and detach it so that the owner is not observed anymore
+            observer->ClosingConnection();
+            observer->Detach();
+        }
         observer = nullptr;
         owner = nullptr;
     }
