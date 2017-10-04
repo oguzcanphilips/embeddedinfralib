@@ -197,12 +197,12 @@ namespace services
             if (serverObserver)
             {
                 serverObserver->Attach(connection->Server());
-                clientObserverFactory.ConnectionEstablished([connection, serverObserver](infra::SharedPtr<services::ConnectionObserver> clientObserver)
+                connection->Server().SetOwnership(connection, serverObserver);
+                clientObserverFactory.ConnectionEstablished([connection](infra::SharedPtr<services::ConnectionObserver> clientObserver)
                 {
                     if (clientObserver)
                     {
                         clientObserver->Attach(connection->Client());
-                        connection->Server().SetOwnership(connection, serverObserver);
                         connection->Client().SetOwnership(connection, clientObserver);
                     }
                 });

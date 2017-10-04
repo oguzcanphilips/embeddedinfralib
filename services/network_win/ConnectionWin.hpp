@@ -30,6 +30,8 @@ namespace services
         virtual void AbortAndDestroy() override;
         virtual IPv4Address Ipv4Address() const override;
 
+        void SetObserver(infra::SharedPtr<services::ConnectionObserver> connectionObserver);
+
         bool ReadyToReceive() const;
         bool ReadyToSend() const;
         void Receive();

@@ -67,6 +67,12 @@ namespace services
         };
     }
 
+    void ConnectionWin::SetObserver(infra::SharedPtr<services::ConnectionObserver> connectionObserver)
+    {
+        SetOwnership(SharedFromThis(), connectionObserver);
+        network.RegisterConnection(SharedFromThis());
+    }
+
     bool ConnectionWin::ReadyToReceive() const
     {
         return !receiveBuffer.full();
@@ -231,13 +237,10 @@ namespace services
             std::abort();
 
         infra::SharedPtr<ConnectionWin> connection = infra::MakeSharedOnHeap<ConnectionWin>(network, acceptedSocket);
-        factory.ConnectionAccepted([this, connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
+        factory.ConnectionAccepted([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
         {
             if (connectionObserver)
-            {
-                connection->SetOwnership(connection, connectionObserver);
-                network.RegisterConnection(connection);
-            }
+                connection->SetObserver(connectionObserver);
         });
     }
 
