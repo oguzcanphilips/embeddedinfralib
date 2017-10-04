@@ -4,9 +4,9 @@
 
 namespace services
 {
-    TracingConnectionMbedTls::TracingConnectionMbedTls(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver,
+    TracingConnectionMbedTls::TracingConnectionMbedTls(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver,
         MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession, Tracer& tracer)
-        : ConnectionMbedTls(createdObserver, certificates, randomDataGenerator, server, serverCache, clientSession)
+        : ConnectionMbedTls(std::move(createdObserver), certificates, randomDataGenerator, server, serverCache, clientSession)
         , tracer(tracer)
     {}
 
@@ -49,11 +49,11 @@ namespace services
         tracer.Trace() << "AllocatorTracingConnectionMbedTlsAdapter::AllocatorTracingConnectionMbedTlsAdapter()";
     }
 
-    infra::SharedPtr<ConnectionMbedTls> AllocatorTracingConnectionMbedTlsAdapter::Allocate(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver,
+    infra::SharedPtr<ConnectionMbedTls> AllocatorTracingConnectionMbedTlsAdapter::Allocate(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver,
         MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession)
     {
         tracer.Trace() << "AllocatorTracingConnectionMbedTlsAdapter::Allocate()";
-        return allocator.Allocate(createdObserver, certificates, randomDataGenerator, server, serverCache, clientSession, tracer);
+        return allocator.Allocate(std::move(createdObserver), certificates, randomDataGenerator, server, serverCache, clientSession, tracer);
     }
 
     TracingConnectionFactoryMbedTls::TracingConnectionFactoryMbedTls(AllocatorTracingConnectionMbedTls& connectionAllocator, AllocatorConnectionMbedTlsListener& listenerAllocator, AllocatorConnectionMbedTlsConnector& connectorAllocator,

@@ -55,14 +55,16 @@ namespace services
         : public services::ServerConnectionObserverFactory
     {
     public:
-        MOCK_METHOD1(ConnectionAccepted, void(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver));
+        void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) { ConnectionAcceptedMock(createdObserver.Clone()); }
+        MOCK_METHOD1(ConnectionAcceptedMock, void(infra::Function<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver));
     };
 
     class ClientConnectionObserverFactoryMock
         : public services::ClientConnectionObserverFactory
     {
     public:
-        MOCK_METHOD1(ConnectionEstablished, void(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver));
+        void ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) { ConnectionEstablishedMock(createdObserver.Clone()); }
+        MOCK_METHOD1(ConnectionEstablishedMock, void(infra::Function<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver));
         MOCK_METHOD1(ConnectionFailed, void(ConnectFailReason reason));
     };
 }

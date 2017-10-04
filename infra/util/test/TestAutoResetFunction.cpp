@@ -49,13 +49,13 @@ TEST(AutoResetFunctionTest, TestConstructedEmptyByNullptr)
     EXPECT_FALSE(f);
 }
 
-TEST(AutoResetFunctionTest, TestCopyAssign)
+TEST(AutoResetFunctionTest, TestMoveAssign)
 {
     infra::MockCallback<void()> m;
     infra::AutoResetFunction<void()> f([&m]() { m.callback(); });
     infra::AutoResetFunction<void()> f2;
-    f2 = f;
-    EXPECT_TRUE(static_cast<bool>(f));
+    f2 = std::move(f);
+    EXPECT_FALSE(static_cast<bool>(f));
     EXPECT_CALL(m, callback());
     f2();
 }
@@ -82,6 +82,16 @@ TEST(AutoResetFunctionTest, TestInvoke1)
     infra::AutoResetFunction<void(int)> f([&m](int x) { m.callback(x); });
     EXPECT_CALL(m, callback(1));
     f.Invoke(std::make_tuple(1));
+}
+
+TEST(AutoResetFunctionTest, TestClone)
+{
+    infra::MockCallback<void(int)> m;
+    infra::AutoResetFunction<void(int)> f([&m](int x) { m.callback(x); });
+
+    EXPECT_CALL(m, callback(1));
+    f.Clone().Invoke(1);
+    EXPECT_TRUE(static_cast<bool>(f));
 }
 
 TEST(AutoResetFunctionTest, TestSwap)

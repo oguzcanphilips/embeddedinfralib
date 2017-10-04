@@ -75,7 +75,7 @@ namespace services
         ~ServerConnectionObserverFactory() = default;
 
     public:
-        virtual void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver) = 0;
+        virtual void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) = 0;
     };
 
     class ClientConnectionObserverFactory
@@ -93,7 +93,7 @@ namespace services
             connectionAllocationFailed
         };
 
-        virtual void ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver) = 0;
+        virtual void ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) = 0;
         virtual void ConnectionFailed(ConnectFailReason reason) = 0;
     };
 

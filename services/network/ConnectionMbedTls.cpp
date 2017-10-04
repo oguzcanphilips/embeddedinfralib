@@ -39,9 +39,9 @@ namespace services
         assert(result == 0);
     }
 
-    ConnectionMbedTls::ConnectionMbedTls(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver, MbedTlsCertificates& certificates,
+    ConnectionMbedTls::ConnectionMbedTls(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver, MbedTlsCertificates& certificates,
         hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession)
-        : createdObserver(createdObserver)
+        : createdObserver(std::move(createdObserver))
         , randomDataGenerator(randomDataGenerator)
         , server(server)
         , clientSession(clientSession)
@@ -442,9 +442,10 @@ namespace services
         , serverCache(serverCache)
     {}
 
-    void ConnectionMbedTlsListener::ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver)
+    void ConnectionMbedTlsListener::ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver)
     {
-        infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(createdObserver, certificates, randomDataGenerator, true, &serverCache, nullptr);
+        infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> creationFailed = createdObserver.Clone();
+        infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(std::move(createdObserver), certificates, randomDataGenerator, true, &serverCache, nullptr);
         if (connection)
         {
             factory.ConnectionAccepted([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
@@ -453,7 +454,7 @@ namespace services
             });
         }
         else
-            createdObserver(nullptr);
+            creationFailed(nullptr);
     }
 
     void ConnectionMbedTlsListener::SetListener(infra::SharedPtr<void> listener)
@@ -470,9 +471,10 @@ namespace services
         , clientSession(clientSession)
     {}
 
-    void ConnectionMbedTlsConnector::ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver)
+    void ConnectionMbedTlsConnector::ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver)
     {
-        infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(createdObserver, certificates, randomDataGenerator, false, nullptr, &clientSession);
+        infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> creationFailed = createdObserver.Clone();
+        infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(std::move(createdObserver), certificates, randomDataGenerator, false, nullptr, &clientSession);
         if (connection)
         {
             factory.ConnectionEstablished([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
@@ -481,7 +483,7 @@ namespace services
             });
         }
         else
-            createdObserver(nullptr);
+            creationFailed(nullptr);
     }
 
     void ConnectionMbedTlsConnector::ConnectionFailed(ConnectFailReason reason)

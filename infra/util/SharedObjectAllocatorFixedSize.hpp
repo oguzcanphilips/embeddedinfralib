@@ -68,7 +68,7 @@ namespace infra
         Node* node = AllocateNode();
         if (node)
         {
-            node->object.Construct(args...);
+            node->object.Construct(std::forward<ConstructionArgs>(args)...);
             return SharedPtr<T>(node, &*node->object);
         }
         else
