@@ -140,7 +140,7 @@ namespace application
     {
         infra::ByteOutputStream::WithStorage<base64ChunkSizeMax> chunkData;
         chunkData << infra::text << R"({"data":")" << infra::data << infra::MemoryRange<uint8_t>(base64EncodedChunk.begin(), base64EncodedChunk.end()) << infra::text << R"("})";
-        infra::BoundedString::WithStorage<128> result;
+        infra::BoundedString::WithStorage<256> result;
         if (!diComm.PutProps("firmware", infra::BoundedConstString(reinterpret_cast<char*>(chunkData.Writer().Processed().begin()), chunkData.Writer().Processed().size()), result))
             return false;
 
