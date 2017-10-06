@@ -10,7 +10,7 @@ macro(protocol_buffer_cpp input)
 
 	add_custom_command(
 		OUTPUT "${generated_dir_cpp}/${source_base}.pb.cc" "${generated_dir_cpp}/${source_base}.pb.h"
-		COMMAND ${CCOLA_PACK_DIR_protoc}/../bin/protoc.exe --proto_path "${CMAKE_CURRENT_SOURCE_DIR}" --proto_path "${CCOLA_PACK_DIR_protoc}/../../../protobuf/field_size" --cpp_out="${generated_dir_cpp}" ${absolute_input}
+		COMMAND ${CCOLA_PACK_DIR_protoc}/../bin/protoc.exe --proto_path "${CMAKE_CURRENT_SOURCE_DIR}" --proto_path "${CCOLA_PACK_DIR_protoc}/../../protobuf-3.3.0/src/google/protobuf" --proto_path "${CCOLA_PACK_DIR_protoc}/../../../protobuf/echo_attributes" --cpp_out="${generated_dir_cpp}" ${absolute_input}
 		DEPENDS "${absolute_input}"
 		DEPENDS "${generated_dir_cpp}"
 	)
