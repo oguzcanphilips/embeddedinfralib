@@ -77,6 +77,31 @@ TEST(ProtoCEchoPluginTest, deserialize_uint32)
     EXPECT_EQ(5, message.value);
 }
 
+TEST(ProtoCEchoPluginTest, serialize_repeated_uint32)
+{
+    test_messages::TestRepeatedUint32 message;
+    message.value.push_back(5);
+    message.value.push_back(6);
+
+    infra::ByteOutputStream::WithStorage<100> stream;
+    services::ProtoFormatter formatter(stream);
+    message.Serialize(formatter);
+
+    EXPECT_EQ((std::array<uint8_t, 4>{ 1 << 3, 5, 1 << 3, 6 }), stream.Writer().Processed());
+}
+
+TEST(ProtoCEchoPluginTest, deserialize_repeated_uint32)
+{
+    std::array<uint8_t, 4> data{ 1 << 3, 5, 1 << 3, 6 };
+    infra::ByteInputStream stream(data);
+    services::ProtoParser parser(stream);
+
+    test_messages::TestRepeatedUint32 message(parser);
+    EXPECT_EQ(2, message.value.size());
+    EXPECT_EQ(5, message.value[0]);
+    EXPECT_EQ(6, message.value[1]);
+}
+
 TEST(ProtoCEchoPluginTest, serialize_message)
 {
     test_messages::TestMessageWithMessageField message;
@@ -151,7 +176,7 @@ TEST(ProtoCEchoPluginTest, invoke_service_proxy_method)
     test_messages::TestService1Proxy service(echo);
 
     testing::StrictMock<infra::MockCallback<void()>> onGranted;
-    EXPECT_CALL(connection, RequestSendStream(1024));
+    EXPECT_CALL(connection, RequestSendStream(8));
     service.RequestSend([&onGranted]() { onGranted.callback(); });
 
     infra::ByteOutputStream::WithStorage<128> stream;

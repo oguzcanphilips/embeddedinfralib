@@ -110,6 +110,22 @@ namespace application
         virtual void GenerateConstructorParameter(Constructor& constructor) override;
     };
 
+    class FieldGeneratorRepeatedUint32
+        : public FieldGenerator
+    {
+    public:
+        explicit FieldGeneratorRepeatedUint32(const google::protobuf::FieldDescriptor& descriptor);
+
+        virtual void GenerateFieldDeclaration(Entities& formatter) override;
+        virtual std::string MaxMessageSize() const override;
+        virtual void SerializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void DeserializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void GenerateConstructorParameter(Constructor& constructor) override;
+
+    private:
+        uint32_t arraySize = 0;
+    };
+
     class FieldGeneratorMessage
         : public FieldGenerator
     {
