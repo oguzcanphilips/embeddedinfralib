@@ -9,7 +9,6 @@
 
 namespace hal
 {
-
     class QuadSpi
     {
     public:
