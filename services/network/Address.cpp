@@ -3,6 +3,11 @@
 
 namespace services
 {
+    IPv4Address IPv4AddressLocalHost()
+    {
+        return IPv4Address{ 127, 0, 0, 1 };
+    }
+
     bool IPv4InterfaceAddresses::operator==(const IPv4InterfaceAddresses& other) const
     {
         return infra::Equals()

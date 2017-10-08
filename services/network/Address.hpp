@@ -7,6 +7,8 @@ namespace services
 {
     using IPv4Address = std::array<uint8_t, 4>;
 
+    IPv4Address IPv4AddressLocalHost();
+
     struct IPv4InterfaceAddresses
     {
         IPv4Address address;
