@@ -7,6 +7,8 @@ ccola_component(stream static_library)
 		ByteOutputStream.hpp
 		InputStream.cpp
 		InputStream.hpp
+		IoOutputStream.cpp
+		IoOutputStream.hpp
 		LimitedInputStream.cpp
 		LimitedInputStream.hpp
 		OutputStream.cpp
