@@ -7,9 +7,7 @@ namespace infra
 {
     void IoOutputStreamWriter::Insert(ConstByteRange range)
     {
-        std::string s(range.begin(), range.end());
-        s.push_back(0);
-        std::cout << s << std::flush;
+        std::cout << std::string(range.begin(), range.end()) << std::flush;
     }
 
     void IoOutputStreamWriter::Insert(uint8_t element)
