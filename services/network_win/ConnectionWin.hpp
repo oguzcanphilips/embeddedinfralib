@@ -2,6 +2,7 @@
 #define SERVICES_CONNECTION_WIN_HPP
 
 #include "infra/event/EventDispatcherWithWeakPtr.hpp"
+#include "infra/stream/ByteOutputStream.hpp"
 #include "infra/util/BoundedDeque.hpp"
 #include "infra/util/IntrusiveList.hpp"
 #include "infra/util/SharedObjectAllocator.hpp"
@@ -42,15 +43,12 @@ namespace services
 
     private:
         class StreamWriterWin
-            : public infra::StreamWriter
+            : private std::vector<uint8_t>
+            , public infra::ByteOutputStreamWriter
         {
         public:
-            StreamWriterWin(ConnectionWin& connection);
-
-        private:
-            virtual void Insert(infra::ConstByteRange range) override;
-            virtual void Insert(uint8_t element) override;
-            virtual std::size_t Available() const override;
+            StreamWriterWin(ConnectionWin& connection, std::size_t size);
+            ~StreamWriterWin();
 
         private:
             ConnectionWin& connection;
@@ -110,7 +108,23 @@ namespace services
         SOCKET listenSocket;
     };
 
-    using AllocatorListenerWin = infra::SharedObjectAllocator<ListenerWin, void(EventDispatcherWithNetwork&, uint16_t, services::ServerConnectionObserverFactory&)>;
+    class ConnectorWin
+        : public infra::IntrusiveList<ConnectorWin>::NodeType
+    {
+    public:
+        ConnectorWin(EventDispatcherWithNetwork& network, IPv4Address address, uint16_t port, services::ClientConnectionObserverFactory& factory);
+        ~ConnectorWin();
+
+        void Connected();
+        void Failed();
+
+    private:
+        friend class EventDispatcherWithNetwork;
+
+        EventDispatcherWithNetwork& network;
+        services::ClientConnectionObserverFactory& factory;
+        SOCKET connectSocket;
+    };
 
     class EventDispatcherWithNetwork
         : public infra::EventDispatcherWithWeakPtr::WithSize<50>
@@ -123,6 +137,8 @@ namespace services
         void RegisterConnection(const infra::SharedPtr<ConnectionWin>& connection);
         void RegisterListener(ListenerWin& listener);
         void DeregisterListener(ListenerWin& listener);
+        void RegisterConnector(ConnectorWin& connector);
+        void DeregisterConnector(ConnectorWin& connector);
 
     public:
         virtual infra::SharedPtr<void> Listen(uint16_t port, services::ServerConnectionObserverFactory& factory) override;
@@ -134,6 +150,7 @@ namespace services
     private:
         std::list<infra::WeakPtr<ConnectionWin>> connections;
         infra::IntrusiveList<ListenerWin> listeners;
+        infra::IntrusiveList<ConnectorWin> connectors;
     };
 }
 

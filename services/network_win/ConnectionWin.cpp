@@ -13,7 +13,11 @@ namespace services
         if (socket != 0)
         {
             int result = closesocket(socket);
-            assert(result != SOCKET_ERROR);
+            if (result == SOCKET_ERROR)
+            {
+                DWORD error = GetLastError();
+                std::abort();
+            }
         }
     }
 
@@ -129,9 +133,10 @@ namespace services
         assert(sendStream.Allocatable());
         if (sendBuffer.max_size() - sendBuffer.size() >= requestedSendSize)
         {
-            infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectionWin>& object)
+            auto size = requestedSendSize;
+            infra::EventDispatcherWithWeakPtr::Instance().Schedule([size](const infra::SharedPtr<ConnectionWin>& object)
             {
-                infra::SharedPtr<infra::DataOutputStream> stream = object->sendStream.Emplace(*object);
+                infra::SharedPtr<infra::DataOutputStream> stream = object->sendStream.Emplace(*object, size);
                 object->GetObserver().SendStreamAvailable(std::move(stream));
             }, SharedFromThis());
 
@@ -139,23 +144,15 @@ namespace services
         }
     }
 
-    ConnectionWin::StreamWriterWin::StreamWriterWin(ConnectionWin& connection)
-        : connection(connection)
+    ConnectionWin::StreamWriterWin::StreamWriterWin(ConnectionWin& connection, std::size_t size)
+        : std::vector<uint8_t>(size, 0)
+        , infra::ByteOutputStreamWriter(infra::MakeRange(*this))
+        , connection(connection)
     {}
 
-    void ConnectionWin::StreamWriterWin::Insert(infra::ConstByteRange range)
+    ConnectionWin::StreamWriterWin::~StreamWriterWin()
     {
-        connection.sendBuffer.insert(connection.sendBuffer.end(), range.begin(), range.end());
-    }
-
-    void ConnectionWin::StreamWriterWin::Insert(uint8_t element)
-    {
-        connection.sendBuffer.push_back(element);
-    }
-
-    std::size_t ConnectionWin::StreamWriterWin::Available() const
-    {
-        return connection.MaxSendStreamSize();
+        connection.sendBuffer.insert(connection.sendBuffer.end(), Processed().begin(), Processed().end());
     }
 
     ConnectionWin::StreamReaderWin::StreamReaderWin(ConnectionWin& connection)
@@ -240,8 +237,66 @@ namespace services
         factory.ConnectionAccepted([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
         {
             if (connectionObserver)
+            {
+                connectionObserver->Attach(*connection);
                 connection->SetObserver(connectionObserver);
+            }
         });
+    }
+
+    ConnectorWin::ConnectorWin(EventDispatcherWithNetwork& network, IPv4Address address, uint16_t port, services::ClientConnectionObserverFactory& factory)
+        : network(network)
+        , factory(factory)
+    {
+        connectSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        assert(connectSocket != INVALID_SOCKET);
+
+        sockaddr_in saddress = {};
+        saddress.sin_family = AF_INET;
+        saddress.sin_addr.s_net = address[0];
+        saddress.sin_addr.s_host = address[1];
+        saddress.sin_addr.s_lh = address[2];
+        saddress.sin_addr.s_impno = address[3];
+        saddress.sin_port = htons(port);
+
+        ULONG nonBlock = 1;
+        if (ioctlsocket(connectSocket, FIONBIO, &nonBlock) == SOCKET_ERROR)
+            std::abort();
+
+        if (connect(connectSocket, reinterpret_cast<sockaddr*>(&saddress), sizeof(saddress)) == SOCKET_ERROR)
+        {
+            if (GetLastError() != WSAEWOULDBLOCK)
+                std::abort();
+        }
+
+        network.RegisterConnector(*this);
+    }
+
+    ConnectorWin::~ConnectorWin()
+    {
+        network.DeregisterConnector(*this);
+    }
+
+    void ConnectorWin::Connected()
+    {
+        infra::SharedPtr<ConnectionWin> connection = infra::MakeSharedOnHeap<ConnectionWin>(network, connectSocket);
+        factory.ConnectionEstablished([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
+        {
+            if (connectionObserver)
+            {
+                connectionObserver->Attach(*connection);
+                connection->SetObserver(connectionObserver);
+            }
+        });
+
+        infra::EventDispatcher::Instance().Schedule([this]() { network.DeregisterConnector(*this); });
+    }
+
+    void ConnectorWin::Failed()
+    {
+        factory.ConnectionFailed(services::ClientConnectionObserverFactory::ConnectFailReason::refused);
+
+        infra::EventDispatcher::Instance().Schedule([this]() { network.DeregisterConnector(*this); });
     }
 
     EventDispatcherWithNetwork::EventDispatcherWithNetwork()
@@ -271,6 +326,16 @@ namespace services
         listeners.erase(listener);
     }
 
+    void EventDispatcherWithNetwork::RegisterConnector(ConnectorWin& connector)
+    {
+        connectors.push_back(connector);
+    }
+
+    void EventDispatcherWithNetwork::DeregisterConnector(ConnectorWin& connector)
+    {
+        connectors.erase(connector);
+    }
+
     infra::SharedPtr<void> EventDispatcherWithNetwork::Listen(uint16_t port, services::ServerConnectionObserverFactory& factory)
     {
         return infra::MakeSharedOnHeap<ListenerWin>(*this, port, factory);
@@ -278,16 +343,23 @@ namespace services
 
     infra::SharedPtr<void> EventDispatcherWithNetwork::Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory)
     {
-        return nullptr;
+        return infra::MakeSharedOnHeap<ConnectorWin>(*this, address, port, factory);
     }
 
     void EventDispatcherWithNetwork::Idle()
     {
         FD_SET writeSet = {};
         FD_SET readSet = {};
+        FD_SET exceptSet = {};
 
         for (auto& listener : listeners)
             FD_SET(listener.listenSocket, &readSet);
+
+        for (auto& connector : connectors)
+        {
+            FD_SET(connector.connectSocket, &writeSet);
+            FD_SET(connector.connectSocket, &exceptSet);
+        }
 
         for (auto& weakConnection : connections)
         {
@@ -300,9 +372,9 @@ namespace services
             }
         }
 
-        if (readSet.fd_count != 0 || writeSet.fd_count != 0)
+        if (readSet.fd_count != 0 || writeSet.fd_count != 0 || exceptSet.fd_count != 0)
         {
-            DWORD total = select(0, &readSet, &writeSet, nullptr, nullptr);
+            DWORD total = select(0, &readSet, &writeSet, &exceptSet, nullptr);
             if (total == SOCKET_ERROR)
                 std::abort();
         }
@@ -313,6 +385,14 @@ namespace services
         {
             if (FD_ISSET(listener.listenSocket, &readSet))
                 listener.Accept();
+        }
+
+        for (auto& connector : connectors)
+        {
+            if (FD_ISSET(connector.connectSocket, &writeSet))
+                connector.Connected();
+            if (FD_ISSET(connector.connectSocket, &exceptSet))
+                connector.Failed();
         }
 
         for (auto& weakConnection : connections)
