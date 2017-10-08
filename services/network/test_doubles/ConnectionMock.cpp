@@ -14,6 +14,7 @@ namespace services
         {
             connectionObserver->Attach(connection);
             connection.SetOwnership(nullptr, connectionObserver);
+            connectionObserver->Connected();
         });
     }
 

@@ -322,6 +322,7 @@ namespace services
                 {
                     connectionObserver->Attach(*connection);
                     connection->SetOwnership(connection, connectionObserver);
+                    connectionObserver->Connected();
                 }
             });
 
@@ -384,6 +385,7 @@ namespace services
                 {
                     connectionObserver->Attach(*connection);
                     connection->SetOwnership(connection, connectionObserver);
+                    connectionObserver->Connected();
                 }
             });
 

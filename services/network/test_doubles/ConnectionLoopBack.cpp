@@ -204,6 +204,8 @@ namespace services
                     {
                         clientObserver->Attach(connection->Client());
                         connection->Client().SetOwnership(connection, clientObserver);
+                        connection->Client().GetObserver().Connected();
+                        connection->Server().GetObserver().Connected();
                     }
                 });
             }

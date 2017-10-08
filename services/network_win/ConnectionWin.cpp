@@ -73,8 +73,10 @@ namespace services
 
     void ConnectionWin::SetObserver(infra::SharedPtr<services::ConnectionObserver> connectionObserver)
     {
+        connectionObserver->Attach(*this);
         SetOwnership(SharedFromThis(), connectionObserver);
         network.RegisterConnection(SharedFromThis());
+        connectionObserver->Connected();
     }
 
     bool ConnectionWin::ReadyToReceive() const
@@ -237,10 +239,7 @@ namespace services
         factory.ConnectionAccepted([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
         {
             if (connectionObserver)
-            {
-                connectionObserver->Attach(*connection);
                 connection->SetObserver(connectionObserver);
-            }
         });
     }
 
@@ -283,10 +282,7 @@ namespace services
         factory.ConnectionEstablished([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
         {
             if (connectionObserver)
-            {
-                connectionObserver->Attach(*connection);
                 connection->SetObserver(connectionObserver);
-            }
         });
 
         infra::EventDispatcher::Instance().Schedule([this]() { network.DeregisterConnector(*this); });

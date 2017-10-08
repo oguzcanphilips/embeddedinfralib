@@ -103,8 +103,6 @@ namespace services
             connectionObserver->Attach(*this);
             SetOwnership(nullptr, connectionObserver);
             createdObserver(SharedFromThis());
-
-            InitTls();
         }
         else
             createdObserver(nullptr);
@@ -153,6 +151,12 @@ namespace services
             {
                 object->GetObserver().DataReceived();
             }, SharedFromThis());
+    }
+
+    void ConnectionMbedTls::Connected()
+    {
+        InitTls();
+        GetObserver().Connected();
     }
 
     void ConnectionMbedTls::ClosingConnection()

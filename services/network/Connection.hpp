@@ -25,6 +25,7 @@ namespace services
     public:
         virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) = 0;
         virtual void DataReceived() = 0;
+        virtual void Connected() {}
         virtual void ClosingConnection() {}
 
         using infra::SingleObserver<ConnectionObserver, Connection>::Attach;
