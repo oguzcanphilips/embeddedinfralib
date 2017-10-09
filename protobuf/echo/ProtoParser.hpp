@@ -3,6 +3,7 @@
 
 #include "infra/stream/InputStream.hpp"
 #include "infra/stream/LimitedInputStream.hpp"
+#include "infra/util/BoundedVector.hpp"
 #include "infra/util/Variant.hpp"
 #include <utility>
 
@@ -20,6 +21,7 @@ namespace services
         void SkipEverything();
         ProtoParser Parser();
         void GetString(infra::BoundedString& string);
+        void GetBytes(infra::BoundedVector<uint8_t>& bytes);
 
     private:
         infra::LimitedStreamReader limitedReader;

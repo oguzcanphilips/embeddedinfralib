@@ -19,6 +19,11 @@ namespace application
         std::string fieldName;
     };
 
+    struct UnspecifiedBytesSize
+    {
+        std::string fieldName;
+    };
+
     struct UnspecifiedArraySize
     {
         std::string fieldName;
@@ -95,6 +100,22 @@ namespace application
     private:
         uint32_t stringSize = 0;
         uint32_t arraySize = 0;
+    };
+
+    class FieldGeneratorBytes
+        : public FieldGenerator
+    {
+    public:
+        explicit FieldGeneratorBytes(const google::protobuf::FieldDescriptor& descriptor);
+
+        virtual void GenerateFieldDeclaration(Entities& formatter) override;
+        virtual std::string MaxMessageSize() const override;
+        virtual void SerializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void DeserializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void GenerateConstructorParameter(Constructor& constructor) override;
+
+    private:
+        uint32_t bytesSize;
     };
 
     class FieldGeneratorUint32

@@ -55,6 +55,32 @@ TEST(ProtoCEchoPluginTest, deserialize_repeated_string)
     EXPECT_EQ(expected, message.value);
 }
 
+TEST(ProtoCEchoPluginTest, serialize_bytes)
+{
+    test_messages::TestBytes message;
+    message.value.push_back(5);
+    message.value.push_back(6);
+
+    infra::ByteOutputStream::WithStorage<100> stream;
+    services::ProtoFormatter formatter(stream);
+    message.Serialize(formatter);
+
+    EXPECT_EQ((std::array<uint8_t, 4>{ 10, 2, 5, 6 }), stream.Writer().Processed());
+}
+
+TEST(ProtoCEchoPluginTest, deserialize_bytes)
+{
+    std::array<uint8_t, 4> data{ 10, 2, 5, 6 };
+    infra::ByteInputStream stream(data);
+    services::ProtoParser parser(stream);
+
+    test_messages::TestBytes message(parser);
+    infra::BoundedVector<uint8_t>::WithMaxSize<10> value;
+    value.push_back(5);
+    value.push_back(6);
+    EXPECT_EQ(value, message.value);
+}
+
 TEST(ProtoCEchoPluginTest, serialize_uint32)
 {
     test_messages::TestUint32 message;

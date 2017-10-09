@@ -12,6 +12,10 @@ message TestRepeatedString {
   repeated string value = 1 [(string_size) = 20, (array_size) = 10];
 }
 
+message TestBytes {
+  bytes value = 1 [(bytes_size) = 10];
+}
+
 message TestUint32 {
   uint32 value = 1;
 }

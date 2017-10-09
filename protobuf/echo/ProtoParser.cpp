@@ -32,6 +32,13 @@ namespace services
         input >> infra::StringAsByteRange(string);
     }
 
+    void ProtoLengthDelimited::GetBytes(infra::BoundedVector<uint8_t>& bytes)
+    {
+        bytes.resize(std::min(input.Available(), bytes.max_size()));
+        assert(bytes.size() == input.Available());
+        input >> infra::MakeRange(bytes);
+    }
+
     ProtoParser::ProtoParser(infra::DataInputStream inputStream)
         : limitedReader(inputStream.Reader(), inputStream.Available())
         , input(limitedReader)

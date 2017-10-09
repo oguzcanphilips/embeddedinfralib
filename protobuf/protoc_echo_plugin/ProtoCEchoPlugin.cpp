@@ -48,6 +48,11 @@ namespace application
             *error = "Field " + exception.fieldName + " needs a string_size specifying its maximum number of characters";
             return false;
         }
+        catch (UnspecifiedBytesSize& exception)
+        {
+            *error = "Field " + exception.fieldName + " needs a bytes_size specifying its maximum number of bytes";
+            return false;
+        }
         catch (UnspecifiedArraySize& exception)
         {
             *error = "Field " + exception.fieldName + " needs an array_size specifying its maximum number of elements";
@@ -165,6 +170,47 @@ namespace application
     void FieldGeneratorRepeatedString::GenerateConstructorParameter(Constructor& constructor)
     {
         constructor.Parameter("const infra::BoundedVector<infra::BoundedString::WithStorage<" + google::protobuf::SimpleItoa(stringSize) + ">>& " + google::protobuf::compiler::cpp::FieldName(&descriptor));
+        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
+    }
+
+    FieldGeneratorBytes::FieldGeneratorBytes(const google::protobuf::FieldDescriptor& descriptor)
+        : FieldGenerator(descriptor)
+        , bytesSize(descriptor.options().GetExtension(bytes_size))
+    {
+        if (bytesSize == 0)
+            throw UnspecifiedBytesSize{ descriptor.name() };
+    }
+
+    void FieldGeneratorBytes::GenerateFieldDeclaration(Entities& entities)
+    {
+        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), "infra::BoundedVector<uint8_t>::WithMaxSize<" + google::protobuf::SimpleItoa(bytesSize) + ">"));
+    }
+
+    std::string FieldGeneratorBytes::MaxMessageSize() const
+    {
+        return google::protobuf::SimpleItoa(bytesSize + MaxVarIntSize(bytesSize) + MaxVarIntSize((descriptor.number() << 3) | 2));
+    }
+
+    void FieldGeneratorBytes::SerializerBody(google::protobuf::io::Printer& printer)
+    {
+        printer.Print("formatter.PutBytesField($name$, $constant$);\n"
+            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
+    }
+
+    void FieldGeneratorBytes::DeserializerBody(google::protobuf::io::Printer& printer)
+    {
+        printer.Print(R"(case $constant$:
+    field.first.Get<services::ProtoLengthDelimited>().GetBytes($name$);
+    break;
+)"
+, "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+, "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
+    }
+
+    void FieldGeneratorBytes::GenerateConstructorParameter(Constructor& constructor)
+    {
+        constructor.Parameter("infra::BoundedVector<uint8_t>& " + google::protobuf::compiler::cpp::FieldName(&descriptor));
         constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
     }
 
@@ -377,6 +423,9 @@ namespace application
             {
                 case google::protobuf::FieldDescriptor::TYPE_STRING:
                     fieldGenerators.emplace_back(std::make_shared<FieldGeneratorString>(fieldDescriptor));
+                    break;
+                case google::protobuf::FieldDescriptor::TYPE_BYTES:
+                    fieldGenerators.emplace_back(std::make_shared<FieldGeneratorBytes>(fieldDescriptor));
                     break;
                 case google::protobuf::FieldDescriptor::TYPE_MESSAGE:
                     fieldGenerators.emplace_back(std::make_shared<FieldGeneratorMessage>(fieldDescriptor));

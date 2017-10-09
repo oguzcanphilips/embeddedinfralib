@@ -4,7 +4,8 @@ import "google/protobuf/descriptor.proto";
 
 extend google.protobuf.FieldOptions {
   uint32 string_size = 50000;
-  uint32 array_size = 50001;
+  uint32 bytes_size = 50001;
+  uint32 array_size = 50002;
 }
 
 extend google.protobuf.ServiceOptions {

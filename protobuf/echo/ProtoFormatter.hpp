@@ -2,6 +2,7 @@
 #define PROTOBUF_PROTO_FORMATTER_HPP
 
 #include "infra/stream/OutputStream.hpp"
+#include "infra/util/BoundedVector.hpp"
 
 namespace services
 {
@@ -31,6 +32,7 @@ namespace services
         void PutFixed32(uint32_t value);
         void PutFixed64(uint64_t value);
         void PutString(infra::BoundedConstString string);
+        void PutBytes(const infra::BoundedVector<uint8_t>& bytes);
 
         void PutVarIntField(uint64_t value, uint32_t fieldNumber);
         void PutSignedVarIntField(uint64_t value, uint32_t fieldNumber);
@@ -38,6 +40,7 @@ namespace services
         void PutFixed64Field(uint64_t value, uint32_t fieldNumber);
         void PutLengthDelimitedField(infra::ConstByteRange range, uint32_t fieldNumber);
         void PutStringField(infra::BoundedConstString string, uint32_t fieldNumber);
+        void PutBytesField(const infra::BoundedVector<uint8_t>& bytes, uint32_t fieldNumber);
         ProtoLengthDelimitedFormatter LengthDelimitedFormatter(uint32_t fieldNumber);
 
     private:

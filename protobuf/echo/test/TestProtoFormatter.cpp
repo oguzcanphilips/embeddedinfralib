@@ -65,6 +65,17 @@ TEST(ProtoFormatterTest, PutStringField)
     EXPECT_EQ((std::array<uint8_t, 3>{ 4 << 3 | 2, 1, 'a' }), stream.Writer().Processed());
 }
 
+TEST(ProtoFormatterTest, PutBytesField)
+{
+    infra::ByteOutputStream::WithStorage<20> stream;
+    services::ProtoFormatter formatter(stream);
+
+    infra::BoundedVector<uint8_t>::WithMaxSize<10> bytes;
+    bytes.push_back(5);
+    formatter.PutBytesField(bytes, 4);
+    EXPECT_EQ((std::array<uint8_t, 3>{ 4 << 3 | 2, 1, 5 }), stream.Writer().Processed());
+}
+
 TEST(ProtoFormatterTest, PutSubObject)
 {
     infra::ByteOutputStream::WithStorage<20> stream;

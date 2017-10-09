@@ -75,6 +75,17 @@ TEST(ProtoParserTest, GetField_returns_string)
     EXPECT_EQ("a", string);
 }
 
+TEST(ProtoParserTest, GetField_returns_bytes)
+{
+    infra::ByteInputStream stream(std::array<uint8_t, 3>{ (1 << 3) | 2, 1, 5 });
+    services::ProtoParser parser(stream);
+
+    services::ProtoParser::Field field = parser.GetField();
+    infra::BoundedVector<uint8_t>::WithMaxSize<10> bytes;
+    field.first.Get<services::ProtoLengthDelimited>().GetBytes(bytes);
+    EXPECT_EQ(5, bytes.front());
+}
+
 TEST(ProtoParserTest, GetField_returns_nested_object)
 {
     infra::ByteInputStream stream(std::array<uint8_t, 4>{ (1 << 3) | 2, 2, 1 << 3, 5 });
