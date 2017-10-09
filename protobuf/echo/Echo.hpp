@@ -2,6 +2,7 @@
 #define PROTOBUF_ECHO_HPP
 
 #include "infra/util/Function.hpp"
+#include "infra/util/Optional.hpp"
 #include "protobuf/echo/ProtoParser.hpp"
 #include "services/network/Connection.hpp"
 
@@ -10,18 +11,28 @@ namespace services
     class Echo;
 
     class Service
-        : public infra::Observer<Service, Echo>
+        : public infra::IntrusiveList<Service>::NodeType
     {
     public:
         Service(Echo& echo, uint32_t id);
+        Service(const Service& other) = delete;
+        Service& operator=(const Service& other) = delete;
+        ~Service();
 
+    protected:
         virtual void Handle(uint32_t methodId, services::ProtoParser& parser) = 0;
-
         Echo& Rpc();
+        void MethodDone();
+
+    private:
+        friend class Echo;
+
         uint32_t ServiceId() const;
 
     private:
+        Echo& echo;
         uint32_t serviceId;
+        bool inProgress = false;
     };
 
     class ServiceProxy
@@ -43,8 +54,8 @@ namespace services
     };
 
     class Echo
-        : public infra::Subject<Service>
-        , public services::ConnectionObserver
+        : public services::ConnectionObserver
+        , public infra::EnableSharedFromThis<Echo>
     {
     public:
         virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) override;
@@ -53,13 +64,19 @@ namespace services
         void RequestSend(ServiceProxy& serviceProxy);
         infra::DataOutputStream SendStream();
         void Send();
+        void ServiceDone(Service& service);
+
+        void AttachService(Service& service);
+        void DetachService(Service& service);
 
     private:
         void ExecuteMethod(uint32_t serviceId, uint32_t methodId, services::ProtoParser& argument);
 
     private:
+        infra::IntrusiveList<Service> services;
         infra::SharedPtr<infra::DataOutputStream> sendStream;
         infra::IntrusiveList<ServiceProxy> sendRequesters;
+        infra::Optional<uint32_t> serviceBusy;
 
         static const uint32_t maxMessageSize = 1024;
     };
