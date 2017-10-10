@@ -234,7 +234,7 @@ TEST(ProtoCEchoPluginTest, service_method_is_invoked)
     infra::ByteInputStream::WithStorage<128> stream(infra::softFail);
     infra::Copy(infra::MakeRange(std::array<uint8_t, 5>{ 1, 10, 2, 8, 5 }), infra::Head(infra::MakeRange(stream.Storage()), 5));
     auto streamPtr = infra::UnOwnedSharedPtr(stream);
-    infra::ByteInputStream::WithStorage<128> emptyStream(infra::softFail);
+    infra::ByteInputStream::WithStorage<0> emptyStream(infra::softFail);
     auto emptyStreamPtr = infra::UnOwnedSharedPtr(emptyStream);
     EXPECT_CALL(connection, ReceiveStream()).WillOnce(testing::Return(streamPtr)).WillOnce(testing::Return(emptyStreamPtr));
     EXPECT_CALL(service, Method(test_messages::TestUint32(5)));
