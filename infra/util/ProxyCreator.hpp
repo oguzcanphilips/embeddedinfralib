@@ -33,6 +33,7 @@ namespace infra
         ~DelayedProxyCreator();
 
         void Emplace(ConstructionArgs... args);
+        void Destroy();
 
         T& operator*();
         const T& operator*() const;
@@ -82,8 +83,10 @@ namespace infra
         const U* operator->() const;
 
     protected:
-        virtual U& Get() override;
-        virtual const U& Get() const override;
+        virtual T& Get() override;
+        virtual const T& Get() const override;
+        U& GetObject();
+        const U& GetObject() const;
 
     private:
         infra::Optional<U> object;
@@ -147,6 +150,12 @@ namespace infra
     }
 
     template<class T, class... ConstructionArgs>
+    void DelayedProxyCreator<T, ConstructionArgs...>::Destroy()
+    {
+        creator.Destroy();
+    }
+
+    template<class T, class... ConstructionArgs>
     T& DelayedProxyCreator<T, ConstructionArgs...>::operator*()
     {
         return creator.Get();
@@ -175,7 +184,7 @@ namespace infra
     {
         emplaceFunction = [](infra::Optional<U>& object, ConstructionArgs... args) { object.Emplace(args...); };
     }
-        
+
     template<class T, class U, class... ConstructionArgs>
     Creator<T, U, ConstructionArgs...>::Creator(infra::Function<void(infra::Optional<U>&, ConstructionArgs...)> emplaceFunction)
         : emplaceFunction(emplaceFunction)
@@ -197,35 +206,47 @@ namespace infra
     template<class T, class U, class... ConstructionArgs>
     U& Creator<T, U, ConstructionArgs...>::operator*()
     {
-        return Get();
+        return GetObject();
     }
 
     template<class T, class U, class... ConstructionArgs>
     const U& Creator<T, U, ConstructionArgs...>::operator*() const
     {
-        return Get();
+        return GetObject();
     }
 
     template<class T, class U, class... ConstructionArgs>
     U* Creator<T, U, ConstructionArgs...>::operator->()
     {
-        return &Get();
+        return &GetObject();
     }
 
     template<class T, class U, class... ConstructionArgs>
     const U* Creator<T, U, ConstructionArgs...>::operator->() const
     {
-        return &Get();
+        return &GetObject();
     }
 
     template<class T, class U, class... ConstructionArgs>
-    U& Creator<T, U, ConstructionArgs...>::Get()
+    T& Creator<T, U, ConstructionArgs...>::Get()
     {
         return *object;
     }
 
     template<class T, class U, class... ConstructionArgs>
-    const U& Creator<T, U, ConstructionArgs...>::Get() const
+    const T& Creator<T, U, ConstructionArgs...>::Get() const
+    {
+        return *object;
+    }
+
+    template<class T, class U, class... ConstructionArgs>
+    U& Creator<T, U, ConstructionArgs...>::GetObject()
+    {
+        return *object;
+    }
+
+    template<class T, class U, class... ConstructionArgs>
+    const U& Creator<T, U, ConstructionArgs...>::GetObject() const
     {
         return *object;
     }

@@ -88,3 +88,61 @@ TEST(ProxyCreatorTest, AccessPeripheral)
     EXPECT_CALL(*creator, SendMock());
     creatorProxy->Send();
 }
+
+TEST(DelayedProxyCreatorTest, CreatePeripheral)
+{
+    infra::Creator<PeripheralInterface, Peripheral> creator;
+
+    infra::DelayedProxyCreator<PeripheralInterface> creatorProxy(creator);
+    creatorProxy.Emplace();
+    creatorProxy.Destroy();
+}
+
+TEST(DelayedProxyCreatorTest, CreatePeripheralWithParameterGivenByProxy)
+{
+    infra::Creator<PeripheralInterface, PeripheralWithTwoParameters, int, int> creator;
+
+    infra::DelayedProxyCreator<PeripheralInterface, int, int> creatorProxy(creator);
+    creatorProxy.Emplace(5, 6);
+    EXPECT_EQ(5, creator->x);
+}
+
+TEST(DelayedProxyCreatorTest, CreatePeripheralWithParameterGivenByCreator)
+{
+    infra::Creator<PeripheralInterface, PeripheralWithTwoParameters> creator([](infra::Optional<PeripheralWithTwoParameters>& object) { object.Emplace(5, 6); });
+
+    infra::DelayedProxyCreator<PeripheralInterface> creatorProxy(creator);
+    creatorProxy.Emplace();
+    EXPECT_EQ(5, creator->x);
+}
+
+TEST(DelayedProxyCreatorTest, CreatePeripheralWithParameterGivenByProxyAndCreator)
+{
+    infra::Creator<PeripheralInterface, PeripheralWithTwoParameters, int> creator([](infra::Optional<PeripheralWithTwoParameters>& object, int x) { object.Emplace(x, 6); });
+
+    infra::DelayedProxyCreator<PeripheralInterface, int> creatorProxy(creator);
+    creatorProxy.Emplace(5);
+    EXPECT_EQ(5, creator->x);
+    EXPECT_EQ(6, creator->y);
+}
+
+TEST(DelayedProxyCreatorTest, CreatePeripheralWithParameterGivenByCreatorAndProxy)
+{
+    infra::Creator<PeripheralInterface, PeripheralWithTwoParameters, int> creator([](infra::Optional<PeripheralWithTwoParameters>& object, int y) { object.Emplace(5, y); });
+
+    infra::DelayedProxyCreator<PeripheralInterface, int> creatorProxy(creator);
+    creatorProxy.Emplace(6);
+    EXPECT_EQ(5, creator->x);
+    EXPECT_EQ(6, creator->y);
+}
+
+TEST(DelayedProxyCreatorTest, AccessPeripheral)
+{
+    infra::Creator<PeripheralInterface, Peripheral> creator;
+
+    infra::DelayedProxyCreator<PeripheralInterface> creatorProxy(creator);
+    creatorProxy.Emplace();
+
+    EXPECT_CALL(*creator, SendMock());
+    creatorProxy->Send();
+}
