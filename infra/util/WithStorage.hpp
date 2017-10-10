@@ -12,6 +12,11 @@ namespace infra
             class StorageHolder;
     }
 
+#ifdef _MSC_VER                                                                                                         //TICS !POR#021
+#pragma warning (push)
+#pragma warning (disable: 4503)
+#endif
+
     template<class Base, class StorageType>
     class WithStorage
         : private detail::StorageHolder<StorageType, Base>    // Inherit from StorageHolder so that the storage gets constructed before the base
@@ -20,7 +25,7 @@ namespace infra
     public:
         template<class StorageArg, class... Args>
             WithStorage(InPlace, StorageArg&& storageArg, Args&&... args);
-        template<class... Args>                                                                                             //TICS !INT#001
+        template<class... Args>                                                                                         //TICS !INT#001
             WithStorage(Args&&... args);
         template<class T, class... Args>
             WithStorage(std::initializer_list<T> initializerList, Args&&... args);
@@ -39,6 +44,10 @@ namespace infra
 
         friend void swap(WithStorage& x, WithStorage& y) { using std::swap; swap(static_cast<Base&>(x), static_cast<Base&>(y)); }
     };
+
+#ifdef _MSC_VER                                                                                                         //TICS !POR#021
+#pragma warning (pop)
+#endif
 
     namespace detail
     {
