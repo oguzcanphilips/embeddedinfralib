@@ -64,4 +64,9 @@ namespace infra
     {
         return std::min<uint32_t>(length, input.Available());
     }
+
+    bool LimitedStreamReader::Failed() const
+    {
+        return input.Failed();
+    }
 }

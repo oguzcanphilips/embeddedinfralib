@@ -19,6 +19,7 @@ namespace infra
         virtual ConstByteRange ExtractContiguousRange(std::size_t max) override;
         virtual bool Empty() const override;
         virtual std::size_t Available() const override;
+        virtual bool Failed() const override;
 
     private:
         StreamReader& input;

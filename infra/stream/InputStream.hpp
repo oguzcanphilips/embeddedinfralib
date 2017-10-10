@@ -30,7 +30,7 @@ namespace infra
         virtual bool Empty() const = 0;
         virtual std::size_t Available() const = 0;
 
-        bool Failed() const;
+        virtual bool Failed() const;
         void ReportResult(bool ok);
 
         void SetSoftFail();
