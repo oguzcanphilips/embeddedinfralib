@@ -118,6 +118,8 @@ namespace hal
         virtual void DisableInterrupt() override;
     };
 
+    extern DummyPin dummyPin;
+
     class ScopedHigh
     {
     public:

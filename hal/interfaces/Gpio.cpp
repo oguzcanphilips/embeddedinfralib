@@ -2,6 +2,8 @@
 
 namespace hal
 {
+    DummyPin dummyPin;
+
     InputPin::InputPin(GpioPin& pin)
         : pin(pin)
     {
