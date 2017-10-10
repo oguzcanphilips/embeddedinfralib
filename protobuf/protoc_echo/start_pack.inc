@@ -26,7 +26,7 @@ macro(protocol_buffer_echo input)
 
 		ccola_sources("${generated_dir_echo}/${source_base}.pb.cpp" "${generated_dir_echo}/${source_base}.pb.hpp")
 		ccola_set_source_group("Generated Files" "${generated_dir_echo}/${source_base}.pb.cpp" "${generated_dir_echo}/${source_base}.pb.hpp")
-		ccola_include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+		ccola_inheritable_include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 		ccola_dependencies(
 			protobuf.echo
