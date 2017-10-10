@@ -743,7 +743,7 @@ namespace application
             if (methodId == 0)
                 throw UnspecifiedMethodId{ service.name(), service.method(i)->name() };
 
-            result = "std::max<uint32_t>(" + google::protobuf::SimpleItoa(MaxVarIntSize(serviceId) + MaxVarIntSize((methodId << 3) | 2)) + " + " + QualifiedName(*service.method(i)->input_type()) + "::maxMessageSize, " + result + ")";
+            result = "std::max<uint32_t>(" + google::protobuf::SimpleItoa(MaxVarIntSize(serviceId) + MaxVarIntSize((methodId << 3) | 2)) + " + 10 + " + QualifiedName(*service.method(i)->input_type()) + "::maxMessageSize, " + result + ")";
         }
 
         return result;
@@ -764,6 +764,7 @@ namespace application
     {
         $argument$ argument(parser);
         $name$(argument);
+        break;
     }
 )", "name", service.method(i)->name(), "argument", QualifiedName(*service.method(i)->input_type()));
             }

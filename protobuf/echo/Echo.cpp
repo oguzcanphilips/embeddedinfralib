@@ -70,20 +70,28 @@ namespace services
 
     void Echo::DataReceived()
     {
-        if (!serviceBusy)
+        while (!serviceBusy)
         {
             infra::SharedPtr<infra::DataInputStream> stream = services::ConnectionObserver::Subject().ReceiveStream();
             services::ProtoParser parser(*stream);
             uint32_t serviceId = static_cast<uint32_t>(parser.GetVarInt());
             services::ProtoParser::Field message = parser.GetField();
-            if (!stream->Failed())
-            {
-                assert(message.first.Is<services::ProtoLengthDelimited>());
-                services::ProtoParser argument(message.first.Get<services::ProtoLengthDelimited>().Parser());
-                uint32_t methodId = message.second;
-                ExecuteMethod(serviceId, methodId, argument);
-                services::ConnectionObserver::Subject().AckReceived();
-            }
+            if (stream->Failed())
+                break;
+
+            assert(message.first.Is<services::ProtoLengthDelimited>());
+            services::ProtoParser argument(message.first.Get<services::ProtoLengthDelimited>().Parser());
+            uint32_t methodId = message.second;
+            if (stream->Failed())
+                break;
+
+            ExecuteMethod(serviceId, methodId, argument);
+            if (stream->Failed())
+                std::abort();
+            if (serviceBusy)
+                break;
+
+            services::ConnectionObserver::Subject().AckReceived();
         }
     }
 
