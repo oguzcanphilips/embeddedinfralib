@@ -203,7 +203,7 @@ TEST(ProtoCEchoPluginTest, invoke_service_proxy_method)
     test_messages::TestService1Proxy service(echo);
 
     testing::StrictMock<infra::MockCallback<void()>> onGranted;
-    EXPECT_CALL(connection, RequestSendStream(8));
+    EXPECT_CALL(connection, RequestSendStream(18));
     service.RequestSend([&onGranted]() { onGranted.callback(); });
 
     infra::ByteOutputStream::WithStorage<128> stream;
@@ -231,10 +231,12 @@ TEST(ProtoCEchoPluginTest, service_method_is_invoked)
     echo.Attach(connection);
     testing::StrictMock<TestService1Mock> service(echo);
 
-    infra::ByteInputStream::WithStorage<128> stream;
+    infra::ByteInputStream::WithStorage<128> stream(infra::softFail);
     infra::Copy(infra::MakeRange(std::array<uint8_t, 5>{ 1, 10, 2, 8, 5 }), infra::Head(infra::MakeRange(stream.Storage()), 5));
     auto streamPtr = infra::UnOwnedSharedPtr(stream);
-    EXPECT_CALL(connection, ReceiveStream()).WillOnce(testing::Return(streamPtr));
+    infra::ByteInputStream::WithStorage<128> emptyStream(infra::softFail);
+    auto emptyStreamPtr = infra::UnOwnedSharedPtr(emptyStream);
+    EXPECT_CALL(connection, ReceiveStream()).WillOnce(testing::Return(streamPtr)).WillOnce(testing::Return(emptyStreamPtr));
     EXPECT_CALL(service, Method(test_messages::TestUint32(5)));
     EXPECT_CALL(connection, AckReceived());
     connection.GetObserver().DataReceived();

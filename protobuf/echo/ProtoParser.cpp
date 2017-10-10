@@ -61,7 +61,7 @@ namespace services
 
             result += (byte & 0x7f) << shift;                                                                           //TICS !POR#006
             shift += 7;
-        } while ((byte & 0x80) != 0);
+        } while (!input.Failed() && (byte & 0x80) != 0);
 
         return result;
     }
