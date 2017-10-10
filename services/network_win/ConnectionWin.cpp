@@ -158,7 +158,8 @@ namespace services
     }
 
     ConnectionWin::StreamReaderWin::StreamReaderWin(ConnectionWin& connection)
-        : connection(connection)
+        : infra::StreamReader(infra::softFail)
+        , connection(connection)
     {}
 
     void ConnectionWin::StreamReaderWin::ConsumeRead()
