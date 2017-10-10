@@ -2,6 +2,7 @@
 #define TCP_CONNECTION_LW_IP_HPP
 
 #include "infra/timer/Timer.hpp"
+#include "infra/stream/ByteOutputStream.hpp"
 #include "infra/util/BoundedDeque.hpp"
 #include "infra/util/ByteRange.hpp"
 #include "infra/util/SharedObjectAllocatorFixedSize.hpp"
@@ -44,21 +45,14 @@ namespace services
 
     private:
         class StreamWriterLwIp
-            : public infra::StreamWriter
+            : public infra::ByteOutputStreamWriter
         {
         public:
             StreamWriterLwIp(ConnectionLwIp& connection, infra::ByteRange sendBuffer);
             ~StreamWriterLwIp();
 
         private:
-            virtual void Insert(infra::ConstByteRange range) override;
-            virtual void Insert(uint8_t element) override;
-            virtual std::size_t Available() const override;
-
-        private:
             ConnectionLwIp& connection;
-            infra::ByteRange sendBuffer;
-            uint16_t sent = 0;
         };
 
         class StreamReaderLwIp

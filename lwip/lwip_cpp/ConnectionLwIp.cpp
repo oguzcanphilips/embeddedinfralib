@@ -190,39 +190,21 @@ namespace services
     }
 
     ConnectionLwIp::StreamWriterLwIp::StreamWriterLwIp(ConnectionLwIp& connection, infra::ByteRange sendBuffer)
-        : connection(connection)
-        , sendBuffer(sendBuffer)
+        : infra::ByteOutputStreamWriter(sendBuffer)
+        , connection(connection)
     {}
 
     ConnectionLwIp::StreamWriterLwIp::~StreamWriterLwIp()
     {
-        if (sent != 0)
-            connection.SendBuffer(infra::Head(sendBuffer, sent));
+        if (!Processed().empty())
+            connection.SendBuffer(Processed());
         else
             connection.sendMemoryPool.pop_back();
     }
 
-    void ConnectionLwIp::StreamWriterLwIp::Insert(infra::ConstByteRange range)
-    {
-        assert(sendBuffer.size() - sent >= range.size());
-        std::copy(range.begin(), range.end(), sendBuffer.begin() + sent);
-        sent += static_cast<uint16_t>(range.size());
-    }
-
-    void ConnectionLwIp::StreamWriterLwIp::Insert(uint8_t element)
-    {
-        assert(sent != sendBuffer.size());
-        sendBuffer[sent] = element;
-        ++sent;
-    }
-
-    std::size_t ConnectionLwIp::StreamWriterLwIp::Available() const
-    {
-        return sendBuffer.size() - sent;
-    }
-
     ConnectionLwIp::StreamReaderLwIp::StreamReaderLwIp(ConnectionLwIp& connection)
-        : connection(connection)
+        : infra::StreamReader(infra::softFail)
+        , connection(connection)
     {}
 
     void ConnectionLwIp::StreamReaderLwIp::ConsumeRead()
@@ -236,8 +218,11 @@ namespace services
     {
         while (!range.empty() && !Empty())
         {
-            range.front() = connection.receiveBuffer[++sizeRead];
-            range.pop_front();
+            infra::ByteRange inputRange = connection.receiveBuffer.contiguous_range(connection.receiveBuffer.begin() + sizeRead);
+            inputRange.shrink_from_back_to(range.size());
+            infra::Copy(inputRange, infra::Head(range, inputRange.size()));
+            range.pop_front(inputRange.size());
+            sizeRead += static_cast<uint16_t>(inputRange.size());
         }
 
         ReportResult(range.empty());
@@ -249,7 +234,7 @@ namespace services
 
         ReportResult(available);
         if (available)
-            return connection.receiveBuffer[++sizeRead];
+            return connection.receiveBuffer[sizeRead++];
         else
             return 0;
     }
