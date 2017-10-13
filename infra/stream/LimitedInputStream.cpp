@@ -69,4 +69,14 @@ namespace infra
     {
         return input.Failed();
     }
+
+    void LimitedStreamReader::ReportResult(bool ok)
+    {
+        input.ReportResult(ok);
+    }
+
+    void LimitedStreamReader::SetSoftFail()
+    {
+        input.SetSoftFail();
+    }
 }

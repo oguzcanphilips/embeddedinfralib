@@ -20,6 +20,8 @@ namespace infra
         virtual bool Empty() const override;
         virtual std::size_t Available() const override;
         virtual bool Failed() const override;
+        virtual void ReportResult(bool ok) override;
+        virtual void SetSoftFail() override;
 
     private:
         StreamReader& input;

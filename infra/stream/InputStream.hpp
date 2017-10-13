@@ -31,9 +31,9 @@ namespace infra
         virtual std::size_t Available() const = 0;
 
         virtual bool Failed() const;
-        void ReportResult(bool ok);
+        virtual void ReportResult(bool ok);
 
-        void SetSoftFail();
+        virtual void SetSoftFail();
 
     private:
         bool softFail = false;
@@ -75,7 +75,7 @@ namespace infra
         template<class Data>
             DataInputStream& operator>>(Data& data);
     };
-    
+
     class TextInputStream
         : public InputStream
     {
