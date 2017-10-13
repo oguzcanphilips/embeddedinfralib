@@ -7,7 +7,9 @@ namespace services
     ProtoLengthDelimited::ProtoLengthDelimited(infra::DataInputStream inputStream, uint32_t length)
         : limitedReader(inputStream.Reader(), length)
         , input(limitedReader)
-    {}
+    {
+        inputStream.Reader().ReportResult(inputStream.Available() >= length);
+    }
 
     ProtoLengthDelimited::ProtoLengthDelimited(const ProtoLengthDelimited& other)
         : limitedReader(other.limitedReader)
@@ -97,7 +99,10 @@ namespace services
             case 5:
                 return std::make_pair(GetFixed32(), fieldNumber);
             default:
-                std::abort();
+                if (!input.Failed())
+                    std::abort();
+                // Todo: Report proper error
+                return std::make_pair(static_cast<uint32_t>(0), 0);
         }
     }
 }

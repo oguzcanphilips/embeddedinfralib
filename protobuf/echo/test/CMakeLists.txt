@@ -1,4 +1,4 @@
-ccola_component(protobuf_echo_test gmock_test)
+ccola_component(echo_test gmock_test)
 
 	ccola_sources(
 		TestProtoFormatter.cpp
