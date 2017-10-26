@@ -276,7 +276,7 @@ void mbedtls2_aes_decrypt( mbedtls2_aes_context *ctx,
 #endif
 
 #else  /* MBEDTLS_AES_ALT */
-#include "aes_alt.h"
+#include MBEDTLS_AES_ALT_HEADER
 #endif /* MBEDTLS_AES_ALT */
 
 #ifdef __cplusplus
