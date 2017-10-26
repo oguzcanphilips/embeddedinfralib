@@ -96,7 +96,7 @@ namespace infra
     {
     private:
         using ObserverType = ObserverType_;
-        using SubjectType = typename ObserverType::SubjectType;
+        using ObserverSubjectType = typename ObserverType::SubjectType;
 
     protected:
         Subject() = default;
@@ -109,12 +109,12 @@ namespace infra
         ObserverType& GetObserver() const;
 
     private:
-        friend class SingleObserver<ObserverType_, SubjectType>;
-        void RegisterObserver(SingleObserver<ObserverType_, SubjectType>* observer);
-        void UnregisterObserver(SingleObserver<ObserverType_, SubjectType>* observer);
+        friend class SingleObserver<ObserverType_, ObserverSubjectType>;
+        void RegisterObserver(SingleObserver<ObserverType_, ObserverSubjectType>* observer);
+        void UnregisterObserver(SingleObserver<ObserverType_, ObserverSubjectType>* observer);
 
     private:
-        SingleObserver<ObserverType_, SubjectType>* observer = nullptr;
+        SingleObserver<ObserverType_, ObserverSubjectType>* observer = nullptr;
     };
 
     ////    Implementation    ////
@@ -262,14 +262,14 @@ namespace infra
     }
 
     template<class ObserverType, class Helper>
-    void Subject<ObserverType, Helper>::RegisterObserver(SingleObserver<ObserverType, SubjectType>* observer)
+    void Subject<ObserverType, Helper>::RegisterObserver(SingleObserver<ObserverType, ObserverSubjectType>* observer)
     {
         assert(this->observer == nullptr);
         this->observer = observer;
     }
 
     template<class ObserverType, class Helper>
-    void Subject<ObserverType, Helper>::UnregisterObserver(SingleObserver<ObserverType, SubjectType>* observer)
+    void Subject<ObserverType, Helper>::UnregisterObserver(SingleObserver<ObserverType, ObserverSubjectType>* observer)
     {
         (void)observer; // Avoid warning in release mode                                                                //TICS !CFL#024
         assert(this->observer == observer);
