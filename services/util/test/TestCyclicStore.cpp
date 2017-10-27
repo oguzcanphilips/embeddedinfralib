@@ -169,6 +169,26 @@ TEST_F(CyclicStoreTest, AddItemWhichCausesSectorToBeErased)
     }), flash.sectors);
 }
 
+TEST_F(CyclicStoreTest, AddItemOverflowingSectorWhichCausesSectorToBeErased)
+{
+    flash.sectors[0].resize(14);
+    flash.sectors[1].resize(14);
+    std::vector<uint8_t> data = { 11, 12, 13, 14, 15, 16 };
+    cyclicStore.Add(data, infra::emptyFunction);
+    ExecuteAllActions();
+    std::vector<uint8_t> secondData = { 21, 22, 23, 24, 25, 26 };
+    cyclicStore.Add(secondData, infra::emptyFunction);
+    ExecuteAllActions();
+    std::vector<uint8_t> thirdData = { 31, 32, 33, 34, 35, 36 };
+    cyclicStore.Add(thirdData, infra::emptyFunction);
+    ExecuteAllActions();
+
+    EXPECT_EQ((std::vector<std::vector<uint8_t>>{
+        { 0xfe, 0xf8, 6, 0, 31, 32, 33, 34, 35, 36, 0xff, 0xff, 0xff, 0xff },
+        { 0xfc, 0xf8, 6, 0, 21, 22, 23, 24, 25, 26, 0x7f, 0xff, 0xff, 0xff },
+    }), flash.sectors);
+}
+
 TEST_F(CyclicStoreTest, ReadFirstItem)
 {
     std::vector<uint8_t> data = { 11, 12 };

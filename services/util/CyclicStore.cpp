@@ -27,8 +27,8 @@ namespace services
             sequencer.Load([this, range]()
             {
                 sequencer.If([this]() { return !partialAddStarted; });
-                    EraseSectorIfAtStart();
                     FillSectorIfDataDoesNotFit(range.size() + remainingPartialSize);
+                    EraseSectorIfAtStart();
                     WriteSectorStatusIfAtStartOfSector();
                 sequencer.EndIf();
                 WriteRange(range);
