@@ -5,7 +5,8 @@ ccola_component(util_test gmock_test)
         TestDebouncedButton.cpp
         TestDebugLed.cpp
         TestFlashMultipleAccess.cpp
-        TestFlashQuadSpi.cpp
+        TestFlashQuadSpiMicronN25q.cpp
+        TestFlashQuadSpiCypressFll.cpp
         TestFlashRegion.cpp
         TestFlashSpi.cpp
         TestI2cMultipleAccess.cpp

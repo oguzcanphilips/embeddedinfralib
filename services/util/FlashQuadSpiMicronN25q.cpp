@@ -1,23 +1,23 @@
 #include "infra/event/EventDispatcher.hpp"
-#include "services/util/FlashQuadSpi.hpp"
+#include "services/util/FlashQuadSpiMicronN25q.hpp"
 
 namespace services
 {
 
-    const uint8_t FlashQuadSpi::commandPageProgram = 0x32;
-    const uint8_t FlashQuadSpi::commandReadData = 0x0B;
-    const uint8_t FlashQuadSpi::commandReadStatusRegister = 0x05;
-    const uint8_t FlashQuadSpi::commandReadFlagStatusRegister = 0x70;
-    const uint8_t FlashQuadSpi::commandWriteEnable = 0x06;
-    const uint8_t FlashQuadSpi::commandEraseSubSector = 0x20;
-    const uint8_t FlashQuadSpi::commandEraseSector = 0xd8;
-    const uint8_t FlashQuadSpi::commandEraseBulk = 0xc7;
-    const uint8_t FlashQuadSpi::commandWriteEnhancedVolatileRegister = 0x61;
-    const uint8_t FlashQuadSpi::commandReadEnhancedVolatileRegister = 0x65;
+    const uint8_t FlashQuadSpiMicronN25q::commandPageProgram = 0x32;
+    const uint8_t FlashQuadSpiMicronN25q::commandReadData = 0x0B;
+    const uint8_t FlashQuadSpiMicronN25q::commandReadStatusRegister = 0x05;
+    const uint8_t FlashQuadSpiMicronN25q::commandReadFlagStatusRegister = 0x70;
+    const uint8_t FlashQuadSpiMicronN25q::commandWriteEnable = 0x06;
+    const uint8_t FlashQuadSpiMicronN25q::commandEraseSubSector = 0x20;
+    const uint8_t FlashQuadSpiMicronN25q::commandEraseSector = 0xd8;
+    const uint8_t FlashQuadSpiMicronN25q::commandEraseBulk = 0xc7;
+    const uint8_t FlashQuadSpiMicronN25q::commandWriteEnhancedVolatileRegister = 0x61;
+    const uint8_t FlashQuadSpiMicronN25q::commandReadEnhancedVolatileRegister = 0x65;
 
-    const uint8_t FlashQuadSpi::volatileRegisterForQuadSpeed = 0x5f;
+    const uint8_t FlashQuadSpiMicronN25q::volatileRegisterForQuadSpeed = 0x5f;
 
-    FlashQuadSpi::FlashQuadSpi(hal::QuadSpi& spi, infra::Function<void()> onInitialized, uint32_t numberOfSubSectors)
+    FlashQuadSpiMicronN25q::FlashQuadSpiMicronN25q(hal::QuadSpi& spi, infra::Function<void()> onInitialized, uint32_t numberOfSubSectors)
         : hal::FlashHomogeneous(numberOfSubSectors, sizeSubSector)
         , spi(spi)
         , onInitialized(onInitialized)
@@ -31,7 +31,7 @@ namespace services
         });
     }
 
-    void FlashQuadSpi::WriteBuffer(infra::ConstByteRange buffer, uint32_t address, infra::Function<void()> onDone)
+    void FlashQuadSpiMicronN25q::WriteBuffer(infra::ConstByteRange buffer, uint32_t address, infra::Function<void()> onDone)
     {
         this->onDone = onDone;
         this->buffer = buffer;
@@ -40,14 +40,14 @@ namespace services
         WriteBufferSequence();
     }
 
-    void FlashQuadSpi::ReadBuffer(infra::ByteRange buffer, uint32_t address, infra::Function<void()> onDone)
+    void FlashQuadSpiMicronN25q::ReadBuffer(infra::ByteRange buffer, uint32_t address, infra::Function<void()> onDone)
     {
         const hal::QuadSpi::Header header{ infra::MakeOptional(commandReadData), ConvertAddress(address), {}, 10 };
 
         spi.ReceiveData(header, buffer, hal::QuadSpi::Lines::QuadSpeed(), onDone);
     }
 
-    void FlashQuadSpi::EraseSectors(uint32_t beginIndex, uint32_t endIndex, infra::Function<void()> onDone)
+    void FlashQuadSpiMicronN25q::EraseSectors(uint32_t beginIndex, uint32_t endIndex, infra::Function<void()> onDone)
     {
         this->onDone = onDone;
         sectorIndex = beginIndex;
@@ -62,7 +62,7 @@ namespace services
         });
     }
 
-    void FlashQuadSpi::WriteBufferSequence()
+    void FlashQuadSpiMicronN25q::WriteBufferSequence()
     {
         sequencer.Load([this]()
         {
@@ -75,30 +75,30 @@ namespace services
         });
     }
 
-    infra::BoundedVector<uint8_t>::WithMaxSize<4> FlashQuadSpi::ConvertAddress(uint32_t address) const
+    infra::BoundedVector<uint8_t>::WithMaxSize<4> FlashQuadSpiMicronN25q::ConvertAddress(uint32_t address) const
     {
         return hal::QuadSpi::AddressToVector(address, 3);
     }
 
-    void FlashQuadSpi::WriteEnableSingleSpeed()
+    void FlashQuadSpiMicronN25q::WriteEnableSingleSpeed()
     {
         static const hal::QuadSpi::Header writeEnableHeader{ infra::MakeOptional(commandWriteEnable), {}, {}, 0 };
         spi.SendData(writeEnableHeader, {}, hal::QuadSpi::Lines::SingleSpeed(), [this]() { sequencer.Continue(); });
     }
 
-    void FlashQuadSpi::SwitchToQuadSpeed()
+    void FlashQuadSpiMicronN25q::SwitchToQuadSpeed()
     {
         static const hal::QuadSpi::Header writeVolatileRegisterHeader{ infra::MakeOptional(commandWriteEnhancedVolatileRegister), {}, {}, 0 };
         spi.SendData(writeVolatileRegisterHeader, infra::MakeByteRange(volatileRegisterForQuadSpeed), hal::QuadSpi::Lines::SingleSpeed(), [this]() { sequencer.Continue(); });
     }
 
-    void FlashQuadSpi::WriteEnable()
+    void FlashQuadSpiMicronN25q::WriteEnable()
     {
         static const hal::QuadSpi::Header writeEnableHeader{ infra::MakeOptional(commandWriteEnable), {}, {}, 0 };
         spi.SendData(writeEnableHeader, {}, hal::QuadSpi::Lines::QuadSpeed(), [this]() { sequencer.Continue(); });
     }
 
-    void FlashQuadSpi::PageProgram()
+    void FlashQuadSpiMicronN25q::PageProgram()
     {
         hal::QuadSpi::Header pageProgramHeader{ infra::MakeOptional(commandPageProgram), ConvertAddress(address), {}, 0 };
 
@@ -109,7 +109,7 @@ namespace services
         spi.SendData(pageProgramHeader, currentBuffer, hal::QuadSpi::Lines::QuadSpeed(), [this]() { sequencer.Continue(); });
     }
 
-    void FlashQuadSpi::EraseSomeSectors(uint32_t endIndex)
+    void FlashQuadSpiMicronN25q::EraseSomeSectors(uint32_t endIndex)
     {
         if (sectorIndex == 0 && endIndex == NumberOfSectors())
         {
@@ -128,25 +128,25 @@ namespace services
         }
     }
 
-    void FlashQuadSpi::SendEraseSubSector(uint32_t subSectorIndex)
+    void FlashQuadSpiMicronN25q::SendEraseSubSector(uint32_t subSectorIndex)
     {
         hal::QuadSpi::Header eraseSubSectorHeader{ infra::MakeOptional(commandEraseSubSector), ConvertAddress(AddressOfSector(subSectorIndex)), {}, 0 };
         spi.SendData(eraseSubSectorHeader, {}, hal::QuadSpi::Lines::QuadSpeed(), [this]() { sequencer.Continue(); });
     }
 
-    void FlashQuadSpi::SendEraseSector(uint32_t subSectorIndex)
+    void FlashQuadSpiMicronN25q::SendEraseSector(uint32_t subSectorIndex)
     {
         hal::QuadSpi::Header eraseSectorHeader{ infra::MakeOptional(commandEraseSector), ConvertAddress(AddressOfSector(subSectorIndex)), {}, 0 };
         spi.SendData(eraseSectorHeader, {}, hal::QuadSpi::Lines::QuadSpeed(), [this]() { sequencer.Continue(); });
     }
 
-    void FlashQuadSpi::SendEraseBulk()
+    void FlashQuadSpiMicronN25q::SendEraseBulk()
     {
         static const hal::QuadSpi::Header eraseBulkHeader{ infra::MakeOptional(commandEraseBulk), {}, {}, 0 };
         spi.SendData(eraseBulkHeader, {}, hal::QuadSpi::Lines::QuadSpeed(), [this]() { sequencer.Continue(); });
     }
 
-    void FlashQuadSpi::HoldWhileWriteInProgress()
+    void FlashQuadSpiMicronN25q::HoldWhileWriteInProgress()
     {
         static const hal::QuadSpi::Header pollWriteInProgressHeader{ infra::MakeOptional(commandReadStatusRegister), {}, {}, 0 };
         spi.PollStatus(pollWriteInProgressHeader, 1, 0, statusFlagWriteInProgress, hal::QuadSpi::Lines::QuadSpeed(), [this]() { sequencer.Continue(); });

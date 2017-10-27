@@ -6,7 +6,8 @@ ccola_component(util static_library)
 		DebugLed.cpp
 		FlashDelayedInit.cpp
 		FlashMultipleAccess.cpp
-		FlashQuadSpi.cpp
+		FlashQuadSpiMicronN25q.cpp
+		FlashQuadSpiCypressFll.cpp
 		FlashSpi.cpp
 		FlashRegion.cpp
 		GpioPinInverted.cpp
@@ -21,7 +22,8 @@ ccola_component(util static_library)
 		DebugLed.hpp
 		FlashDelayedInit.hpp
 		FlashMultipleAccess.hpp
-		FlashQuadSpi.hpp
+		FlashQuadSpiMicronN25q.hpp
+		FlashQuadSpiCypressFll.hpp
 		FlashSpi.hpp
 		FlashRegion.hpp
 		GpioPinInverted.hpp
