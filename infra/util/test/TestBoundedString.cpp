@@ -11,6 +11,19 @@ TEST(BoundedStringTest, TestConstructedEmpty)
     EXPECT_EQ(5, string.max_size());
 }
 
+TEST(BoundedStringTest, TestConstructFromMemoryRange)
+{
+	std::array<char, 5> data = { 'a', 'b', 'c', 'd', 'e' };
+	infra::BoundedString string(infra::MakeRange(data), 3);
+
+	EXPECT_EQ('a', string[0]);
+	EXPECT_EQ('b', string[1]);
+	EXPECT_EQ('c', string[2]);
+	EXPECT_EQ(3, string.size());
+	EXPECT_EQ(5, string.max_size());
+	EXPECT_FALSE(string.empty());
+}
+
 TEST(BoundedStringTest, TestConstructFromNChars)
 {
     infra::BoundedString::WithStorage<5> string(3, 'a');
@@ -631,6 +644,26 @@ TEST(BoundedStringTest, TestStringAsByteRange)
         StringAsByteRange(string));
     EXPECT_EQ(infra::MemoryRange<const uint8_t>(reinterpret_cast<const uint8_t*>(string.begin()), reinterpret_cast<const uint8_t*>(string.end())),
         StringAsByteRange(const_cast<const infra::BoundedString&>(static_cast<const infra::BoundedString&>(string))));
+}
+
+TEST(BoundedStringTest, TestByteRangeAsString)
+{
+	std::array<char, 4> data = { "str" };
+	infra::MemoryRange<char> byteRange(data);
+	infra::MemoryRange<const char> byteRange2(data);
+
+	const auto boudedString = MemoryRangeAsString(byteRange);
+	const auto boundedConstString = ConstMemoryRangeAsString(byteRange);
+
+	EXPECT_EQ(boudedString[0], 's');
+	EXPECT_EQ(boudedString[1], 't');
+	EXPECT_EQ(boudedString[2], 'r');
+	EXPECT_EQ(boudedString[3], '\0');
+
+	EXPECT_EQ(boundedConstString[0], 's');
+	EXPECT_EQ(boundedConstString[1], 't');
+	EXPECT_EQ(boundedConstString[2], 'r');
+	EXPECT_EQ(boundedConstString[3], '\0');
 }
 
 TEST(BoundedStringTest, TestPrintTo1)
