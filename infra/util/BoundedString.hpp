@@ -45,6 +45,7 @@ namespace infra
     public:
         BoundedStringBase();
         explicit BoundedStringBase(MemoryRange<T> range);
+		BoundedStringBase(MemoryRange<NonConstT> range, size_type count);
         BoundedStringBase(MemoryRange<NonConstT> range, size_type count, char ch);
         BoundedStringBase(MemoryRange<NonConstT> range, const BoundedStringBase& other, size_type pos, size_type count = BoundedStringBase::npos);
         BoundedStringBase(MemoryRange<NonConstT> range, const char* s, size_type count);
@@ -318,6 +319,8 @@ namespace infra
         MemoryRange<uint8_t> StringAsByteRange(const infra::BoundedStringBase<U>& string);
     template<class U>
         MemoryRange<const uint8_t> StringAsByteRange(const infra::BoundedStringBase<const U>& string);
+	BoundedString MemoryRangeAsString(infra::MemoryRange<char> range);
+	BoundedConstString ConstMemoryRangeAsString(infra::MemoryRange<const char> range);
 
 #ifdef _MSC_VER                                                                                                                     //TICS !POR#021
     // gtest uses PrintTo to display the contents of BoundedStringBase<T>
@@ -352,13 +355,18 @@ namespace infra
     {}
 
     template<class T>
-    BoundedStringBase<T>::BoundedStringBase(MemoryRange<NonConstT> range, size_type count, char ch)
+    BoundedStringBase<T>::BoundedStringBase(MemoryRange<NonConstT> range, size_type count)
         : range(range)
-    {
-        AssignToRange(range, length, count, ch);
-    }
+		, length(count)
+    {}
 
-    template<class T>
+	template<class T>
+	BoundedStringBase<T>::BoundedStringBase(MemoryRange<NonConstT> range, size_type count, char ch)
+		: range(range)
+	{
+		AssignToRange(range, length, count, ch);
+	}
+	template<class T>
     BoundedStringBase<T>::BoundedStringBase(MemoryRange<NonConstT> range, const BoundedStringBase<T>& other, size_type pos, size_type count)
         : range(range)
     {

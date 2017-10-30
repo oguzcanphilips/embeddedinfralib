@@ -16,6 +16,7 @@ ccola_component(util static_library)
 		BoundedList.hpp
 		BoundedPriorityQueue.hpp
 		BoundedString.hpp
+        BoundedString.cpp
 		BoundedVector.hpp
 		ByteRange.hpp
 		CompareMembers.hpp
