@@ -319,8 +319,8 @@ namespace infra
         MemoryRange<uint8_t> StringAsByteRange(const infra::BoundedStringBase<U>& string);
     template<class U>
         MemoryRange<const uint8_t> StringAsByteRange(const infra::BoundedStringBase<const U>& string);
-	BoundedString MemoryRangeAsString(infra::MemoryRange<char> range);
-	BoundedConstString ConstMemoryRangeAsString(infra::MemoryRange<const char> range);
+	BoundedString ByteRangeAsString(infra::MemoryRange<uint8_t> range);
+	BoundedConstString ConstByteRangeAsString(infra::MemoryRange<const uint8_t> range);
 
 #ifdef _MSC_VER                                                                                                                     //TICS !POR#021
     // gtest uses PrintTo to display the contents of BoundedStringBase<T>
