@@ -2,13 +2,13 @@
 
 namespace infra
 {
-	BoundedString MemoryRangeAsString(infra::MemoryRange<char> range)
+	BoundedString ByteRangeAsString(infra::MemoryRange<uint8_t> range)
 	{
-		return BoundedString(range.begin(), range.size());
+		return BoundedString(reinterpret_cast<char*>(range.begin()), range.size());
 	}
 
-	BoundedConstString ConstMemoryRangeAsString(infra::MemoryRange<const char> range)
+	BoundedConstString ConstByteRangeAsString(infra::MemoryRange<const uint8_t> range)
 	{
-		return BoundedConstString(range.begin(), range.size());
+		return BoundedConstString(reinterpret_cast<const char*>(range.begin()), range.size());
 	}
 }

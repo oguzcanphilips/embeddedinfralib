@@ -648,12 +648,12 @@ TEST(BoundedStringTest, TestStringAsByteRange)
 
 TEST(BoundedStringTest, TestByteRangeAsString)
 {
-	std::array<char, 4> data = { "str" };
-	infra::MemoryRange<char> byteRange(data);
-	infra::MemoryRange<const char> byteRange2(data);
+	std::array<uint8_t, 4> data = { "str" };
+	infra::MemoryRange<uint8_t> byteRange(data);
+	infra::MemoryRange<const uint8_t> byteRange2(data);
 
-	const auto boudedString = MemoryRangeAsString(byteRange);
-	const auto boundedConstString = ConstMemoryRangeAsString(byteRange);
+	const auto boudedString = ByteRangeAsString(byteRange);
+	const auto boundedConstString = ConstByteRangeAsString(byteRange);
 
 	EXPECT_EQ(boudedString[0], 's');
 	EXPECT_EQ(boudedString[1], 't');
