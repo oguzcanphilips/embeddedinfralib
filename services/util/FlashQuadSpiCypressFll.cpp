@@ -12,6 +12,7 @@ namespace services
     const uint8_t FlashQuadSpiCypressFll::commandEraseBlock = 0xd8;
     const uint8_t FlashQuadSpiCypressFll::commandEraseChip = 0x60;
     const uint8_t FlashQuadSpiCypressFll::commandEnterQpi = 0x38;
+    const uint8_t FlashQuadSpiCypressFll::commandExitQpi = 0xf5;
 
     FlashQuadSpiCypressFll::FlashQuadSpiCypressFll(hal::QuadSpi& spi, infra::Function<void()> onInitialized, uint32_t numberOfSubSectors)
         : hal::FlashHomogeneous(numberOfSubSectors, sizeSector)
@@ -55,6 +56,12 @@ namespace services
             sequencer.EndWhile();
             sequencer.Execute([this]() { infra::EventDispatcher::Instance().Schedule([this]() { this->onDone(); }); });
         });
+    }
+
+    void FlashQuadSpiCypressFll::SwitchToSingleSpeed(infra::Function<void()> onDone)
+    {
+        static const hal::QuadSpi::Header exitQpiHeader{ infra::MakeOptional(commandExitQpi), {}, {}, 0 };
+        spi.SendData(exitQpiHeader, {}, hal::QuadSpi::Lines::QuadSpeed(), onDone);
     }
 
     void FlashQuadSpiCypressFll::WriteBufferSequence()

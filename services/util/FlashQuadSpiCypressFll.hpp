@@ -22,6 +22,7 @@ namespace services
         static const uint8_t commandEraseBlock;
         static const uint8_t commandEraseChip;
         static const uint8_t commandEnterQpi;
+        static const uint8_t commandExitQpi;
 
         static const uint32_t sizeBlock = 65536;
         static const uint32_t sizeHalfBlock = 32768;
@@ -36,6 +37,8 @@ namespace services
         virtual void WriteBuffer(infra::ConstByteRange buffer, uint32_t address, infra::Function<void()> onDone) override;
         virtual void ReadBuffer(infra::ByteRange buffer, uint32_t address, infra::Function<void()> onDone) override;
         virtual void EraseSectors(uint32_t beginIndex, uint32_t endIndex, infra::Function<void()> onDone) override;
+
+        void SwitchToSingleSpeed(infra::Function<void()> onDone);
 
     private:
         void WriteBufferSequence();
