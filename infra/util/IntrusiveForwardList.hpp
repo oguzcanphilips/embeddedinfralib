@@ -11,10 +11,10 @@ namespace infra
     namespace detail
     {
         template<class T>
-        class IntrusiveForwardListNode;
+            class IntrusiveForwardListNode;
 
         template<class T>
-        class IntrusiveForwardListIterator;
+            class IntrusiveForwardListIterator;
     }
 
     template<class T>
