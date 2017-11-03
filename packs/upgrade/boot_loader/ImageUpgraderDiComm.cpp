@@ -8,9 +8,10 @@ namespace application
     const uint32_t ImageUpgraderDiComm::chunkSizeDefault;
     const uint32_t ImageUpgraderDiComm::chunkSizeMax;
 
-    ImageUpgraderDiComm::ImageUpgraderDiComm(const char* targetName, Decryptor& decryptor, DiComm& diComm)
+    ImageUpgraderDiComm::ImageUpgraderDiComm(const char* targetName, Decryptor& decryptor, DiComm& diComm, hal::TimeKeeper& timeKeeper)
         : ImageUpgrader(targetName, decryptor)
         , diComm(diComm)
+        , timeKeeper(timeKeeper)
     {}
 
     uint32_t ImageUpgraderDiComm::Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress)
@@ -19,6 +20,7 @@ namespace application
             && InitializeProperties()
             && PrepareDownload(imageSize)
             && SendFirmware(flash, imageAddress, imageSize)
+            && InitializeProtocol()
             && WaitForState("idle"))
             return 0;
         else
@@ -27,10 +29,14 @@ namespace application
 
     bool ImageUpgraderDiComm::InitializeProtocol()
     {
-        for (int i = 0; i != 3; ++i)
+        timeKeeper.Reset();
+        
+        do
+        {
             if (diComm.Initialize())
                 return true;
-
+        } while (!timeKeeper.Timeout());
+        
         return false;
     }
 
@@ -77,25 +83,26 @@ namespace application
 
     bool ImageUpgraderDiComm::WaitForState(infra::BoundedConstString expectedState)
     {
-        bool ready;
+        timeKeeper.Reset();
 
         do
         {
             infra::BoundedString::WithStorage<256> firmwarePropertiesString;
             infra::JsonObject firmwareProperties(firmwarePropertiesString);
 
-            if (!diComm.GetProps("firmware", firmwarePropertiesString))
-                return false;
+            if (diComm.GetProps("firmware", firmwarePropertiesString))
+            {
+                firmwareProperties = infra::JsonObject(firmwarePropertiesString);
+                infra::BoundedConstString state = firmwareProperties.GetString("state");
+                if (state == "error")
+                    return false;
 
-            firmwareProperties = infra::JsonObject(firmwarePropertiesString);
-            infra::BoundedConstString state = firmwareProperties.GetString("state");
-            if (state == "error")
-                return false;
+                if (state == expectedState)
+                    return true;
+            }
+        } while (!timeKeeper.Timeout());
 
-            ready = state == expectedState;
-        } while (!ready);
-
-        return true;
+        return false;
     }
 
     bool ImageUpgraderDiComm::ResetState()

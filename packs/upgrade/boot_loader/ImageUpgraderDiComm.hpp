@@ -1,6 +1,7 @@
 #ifndef UPGRADE_IMAGE_UPGRADER_DI_COMM_HPP
 #define UPGRADE_IMAGE_UPGRADER_DI_COMM_HPP
 
+#include "hal/synchronous_interfaces/TimeKeeper.hpp"
 #include "infra/util/BoundedVector.hpp"
 #include "packs/upgrade/boot_loader/Decryptor.hpp"
 #include "packs/upgrade/boot_loader/DiComm.hpp"
@@ -12,7 +13,7 @@ namespace application
         : public ImageUpgrader
     {
     public:
-        ImageUpgraderDiComm(const char* targetName, Decryptor& decryptor, DiComm& diComm);
+        ImageUpgraderDiComm(const char* targetName, Decryptor& decryptor, DiComm& diComm, hal::TimeKeeper& timeKeeper);
 
         virtual uint32_t Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress) override;
 
@@ -26,6 +27,7 @@ namespace application
 
     private:
         DiComm& diComm;
+        hal::TimeKeeper& timeKeeper;
         uint32_t maxChunkSize = 0;
 
         static const uint32_t chunkSizeDefault = 128;

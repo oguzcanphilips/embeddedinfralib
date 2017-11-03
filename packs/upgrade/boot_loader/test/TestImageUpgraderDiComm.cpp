@@ -6,17 +6,31 @@
 #include "packs/upgrade/boot_loader/test/MockDiComm.hpp"
 #include "packs/upgrade/pack/UpgradePackHeader.hpp"
 
+class TimeKeeperDicomm
+    : public hal::TimeKeeper
+{
+public:
+    virtual bool Timeout() override
+    {
+        return true;
+    }
+
+    virtual void Reset() override
+    {}
+};
+
 class ImageUpgraderDiCommTest
     : public testing::Test
 {
 public:
     ImageUpgraderDiCommTest()
-        : upgrader("product", decryptor, diComm)
+        : upgrader("product", decryptor, diComm, timeKeeper)
         , upgradePackFlash(1, 1024)
     {}
 
     application::DecryptorNone decryptor;
     testing::StrictMock<application::MockDiComm> diComm;
+    TimeKeeperDicomm timeKeeper;
     application::ImageUpgraderDiComm upgrader;
     hal::SynchronousFlashStub upgradePackFlash;
     testing::InSequence s;
@@ -33,33 +47,6 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeInitializesCommunication)
 {
     EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Throw<Ok>(Ok()));
 
-    EXPECT_THROW(upgrader.Upgrade(upgradePackFlash, 0, 0, 0), Ok);
-}
-
-TEST_F(ImageUpgraderDiCommTest, InitializationIsRetriedAfterFailure)
-{
-    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(false));
-    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Throw<Ok>(Ok()));
-
-    EXPECT_THROW(upgrader.Upgrade(upgradePackFlash, 0, 0, 0), Ok);
-}
-
-TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenInitializationFailsThreeTimes)
-{
-    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(false));
-    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(false));
-    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(false));
-
-    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 0, 0));
-}
-
-TEST_F(ImageUpgraderDiCommTest, UpgradeContinuesWhenInitializationSucceedsAtTheThirdTime)
-{
-    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(false));
-    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(false));
-    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
-
-    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Throw<Ok>(Ok()));
     EXPECT_THROW(upgrader.Upgrade(upgradePackFlash, 0, 0, 0), Ok);
 }
 
@@ -153,19 +140,6 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenPutPropsFails)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":10})")).WillOnce(testing::Return(std::make_pair(false, "")));
 
     EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 10, 0));
-}
-
-TEST_F(ImageUpgraderDiCommTest, UpgradeWaitsForStateDownloadingWhenStateIsPreparing)
-{
-    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
-    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
-    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
-    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
-    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"preparing"})")));
-    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
-    EXPECT_CALL(diComm, PutPropsMock("firmware", testing::_)).WillOnce(testing::Throw<Ok>(Ok()));
-
-    EXPECT_THROW(upgrader.Upgrade(upgradePackFlash, 0, 4, 0), Ok);
 }
 
 TEST_F(ImageUpgraderDiCommTest, OneChunkIsSent)
@@ -265,6 +239,7 @@ TEST_F(ImageUpgraderDiCommTest, StateIsPolledAfterDownloadComplete)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":4})")));
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Throw<Ok>(Ok()));
 
     upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
@@ -280,26 +255,11 @@ TEST_F(ImageUpgraderDiCommTest, UpgradeFailsWhenPollForIdleFails)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":4})")));
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(false, "")));
 
     upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
     EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 4, 0));
-}
-
-TEST_F(ImageUpgraderDiCommTest, WhenStateIsNotIdleStateIsPolledAgain)
-{
-    testing::InSequence s;
-    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
-    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
-    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
-    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
-    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
-    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":4})")));
-    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"programming"})")));
-    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Throw<Ok>(Ok()));
-
-    upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
-    EXPECT_THROW(upgrader.Upgrade(upgradePackFlash, 0, 4, 0), Ok);
 }
 
 TEST_F(ImageUpgraderDiCommTest, WhenStateIsErrorUpgradeIsNotSuccessful)
@@ -311,6 +271,7 @@ TEST_F(ImageUpgraderDiCommTest, WhenStateIsErrorUpgradeIsNotSuccessful)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":4})")));
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"error"})")));
 
     upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
@@ -326,6 +287,7 @@ TEST_F(ImageUpgraderDiCommTest, AfterStateIsIdleUpgradeIsSuccessful)
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
     EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":4})")));
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
     EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
 
     upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
@@ -337,12 +299,13 @@ class ImageUpgraderDiCommDecryptionTest
 {
 public:
     ImageUpgraderDiCommDecryptionTest()
-        : upgrader("product", decryptor, diComm)
+        : upgrader("product", decryptor, diComm, timeKeeper)
         , upgradePackFlash(1, 512)
     {}
 
     testing::StrictMock<application::MockDecryptor> decryptor;
     testing::StrictMock<application::MockDiComm> diComm;
+    TimeKeeperDicomm timeKeeper;
     application::ImageUpgraderDiComm upgrader;
     hal::SynchronousFlashStub upgradePackFlash;
 };
@@ -360,4 +323,203 @@ TEST_F(ImageUpgraderDiCommDecryptionTest, FirmwareIsDecrypted)
 
     upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
     EXPECT_THROW(upgrader.Upgrade(upgradePackFlash, 0, 4, 0), Ok);
+}
+
+class TimeKeeperMock
+    : public hal::TimeKeeper
+{
+public:
+    virtual bool Timeout() override
+    {
+        return TimeoutMock();
+    }
+
+    virtual void Reset() override
+    {
+        ResetMock();
+    }
+
+    MOCK_METHOD0(TimeoutMock, bool());
+    MOCK_METHOD0(ResetMock, void());
+};
+
+class ImageUpgraderDiCommTimeoutTest
+    : public testing::Test
+{
+public:
+    ImageUpgraderDiCommTimeoutTest()
+        : upgrader("product", decryptor, diComm, timeKeeper)
+        , upgradePackFlash(1, 1024)
+    {}
+
+    application::DecryptorNone decryptor;
+    testing::StrictMock<application::MockDiComm> diComm;
+    testing::StrictMock<TimeKeeperMock> timeKeeper;
+    application::ImageUpgraderDiComm upgrader;
+    hal::SynchronousFlashStub upgradePackFlash;
+    testing::InSequence s;
+};
+
+TEST_F(ImageUpgraderDiCommTimeoutTest, InitializationIsRetriedAfterFailure)
+{
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(false));
+    EXPECT_CALL(timeKeeper, TimeoutMock()).WillOnce(testing::Return(false));
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Throw<Ok>(Ok()));
+
+    EXPECT_THROW(upgrader.Upgrade(upgradePackFlash, 0, 0, 0), Ok);
+}
+
+TEST_F(ImageUpgraderDiCommTimeoutTest, UpgradeFailsWhenInitializationFailsAfterTimeout)
+{
+    EXPECT_CALL(timeKeeper, ResetMock());
+    
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(false));
+    EXPECT_CALL(timeKeeper, TimeoutMock()).WillOnce(testing::Return(false));
+    
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(false));
+    EXPECT_CALL(timeKeeper, TimeoutMock()).WillOnce(testing::Return(false));
+
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(false));
+    EXPECT_CALL(timeKeeper, TimeoutMock()).WillOnce(testing::Return(true));
+
+    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 0, 0));
+}
+
+TEST_F(ImageUpgraderDiCommTimeoutTest, UpgradeContinuesWhenInitializationSucceedsAfterRetrying)
+{
+    EXPECT_CALL(timeKeeper, ResetMock());
+    
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(false));
+    EXPECT_CALL(timeKeeper, TimeoutMock()).WillOnce(testing::Return(false));
+
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
+
+    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Throw<Ok>(Ok()));
+    EXPECT_THROW(upgrader.Upgrade(upgradePackFlash, 0, 0, 0), Ok);
+}
+
+TEST_F(ImageUpgraderDiCommTimeoutTest, UpgradeWaitsForStateDownloadingWhenStateIsPreparing)
+{
+    //InitializeProtocol
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
+
+    //InitializeProperties
+    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
+
+    //PrepareDownload
+    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"preparing"})")));
+    EXPECT_CALL(timeKeeper, TimeoutMock()).WillOnce(testing::Return(false)); 
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
+    EXPECT_CALL(diComm, PutPropsMock("firmware", testing::_)).WillOnce(testing::Throw<Ok>(Ok()));
+
+    EXPECT_THROW(upgrader.Upgrade(upgradePackFlash, 0, 4, 0), Ok);
+}
+
+TEST_F(ImageUpgraderDiCommTimeoutTest, WhenStateIsNotIdleStateIsPolledAgain)
+{
+    testing::InSequence s;
+    //InitializeProtocol
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
+
+    //InitializeProperties
+    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
+
+    //PrepareDownload
+    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
+
+    //SendFirmware
+    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":4})")));
+
+    //InitializeProtocol
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
+
+    //WaitForState
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"programming"})")));
+    EXPECT_CALL(timeKeeper, TimeoutMock()).WillOnce(testing::Return(false));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Throw<Ok>(Ok()));
+
+    upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
+    EXPECT_THROW(upgrader.Upgrade(upgradePackFlash, 0, 4, 0), Ok);
+}
+
+TEST_F(ImageUpgraderDiCommTimeoutTest, SuccesssfulWaitingForIdleStateWithRetriesgDueToTimeout)
+{
+    testing::InSequence s;
+    //InitializeProtocol
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
+
+    //InitializeProperties
+    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
+
+    //PrepareDownload
+    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
+
+    //SendFirmware
+    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":4})")));
+    
+    //InitializeProtocol
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
+
+    //WaitForState
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"programming"})")));
+    EXPECT_CALL(timeKeeper, TimeoutMock()).WillOnce(testing::Return(false));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(false, "")));
+    EXPECT_CALL(timeKeeper, TimeoutMock()).WillOnce(testing::Return(false));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(false, "")));
+    EXPECT_CALL(timeKeeper, TimeoutMock()).WillOnce(testing::Return(false));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
+    
+    upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
+    EXPECT_EQ(0, upgrader.Upgrade(upgradePackFlash, 0, 4, 0));
+}
+
+TEST_F(ImageUpgraderDiCommTimeoutTest, NotSuccesssfulWaitingForIdleStateWithRetriesgDueToTimeout)
+{
+    testing::InSequence s;
+    //InitializeProtocol
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
+
+    //InitializeProperties
+    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"state":"idle"})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"idle"})")));
+
+    //PrepareDownload
+    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"mandatory":true,"state":"downloading","size":4})")).WillOnce(testing::Return(std::make_pair(true, "")));
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading"})")));
+
+    //SendFirmware
+    EXPECT_CALL(diComm, PutPropsMock("firmware", R"({"data":"YWJjZA=="})")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"downloading","progress":4})")));
+
+    //InitializeProtocol
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, InitializeMock()).WillOnce(testing::Return(true));
+
+    //WaitForState
+    EXPECT_CALL(timeKeeper, ResetMock());
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(true, R"({"state":"programming"})")));
+    EXPECT_CALL(timeKeeper, TimeoutMock()).WillOnce(testing::Return(false));
+    EXPECT_CALL(diComm, GetPropsMock("firmware")).WillOnce(testing::Return(std::make_pair(false, "")));
+    EXPECT_CALL(timeKeeper, TimeoutMock()).WillOnce(testing::Return(true));
+
+    upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
+    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 4, 0));
 }
