@@ -16,15 +16,15 @@ namespace services
         echo.DetachService(*this);
     }
 
-    Echo& Service::Rpc()
-    {
-        return echo;
-    }
-
     void Service::MethodDone()
     {
         inProgress = false;
         Rpc().ServiceDone(*this);
+    }
+
+    Echo& Service::Rpc()
+    {
+        return echo;
     }
 
     uint32_t Service::ServiceId() const
