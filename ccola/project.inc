@@ -3,7 +3,7 @@ macro(ccola_project name)
 	ccola_validate_name(${name})
 	ccola_verify_not_nested(${name} CCOLA_PROJECT_NAME "Project")
 	set(CCOLA_PROJECT_NAME ${name})
-	project(${CCOLA_PROJECT_NAME})
+	project(${CCOLA_PROJECT_NAME} ${ARGN})
 
 endmacro()
 
