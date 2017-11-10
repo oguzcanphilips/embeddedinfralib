@@ -2,7 +2,7 @@
 #include "infra/util/BoundedList.hpp"
 #include "infra/util/test_helper/MoveConstructible.hpp"
 #include <functional>
-#include <memory>
+#include "util/test_helper/MonitoredConstructionObject.hpp"
 
 TEST(BoundedListTest, TestConstructedEmpty)
 {
@@ -375,6 +375,53 @@ TEST(BoundedListTest, TestEraseAllAfterNothing)
     list.erase_all_after(list.begin());
     EXPECT_EQ(1, list.size());
     EXPECT_EQ(1, std::distance(list.begin(), list.end()));
+}
+
+class BoundedListConstructionTest
+    : public testing::Test
+{
+public:
+    testing::StrictMock<infra::ConstructionMonitorMock> constructionMonitor;
+
+    class MonitoredConstructionInt
+        : infra::MonitoredConstructionObject
+    {
+    public:
+        MonitoredConstructionInt(infra::ConstructionMonitorMock& constructionMonitor)
+            : MonitoredConstructionObject(constructionMonitor)
+        {}
+    };
+};
+
+TEST_F(BoundedListConstructionTest, TestEraseDestruction)
+{
+    EXPECT_CALL(constructionMonitor, Construct(testing::_));
+
+    infra::BoundedList<MonitoredConstructionInt>::WithMaxSize<1> monitoredList;
+    monitoredList.emplace_front(constructionMonitor);
+    EXPECT_EQ(1, monitoredList.size());
+
+    EXPECT_CALL(constructionMonitor, Destruct(testing::_));
+    monitoredList.erase(monitoredList.begin());
+    EXPECT_EQ(0, monitoredList.size());
+}
+
+TEST_F(BoundedListConstructionTest, TestEraseAllAfterDestruction)
+{
+    infra::BoundedList<MonitoredConstructionInt>::WithMaxSize<5> monitoredList;
+
+    EXPECT_CALL(constructionMonitor, Construct(testing::_)).Times(3);    
+
+    monitoredList.emplace_front(constructionMonitor);
+    monitoredList.emplace_front(constructionMonitor);
+    monitoredList.emplace_front(constructionMonitor);
+    EXPECT_EQ(3, monitoredList.size());
+
+    EXPECT_CALL(constructionMonitor, Destruct(testing::_)).Times(2);
+    monitoredList.erase_all_after(monitoredList.begin());
+    EXPECT_EQ(1, monitoredList.size());
+
+    EXPECT_CALL(constructionMonitor, Destruct(testing::_)).Times(1);
 }
 
 TEST(BoundedListTest, IteratorCopyConstruct)
