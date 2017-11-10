@@ -546,6 +546,7 @@ namespace infra
         else
             firstNode = next;
 
+        static_cast<detail::BoundedListNode<T>*>(node)->storage.Destruct();
         node->next = freeList;
         freeList = node;
 
