@@ -19,10 +19,11 @@ namespace services
         Service& operator=(const Service& other) = delete;
         ~Service();
 
+        void MethodDone();
+
     protected:
         virtual void Handle(uint32_t methodId, services::ProtoParser& parser) = 0;
         Echo& Rpc();
-        void MethodDone();
 
     private:
         friend class Echo;

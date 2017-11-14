@@ -43,13 +43,12 @@ namespace services
     public:
         struct Config
         {
-            Config() {}
-
+            const char* hostName = "referenceproduct";
             std::array<char, 2> ifName = { { 'r', 'p' } };
             Ipv4Config ipConfig = { true };
         };
 
-        LightweightIpOverEthernetFactory(hal::MacAddress macAddress, const Config& config = Config());
+        LightweightIpOverEthernetFactory(hal::MacAddress macAddress, const Config& config);
         ~LightweightIpOverEthernetFactory();
 
         void Create(hal::EthernetMac& ethernet);

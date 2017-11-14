@@ -149,6 +149,8 @@ namespace services
         netif_add(&netInterface, &ipaddr, &netmask, &gw, this, &LightweightIpOverEthernetFactory::StaticInit, &ethernet_input);
         netif_set_default(&netInterface);
 
+        netif_set_hostname(&netInterface, config.hostName);
+
         if (config.ipConfig.useDhcp)
             dhcp_start(&netInterface);
     }
