@@ -156,9 +156,9 @@ namespace infra
 
         private:
             template<class>
-            friend class IntrusiveListIterator;
+                friend class IntrusiveListIterator;
             template<class>
-            friend class IntrusiveList;
+                friend class IntrusiveList;
 
             const IntrusiveListNode<typename std::remove_const<T>::type>* node;
         };
@@ -194,18 +194,23 @@ namespace infra
     {
         clear();
         numberOfElements = other.numberOfElements;
-        beginNode = other.beginNode;
+        if (other.beginNode != &other.endNode)
+            beginNode = other.beginNode;
         endNode.previous = other.endNode.previous;
         if (endNode.previous != nullptr)
             endNode.previous->next = &endNode;
-        other.clear();
+        other.beginNode = &other.endNode;
+        other.endNode.previous = nullptr;
+        other.numberOfElements = 0;
 
         return *this;
     }
 
     template<class T>
     IntrusiveList<T>::~IntrusiveList()
-    {}
+    {
+        clear();
+    }
 
     template<class T>
     typename IntrusiveList<T>::iterator IntrusiveList<T>::begin()
@@ -358,17 +363,21 @@ namespace infra
     template<class T>
     void IntrusiveList<T>::pop_front()
     {
+        NodeType* erasingNode = beginNode;
         beginNode = beginNode->next;
         beginNode->previous = nullptr;
+        erasingNode->next = nullptr;
         --numberOfElements;
     }
 
     template<class T>
     void IntrusiveList<T>::pop_back()
     {
+        NodeType* erasingNode = endNode.previous;
         endNode.previous = endNode.previous->previous;
         if (endNode.previous != nullptr)
             endNode.previous->next = &endNode;
+        erasingNode->previous = nullptr;
         --numberOfElements;
     }
 
@@ -392,10 +401,14 @@ namespace infra
         NodeType& node = const_cast<reference>(value);
         if (node.previous != nullptr)
             node.previous->next = node.next;
+        else if (beginNode != &node)
+            return;
         else
             beginNode = node.next;
 
         node.next->previous = node.previous;
+        node.previous = nullptr;
+        node.next = nullptr;
         --numberOfElements;
     }
 
@@ -415,14 +428,23 @@ namespace infra
         std::swap(endNode, other.endNode);
         std::swap(beginNode, other.beginNode);
         std::swap(numberOfElements, other.numberOfElements);
+
+        if (endNode.previous != nullptr)
+            endNode.previous->next = &endNode;
+        else
+            beginNode = &endNode;
+
+        if (other.endNode.previous != nullptr)
+            other.endNode.previous->next = &other.endNode;
+        else
+            other.beginNode = &other.endNode;
     }
 
     template<class T>
     void IntrusiveList<T>::clear()
     {
-        beginNode = &endNode;
-        endNode.previous = nullptr;
-        numberOfElements = 0;
+        while (!empty())
+            pop_front();
     }
 
     template<class T>

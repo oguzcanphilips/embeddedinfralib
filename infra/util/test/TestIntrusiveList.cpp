@@ -68,6 +68,15 @@ TEST(IntrusiveListTest, TestMoveAssignment)
     EXPECT_TRUE(original.empty());
 }
 
+TEST(IntrusiveListTest, TestMoveAssignmentFromEmptyList)
+{
+    infra::IntrusiveList<ListInt> original;
+    infra::IntrusiveList<ListInt> copy;
+    copy = std::move(original);
+
+    EXPECT_EQ(0, copy.size());
+}
+
 TEST(IntrusiveListTest, IterateAfterMoveAssignment)
 {
     ListInt range[3] = { 0, 1, 2 };
@@ -204,8 +213,10 @@ TEST(IntrusiveListTest, TestSwap)
 
     swap(list1, list2);
 
-    infra::IntrusiveList<ListInt> expectedList1(range2, range2 + 3);
-    infra::IntrusiveList<ListInt> expectedList2(range1, range1 + 3);
+    ListInt range1Copy[3] = { 0, 1, 2};
+    ListInt range2Copy[3] = { 3, 4, 5};
+    infra::IntrusiveList<ListInt> expectedList1(range2Copy, range2Copy + 3);
+    infra::IntrusiveList<ListInt> expectedList2(range1Copy, range1Copy + 3);
     EXPECT_EQ(expectedList1, list1);
     EXPECT_EQ(expectedList2, list2);
 }
@@ -219,8 +230,10 @@ TEST(IntrusiveListTest, TestSwapDifferentSizes)
 
     swap(list1, list2);
 
-    infra::IntrusiveList<ListInt> expectedList1(range2, range2 + 2);
-    infra::IntrusiveList<ListInt> expectedList2(range1, range1 + 3);
+    ListInt range1Copy[3] = { 0, 1, 2};
+    ListInt range2Copy[2] = { 3, 4};
+    infra::IntrusiveList<ListInt> expectedList1(range2Copy, range2Copy + 2);
+    infra::IntrusiveList<ListInt> expectedList2(range1Copy, range1Copy + 3);
     EXPECT_EQ(expectedList1, list1);
     EXPECT_EQ(expectedList2, list2);
 }
@@ -253,6 +266,17 @@ TEST(IntrusiveListTest, TestErase)
 {
     ListInt range[3] = { 0, 1, 2};
     infra::IntrusiveList<ListInt> list(range, range + 3);
+    list.erase(range[1]);
+
+    EXPECT_EQ(2, list.size());
+    EXPECT_EQ(ListInt(2), *std::next(list.begin()));
+}
+
+TEST(IntrusiveListTest, TestDoubleErase)
+{
+    ListInt range[3] = { 0, 1, 2};
+    infra::IntrusiveList<ListInt> list(range, range + 3);
+    list.erase(range[1]);
     list.erase(range[1]);
 
     EXPECT_EQ(2, list.size());

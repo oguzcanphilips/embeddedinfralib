@@ -4,6 +4,7 @@
 #include <cstdint>
 #include "infra/util/AutoResetFunction.hpp"
 #include "infra/util/IntrusiveList.hpp"
+#include "infra/util/ReallyAssert.hpp"
 
 namespace infra
 {
@@ -12,8 +13,9 @@ namespace infra
     private:
         class ClaimerBase;
 
+        // Use Claimer::WithSize<> if you need a non-default size
         template<std::size_t ExtraSize>
-        class ClaimerWithSize;
+            class ClaimerWithSize;
 
     public:
         using Claimer = ClaimerWithSize<INFRA_DEFAULT_FUNCTION_EXTRA_SIZE>;
@@ -91,7 +93,7 @@ namespace infra
     template<std::size_t ExtraSize>
     void ClaimableResource::ClaimerWithSize<ExtraSize>::Claim(const infra::Function<void(), ExtraSize>& onGranted)
     {
-        assert(!this->onGranted);
+        really_assert(!this->onGranted);
 
         this->onGranted = onGranted;
         this->isQueued = true;
