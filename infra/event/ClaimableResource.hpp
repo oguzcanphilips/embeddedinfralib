@@ -12,10 +12,10 @@ namespace infra
     private:
         class ClaimerBase;
 
-    public:
         template<std::size_t ExtraSize>
         class ClaimerWithSize;
 
+    public:
         using Claimer = ClaimerWithSize<INFRA_DEFAULT_FUNCTION_EXTRA_SIZE>;
 
         ClaimableResource() = default;
