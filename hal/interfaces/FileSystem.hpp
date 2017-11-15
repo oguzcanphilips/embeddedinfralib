@@ -2,6 +2,7 @@
 #define HAL_INTERFACE_FILE_SYSTEM_HPP
 
 #include <cstdint>
+#include <exception>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -14,6 +15,14 @@ namespace hal
         : std::exception
     {
         explicit CannotOpenFileException(const hal::filesystem::path& path);
+
+        hal::filesystem::path path;
+    };
+
+    struct EmptyFileException
+        : std::exception
+    {
+        explicit EmptyFileException(const hal::filesystem::path& path);
 
         hal::filesystem::path path;
     };
