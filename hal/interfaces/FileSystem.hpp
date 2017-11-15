@@ -12,19 +12,15 @@ namespace hal
     namespace filesystem = std::experimental::filesystem;
 
     struct CannotOpenFileException
-        : std::exception
+        : std::runtime_error
     {
         explicit CannotOpenFileException(const hal::filesystem::path& path);
-
-        hal::filesystem::path path;
     };
 
     struct EmptyFileException
-        : std::exception
+        : std::runtime_error
     {
         explicit EmptyFileException(const hal::filesystem::path& path);
-
-        hal::filesystem::path path;
     };
 
     class FileSystem

@@ -95,7 +95,7 @@ namespace application
         }
         catch (hal::CannotOpenFileException& exception)
         {
-            std::cout << "Cannot open file " << exception.path << std::endl;
+            std::cout << exception.what() << std::endl;
             result = 1;
         }
         catch (application::SignatureDoesNotVerifyException&)
