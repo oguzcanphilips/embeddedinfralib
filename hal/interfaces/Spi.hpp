@@ -55,7 +55,6 @@ namespace hal
 
     public:
         virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, const infra::Function<void()>& onDone) = 0;
-        virtual uint32_t MaxBufferSize() const = 0;
     };
 }
 
