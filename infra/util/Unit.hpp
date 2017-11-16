@@ -114,7 +114,7 @@ namespace infra
     template<class Unit1, class Unit2, class... OtherUnits>
     struct MultiplyUnits<Unit1, Unit2, OtherUnits...>
     {
-        typedef UnitBase<typename MultiplyUnits<typename MultiplyTwoUnitLists<typename Unit1::UnitList, typename Unit2::UnitList>::Type, OtherUnits...>::Type, typename Unit1::Factor::template Mul<typename Unit2::Factor>> Type;
+        typedef UnitBase<typename MultiplyUnits<typename MultiplyTwoUnitLists<typename Unit1::UnitList, typename Unit2::UnitList>::Type, OtherUnits...>::Type, typename Unit1::Factor::template Mul<typename Unit2::Factor> > Type;
     };
 
     template<class UnitList1, class UnitList2>
