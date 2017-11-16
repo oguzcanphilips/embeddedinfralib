@@ -114,25 +114,6 @@ namespace services
     static const uint32_t ethernetMtu = 1500;
     static const uint32_t tcpPacketOverhead = 54;
     static const uint32_t maxPacketPayload = ethernetMtu - tcpPacketOverhead;
-
-	class DatagramProvider
-	{
-	public:
-		virtual void RequestSendStream(std::size_t sendSize) = 0;
-		virtual infra::SharedPtr<void> Listen(uint16_t port) = 0;
-	};
-
-	class DatagramSender
-	{
-	public:
-		virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) = 0;
-	};
-
-	class DatagramReceiver
-	{
-	public:
-		virtual void DataReceived(infra::SharedPtr<infra::DataOutputStream>&& stream) = 0;
-	};
 }
 
 #endif
