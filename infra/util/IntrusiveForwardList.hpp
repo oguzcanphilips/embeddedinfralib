@@ -287,18 +287,15 @@ namespace infra
     void IntrusiveForwardList<T>::erase_slow(const_reference value)
     {
         iterator previous;
-        iterator index;
-        for (index = begin(); index != end(); previous = index++)
+        for (iterator index = begin(); index != end(); previous = index++)
             if (&*index == &value)
+            {
+                if (index != begin())
+                    erase_after(*previous);
+                else
+                    pop_front();
                 break;
-
-        if (index != end())
-        {
-            if (index != begin())                                                           //TICS !COV_CPP_FORWARD_NULL_02
-                erase_after(*previous);
-            else
-                pop_front();
-        }
+            }
     }
 
     template<class T>
