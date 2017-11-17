@@ -105,7 +105,7 @@ namespace infra
         void insert(iterator position, value_type&& value);
 
         template<class InputIterator>
-            void assign(InputIterator first, InputIterator last);
+            void assign(InputIterator first, InputIterator last);                                                       //TICS !INT#022
         void assign(size_type n, const value_type& value);
         template<class InputIterator>
             void move_from_range(InputIterator first, InputIterator last);
@@ -160,8 +160,8 @@ namespace infra
         public:
             BoundedListIterator();
             explicit BoundedListIterator(NodeType* node);
-            template<class T2>
-                BoundedListIterator(const BoundedListIterator<T2>& other);                                              //TICS !INT#001
+            template<class T2>                                                                                          //TICS !INT#001
+                BoundedListIterator(const BoundedListIterator<T2>& other);
             template<class T2>
                 BoundedListIterator& operator=(const BoundedListIterator<T2>& other);
 
@@ -460,7 +460,7 @@ namespace infra
             node->next = &position.node();
             node->previous = position.node().previous;
 
-            if (node->previous)
+            if (node->previous != nullptr)
                 node->previous->next = node;
             else
                 firstNode = node;
@@ -648,7 +648,7 @@ namespace infra
         endNode.previous = node;
         node->next = &endNode;
 
-        if (node->previous)
+        if (node->previous != nullptr)
             node->previous->next = node;
         else
             firstNode = node;

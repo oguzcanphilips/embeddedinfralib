@@ -13,8 +13,8 @@ namespace infra
     }
 
 #ifdef _MSC_VER                                                                                                         //TICS !POR#021
-#pragma warning (push)
-#pragma warning (disable: 4503)
+#pragma warning (push)                                                                                                  //TICS !POR#018
+#pragma warning (disable: 4503)                                                                                         //TICS !POR#018
 #endif
 
     template<class Base, class StorageType>
@@ -46,7 +46,7 @@ namespace infra
     };
 
 #ifdef _MSC_VER                                                                                                         //TICS !POR#021
-#pragma warning (pop)
+#pragma warning (pop)                                                                                                   //TICS !POR#018
 #endif
 
     namespace detail

@@ -45,7 +45,7 @@ namespace infra
         : public SharedOptional<T>
     {
     public:
-        NotifyingSharedOptional(infra::Function<void()> onAllocatable);
+        explicit NotifyingSharedOptional(infra::Function<void()> onAllocatable);
 
     protected:
         virtual void Deallocate(void* control) override;

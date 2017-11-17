@@ -185,7 +185,7 @@ TEST(UnitTest, Division)
     MeterPerSecond speed = distance / time;
     EXPECT_EQ(4, speed.Value());
 
-    distance = 20;
+    distance = Meter(20);
     time = distance / speed;
     EXPECT_EQ(5, time.Value());
 }

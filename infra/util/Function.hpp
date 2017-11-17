@@ -135,7 +135,7 @@ namespace infra
     class Execute
     {
     public:
-        Execute(Function<void()> f);
+        explicit Execute(Function<void()> f);
     };
 
     static const infra::Function<void()> emptyFunction = []() {};
