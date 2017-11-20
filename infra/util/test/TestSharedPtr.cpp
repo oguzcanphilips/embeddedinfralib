@@ -465,6 +465,24 @@ TEST_F(SharedPtrTest, create_contained_SharedPtr)
     testing::Mock::VerifyAndClearExpectations(&objectConstructionMock);
 }
 
+TEST_F(SharedPtrTest, create_moved_contained_SharedPtr)
+{
+    int x = 0;
+    infra::SharedPtr<int> containedObject;
+
+    EXPECT_CALL(objectConstructionMock, Construct(testing::_));
+    infra::SharedPtr<MySharedObject> object = allocator.Allocate(objectConstructionMock);
+
+    containedObject = infra::MakeContainedSharedObject(x, std::move(object));
+
+    EXPECT_EQ(nullptr, object);
+    testing::Mock::VerifyAndClearExpectations(&objectConstructionMock);
+
+    EXPECT_CALL(objectConstructionMock, Destruct(testing::_));
+    containedObject = nullptr;
+    testing::Mock::VerifyAndClearExpectations(&objectConstructionMock);
+}
+
 TEST_F(SharedPtrTest, MakeSharedOnHeap)
 {
     void* savedObject;
