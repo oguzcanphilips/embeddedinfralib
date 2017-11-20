@@ -31,8 +31,6 @@ namespace services
                 else
                     udp_remove(control);
             }
-            else
-                asm volatile ("bkpt");
         }
     }
 
@@ -65,6 +63,7 @@ namespace services
 
     DatagramSenderPeerLwIp::DatagramSendStreamLwIpWriter::~DatagramSendStreamLwIpWriter()
     {
+        pbuf_realloc(buffer, bufferOffset);
         err_t result = udp_send(control, buffer);
         pbuf_free(buffer);
         udp_remove(control);
