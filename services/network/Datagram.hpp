@@ -3,14 +3,12 @@
 
 #include "infra/stream/InputStream.hpp"
 #include "infra/stream/OutputStream.hpp"
-#include "infra/util/IntrusiveList.hpp"
 #include "infra/util/SharedPtr.hpp"
 #include "services/network/Address.hpp"
 
 namespace services
 {
 	class DatagramSender
-        : public infra::IntrusiveList<DatagramSender>::NodeType
     {
     protected:
         DatagramSender() = default;

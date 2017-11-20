@@ -1,9 +1,13 @@
 ccola_component(lwip_cpp static_library)
 
 	ccola_sources(
-		ConnectionLwIP.cpp
+		ConnectionLwIp.cpp
+		ConnectionLwIp.hpp
+		DatagramLwIp.cpp
+		DatagramLwIp.hpp
+		LightweightIp.cpp
+		LightweightIp.hpp
 		LightweightIpOverEthernet.cpp
-		ConnectionLwIP.hpp
 		LightweightIpOverEthernet.hpp
 	)
 

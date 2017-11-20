@@ -1,7 +1,5 @@
 #include "infra/event/EventDispatcherWithWeakPtr.hpp"
 #include "lwip/lwip_cpp/ConnectionLwIp.hpp"
-#include "lwip/init.h"
-#include "lwip/timeouts.h"
 
 namespace services
 {
@@ -396,21 +394,18 @@ namespace services
         factory.ConnectionFailed(factory.ConnectFailReason::refused);
     }
 
-    LightweightIp::LightweightIp(AllocatorListenerLwIp& listenerAllocator, AllocatorConnectorLwIp& connectorAllocator, AllocatorConnectionLwIp& connectionAllocator)
+    ConnectionFactoryLwIp::ConnectionFactoryLwIp(AllocatorListenerLwIp& listenerAllocator, AllocatorConnectorLwIp& connectorAllocator, AllocatorConnectionLwIp& connectionAllocator)
         : listenerAllocator(listenerAllocator)
         , connectorAllocator(connectorAllocator)
         , connectionAllocator(connectionAllocator)
-    {
-        lwip_init();
-        sysCheckTimer.Start(std::chrono::milliseconds(50), [this]() { sys_check_timeouts(); }, infra::triggerImmediately);
-    }
+    {}
 
-    infra::SharedPtr<void> LightweightIp::Listen(uint16_t port, ServerConnectionObserverFactory& factory)
+    infra::SharedPtr<void> ConnectionFactoryLwIp::Listen(uint16_t port, ServerConnectionObserverFactory& factory)
     {
         return listenerAllocator.Allocate(connectionAllocator, port, factory);
     }
 
-    infra::SharedPtr<void> LightweightIp::Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory)
+    infra::SharedPtr<void> ConnectionFactoryLwIp::Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory)
     {
         return connectorAllocator.Allocate(connectionAllocator, address, port, factory);
     }
