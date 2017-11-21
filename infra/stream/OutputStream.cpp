@@ -57,11 +57,20 @@ namespace infra
         checkedFail = failureMode != FailureMode::soft;
     }
 
+    StreamWriterDummy::StreamWriterDummy(std::size_t dummySize)
+        : availableSize(dummySize)
+    {}
+
     void StreamWriterDummy::Insert(ConstByteRange range)
     {}
 
     void StreamWriterDummy::Insert(uint8_t element)
     {}
+
+    std::size_t StreamWriterDummy::Available() const
+    {
+        return availableSize;
+    }
 
     OutputStream::OutputStream(StreamWriter& writer)
         : writer(writer)

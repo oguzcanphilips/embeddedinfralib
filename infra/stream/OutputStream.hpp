@@ -49,16 +49,20 @@ namespace infra
         bool failed = false;
         mutable bool checkedFail = true;
     };
-    
+
     class StreamWriterDummy
       : public StreamWriter
     {
     public:
+        StreamWriterDummy(std::size_t dummySize);
+
         virtual void Insert(ConstByteRange range);
         virtual void Insert(uint8_t element);
         virtual std::size_t Available() const;
 
-    };    
+    private:
+        std::size_t availableSize;
+    };
 
     class OutputStream
     {
