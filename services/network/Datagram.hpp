@@ -42,7 +42,7 @@ namespace services
 
     public:
         virtual void RequestSendStream(infra::SharedPtr<DatagramSender> sender, IPv4Address address, uint16_t port, std::size_t sendSize) = 0;
-        virtual infra::SharedPtr<void> Listen(infra::SharedPtr<DatagramReceiver> receiver, uint16_t port, bool multicastAllowed) = 0;
+        virtual infra::SharedPtr<void> Listen(infra::SharedPtr<DatagramReceiver> receiver, uint16_t port, bool broadcastAllowed) = 0;
     };
 }
 
