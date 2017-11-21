@@ -29,7 +29,7 @@ namespace services
         virtual ~DatagramReceiver() = default;
 
 	public:
-		virtual void DataReceived(infra::SharedPtr<infra::DataInputStream>&& stream, IPv4Address address) = 0;
+		virtual void DataReceived(infra::DataInputStream stream, IPv4Address address) = 0;
 	};
 
     class DatagramProvider
