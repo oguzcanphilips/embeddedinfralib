@@ -1,3 +1,13 @@
+#ifndef LWIP_LWIPOPTS_H
+#define LWIP_LWIPOPTS_H
+
+#include "stdint.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #define NO_SYS 1
 #define SYS_LIGHTWEIGHT_PROT 0
 #define LWIP_NETCONN 0
@@ -8,6 +18,9 @@
 #define LWIP_DHCP_AUTOIP_COOP 1
 #define LWIP_DNS 1
 #define LWIP_RAW 0
+#define LWIP_IGMP 1
+uint32_t StaticLwIpRand();
+#define LWIP_RAND() StaticLwIpRand()
 #define MEM_ALIGNMENT 4
 #define LWIP_STATS 0
 
@@ -24,3 +37,9 @@
 #define CHECKSUM_CHECK_TCP 0
 
 #define LWIP_NETIF_HOSTNAME 1
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
