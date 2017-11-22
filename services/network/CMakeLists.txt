@@ -7,6 +7,7 @@ ccola_component(network static_library)
 		Connection.hpp
 		ConnectionMbedTls.cpp
 		ConnectionMbedTls.hpp
+		Datagram.hpp
 		TracingConnectionMbedTls.cpp
 		TracingConnectionMbedTls.hpp
 	)

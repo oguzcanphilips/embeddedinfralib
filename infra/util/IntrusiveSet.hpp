@@ -75,7 +75,7 @@ namespace infra
         void erase(const_reference value);
 
         template<class InputIterator>
-            void assign(InputIterator first, InputIterator last);
+            void assign(InputIterator first, InputIterator last);                                                       //TICS !INT#022
 
         void swap(IntrusiveSet& other);
 
@@ -389,7 +389,7 @@ namespace infra
     void IntrusiveSet<T, Compare>::assign(InputIterator first, InputIterator last)
     {
         this->clear();
-        for (; first != last; ++first)
+        for (; first != last; ++first)                                                                                  //TICS !CFL#018
             insert(*first);
     }
 

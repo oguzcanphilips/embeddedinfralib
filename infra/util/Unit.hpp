@@ -114,7 +114,7 @@ namespace infra
     template<class Unit1, class Unit2, class... OtherUnits>
     struct MultiplyUnits<Unit1, Unit2, OtherUnits...>
     {
-        typedef UnitBase<typename MultiplyUnits<typename MultiplyTwoUnitLists<typename Unit1::UnitList, typename Unit2::UnitList>::Type, OtherUnits...>::Type, typename Unit1::Factor::template Mul<typename Unit2::Factor>> Type;
+        typedef UnitBase<typename MultiplyUnits<typename MultiplyTwoUnitLists<typename Unit1::UnitList, typename Unit2::UnitList>::Type, OtherUnits...>::Type, typename Unit1::Factor::template Mul<typename Unit2::Factor> > Type;
     };
 
     template<class UnitList1, class UnitList2>
@@ -213,9 +213,9 @@ namespace infra
     {
     public:
         Quantity();
-        Quantity(StorageType v);
+        explicit Quantity(StorageType v);
         Quantity(const Quantity& other);
-        template<class OtherUnit>
+        template<class OtherUnit>                                                                                       //TICS !INT#001
             Quantity(Quantity<OtherUnit, StorageType> other, typename std::enable_if<UnitSame<OtherUnit, UnitType>::value>::type* = 0);
 
         Quantity& operator=(const Quantity& other);
@@ -225,8 +225,8 @@ namespace infra
         StorageType Value() const;
 
         Quantity operator-() const;
-        Quantity& operator+=(Quantity other);
-        Quantity& operator-=(Quantity other);
+        Quantity& operator+=(Quantity other);                                                                           //TICS !INT#008
+        Quantity& operator-=(Quantity other);                                                                           //TICS !INT#008
         Quantity& operator*=(StorageType other);
         Quantity& operator/=(StorageType other);
 
@@ -246,7 +246,7 @@ namespace infra
 
     private:
         template<class UnitTypeOther, class TypeOther>
-        friend class Quantity;
+            friend class Quantity;
 
         StorageType value;
     };
