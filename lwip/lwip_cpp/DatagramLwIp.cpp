@@ -119,7 +119,8 @@ namespace services
     }
 
     DatagramReceiverPeerLwIp::UdpReader::UdpReader(pbuf* buffer)
-        : buffer(buffer)
+        : infra::StreamReader(infra::softFail)
+        , buffer(buffer)
     {}
 
     DatagramReceiverPeerLwIp::UdpReader::~UdpReader()
