@@ -1,6 +1,6 @@
 ccola_component(fsm csharp_executable)
 
-	set(ccola_location "${CMAKE_CURRENT_SOURCE_DIR}/../../../$<CONFIGURATION>/fsm.exe")
+	set(ccola_location "${CMAKE_CURRENT_SOURCE_DIR}/../../$<CONFIGURATION>/fsm.exe")
 
 	ccola_csharp_project(
 		fsm.csproj
