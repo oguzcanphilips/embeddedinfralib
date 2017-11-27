@@ -1,10 +1,10 @@
 #ifndef LWIP_DATAGRAM_LW_IP_HPP
 #define LWIP_DATAGRAM_LW_IP_HPP
 
-#include "infra/util/Observer.hpp"
+#include "infra/timer/Timer.hpp"
 #include "infra/util/SharedObjectAllocatorFixedSize.hpp"
 #include "infra/util/SharedOptional.hpp"
-#include "infra/util/Variant.hpp"
+#include "infra/util/PolymorphicVariant.hpp"
 #include "lwip/udp.h"
 #include "services/network/Datagram.hpp"
 
@@ -13,22 +13,20 @@ namespace services
     class DatagramProviderLwIp;
 
     class DatagramSenderPeerLwIp
-        : public infra::Observer<DatagramSenderPeerLwIp, DatagramProviderLwIp>
+        : public DatagramSender
     {
     public:
-        DatagramSenderPeerLwIp(DatagramProviderLwIp& subject, infra::SharedPtr<DatagramSender> sender, IPv4Address address, uint16_t port, std::size_t sendSize);
+        DatagramSenderPeerLwIp(infra::SharedPtr<DatagramSenderObserver> sender, IPv4Address address, uint16_t port);
+        ~DatagramSenderPeerLwIp();
 
-        void SetOwner(infra::SharedPtr<DatagramSenderPeerLwIp> owner);
-        void CleanupIfExpired();
-        void TryAllocateBuffer();
-        void ServeSender(udp_pcb* control, pbuf* buffer);
+        virtual void RequestSendStream(std::size_t sendSize) override;
 
     private:
         class UdpWriter
             : public infra::StreamWriter
         {
         public:
-            UdpWriter(udp_pcb* control, pbuf* buffer, IPv4Address address, uint16_t port);
+            UdpWriter(udp_pcb* control, pbuf* buffer);
             ~UdpWriter();
 
             virtual void Insert(infra::ConstByteRange range) override;
@@ -43,22 +41,60 @@ namespace services
 
         using DatagramSendStreamLwIp = infra::DataOutputStream::WithWriter<UdpWriter>;
 
-        struct WaitingSender
+        class StateBase
         {
-            WaitingSender(infra::SharedPtr<DatagramSender> sender, IPv4Address address, uint16_t port, std::size_t sendSize);
+        public:
+            virtual ~StateBase() = default;
 
-            infra::WeakPtr<DatagramSender> sender;
-            IPv4Address address;
-            uint16_t port;
+            virtual void RequestSendStream(std::size_t sendSize);
+        };
+
+        class StateIdle
+            : public StateBase
+        {
+        public:
+            StateIdle(DatagramSenderPeerLwIp& datagramSender);
+
+            virtual void RequestSendStream(std::size_t sendSize) override;
+            
+        private:
+            DatagramSenderPeerLwIp& datagramSender;
+        };
+
+        class StateWaitingForBuffer
+            : public StateBase
+        {
+        public:
+            StateWaitingForBuffer(DatagramSenderPeerLwIp& datagramSender, std::size_t sendSize);
+
+            void TryAllocateBuffer();
+
+        private:
+            DatagramSenderPeerLwIp& datagramSender;
             std::size_t sendSize;
+            infra::TimerRepeating allocateTimer;
+        };
+        
+        class StateBufferAllocated
+            : public StateBase
+        {
+        public:
+            StateBufferAllocated(DatagramSenderPeerLwIp& datagramSender, pbuf* buffer);
+
+        private:
+            DatagramSenderPeerLwIp& datagramSender;
+            infra::NotifyingSharedOptional<infra::DataOutputStream::WithWriter<UdpWriter>> stream;
         };
 
     private:
-        infra::SharedPtr<DatagramSenderPeerLwIp> owner;
-        infra::Variant<WaitingSender, DatagramSendStreamLwIp> state;
+        infra::SharedPtr<DatagramSenderObserver> sender;
+        IPv4Address address;
+        uint16_t port;
+        infra::PolymorphicVariant<StateBase, StateIdle, StateWaitingForBuffer, StateBufferAllocated> state;
+        udp_pcb* control;
     };
 
-    using AllocatorDatagramSenderPeerLwIp = infra::SharedObjectAllocator<DatagramSenderPeerLwIp, void(DatagramProviderLwIp& subject, infra::SharedPtr<DatagramSender> sender, IPv4Address address, uint16_t port, std::size_t sendSize)>;
+    using AllocatorDatagramSenderPeerLwIp = infra::SharedObjectAllocator<DatagramSenderPeerLwIp, void(infra::SharedPtr<DatagramSenderObserver> sender, IPv4Address address, uint16_t port)>;
 
     class DatagramReceiverPeerLwIp
     {
@@ -99,15 +135,10 @@ namespace services
 
     class DatagramProviderLwIp
         : public DatagramProvider
-        , public infra::Subject<DatagramSenderPeerLwIp>
     {
     public:
-        virtual void RequestSendStream(infra::SharedPtr<DatagramSender> sender, IPv4Address address, uint16_t port, std::size_t sendSize) override;
+        virtual infra::SharedPtr<DatagramSender> Connect(infra::SharedPtr<DatagramSenderObserver> sender, IPv4Address address, uint16_t port) override;
         virtual infra::SharedPtr<void> Listen(infra::SharedPtr<DatagramReceiver> receiver, uint16_t port, bool broadcastAllowed) override;
-
-    private:
-        void TryServeSender();
-        void CleanupExpiredSenders();
 
     private:
         AllocatorDatagramSenderPeerLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MEMP_NUM_UDP_PCB> allocatorSenderPeer;

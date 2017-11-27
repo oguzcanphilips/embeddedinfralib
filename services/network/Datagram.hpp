@@ -8,7 +8,19 @@
 
 namespace services
 {
-	class DatagramSender
+	class DatagramSenderObserver
+    {
+    protected:
+        DatagramSenderObserver() = default;
+        DatagramSenderObserver(const DatagramSenderObserver& other) = delete;
+        DatagramSenderObserver& operator=(const DatagramSenderObserver& other) = delete;
+        virtual ~DatagramSenderObserver() = default;
+
+	public:
+		virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) = 0;
+	};
+
+    class DatagramSender
     {
     protected:
         DatagramSender() = default;
@@ -16,9 +28,9 @@ namespace services
         DatagramSender& operator=(const DatagramSender& other) = delete;
         virtual ~DatagramSender() = default;
 
-	public:
-		virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) = 0;
-	};
+    public:
+        virtual void RequestSendStream(std::size_t sendSize) = 0;
+    };
 
 	class DatagramReceiver
 	{
@@ -41,7 +53,7 @@ namespace services
         virtual ~DatagramProvider() = default;
 
     public:
-        virtual void RequestSendStream(infra::SharedPtr<DatagramSender> sender, IPv4Address address, uint16_t port, std::size_t sendSize) = 0;
+        virtual infra::SharedPtr<DatagramSender> Connect(infra::SharedPtr<DatagramSenderObserver> sender, IPv4Address address, uint16_t port) = 0;
         virtual infra::SharedPtr<void> Listen(infra::SharedPtr<DatagramReceiver> receiver, uint16_t port, bool broadcastAllowed) = 0;
     };
 }

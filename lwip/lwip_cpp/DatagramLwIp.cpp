@@ -2,71 +2,40 @@
 
 namespace services
 {
-    DatagramSenderPeerLwIp::DatagramSenderPeerLwIp(DatagramProviderLwIp& subject, infra::SharedPtr<DatagramSender> sender, IPv4Address address, uint16_t port, std::size_t sendSize)
-        : infra::Observer<DatagramSenderPeerLwIp, DatagramProviderLwIp>(subject)
-        , state(infra::InPlaceType<WaitingSender>(), sender, address, port, sendSize)
-    {}
-
-    void DatagramSenderPeerLwIp::SetOwner(infra::SharedPtr<DatagramSenderPeerLwIp> owner)
-    {
-        this->owner = owner;
-    }
-
-    void DatagramSenderPeerLwIp::CleanupIfExpired()
-    {
-        if (state.Is<WaitingSender>() && state.Get<WaitingSender>().sender == nullptr)
-            owner = nullptr;
-    }
-
-    void DatagramSenderPeerLwIp::TryAllocateBuffer()
-    {
-        if (state.Is<WaitingSender>())
-        {
-            udp_pcb* control = udp_new();
-            if (control != nullptr)
-            {
-                pbuf* buffer = pbuf_alloc(PBUF_TRANSPORT, static_cast<uint16_t>(state.Get<WaitingSender>().sendSize), PBUF_POOL);
-                if (buffer != nullptr)
-                    ServeSender(control, buffer);
-                else
-                    udp_remove(control);
-            }
-        }
-    }
-
-    void DatagramSenderPeerLwIp::ServeSender(udp_pcb* control, pbuf* buffer)
-    {
-        WaitingSender waitingSender = state.Get<WaitingSender>();
-        infra::SharedPtr<DatagramSender> sender = waitingSender.sender.lock();
-
-        state.Emplace<DatagramSendStreamLwIp>(control, buffer, waitingSender.address, waitingSender.port);
-
-        sender->SendStreamAvailable(infra::MakeContainedSharedObject(state.Get<DatagramSendStreamLwIp>(), std::move(owner)));
-    }
-
-    DatagramSenderPeerLwIp::WaitingSender::WaitingSender(infra::SharedPtr<DatagramSender> sender, IPv4Address address, uint16_t port, std::size_t sendSize)
+    DatagramSenderPeerLwIp::DatagramSenderPeerLwIp(infra::SharedPtr<DatagramSenderObserver> sender, IPv4Address address, uint16_t port)
         : sender(sender)
         , address(address)
         , port(port)
-        , sendSize(sendSize)
-    {}
-
-    DatagramSenderPeerLwIp::UdpWriter::UdpWriter(udp_pcb* control, pbuf* buffer, IPv4Address address, uint16_t port)
-        : control(control)
-        , buffer(buffer)
+        , state(infra::InPlaceType<StateIdle>(), *this)
     {
+        control = udp_new();
+        assert(control != nullptr);
         ip_addr_t ipAddress;
         IP4_ADDR(&ipAddress, address[0], address[1], address[2], address[3]);
         err_t result = udp_connect(control, &ipAddress, port);
         assert(result == ERR_OK);
     }
 
+    DatagramSenderPeerLwIp::~DatagramSenderPeerLwIp()
+    {
+        udp_remove(control);
+    }
+
+    void DatagramSenderPeerLwIp::RequestSendStream(std::size_t sendSize)
+    {
+        state->RequestSendStream(sendSize);
+    }
+
+    DatagramSenderPeerLwIp::UdpWriter::UdpWriter(udp_pcb* control, pbuf* buffer)
+        : control(control)
+        , buffer(buffer)
+    {}
+
     DatagramSenderPeerLwIp::UdpWriter::~UdpWriter()
     {
         pbuf_realloc(buffer, bufferOffset);
         err_t result = udp_send(control, buffer);
         pbuf_free(buffer);
-        udp_remove(control);
     }
 
     void DatagramSenderPeerLwIp::UdpWriter::Insert(infra::ConstByteRange range)
@@ -88,6 +57,42 @@ namespace services
     std::size_t DatagramSenderPeerLwIp::UdpWriter::Available() const
     {
         return buffer->tot_len - bufferOffset;
+    }
+
+    void DatagramSenderPeerLwIp::StateBase::RequestSendStream(std::size_t sendSize)
+    {
+        std::abort();
+    }
+
+    DatagramSenderPeerLwIp::StateIdle::StateIdle(DatagramSenderPeerLwIp& datagramSender)
+        : datagramSender(datagramSender)
+    {}
+
+    void DatagramSenderPeerLwIp::StateIdle::RequestSendStream(std::size_t sendSize)
+    {
+        StateWaitingForBuffer& state = datagramSender.state.Emplace<StateWaitingForBuffer>(datagramSender, sendSize);
+        state.TryAllocateBuffer();
+    }
+
+    DatagramSenderPeerLwIp::StateWaitingForBuffer::StateWaitingForBuffer(DatagramSenderPeerLwIp& datagramSender, std::size_t sendSize)
+        : datagramSender(datagramSender)
+        , sendSize(sendSize)
+        , allocateTimer(std::chrono::milliseconds(50), [this]() { TryAllocateBuffer(); })
+    {}
+
+    void DatagramSenderPeerLwIp::StateWaitingForBuffer::TryAllocateBuffer()
+    {
+        pbuf* buffer = pbuf_alloc(PBUF_TRANSPORT, static_cast<uint16_t>(sendSize), PBUF_POOL);
+        if (buffer != nullptr)
+            datagramSender.state.Emplace<StateBufferAllocated>(datagramSender, buffer);
+    }
+
+    DatagramSenderPeerLwIp::StateBufferAllocated::StateBufferAllocated(DatagramSenderPeerLwIp& datagramSender, pbuf* buffer)
+        : datagramSender(datagramSender)
+        , stream([this]() { this->datagramSender.state.Emplace<StateIdle>(this->datagramSender); })
+    {
+        infra::SharedPtr<infra::DataOutputStream::WithWriter<UdpWriter>> streamPtr = stream.Emplace(datagramSender.control, buffer);
+        datagramSender.sender->SendStreamAvailable(streamPtr);
     }
 
     DatagramReceiverPeerLwIp::DatagramReceiverPeerLwIp(infra::SharedPtr<DatagramReceiver> receiver, uint16_t port, bool broadcastAllowed)
@@ -180,27 +185,14 @@ namespace services
         return buffer->tot_len - bufferOffset;
     }
 
-    void DatagramProviderLwIp::RequestSendStream(infra::SharedPtr<DatagramSender> sender, IPv4Address address, uint16_t port, std::size_t sendSize)
+    infra::SharedPtr<DatagramSender> DatagramProviderLwIp::Connect(infra::SharedPtr<DatagramSenderObserver> sender, IPv4Address address, uint16_t port)
     {
-        CleanupExpiredSenders();
-        infra::SharedPtr<DatagramSenderPeerLwIp> senderPeer = allocatorSenderPeer.Allocate(*this, sender, address, port, sendSize);
-        senderPeer->SetOwner(senderPeer);
-        senderPeer = nullptr;
-        TryServeSender();
+        return allocatorSenderPeer.Allocate(sender, address, port);
     }
 
     infra::SharedPtr<void> DatagramProviderLwIp::Listen(infra::SharedPtr<DatagramReceiver> receiver, uint16_t port, bool broadcastAllowed)
     {
         return allocatorReceiverPeer.Allocate(receiver, port, broadcastAllowed);
     }
-
-    void DatagramProviderLwIp::TryServeSender()
-    {
-        NotifyObservers([](DatagramSenderPeerLwIp& peer) { peer.TryAllocateBuffer(); });
-    }
-
-    void DatagramProviderLwIp::CleanupExpiredSenders()
-    {
-        NotifyObservers([](DatagramSenderPeerLwIp& peer) { peer.CleanupIfExpired(); });
-    }
 }
+
