@@ -3,14 +3,12 @@
 
 #include "infra/stream/InputStream.hpp"
 #include "infra/stream/OutputStream.hpp"
-#include "infra/util/IntrusiveList.hpp"
 #include "infra/util/SharedPtr.hpp"
 #include "services/network/Address.hpp"
 
 namespace services
 {
 	class DatagramSender
-        : public infra::IntrusiveList<DatagramSender>::NodeType
     {
     protected:
         DatagramSender() = default;
@@ -31,7 +29,7 @@ namespace services
         virtual ~DatagramReceiver() = default;
 
 	public:
-		virtual void DataReceived(infra::SharedPtr<infra::DataInputStream>&& stream, IPv4Address address) = 0;
+		virtual void DataReceived(infra::DataInputStream stream, IPv4Address address) = 0;
 	};
 
     class DatagramProvider
@@ -44,7 +42,7 @@ namespace services
 
     public:
         virtual void RequestSendStream(infra::SharedPtr<DatagramSender> sender, IPv4Address address, uint16_t port, std::size_t sendSize) = 0;
-        virtual infra::SharedPtr<void> Listen(infra::SharedPtr<DatagramReceiver> receiver, uint16_t port, bool multicastAllowed) = 0;
+        virtual infra::SharedPtr<void> Listen(infra::SharedPtr<DatagramReceiver> receiver, uint16_t port, bool broadcastAllowed) = 0;
     };
 }
 

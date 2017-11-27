@@ -1,5 +1,5 @@
-#ifndef TCP_CONNECTION_LW_IP_HPP
-#define TCP_CONNECTION_LW_IP_HPP
+#ifndef LWIP_CONNECTION_LW_IP_HPP
+#define LWIP_CONNECTION_LW_IP_HPP
 
 #include "infra/timer/Timer.hpp"
 #include "infra/stream/ByteOutputStream.hpp"
@@ -136,18 +136,18 @@ namespace services
 
     using AllocatorConnectorLwIp = infra::SharedObjectAllocator<ConnectorLwIp, void(AllocatorConnectionLwIp& allocator, IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory)>;
 
-    class LightweightIp
+    class ConnectionFactoryLwIp
         : public ConnectionFactory
     {
     public:
         template<std::size_t MaxListeners, std::size_t MaxConnectors, std::size_t MaxConnections>
-            using WithFixedAllocator = infra::WithStorage<infra::WithStorage<infra::WithStorage<LightweightIp,
+            using WithFixedAllocator = infra::WithStorage<infra::WithStorage<infra::WithStorage<ConnectionFactoryLwIp,
                 AllocatorListenerLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxListeners>>,
                 AllocatorConnectorLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxConnectors>>,
                 AllocatorConnectionLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxConnections>>;
 
     public:
-        LightweightIp(AllocatorListenerLwIp& listenerAllocator, AllocatorConnectorLwIp& connectorAllocator, AllocatorConnectionLwIp& connectionAllocator);
+        ConnectionFactoryLwIp(AllocatorListenerLwIp& listenerAllocator, AllocatorConnectorLwIp& connectorAllocator, AllocatorConnectionLwIp& connectionAllocator);
 
         virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionObserverFactory& factory) override;
         virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory) override;
@@ -156,7 +156,6 @@ namespace services
         AllocatorListenerLwIp& listenerAllocator;
         AllocatorConnectorLwIp& connectorAllocator;
         AllocatorConnectionLwIp& connectionAllocator;
-        infra::TimerRepeating sysCheckTimer;
     };
 }
 
