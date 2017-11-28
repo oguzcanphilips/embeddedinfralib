@@ -176,10 +176,10 @@ TEST(JsonObjectFormatter, escape_strings)
 
     {
         infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
-        formatter.Add("tag", "\"\\/\b\f\n\r\t\x11");
+        formatter.Add("tag", "\"\b\f\n\r\t\x11");
     }
 
-    EXPECT_EQ("{ \"tag\":\"\\\"\\\\\\/\\b\\f\\n\\r\\t\\u0011\" }", string);
+    EXPECT_EQ("{ \"tag\":\"\\\"\\b\\f\\n\\r\\t\\u0011\" }", string);
 }
 
 TEST(JsonArrayFormatter, construction_results_in_empty_object)

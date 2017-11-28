@@ -1,3 +1,4 @@
+#include "infra/event/EventDispatcherWithWeakPtr.hpp"
 #include "lwip/lwip_cpp/DatagramLwIp.hpp"
 
 namespace services
@@ -90,7 +91,10 @@ namespace services
         , stream([this]() { this->datagramSender.state.Emplace<StateIdle>(this->datagramSender); })
     {
         infra::SharedPtr<DatagramSendStreamLwIp> streamPtr = stream.Emplace(datagramSender.control, buffer);
-        datagramSender.sender.SendStreamAvailable(streamPtr);
+        infra::EventDispatcherWithWeakPtr::Instance().Schedule([streamPtr](const infra::SharedPtr<DatagramSenderPeerLwIp>& datagramSender)
+        {
+            datagramSender->sender.SendStreamAvailable(streamPtr);
+        }, datagramSender.SharedFromThis());
     }
 
     DatagramReceiverPeerLwIp::DatagramReceiverPeerLwIp(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed)

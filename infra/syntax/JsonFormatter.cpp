@@ -10,7 +10,6 @@ namespace infra
             {
                 case '"':  stream << "\\\""; break;
                 case '\\': stream << "\\\\"; break;
-                case '/':  stream << "\\/"; break;
                 case '\b': stream << "\\b"; break;
                 case '\f': stream << "\\f"; break;
                 case '\n': stream << "\\n"; break;
@@ -25,7 +24,7 @@ namespace infra
             std::size_t start = 0;
             while (start != tag.size())
             {
-                std::size_t escape = std::min(tag.find_first_of("\"\\/\b\f\n\r\t", start), tag.size());
+                std::size_t escape = std::min(tag.find_first_of("\"\b\f\n\r\t", start), tag.size());
                 infra::BoundedConstString nonEscapedSubString = tag.substr(start, escape - start);
 
                 for (std::size_t control = start; control != escape; ++control)

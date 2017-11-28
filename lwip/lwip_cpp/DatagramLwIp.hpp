@@ -14,6 +14,7 @@ namespace services
 
     class DatagramSenderPeerLwIp
         : public DatagramSender
+        , public infra::EnableSharedFromThis<DatagramSenderPeerLwIp>
     {
     public:
         DatagramSenderPeerLwIp(DatagramSenderObserver& sender, IPv4Address address, uint16_t port);
