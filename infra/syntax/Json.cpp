@@ -245,7 +245,7 @@ namespace infra
                 return JsonToken::LeftBracket(parseIndex++);
             else if (objectString[parseIndex] == ']')
                 return JsonToken::RightBracket(parseIndex++);
-            else if (std::isdigit(objectString[parseIndex]) != 0)
+            else if (std::isdigit(objectString[parseIndex]) != 0 || objectString[parseIndex] == '-')
                 return TryCreateIntegerToken();
             else if (std::isalpha(objectString[parseIndex]) != 0)
                 return TryCreateIdentifierToken();
