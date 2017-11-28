@@ -68,6 +68,13 @@ TEST(JsonTokenizerTest, get_int_token)
     EXPECT_EQ(infra::JsonToken::Token(infra::JsonToken::Integer(42)), tokenizer.Token());
 }
 
+TEST(JsonTokenizerTest, get_negative_int_token)
+{
+    infra::JsonTokenizer tokenizer("-42");
+
+    EXPECT_EQ(infra::JsonToken::Token(infra::JsonToken::Integer(-42)), tokenizer.Token());
+}
+
 TEST(JsonTokenizerTest, skip_whitespace_before_end)
 {
     infra::JsonTokenizer tokenizer(R"( )");
