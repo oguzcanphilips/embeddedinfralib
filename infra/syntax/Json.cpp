@@ -293,13 +293,27 @@ namespace infra
     JsonToken::Token JsonTokenizer::TryCreateIntegerToken()
     {
         std::size_t tokenStart = parseIndex;
+        bool sign = false;
 
-        while (parseIndex != objectString.size() && std::isdigit(objectString[parseIndex]))                         //TICS !CON#007
+        if (parseIndex != objectString.size() && objectString[parseIndex] == '-')                                       //TICS !CON#007
+        {
+            sign = true;
+            ++parseIndex;
+        }
+
+        while (parseIndex != objectString.size() && std::isdigit(objectString[parseIndex]))                             //TICS !CON#007
             ++parseIndex;
 
         infra::BoundedConstString integer = objectString.substr(tokenStart, parseIndex - tokenStart);
 
-        return JsonToken::Integer(std::atoi(integer.data()));
+        int32_t value = 0;
+        for (int index = sign ? 1 : 0; index < integer.size(); ++index)
+            value = value * 10 + integer[index] - '0';
+
+        if (sign)
+            value *= -1;
+
+        return JsonToken::Integer(value);
     }
 
     JsonToken::Token JsonTokenizer::TryCreateIdentifierToken()
