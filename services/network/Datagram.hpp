@@ -53,8 +53,8 @@ namespace services
         virtual ~DatagramProvider() = default;
 
     public:
-        virtual infra::SharedPtr<DatagramSender> Connect(infra::SharedPtr<DatagramSenderObserver> sender, IPv4Address address, uint16_t port) = 0;
-        virtual infra::SharedPtr<void> Listen(infra::SharedPtr<DatagramReceiver> receiver, uint16_t port, bool broadcastAllowed) = 0;
+        virtual infra::SharedPtr<DatagramSender> Connect(DatagramSenderObserver& sender, IPv4Address address, uint16_t port) = 0;
+        virtual infra::SharedPtr<void> Listen(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed) = 0;
     };
 }
 

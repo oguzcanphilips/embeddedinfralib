@@ -2,10 +2,8 @@
 
 namespace services
 {
-    DatagramSenderPeerLwIp::DatagramSenderPeerLwIp(infra::SharedPtr<DatagramSenderObserver> sender, IPv4Address address, uint16_t port)
+    DatagramSenderPeerLwIp::DatagramSenderPeerLwIp(DatagramSenderObserver& sender, IPv4Address address, uint16_t port)
         : sender(sender)
-        , address(address)
-        , port(port)
         , state(infra::InPlaceType<StateIdle>(), *this)
     {
         control = udp_new();
@@ -91,11 +89,11 @@ namespace services
         : datagramSender(datagramSender)
         , stream([this]() { this->datagramSender.state.Emplace<StateIdle>(this->datagramSender); })
     {
-        infra::SharedPtr<infra::DataOutputStream::WithWriter<UdpWriter>> streamPtr = stream.Emplace(datagramSender.control, buffer);
-        datagramSender.sender->SendStreamAvailable(streamPtr);
+        infra::SharedPtr<DatagramSendStreamLwIp> streamPtr = stream.Emplace(datagramSender.control, buffer);
+        datagramSender.sender.SendStreamAvailable(streamPtr);
     }
 
-    DatagramReceiverPeerLwIp::DatagramReceiverPeerLwIp(infra::SharedPtr<DatagramReceiver> receiver, uint16_t port, bool broadcastAllowed)
+    DatagramReceiverPeerLwIp::DatagramReceiverPeerLwIp(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed)
         : receiver(receiver)
     {
         control = udp_new();
@@ -120,7 +118,7 @@ namespace services
     void DatagramReceiverPeerLwIp::Recv(pbuf* buffer, const ip_addr_t* address, u16_t port)
     {
         infra::DataInputStream::WithReader<UdpReader> stream(buffer);
-        receiver.lock()->DataReceived(stream, IPv4Address{ ip4_addr1(address), ip4_addr2(address), ip4_addr3(address), ip4_addr4(address) });
+        receiver.DataReceived(stream, IPv4Address{ ip4_addr1(address), ip4_addr2(address), ip4_addr3(address), ip4_addr4(address) });
     }
 
     DatagramReceiverPeerLwIp::UdpReader::UdpReader(pbuf* buffer)
@@ -185,12 +183,12 @@ namespace services
         return buffer->tot_len - bufferOffset;
     }
 
-    infra::SharedPtr<DatagramSender> DatagramProviderLwIp::Connect(infra::SharedPtr<DatagramSenderObserver> sender, IPv4Address address, uint16_t port)
+    infra::SharedPtr<DatagramSender> DatagramProviderLwIp::Connect(DatagramSenderObserver& sender, IPv4Address address, uint16_t port)
     {
         return allocatorSenderPeer.Allocate(sender, address, port);
     }
 
-    infra::SharedPtr<void> DatagramProviderLwIp::Listen(infra::SharedPtr<DatagramReceiver> receiver, uint16_t port, bool broadcastAllowed)
+    infra::SharedPtr<void> DatagramProviderLwIp::Listen(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed)
     {
         return allocatorReceiverPeer.Allocate(receiver, port, broadcastAllowed);
     }
