@@ -56,8 +56,6 @@ namespace services
         virtual void CloseAndDestroy() = 0;
         virtual void AbortAndDestroy() = 0;
 
-        virtual IPv4Address Ipv4Address() const = 0;
-
         void SwitchObserver(const infra::SharedPtr<ConnectionObserver>& newObserver);
         void SetOwnership(const infra::SharedPtr<void>& owner, const infra::SharedPtr<ConnectionObserver>& observer);
         void ResetOwnership();
@@ -76,7 +74,7 @@ namespace services
         ~ServerConnectionObserverFactory() = default;
 
     public:
-        virtual void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) = 0;
+        virtual void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver, IPv4Address Ipv4Address) = 0;
     };
 
     class ClientConnectionObserverFactory

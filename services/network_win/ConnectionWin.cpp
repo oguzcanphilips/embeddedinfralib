@@ -241,7 +241,7 @@ namespace services
         {
             if (connectionObserver)
                 connection->SetObserver(connectionObserver);
-        });
+        }, connection->Ipv4Address());
     }
 
     ConnectorWin::ConnectorWin(EventDispatcherWithNetwork& network, IPv4Address address, uint16_t port, services::ClientConnectionObserverFactory& factory)

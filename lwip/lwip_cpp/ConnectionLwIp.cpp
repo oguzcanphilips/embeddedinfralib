@@ -307,7 +307,7 @@ namespace services
                     connection->SetOwnership(connection, connectionObserver);
                     connectionObserver->Connected();
                 }
-            });
+            }, connection->Ipv4Address());
 
             infra::WeakPtr<ConnectionLwIp> weakConnection = connection;
             connection = nullptr;

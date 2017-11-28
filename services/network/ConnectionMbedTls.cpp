@@ -201,11 +201,6 @@ namespace services
         ConnectionObserver::Subject().AbortAndDestroy();
     }
 
-    IPv4Address ConnectionMbedTls::Ipv4Address() const
-    {
-        return ConnectionObserver::Subject().Ipv4Address();
-    }
-
     void ConnectionMbedTls::TlsInitFailure(int reason)
     {}
 
@@ -446,7 +441,7 @@ namespace services
         , serverCache(serverCache)
     {}
 
-    void ConnectionMbedTlsListener::ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver)
+    void ConnectionMbedTlsListener::ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver, services::IPv4Address ipv4Address)
     {
         infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> creationFailed = createdObserver.Clone();
         infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(std::move(createdObserver), certificates, randomDataGenerator, true, &serverCache, nullptr);
@@ -455,7 +450,7 @@ namespace services
             factory.ConnectionAccepted([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
             {
                 connection->CreatedObserver(connectionObserver);
-            });
+            }, ipv4Address);
         }
         else
             creationFailed(nullptr);
