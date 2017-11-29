@@ -4,7 +4,7 @@ set(CCOLA_PROCESSOR xtensa-lx6)
 set(CCOLA_ARCH xtensa)
 set(CCOLA_ARCH_FAMILY xtensa)
 
-set(combined_flags "-g -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -nostdlib -fstack-protector")
+set(combined_flags "-g -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -nostdlib")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${combined_flags} -std=gnu11")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${combined_flags}")
