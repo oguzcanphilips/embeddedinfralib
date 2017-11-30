@@ -10,7 +10,7 @@ namespace services
         control = udp_new();
         assert(control != nullptr);
         ip_addr_t ipAddress;
-        IP4_ADDR(&ipAddress, address[0], address[1], address[2], address[3]);
+        IP4_ADDR(&ipAddress.u_addr.ip4, address[0], address[1], address[2], address[3]);
         err_t result = udp_connect(control, &ipAddress, port);
         assert(result == ERR_OK);
     }
@@ -122,7 +122,7 @@ namespace services
     void DatagramReceiverPeerLwIp::Recv(pbuf* buffer, const ip_addr_t* address, u16_t port)
     {
         infra::DataInputStream::WithReader<UdpReader> stream(buffer);
-        receiver.DataReceived(stream, IPv4Address{ ip4_addr1(address), ip4_addr2(address), ip4_addr3(address), ip4_addr4(address) });
+        receiver.DataReceived(stream, IPv4Address{ ip4_addr1(&address->u_addr.ip4), ip4_addr2(&address->u_addr.ip4), ip4_addr3(&address->u_addr.ip4), ip4_addr4(&address->u_addr.ip4) });
     }
 
     DatagramReceiverPeerLwIp::UdpReader::UdpReader(pbuf* buffer)

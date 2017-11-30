@@ -206,7 +206,7 @@ namespace services
             }
             else
                 clientObserverFactory.ConnectionFailed(services::ClientConnectionObserverFactory::ConnectFailReason::connectionAllocationFailed);
-        }, services::IPv4Address{ 127, 0, 0, 1 });
+        }, services::IPv4AddressLocalHost());
     }
 
     ConnectionLoopBackFactory::~ConnectionLoopBackFactory()

@@ -141,12 +141,12 @@ namespace services
 
         if (!config.ipConfig.useDhcp)
         {
-            IP4_ADDR(&ipaddr, config.ipConfig.staticAddresses.address[0], config.ipConfig.staticAddresses.address[1], config.ipConfig.staticAddresses.address[2], config.ipConfig.staticAddresses.address[3]);
-            IP4_ADDR(&netmask, config.ipConfig.staticAddresses.netmask[0], config.ipConfig.staticAddresses.netmask[1], config.ipConfig.staticAddresses.netmask[2], config.ipConfig.staticAddresses.netmask[3]);
-            IP4_ADDR(&gw, config.ipConfig.staticAddresses.gateway[0], config.ipConfig.staticAddresses.gateway[1], config.ipConfig.staticAddresses.gateway[2], config.ipConfig.staticAddresses.gateway[3]);
+            IP4_ADDR(ip_2_ip4(&ipaddr), config.ipConfig.staticAddresses.address[0], config.ipConfig.staticAddresses.address[1], config.ipConfig.staticAddresses.address[2], config.ipConfig.staticAddresses.address[3]);
+            IP4_ADDR(ip_2_ip4(&netmask), config.ipConfig.staticAddresses.netmask[0], config.ipConfig.staticAddresses.netmask[1], config.ipConfig.staticAddresses.netmask[2], config.ipConfig.staticAddresses.netmask[3]);
+            IP4_ADDR(ip_2_ip4(&gw), config.ipConfig.staticAddresses.gateway[0], config.ipConfig.staticAddresses.gateway[1], config.ipConfig.staticAddresses.gateway[2], config.ipConfig.staticAddresses.gateway[3]);
         }
 
-        netif_add(&netInterface, &ipaddr, &netmask, &gw, this, &LightweightIpOverEthernetFactory::StaticInit, &ethernet_input);
+        netif_add(&netInterface, ip_2_ip4(&ipaddr), ip_2_ip4(&netmask), ip_2_ip4(&gw), this, &LightweightIpOverEthernetFactory::StaticInit, &ethernet_input);
         netif_set_default(&netInterface);
 
         netif_set_hostname(&netInterface, config.hostName);
