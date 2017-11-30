@@ -2,7 +2,7 @@
 
 namespace services
 {
-    SynchronousSpiMasterWithChipSelect::SynchronousSpiMasterWithChipSelect(hal::SynchronousSpi& spi, hal::SynchronousOutputPin& chipSelect)
+    SynchronousSpiMasterWithChipSelect::SynchronousSpiMasterWithChipSelect(hal::SynchronousSpi& spi, hal::GpioPin& chipSelect)
         : spi(spi)
         , chipSelect(chipSelect)
     {
