@@ -129,7 +129,7 @@ namespace services
 
     err_t LightweightIpOverEthernet::SetIgmpMacFilter(const ip4_addr_t* group, netif_mac_filter_action action)
     {
-        hal::MacAddress address = { 0x01, 0x00, 0x5e, ip4_addr2(group) & 0x7f, ip4_addr3(group), ip4_addr4(group) };
+        hal::MacAddress address = { 0x01, 0x00, 0x5e, static_cast<uint8_t>(ip4_addr2(group) & 0x7f), ip4_addr3(group), ip4_addr4(group) };
 
         if (action == NETIF_ADD_MAC_FILTER)
             Subject().AddMacAddressFilter(address);

@@ -10,9 +10,11 @@ namespace services
 		: public DatagramProvider
 	{
 	public:
-		MOCK_METHOD3(Connect, infra::SharedPtr<DatagramSender>(DatagramSenderObserver& sender, IPv4Address address, uint16_t port));
-		MOCK_METHOD3(Listen, infra::SharedPtr<void>(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed));
-	};
+        MOCK_METHOD3(ListenIPv4, infra::SharedPtr<void>(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed));
+        MOCK_METHOD3(ConnectIPv4, infra::SharedPtr<DatagramSender>(DatagramSenderObserver& sender, IPv4Address address, uint16_t port));
+        MOCK_METHOD2(ListenIPv6, infra::SharedPtr<void>(DatagramReceiver& receiver, uint16_t port));
+        MOCK_METHOD3(ConnectIPv6, infra::SharedPtr<DatagramSender>(DatagramSenderObserver& sender, IPv6Address address, uint16_t port));
+    };
 
 	class DatagramSenderMock
 		: public DatagramSender
@@ -25,7 +27,8 @@ namespace services
 		: public DatagramReceiver
 	{
 	public:
-		MOCK_METHOD2(DataReceived, void(infra::DataInputStream stream, IPv4Address address));
-	};
+        MOCK_METHOD2(DataReceived, void(infra::DataInputStream stream, IPv4Address address));
+        MOCK_METHOD2(DataReceived, void(infra::DataInputStream stream, IPv6Address address));
+    };
 }
 #endif
