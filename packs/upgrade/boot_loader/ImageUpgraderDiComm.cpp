@@ -21,7 +21,7 @@ namespace application
             && InitializeProperties()
             && PrepareDownload(imageSize)
             && SendFirmware(flash, imageAddress, imageSize)
-            //&& WaitForProgrammingCompletion()
+            && WaitForProgrammingCompletion()
             && InitializeProtocol()
             && WaitForState("idle"))
             return 0;
