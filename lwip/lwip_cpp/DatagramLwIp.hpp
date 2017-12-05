@@ -6,6 +6,7 @@
 #include "infra/util/SharedOptional.hpp"
 #include "infra/util/PolymorphicVariant.hpp"
 #include "lwip/udp.h"
+#include "lwip/lwip_cpp/ConnectionLwIp.hpp"
 #include "services/network/Datagram.hpp"
 
 namespace services
@@ -17,7 +18,7 @@ namespace services
         , public infra::EnableSharedFromThis<DatagramSenderPeerLwIp>
     {
     public:
-        DatagramSenderPeerLwIp(DatagramSenderObserver& sender, IPv4Address address, uint16_t port);
+        DatagramSenderPeerLwIp(DatagramSenderObserver& sender, GenericAddress address, uint16_t port);
         ~DatagramSenderPeerLwIp();
 
         virtual void RequestSendStream(std::size_t sendSize) override;
@@ -93,12 +94,12 @@ namespace services
         udp_pcb* control;
     };
 
-    using AllocatorDatagramSenderPeerLwIp = infra::SharedObjectAllocator<DatagramSenderPeerLwIp, void(DatagramSenderObserver& sender, IPv4Address address, uint16_t port)>;
+    using AllocatorDatagramSenderPeerLwIp = infra::SharedObjectAllocator<DatagramSenderPeerLwIp, void(DatagramSenderObserver& sender, GenericAddress address, uint16_t port)>;
 
     class DatagramReceiverPeerLwIp
     {
     public:
-        DatagramReceiverPeerLwIp(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed);
+        DatagramReceiverPeerLwIp(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed, bool ipv6);
         ~DatagramReceiverPeerLwIp();
 
     private:
@@ -130,14 +131,16 @@ namespace services
         udp_pcb* control;
     };
 
-    using AllocatorDatagramReceiverPeerLwIp = infra::SharedObjectAllocator<DatagramReceiverPeerLwIp, void(DatagramReceiver& receiver, uint16_t port, bool multicastAllowed)>;
+    using AllocatorDatagramReceiverPeerLwIp = infra::SharedObjectAllocator<DatagramReceiverPeerLwIp, void(DatagramReceiver& receiver, uint16_t port, bool multicastAllowed, bool ipv6)>;
 
     class DatagramProviderLwIp
         : public DatagramProvider
     {
     public:
-        virtual infra::SharedPtr<DatagramSender> Connect(DatagramSenderObserver& sender, IPv4Address address, uint16_t port) override;
-        virtual infra::SharedPtr<void> Listen(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed) override;
+        virtual infra::SharedPtr<void> ListenIPv4(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed) override;
+        virtual infra::SharedPtr<DatagramSender> ConnectIPv4(DatagramSenderObserver& sender, IPv4Address address, uint16_t port) override;
+        virtual infra::SharedPtr<void> ListenIPv6(DatagramReceiver& receiver, uint16_t port) override;
+        virtual infra::SharedPtr<DatagramSender> ConnectIPv6(DatagramSenderObserver& sender, IPv6Address address, uint16_t port) override;
 
     private:
         AllocatorDatagramSenderPeerLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MEMP_NUM_UDP_PCB> allocatorSenderPeer;

@@ -16,6 +16,8 @@ namespace services
     public:
         virtual void JoinMulticastGroup(IPv4Address multicastAddress) = 0;
         virtual void LeaveMulticastGroup(IPv4Address multicastAddress) = 0;
+        virtual void JoinMulticastGroup(IPv6Address multicastAddress) = 0;
+        virtual void LeaveMulticastGroup(IPv6Address multicastAddress) = 0;
     };
 }
 

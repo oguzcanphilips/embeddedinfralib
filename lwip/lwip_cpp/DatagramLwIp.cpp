@@ -3,16 +3,30 @@
 
 namespace services
 {
-    DatagramSenderPeerLwIp::DatagramSenderPeerLwIp(DatagramSenderObserver& sender, IPv4Address address, uint16_t port)
+    DatagramSenderPeerLwIp::DatagramSenderPeerLwIp(DatagramSenderObserver& sender, GenericAddress address, uint16_t port)
         : sender(sender)
         , state(infra::InPlaceType<StateIdle>(), *this)
     {
-        control = udp_new();
-        assert(control != nullptr);
-        ip_addr_t ipAddress;
-        IP4_ADDR(&ipAddress.u_addr.ip4, address[0], address[1], address[2], address[3]);
-        err_t result = udp_connect(control, &ipAddress, port);
-        assert(result == ERR_OK);
+        if (address.Is<IPv4Address>())
+        {
+            control = udp_new_ip_type(IPADDR_TYPE_V4);
+            assert(control != nullptr);
+            IPv4Address ipv4Address = address.Get<IPv4Address>();
+            ip_addr_t ipAddress IPADDR4_INIT(0);
+            IP4_ADDR(&ipAddress.u_addr.ip4, ipv4Address[0], ipv4Address[1], ipv4Address[2], ipv4Address[3]);
+            err_t result = udp_connect(control, &ipAddress, port);
+            assert(result == ERR_OK);
+        }
+        else
+        {
+            control = udp_new_ip_type(IPADDR_TYPE_V6);
+            assert(control != nullptr);
+            IPv6Address ipv6Address = address.Get<IPv6Address>();
+            ip_addr_t ipAddress IPADDR6_INIT(0, 0, 0, 0);
+            IP6_ADDR(&ipAddress.u_addr.ip6, PP_HTONL(ipv6Address[1] + (static_cast<uint32_t>(ipv6Address[0]) << 16)), PP_HTONL(ipv6Address[3] + (static_cast<uint32_t>(ipv6Address[2]) << 16)), PP_HTONL(ipv6Address[5] + (static_cast<uint32_t>(ipv6Address[4]) << 16)), PP_HTONL(ipv6Address[7] + (static_cast<uint32_t>(ipv6Address[6]) << 16)));
+            err_t result = udp_connect(control, &ipAddress, port);
+            assert(result == ERR_OK);
+        }
     }
 
     DatagramSenderPeerLwIp::~DatagramSenderPeerLwIp()
@@ -97,15 +111,25 @@ namespace services
         }, datagramSender.SharedFromThis());
     }
 
-    DatagramReceiverPeerLwIp::DatagramReceiverPeerLwIp(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed)
+    DatagramReceiverPeerLwIp::DatagramReceiverPeerLwIp(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed, bool ipv6)
         : receiver(receiver)
     {
-        control = udp_new();
-        assert(control != nullptr);
-        if (broadcastAllowed)
-            ip_set_option(control, SOF_BROADCAST);
-        err_t result = udp_bind(control, IP4_ADDR_ANY, port);
-        assert(result == ERR_OK);
+        if (!ipv6)
+        {
+            control = udp_new_ip_type(IPADDR_TYPE_V4);
+            assert(control != nullptr);
+            if (broadcastAllowed)
+                ip_set_option(control, SOF_BROADCAST);
+            err_t result = udp_bind(control, IP4_ADDR_ANY, port);
+            assert(result == ERR_OK);
+        }
+        else
+        {
+            control = udp_new_ip_type(IPADDR_TYPE_V6);
+            assert(control != nullptr);
+            err_t result = udp_bind(control, IP6_ADDR_ANY, port);
+            assert(result == ERR_OK);
+        }
         udp_recv(control, &DatagramReceiverPeerLwIp::StaticRecv, this);
     }
 
@@ -122,7 +146,11 @@ namespace services
     void DatagramReceiverPeerLwIp::Recv(pbuf* buffer, const ip_addr_t* address, u16_t port)
     {
         infra::DataInputStream::WithReader<UdpReader> stream(buffer);
-        receiver.DataReceived(stream, IPv4Address{ ip4_addr1(&address->u_addr.ip4), ip4_addr2(&address->u_addr.ip4), ip4_addr3(&address->u_addr.ip4), ip4_addr4(&address->u_addr.ip4) });
+        if (IP_GET_TYPE(address) == IPADDR_TYPE_V4)
+            receiver.DataReceived(stream, IPv4Address{ ip4_addr1(ip_2_ip4(address)), ip4_addr2(ip_2_ip4(address)), ip4_addr3(ip_2_ip4(address)), ip4_addr4(ip_2_ip4(address)) });
+        else
+            receiver.DataReceived(stream, IPv6Address{ IP6_ADDR_BLOCK1(ip_2_ip6(address)), IP6_ADDR_BLOCK2(ip_2_ip6(address)), IP6_ADDR_BLOCK3(ip_2_ip6(address)), IP6_ADDR_BLOCK4(ip_2_ip6(address)),
+                IP6_ADDR_BLOCK5(ip_2_ip6(address)), IP6_ADDR_BLOCK6(ip_2_ip6(address)), IP6_ADDR_BLOCK7(ip_2_ip6(address)), IP6_ADDR_BLOCK8(ip_2_ip6(address))} );
     }
 
     DatagramReceiverPeerLwIp::UdpReader::UdpReader(pbuf* buffer)
@@ -187,14 +215,24 @@ namespace services
         return buffer->tot_len - bufferOffset;
     }
 
-    infra::SharedPtr<DatagramSender> DatagramProviderLwIp::Connect(DatagramSenderObserver& sender, IPv4Address address, uint16_t port)
+    infra::SharedPtr<void> DatagramProviderLwIp::ListenIPv4(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed)
+    {
+        return allocatorReceiverPeer.Allocate(receiver, port, broadcastAllowed, false);
+    }
+
+    infra::SharedPtr<DatagramSender> DatagramProviderLwIp::ConnectIPv4(DatagramSenderObserver& sender, IPv4Address address, uint16_t port)
     {
         return allocatorSenderPeer.Allocate(sender, address, port);
     }
 
-    infra::SharedPtr<void> DatagramProviderLwIp::Listen(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed)
+    infra::SharedPtr<void> DatagramProviderLwIp::ListenIPv6(DatagramReceiver& receiver, uint16_t port)
     {
-        return allocatorReceiverPeer.Allocate(receiver, port, broadcastAllowed);
+        return allocatorReceiverPeer.Allocate(receiver, port, false, true);
+    }
+
+    infra::SharedPtr<DatagramSender> DatagramProviderLwIp::ConnectIPv6(DatagramSenderObserver& sender, IPv6Address address, uint16_t port)
+    {
+        return allocatorSenderPeer.Allocate(sender, address, port);
     }
 }
 

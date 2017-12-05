@@ -41,8 +41,9 @@ namespace services
         virtual ~DatagramReceiver() = default;
 
 	public:
-		virtual void DataReceived(infra::DataInputStream stream, IPv4Address address) = 0;
-	};
+        virtual void DataReceived(infra::DataInputStream stream, IPv4Address address) = 0;
+        virtual void DataReceived(infra::DataInputStream stream, IPv6Address address) = 0;
+    };
 
     class DatagramProvider
     {
@@ -53,8 +54,10 @@ namespace services
         virtual ~DatagramProvider() = default;
 
     public:
-        virtual infra::SharedPtr<DatagramSender> Connect(DatagramSenderObserver& sender, IPv4Address address, uint16_t port) = 0;
-        virtual infra::SharedPtr<void> Listen(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed) = 0;
+        virtual infra::SharedPtr<void> ListenIPv4(DatagramReceiver& receiver, uint16_t port, bool broadcastAllowed) = 0;
+        virtual infra::SharedPtr<DatagramSender> ConnectIPv4(DatagramSenderObserver& sender, IPv4Address address, uint16_t port) = 0;
+        virtual infra::SharedPtr<void> ListenIPv6(DatagramReceiver& receiver, uint16_t port) = 0;
+        virtual infra::SharedPtr<DatagramSender> ConnectIPv6(DatagramSenderObserver& sender, IPv6Address address, uint16_t port) = 0;
     };
 }
 
