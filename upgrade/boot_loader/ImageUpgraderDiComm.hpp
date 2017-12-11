@@ -13,7 +13,7 @@ namespace application
         : public ImageUpgrader
     {
     public:
-        ImageUpgraderDiComm(const char* targetName, Decryptor& decryptor, DiComm& diComm, hal::TimeKeeper& timeKeeper);
+        ImageUpgraderDiComm(const char* targetName, Decryptor& decryptor, DiComm& diComm, hal::TimeKeeper& timeKeeperTimeout, hal::TimeKeeper& timeKeeperPollDelay);
 
         virtual uint32_t Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress) override;
 
@@ -23,11 +23,15 @@ namespace application
         bool PrepareDownload(uint32_t imageSize);
         bool SendFirmware(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize);
         bool WaitForState(infra::BoundedConstString expectedState);
+        bool WaitForProgrammingCompletion();
         bool ResetState();
+        void PollDelay();
 
     private:
         DiComm& diComm;
-        hal::TimeKeeper& timeKeeper;
+        hal::TimeKeeper& timeKeeperTimeout;
+        hal::TimeKeeper& timeKeeperPollDelay;
+
         uint32_t maxChunkSize = 0;
 
         static const uint32_t chunkSizeDefault = 128;

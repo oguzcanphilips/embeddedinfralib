@@ -8,10 +8,11 @@ namespace application
     const uint32_t ImageUpgraderDiComm::chunkSizeDefault;
     const uint32_t ImageUpgraderDiComm::chunkSizeMax;
 
-    ImageUpgraderDiComm::ImageUpgraderDiComm(const char* targetName, Decryptor& decryptor, DiComm& diComm, hal::TimeKeeper& timeKeeper)
+    ImageUpgraderDiComm::ImageUpgraderDiComm(const char* targetName, Decryptor& decryptor, DiComm& diComm, hal::TimeKeeper& timeKeeperTimeout, hal::TimeKeeper& timeKeeperPollDelay)
         : ImageUpgrader(targetName, decryptor)
         , diComm(diComm)
-        , timeKeeper(timeKeeper)
+        , timeKeeperTimeout(timeKeeperTimeout)
+        , timeKeeperPollDelay(timeKeeperPollDelay)
     {}
 
     uint32_t ImageUpgraderDiComm::Upgrade(hal::SynchronousFlash& flash, uint32_t imageAddress, uint32_t imageSize, uint32_t destinationAddress)
@@ -20,6 +21,7 @@ namespace application
             && InitializeProperties()
             && PrepareDownload(imageSize)
             && SendFirmware(flash, imageAddress, imageSize)
+            && WaitForProgrammingCompletion()
             && InitializeProtocol()
             && WaitForState("idle"))
             return 0;
@@ -29,13 +31,13 @@ namespace application
 
     bool ImageUpgraderDiComm::InitializeProtocol()
     {
-        timeKeeper.Reset();
+        timeKeeperTimeout.Reset();
         
         do
         {
             if (diComm.Initialize())
                 return true;
-        } while (!timeKeeper.Timeout());
+        } while (!timeKeeperTimeout.Timeout());
         
         return false;
     }
@@ -81,9 +83,45 @@ namespace application
         return writer.SendFirmware();
     }
 
+    void ImageUpgraderDiComm::PollDelay()
+    {
+        timeKeeperPollDelay.Reset();
+        while (!timeKeeperPollDelay.Timeout()) {}
+    }
+
+    bool ImageUpgraderDiComm::WaitForProgrammingCompletion()
+    {
+        timeKeeperTimeout.Reset();
+
+        do
+        {
+            infra::BoundedString::WithStorage<256> firmwarePropertiesString;
+            infra::JsonObject firmwareProperties(firmwarePropertiesString);
+
+            if (diComm.GetProps("firmware", firmwarePropertiesString))
+            {
+                firmwareProperties = infra::JsonObject(firmwarePropertiesString);
+                infra::BoundedConstString state = firmwareProperties.GetString("state");
+
+                if (state == "error")
+                    return false;
+
+                if (state != "checking" && state != "ready" && state != "programming")
+                    return true;
+
+                PollDelay();
+            }
+            else
+                return true;
+
+        } while (!timeKeeperTimeout.Timeout());
+        
+        return false;
+    }
+
     bool ImageUpgraderDiComm::WaitForState(infra::BoundedConstString expectedState)
     {
-        timeKeeper.Reset();
+        timeKeeperTimeout.Reset();
 
         do
         {
@@ -99,8 +137,10 @@ namespace application
 
                 if (state == expectedState)
                     return true;
+
+                PollDelay();
             }
-        } while (!timeKeeper.Timeout());
+        } while (!timeKeeperTimeout.Timeout());
 
         return false;
     }
