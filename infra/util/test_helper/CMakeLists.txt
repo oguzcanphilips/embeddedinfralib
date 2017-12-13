@@ -1,7 +1,7 @@
 ccola_component(util_test_helper win: source other: skip)
 
 	ccola_sources(
-		BoundedStringMatcher.hpp
+		InfraUtilMatchers.hpp
 		MockCallback.hpp
 		MockHelpers.hpp
 		MonitoredConstructionObject.hpp
