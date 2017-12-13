@@ -5,8 +5,6 @@
 #include "infra/util/BoundedString.hpp"
 #include "infra/util/ByteRange.hpp"
 #include "infra/util/Optional.hpp"
-#include <cstdlib>
-#include <string>
 #include <type_traits>
 
 namespace infra
@@ -54,14 +52,11 @@ namespace infra
       : public StreamWriter
     {
     public:
-        StreamWriterDummy(std::size_t dummySize);
+        StreamWriterDummy();
 
         virtual void Insert(ConstByteRange range);
         virtual void Insert(uint8_t element);
         virtual std::size_t Available() const;
-
-    private:
-        std::size_t availableSize;
     };
 
     class OutputStream
