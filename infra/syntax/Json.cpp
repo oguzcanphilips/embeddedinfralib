@@ -307,7 +307,7 @@ namespace infra
         infra::BoundedConstString integer = objectString.substr(tokenStart, parseIndex - tokenStart);
 
         int32_t value = 0;
-        for (int index = sign ? 1 : 0; index < integer.size(); ++index)
+        for (std::size_t index = sign ? 1 : 0; index < integer.size(); ++index)
             value = value * 10 + integer[index] - '0';
 
         if (sign)
