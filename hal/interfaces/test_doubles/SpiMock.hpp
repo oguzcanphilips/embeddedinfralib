@@ -49,6 +49,7 @@ namespace hal
         virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, const infra::Function<void()>& onDone) override;
 
         MOCK_METHOD3(SendAndReceiveMock, void(std::vector<uint8_t> sendData, infra::ByteRange receiveData, const infra::Function<void()>& onDone));
+        MOCK_METHOD0(CancelTransmission, bool());
     };
 
     class ChipSelectConfiguratorMock

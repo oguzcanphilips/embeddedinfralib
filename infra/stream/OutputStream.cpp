@@ -1,5 +1,6 @@
 #include "infra/stream/OutputStream.hpp"
 #include <cmath>
+#include <limits>
 
 namespace infra
 {
@@ -57,8 +58,7 @@ namespace infra
         checkedFail = failureMode != FailureMode::soft;
     }
 
-    StreamWriterDummy::StreamWriterDummy(std::size_t dummySize)
-        : availableSize(dummySize)
+    StreamWriterDummy::StreamWriterDummy()
     {}
 
     void StreamWriterDummy::Insert(ConstByteRange range)
@@ -69,7 +69,7 @@ namespace infra
 
     std::size_t StreamWriterDummy::Available() const
     {
-        return availableSize;
+        return std::numeric_limits<std::size_t>::max();
     }
 
     OutputStream::OutputStream(StreamWriter& writer)

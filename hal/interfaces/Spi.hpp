@@ -55,6 +55,7 @@ namespace hal
 
     public:
         virtual void SendAndReceive(infra::ConstByteRange sendData, infra::ByteRange receiveData, const infra::Function<void()>& onDone) = 0;
+        virtual bool CancelTransmission() = 0;
     };
 }
 

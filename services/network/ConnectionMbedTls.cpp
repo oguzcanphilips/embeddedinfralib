@@ -162,8 +162,7 @@ namespace services
     void ConnectionMbedTls::ClosingConnection()
     {
         encryptedSendStream = nullptr;
-        if (HasObserver())
-        	GetObserver().ClosingConnection();
+        ResetOwnership();
     }
 
     void ConnectionMbedTls::RequestSendStream(std::size_t sendSize)
