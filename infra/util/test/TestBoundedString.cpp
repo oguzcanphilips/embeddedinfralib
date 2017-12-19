@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "infra/util/BoundedString.hpp"
+#include "infra/util/ByteRange.hpp"
 
 TEST(BoundedStringTest, TestConstructedEmpty)
 {
@@ -653,7 +654,7 @@ TEST(BoundedStringTest, TestByteRangeAsString)
 	infra::MemoryRange<const uint8_t> byteRange2(data);
 
 	const auto boudedString = ByteRangeAsString(byteRange);
-	const auto boundedConstString = ConstByteRangeAsString(byteRange);
+	const auto boundedConstString = ByteRangeAsString(infra::ConstByteRange(byteRange));
 
 	EXPECT_EQ(boudedString[0], 's');
 	EXPECT_EQ(boudedString[1], 't');
