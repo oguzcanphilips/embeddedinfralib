@@ -63,3 +63,14 @@ TEST(SharedOptionalTest, NotifyingSharedPtr_notifies_after_becoming_allocatable)
     EXPECT_CALL(callback, callback());
     wp = nullptr;
 }
+
+TEST(SharedOptionalTest, change_callback_on_NotifyingSharedPtr)
+{
+    infra::MockCallback<void()> callback;
+    infra::NotifyingSharedOptional<int> s;
+    s.OnAllocatable([&callback]() { callback.callback(); });
+
+    infra::SharedPtr<int> p = s.Emplace(5);
+    EXPECT_CALL(callback, callback());
+    p = nullptr;
+}
