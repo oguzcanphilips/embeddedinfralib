@@ -6,6 +6,7 @@
 namespace services
 {
     using IPv4Address = std::array<uint8_t, 4>;
+    using IPv6Address = std::array<uint16_t, 8>;
 
     IPv4Address IPv4AddressLocalHost();
 

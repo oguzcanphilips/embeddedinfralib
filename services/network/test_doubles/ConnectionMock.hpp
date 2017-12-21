@@ -45,7 +45,7 @@ namespace services
 
         MOCK_METHOD1(ListenMock, infra::SharedPtr<void>(uint16_t));
 
-        void NewConnection(Connection& connection);
+        void NewConnection(Connection& connection, services::IPv4Address ipv4Address);
 
     private:
         ServerConnectionObserverFactory* serverConnectionObserverFactory = nullptr;
@@ -55,8 +55,8 @@ namespace services
         : public services::ServerConnectionObserverFactory
     {
     public:
-        void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) { ConnectionAcceptedMock(createdObserver.Clone()); }
-        MOCK_METHOD1(ConnectionAcceptedMock, void(infra::Function<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver));
+        void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver, services::IPv4Address ipv4Address) { ConnectionAcceptedMock(createdObserver.Clone(), ipv4Address); }
+        MOCK_METHOD2(ConnectionAcceptedMock, void(infra::Function<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver, services::IPv4Address ipv4Address));
     };
 
     class ClientConnectionObserverFactoryMock

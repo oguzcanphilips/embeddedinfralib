@@ -59,8 +59,6 @@ namespace services
         virtual void CloseAndDestroy() override;
         virtual void AbortAndDestroy() override;
 
-        virtual IPv4Address Ipv4Address() const override;
-
         virtual void TlsInitFailure(int reason);
         virtual void TlsReadFailure(int reason);
         virtual void TlsWriteFailure(int reason);
@@ -152,7 +150,7 @@ namespace services
         ConnectionMbedTlsListener(AllocatorConnectionMbedTls& allocator, ServerConnectionObserverFactory& factory,
             MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_cache_context& serverCache);
 
-        virtual void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) override;
+        virtual void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver, services::IPv4Address ipv4Address) override;
 
         void SetListener(infra::SharedPtr<void> listener);
 
