@@ -7,7 +7,6 @@
 #include "infra/util/ByteRange.hpp"
 #include "infra/util/SharedObjectAllocatorFixedSize.hpp"
 #include "infra/util/SharedOptional.hpp"
-#include "infra/util/Variant.hpp"
 #include "infra/util/WithStorage.hpp"
 #include "lwip/tcp.h"
 #include "services/network/Address.hpp"
@@ -17,7 +16,6 @@ namespace services
 {
     using GenericServerConnectionFactory = infra::Variant<ServerConnectionObserverFactory*, ServerConnectionIPv6ObserverFactory*>;
     using GenericClientConnectionFactory = infra::Variant<ClientConnectionObserverFactory*, ClientConnectionIPv6ObserverFactory*>;
-    using GenericAddress = infra::Variant<IPv4Address, IPv6Address>;
 
     class ConnectionLwIp
         : public services::Connection
@@ -126,7 +124,7 @@ namespace services
     class ConnectorLwIp
     {
     public:
-        ConnectorLwIp(AllocatorConnectionLwIp& allocator, GenericAddress address, uint16_t port, GenericClientConnectionFactory factory);
+        ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPAddress address, uint16_t port, GenericClientConnectionFactory factory);
         ~ConnectorLwIp();
 
     private:
@@ -141,7 +139,7 @@ namespace services
         tcp_pcb* control;
     };
 
-    using AllocatorConnectorLwIp = infra::SharedObjectAllocator<ConnectorLwIp, void(AllocatorConnectionLwIp& allocator, GenericAddress address, uint16_t port, GenericClientConnectionFactory factory)>;
+    using AllocatorConnectorLwIp = infra::SharedObjectAllocator<ConnectorLwIp, void(AllocatorConnectionLwIp& allocator, IPAddress address, uint16_t port, GenericClientConnectionFactory factory)>;
 
     class ConnectionFactoryLwIp
         : public ConnectionFactory

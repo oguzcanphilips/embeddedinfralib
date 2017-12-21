@@ -352,7 +352,7 @@ namespace services
         }
     }
 
-    ConnectorLwIp::ConnectorLwIp(AllocatorConnectionLwIp& allocator, GenericAddress address, uint16_t port, GenericClientConnectionFactory factory)
+    ConnectorLwIp::ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPAddress address, uint16_t port, GenericClientConnectionFactory factory)
         : allocator(allocator)
         , factory(factory)
         , control(tcp_new())

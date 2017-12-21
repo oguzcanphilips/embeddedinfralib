@@ -18,7 +18,7 @@ namespace services
         , public infra::EnableSharedFromThis<DatagramSenderPeerLwIp>
     {
     public:
-        DatagramSenderPeerLwIp(DatagramSenderObserver& sender, GenericAddress address, uint16_t port);
+        DatagramSenderPeerLwIp(DatagramSenderObserver& sender, IPAddress address, uint16_t port);
         ~DatagramSenderPeerLwIp();
 
         virtual void RequestSendStream(std::size_t sendSize) override;
@@ -94,7 +94,7 @@ namespace services
         udp_pcb* control;
     };
 
-    using AllocatorDatagramSenderPeerLwIp = infra::SharedObjectAllocator<DatagramSenderPeerLwIp, void(DatagramSenderObserver& sender, GenericAddress address, uint16_t port)>;
+    using AllocatorDatagramSenderPeerLwIp = infra::SharedObjectAllocator<DatagramSenderPeerLwIp, void(DatagramSenderObserver& sender, IPAddress address, uint16_t port)>;
 
     class DatagramReceiverPeerLwIp
     {
