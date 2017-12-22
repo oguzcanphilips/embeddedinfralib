@@ -548,4 +548,120 @@ namespace services
 
         return nullptr;
     }
+
+    ConnectionIPv6MbedTlsListener::ConnectionIPv6MbedTlsListener(AllocatorConnectionMbedTls& allocator, ServerConnectionIPv6ObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_cache_context& serverCache)
+        : allocator(allocator)
+        , factory(factory)
+        , certificates(certificates)
+        , randomDataGenerator(randomDataGenerator)
+        , serverCache(serverCache)
+    {}
+
+    void ConnectionIPv6MbedTlsListener::ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver, services::IPv6Address address)
+    {
+        infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> creationFailed = createdObserver.Clone();
+        infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(std::move(createdObserver), certificates, randomDataGenerator, true, &serverCache, nullptr);
+        if (connection)
+        {
+            factory.ConnectionAccepted([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
+            {
+                connection->CreatedObserver(connectionObserver);
+            }, address);
+        }
+        else
+            creationFailed(nullptr);
+    }
+
+    void ConnectionIPv6MbedTlsListener::SetListener(infra::SharedPtr<void> listener)
+    {
+        this->listener = listener;
+    }
+
+    ConnectionIPv6MbedTlsConnector::ConnectionIPv6MbedTlsConnector(AllocatorConnectionMbedTls& allocator, ClientConnectionIPv6ObserverFactory& factory,
+        MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_session& clientSession)
+        : allocator(allocator)
+        , factory(factory)
+        , certificates(certificates)
+        , randomDataGenerator(randomDataGenerator)
+        , clientSession(clientSession)
+    {}
+
+    void ConnectionIPv6MbedTlsConnector::ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver)
+    {
+        infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> creationFailed = createdObserver.Clone();
+        infra::SharedPtr<ConnectionMbedTls> connection = allocator.Allocate(std::move(createdObserver), certificates, randomDataGenerator, false, nullptr, &clientSession);
+        if (connection)
+        {
+            factory.ConnectionEstablished([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
+            {
+                connection->CreatedObserver(connectionObserver);
+            });
+        }
+        else
+            creationFailed(nullptr);
+    }
+
+    void ConnectionIPv6MbedTlsConnector::ConnectionFailed(ConnectFailReason reason)
+    {
+        factory.ConnectionFailed(reason);
+    }
+
+    void ConnectionIPv6MbedTlsConnector::SetConnector(infra::SharedPtr<void> connector)
+    {
+        this->connector = connector;
+    }
+
+    ConnectionIPv6FactoryMbedTls::ConnectionIPv6FactoryMbedTls(AllocatorConnectionMbedTls& connectionAllocator,
+        AllocatorConnectionIPv6MbedTlsListener& listenerAllocator, AllocatorConnectionIPv6MbedTlsConnector& connectorAllocator,
+        ConnectionIPv6Factory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)
+        : connectionAllocator(connectionAllocator)
+        , listenerAllocator(listenerAllocator)
+        , connectorAllocator(connectorAllocator)
+        , factory(factory)
+        , certificates(certificates)
+        , randomDataGenerator(randomDataGenerator)
+    {
+        mbedtls2_ssl_cache_init(&serverCache);
+        mbedtls2_ssl_session_init(&clientSession);
+    }
+
+    ConnectionIPv6FactoryMbedTls::~ConnectionIPv6FactoryMbedTls()
+    {
+        mbedtls2_ssl_cache_free(&serverCache);
+        mbedtls2_ssl_session_free(&clientSession);
+    }
+
+    infra::SharedPtr<void> ConnectionIPv6FactoryMbedTls::Listen(uint16_t port, ServerConnectionIPv6ObserverFactory& connectionObserverFactory)
+    {
+        infra::SharedPtr<ConnectionIPv6MbedTlsListener> listener = listenerAllocator.Allocate(connectionAllocator, connectionObserverFactory, certificates, randomDataGenerator, serverCache);
+
+        if (listener)
+        {
+            infra::SharedPtr<void> networkListener = factory.Listen(port, *listener);
+            if (networkListener)
+            {
+                listener->SetListener(networkListener);
+                return listener;
+            }
+        }
+
+        return nullptr;
+    }
+
+    infra::SharedPtr<void> ConnectionIPv6FactoryMbedTls::Connect(IPv6Address address, uint16_t port, ClientConnectionIPv6ObserverFactory& connectionObserverFactory)
+    {
+        infra::SharedPtr<ConnectionIPv6MbedTlsConnector> connector = connectorAllocator.Allocate(connectionAllocator, connectionObserverFactory, certificates, randomDataGenerator, clientSession);
+
+        if (connector)
+        {
+            infra::SharedPtr<void> networkConnector = factory.Connect(address, port, *connector);
+            if (networkConnector)
+            {
+                connector->SetConnector(networkConnector);
+                return connector;
+            }
+        }
+
+        return nullptr;
+    }
 }
