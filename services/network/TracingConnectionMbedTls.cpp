@@ -64,4 +64,13 @@ namespace services
         tracer.Trace() << "TracingConnectionFactoryMbedTls::TracingConnectionFactoryMbedTls()";
         mbedtls2_debug_set_threshold(level);
     }
+
+    TracingConnectionIPv6FactoryMbedTls::TracingConnectionIPv6FactoryMbedTls(AllocatorTracingConnectionMbedTls& connectionAllocator, AllocatorConnectionIPv6MbedTlsListener& listenerAllocator, AllocatorConnectionIPv6MbedTlsConnector& connectorAllocator,
+        ConnectionIPv6Factory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, Tracer& tracer, DebugLevel level)
+        : ConnectionIPv6FactoryMbedTls(allocatorAdapter, listenerAllocator, connectorAllocator, factory, certificates, randomDataGenerator)
+        , allocatorAdapter(connectionAllocator, tracer)
+    {
+        tracer.Trace() << "TracingConnectionIPv6FactoryMbedTls::TracingConnectionIPv6FactoryMbedTls()";
+        mbedtls2_debug_set_threshold(level);
+    }
 }

@@ -8,17 +8,33 @@ namespace services
         return ListenMock(port);
     }
 
-    void ConnectionFactoryMock::NewConnection(Connection& connection, services::IPv4Address ipv4Address)
+    void ConnectionFactoryMock::NewConnection(Connection& connection, services::IPv4Address address)
     {
         serverConnectionObserverFactory->ConnectionAccepted([&connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
         {
             connectionObserver->Attach(connection);
             connection.SetOwnership(nullptr, connectionObserver);
             connectionObserver->Connected();
-        }, ipv4Address);
+        }, address);
     }
 
     ConnectionObserverMock::ConnectionObserverMock(services::Connection& connection)
         : services::ConnectionObserver(connection)
     {}
+
+    infra::SharedPtr<void> ConnectionIPv6FactoryMock::Listen(uint16_t port, ServerConnectionIPv6ObserverFactory& factory)
+    {
+        this->serverConnectionObserverFactory = &factory;
+        return ListenMock(port);
+    }
+
+    void ConnectionIPv6FactoryMock::NewConnection(Connection& connection, services::IPv6Address address)
+    {
+        serverConnectionObserverFactory->ConnectionAccepted([&connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
+        {
+            connectionObserver->Attach(connection);
+            connection.SetOwnership(nullptr, connectionObserver);
+            connectionObserver->Connected();
+        }, address);
+    }
 }

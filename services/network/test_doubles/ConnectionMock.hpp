@@ -45,7 +45,7 @@ namespace services
 
         MOCK_METHOD1(ListenMock, infra::SharedPtr<void>(uint16_t));
 
-        void NewConnection(Connection& connection, services::IPv4Address ipv4Address);
+        void NewConnection(Connection& connection, services::IPv4Address address);
 
     private:
         ServerConnectionObserverFactory* serverConnectionObserverFactory = nullptr;
@@ -66,6 +66,21 @@ namespace services
         void ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) { ConnectionEstablishedMock(createdObserver.Clone()); }
         MOCK_METHOD1(ConnectionEstablishedMock, void(infra::Function<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)> createdObserver));
         MOCK_METHOD1(ConnectionFailed, void(ConnectFailReason reason));
+    };
+
+    class ConnectionIPv6FactoryMock
+        : public services::ConnectionIPv6Factory
+    {
+    public:
+        virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionIPv6ObserverFactory& factory) override;
+        MOCK_METHOD3(Connect, infra::SharedPtr<void>(services::IPv6Address address, uint16_t port, services::ClientConnectionIPv6ObserverFactory& factory));
+
+        MOCK_METHOD1(ListenMock, infra::SharedPtr<void>(uint16_t));
+
+        void NewConnection(Connection& connection, services::IPv6Address ipv4Address);
+
+    private:
+        ServerConnectionIPv6ObserverFactory* serverConnectionObserverFactory = nullptr;
     };
 }
 

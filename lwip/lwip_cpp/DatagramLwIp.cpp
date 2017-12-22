@@ -3,7 +3,7 @@
 
 namespace services
 {
-    DatagramSenderPeerLwIp::DatagramSenderPeerLwIp(DatagramSenderObserver& sender, GenericAddress address, uint16_t port)
+    DatagramSenderPeerLwIp::DatagramSenderPeerLwIp(DatagramSenderObserver& sender, IPAddress address, uint16_t port)
         : sender(sender)
         , state(infra::InPlaceType<StateIdle>(), *this)
     {

@@ -67,6 +67,33 @@ namespace services
     private:
         AllocatorTracingConnectionMbedTlsAdapter allocatorAdapter;
     };
+
+    class TracingConnectionIPv6FactoryMbedTls
+        : public ConnectionIPv6FactoryMbedTls
+    {
+    public:
+        enum DebugLevel
+        {
+            NoDebug,
+            Error,
+            StateChange,
+            Informational,
+            Verbose
+        };
+
+    public:
+        template<std::size_t MaxConnections, std::size_t MaxListeners, std::size_t MaxConnectors>
+        using WithMaxConnectionsListenersAndConnectors = infra::WithStorage<infra::WithStorage<infra::WithStorage<TracingConnectionIPv6FactoryMbedTls
+            , AllocatorTracingConnectionMbedTls::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxConnections>>
+            , AllocatorConnectionIPv6MbedTlsListener::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxListeners>>
+            , AllocatorConnectionIPv6MbedTlsConnector::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxConnectors>>;
+
+        TracingConnectionIPv6FactoryMbedTls(AllocatorTracingConnectionMbedTls& connectionAllocator, AllocatorConnectionIPv6MbedTlsListener& listenerAllocator, AllocatorConnectionIPv6MbedTlsConnector& connectorAllocator, //TICS !OLC#020
+            ConnectionIPv6Factory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, Tracer& tracer, DebugLevel level);
+
+    private:
+        AllocatorTracingConnectionMbedTlsAdapter allocatorAdapter;
+    };
 }
 
 #endif
