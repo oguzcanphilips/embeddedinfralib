@@ -52,6 +52,7 @@ namespace infra
 
         ~SingleObserver();
 
+    public:
         SubjectType& Subject() const;
         bool Attached() const;
 

@@ -1,6 +1,7 @@
 ccola_component(stream_test gmock_test)
 
 	ccola_sources(
+		StreamReaderMock.hpp
 		TestByteInputStream.cpp
 		TestByteOutputStream.cpp
 		TestLimitedInputStream.cpp

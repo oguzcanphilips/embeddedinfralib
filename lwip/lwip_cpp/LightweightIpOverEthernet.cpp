@@ -3,7 +3,9 @@
 #include "infra/event/EventDispatcher.hpp"
 #include "lwip/lwip_cpp/LightweightIpOverEthernet.hpp"
 #include "netif/etharp.h"
+#include "lwip/ethip6.h"
 #include "lwip/dhcp.h"
+#include "services/tracer/GlobalTracer.hpp"
 
 namespace services
 {
@@ -112,6 +114,31 @@ namespace services
             return ERR_MEM;
     }
 
+    err_t LightweightIpOverEthernet::SetMldMacFilter(const ip6_addr_t* group, netif_mac_filter_action action)
+    {
+        hal::MacAddress address = { 0x33, 0x33, static_cast<uint8_t>(IP6_ADDR_BLOCK7(group) >> 8), static_cast<uint8_t>(IP6_ADDR_BLOCK7(group)),
+            static_cast<uint8_t>(IP6_ADDR_BLOCK8(group) >> 8), static_cast<uint8_t>(IP6_ADDR_BLOCK8(group)) };
+
+        if (action == NETIF_ADD_MAC_FILTER)
+            Subject().AddMacAddressFilter(address);
+        else
+            Subject().RemoveMacAddressFilter(address);
+
+        return ERR_OK;
+    }
+
+    err_t LightweightIpOverEthernet::SetIgmpMacFilter(const ip4_addr_t* group, netif_mac_filter_action action)
+    {
+        hal::MacAddress address = { 0x01, 0x00, 0x5e, static_cast<uint8_t>(ip4_addr2(group) & 0x7f), ip4_addr3(group), ip4_addr4(group) };
+
+        if (action == NETIF_ADD_MAC_FILTER)
+            Subject().AddMacAddressFilter(address);
+        else
+            Subject().RemoveMacAddressFilter(address);
+
+        return ERR_OK;
+    }
+
     void LightweightIpOverEthernet::SendOneFrame()
     {
         sending = true;
@@ -141,15 +168,22 @@ namespace services
 
         if (!config.ipConfig.useDhcp)
         {
-            IP4_ADDR(&ipaddr, config.ipConfig.staticAddresses.address[0], config.ipConfig.staticAddresses.address[1], config.ipConfig.staticAddresses.address[2], config.ipConfig.staticAddresses.address[3]);
-            IP4_ADDR(&netmask, config.ipConfig.staticAddresses.netmask[0], config.ipConfig.staticAddresses.netmask[1], config.ipConfig.staticAddresses.netmask[2], config.ipConfig.staticAddresses.netmask[3]);
-            IP4_ADDR(&gw, config.ipConfig.staticAddresses.gateway[0], config.ipConfig.staticAddresses.gateway[1], config.ipConfig.staticAddresses.gateway[2], config.ipConfig.staticAddresses.gateway[3]);
+            IP4_ADDR(ip_2_ip4(&ipaddr), config.ipConfig.staticAddresses.address[0], config.ipConfig.staticAddresses.address[1], config.ipConfig.staticAddresses.address[2], config.ipConfig.staticAddresses.address[3]);
+            IP4_ADDR(ip_2_ip4(&netmask), config.ipConfig.staticAddresses.netmask[0], config.ipConfig.staticAddresses.netmask[1], config.ipConfig.staticAddresses.netmask[2], config.ipConfig.staticAddresses.netmask[3]);
+            IP4_ADDR(ip_2_ip4(&gw), config.ipConfig.staticAddresses.gateway[0], config.ipConfig.staticAddresses.gateway[1], config.ipConfig.staticAddresses.gateway[2], config.ipConfig.staticAddresses.gateway[3]);
         }
 
-        netif_add(&netInterface, &ipaddr, &netmask, &gw, this, &LightweightIpOverEthernetFactory::StaticInit, &ethernet_input);
+        netif_add(&netInterface, ip_2_ip4(&ipaddr), ip_2_ip4(&netmask), ip_2_ip4(&gw), this, &LightweightIpOverEthernetFactory::StaticInit, &ethernet_input);
         netif_set_default(&netInterface);
 
         netif_set_hostname(&netInterface, config.hostName);
+
+        netif_set_ip6_autoconfig_enabled(&netInterface, 1);
+        netif_create_ip6_linklocal_address(&netInterface, 1);
+        netif_ip6_addr_set_state(&netInterface, 0, IP6_ADDR_TENTATIVE);
+
+        netif_set_mld_mac_filter(&netInterface, &LightweightIpOverEthernetFactory::StaticSetMldMacFilter);
+        netif_set_igmp_mac_filter(&netInterface, &LightweightIpOverEthernetFactory::StaticSetIgmpMacFilter);
 
         if (config.ipConfig.useDhcp)
             dhcp_start(&netInterface);
@@ -183,6 +217,7 @@ namespace services
         netInterface.name[1] = config.ifName[1];
 
         netInterface.output = etharp_output;
+        netInterface.output_ip6 = ethip6_output;
         netInterface.linkoutput = &LightweightIpOverEthernetFactory::StaticOutput;
 
         netInterface.hwaddr_len = static_cast<uint8_t>(macAddress.size());
@@ -207,6 +242,22 @@ namespace services
             return ERR_IF;
     }
 
+    err_t LightweightIpOverEthernetFactory::SetMldMacFilter(netif* netif, const ip6_addr_t* group, netif_mac_filter_action action)
+    {
+        if (ethernetStack)
+            return ethernetStack->SetMldMacFilter(group, action);
+        else
+            return ERR_IF;
+    }
+
+    err_t LightweightIpOverEthernetFactory::SetIgmpMacFilter(netif* netif, const ip4_addr_t* group, netif_mac_filter_action action)
+    {
+        if (ethernetStack)
+            return ethernetStack->SetIgmpMacFilter(group, action);
+        else
+            return ERR_IF;
+    }
+
     err_t LightweightIpOverEthernetFactory::StaticOutput(netif* netif, pbuf* buffer)
     {
         return static_cast<LightweightIpOverEthernetFactory*>(netif->state)->Output(buffer);
@@ -215,5 +266,15 @@ namespace services
     err_t LightweightIpOverEthernetFactory::StaticInit(netif* netif)
     {
         return static_cast<LightweightIpOverEthernetFactory*>(netif->state)->Init();
+    }
+
+    err_t LightweightIpOverEthernetFactory::StaticSetMldMacFilter(netif* netif, const ip6_addr_t* group, netif_mac_filter_action action)
+    {
+        return static_cast<LightweightIpOverEthernetFactory*>(netif->state)->SetMldMacFilter(netif, group, action);
+    }
+
+    err_t LightweightIpOverEthernetFactory::StaticSetIgmpMacFilter(netif* netif, const ip4_addr_t* group, netif_mac_filter_action action)
+    {
+        return static_cast<LightweightIpOverEthernetFactory*>(netif->state)->SetIgmpMacFilter(netif, group, action);
     }
 }

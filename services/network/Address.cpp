@@ -8,6 +8,11 @@ namespace services
         return IPv4Address{ 127, 0, 0, 1 };
     }
 
+    IPv6Address IPv6AddressLocalHost()
+    {
+        return IPv6Address{ 0, 0, 0, 0, 0, 0, 0, 1 };
+    }
+
     bool IPv4InterfaceAddresses::operator==(const IPv4InterfaceAddresses& other) const
     {
         return infra::Equals()

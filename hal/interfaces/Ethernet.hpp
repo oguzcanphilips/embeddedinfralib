@@ -56,6 +56,9 @@ namespace hal
     public:
         virtual void SendBuffer(infra::ConstByteRange data, bool last) = 0;
         virtual void RetryAllocation() = 0;
+
+        virtual void AddMacAddressFilter(MacAddress address) = 0;
+        virtual void RemoveMacAddressFilter(MacAddress address) = 0;
     };
 }
 

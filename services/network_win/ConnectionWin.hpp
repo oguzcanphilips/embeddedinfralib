@@ -29,8 +29,8 @@ namespace services
         virtual void AckReceived() override;
         virtual void CloseAndDestroy() override;
         virtual void AbortAndDestroy() override;
-        virtual IPv4Address Ipv4Address() const override;
-
+        
+        IPv4Address Ipv4Address() const;
         void SetObserver(infra::SharedPtr<services::ConnectionObserver> connectionObserver);
 
         bool ReadyToReceive() const;

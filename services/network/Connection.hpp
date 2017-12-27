@@ -56,8 +56,6 @@ namespace services
         virtual void CloseAndDestroy() = 0;
         virtual void AbortAndDestroy() = 0;
 
-        virtual IPv4Address Ipv4Address() const = 0;
-
         void SwitchObserver(const infra::SharedPtr<ConnectionObserver>& newObserver);
         void SetOwnership(const infra::SharedPtr<void>& owner, const infra::SharedPtr<ConnectionObserver>& observer);
         void ResetOwnership();
@@ -76,7 +74,7 @@ namespace services
         ~ServerConnectionObserverFactory() = default;
 
     public:
-        virtual void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) = 0;
+        virtual void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver, IPv4Address address) = 0;
     };
 
     class ClientConnectionObserverFactory
@@ -109,6 +107,50 @@ namespace services
     public:
         virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionObserverFactory& factory) = 0;
         virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory) = 0;
+    };
+
+    class ServerConnectionIPv6ObserverFactory
+    {
+    protected:
+        ServerConnectionIPv6ObserverFactory() = default;
+        ServerConnectionIPv6ObserverFactory(const ServerConnectionIPv6ObserverFactory& other) = delete;
+        ServerConnectionIPv6ObserverFactory& operator=(const ServerConnectionIPv6ObserverFactory& other) = delete;
+        ~ServerConnectionIPv6ObserverFactory() = default;
+
+    public:
+        virtual void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver, IPv6Address address) = 0;
+    };
+
+    class ClientConnectionIPv6ObserverFactory
+    {
+    protected:
+        ClientConnectionIPv6ObserverFactory() = default;
+        ClientConnectionIPv6ObserverFactory(const ClientConnectionIPv6ObserverFactory& other) = delete;
+        ClientConnectionIPv6ObserverFactory& operator=(const ClientConnectionIPv6ObserverFactory& other) = delete;
+        ~ClientConnectionIPv6ObserverFactory() = default;
+
+    public:
+        enum ConnectFailReason
+        {
+            refused,
+            connectionAllocationFailed
+        };
+
+        virtual void ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) = 0;
+        virtual void ConnectionFailed(ConnectFailReason reason) = 0;
+    };
+
+    class ConnectionIPv6Factory
+    {
+    protected:
+        ConnectionIPv6Factory() = default;
+        ConnectionIPv6Factory(const ConnectionIPv6Factory& other) = delete;
+        ConnectionIPv6Factory& operator=(const ConnectionIPv6Factory& other) = delete;
+        ~ConnectionIPv6Factory() = default;
+
+    public:
+        virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionIPv6ObserverFactory& factory) = 0;
+        virtual infra::SharedPtr<void> Connect(IPv6Address address, uint16_t port, ClientConnectionIPv6ObserverFactory& factory) = 0;
     };
 
     static const uint32_t ethernetMtu = 1500;

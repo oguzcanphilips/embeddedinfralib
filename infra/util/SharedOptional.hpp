@@ -45,7 +45,10 @@ namespace infra
         : public SharedOptional<T>
     {
     public:
+        NotifyingSharedOptional() = default;
         explicit NotifyingSharedOptional(infra::Function<void()> onAllocatable);
+
+        void OnAllocatable(infra::Function<void()> newOnAllocatable);
 
     protected:
         virtual void Deallocate(void* control) override;
@@ -135,6 +138,12 @@ namespace infra
     NotifyingSharedOptional<T>::NotifyingSharedOptional(infra::Function<void()> onAllocatable)
         : onAllocatable(onAllocatable)
     {}
+
+    template<class T>
+    void NotifyingSharedOptional<T>::OnAllocatable(infra::Function<void()> newOnAllocatable)
+    {
+        onAllocatable = newOnAllocatable;
+    }
 
     template<class T>
     void NotifyingSharedOptional<T>::Deallocate(void* control)

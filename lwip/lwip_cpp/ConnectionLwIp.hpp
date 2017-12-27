@@ -14,6 +14,9 @@
 
 namespace services
 {
+    using GenericServerConnectionFactory = infra::Variant<ServerConnectionObserverFactory*, ServerConnectionIPv6ObserverFactory*>;
+    using GenericClientConnectionFactory = infra::Variant<ClientConnectionObserverFactory*, ClientConnectionIPv6ObserverFactory*>;
+
     class ConnectionLwIp
         : public services::Connection
         , public infra::EnableSharedFromThis<ConnectionLwIp>
@@ -28,7 +31,9 @@ namespace services
         virtual void AckReceived() override;
         virtual void CloseAndDestroy() override;
         virtual void AbortAndDestroy() override;
-        virtual IPv4Address Ipv4Address() const override;
+        
+        IPv4Address Ipv4Address() const;
+        IPv6Address Ipv6Address() const;
 
     private:
         void SendBuffer(infra::ConstByteRange buffer);
@@ -100,7 +105,7 @@ namespace services
         template<std::size_t Size>
             using WithFixedAllocator = infra::WithStorage<ListenerLwIp, AllocatorConnectionLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<Size>>;
 
-        ListenerLwIp(AllocatorConnectionLwIp& allocator, uint16_t port, ServerConnectionObserverFactory& factory);
+        ListenerLwIp(AllocatorConnectionLwIp& allocator, uint16_t port, GenericServerConnectionFactory factory);
         ~ListenerLwIp();
 
     private:
@@ -111,15 +116,15 @@ namespace services
     private:
         AllocatorConnectionLwIp& allocator;
         tcp_pcb* listenPort;
-        ServerConnectionObserverFactory& factory;
+        GenericServerConnectionFactory factory;
     };
 
-    using AllocatorListenerLwIp = infra::SharedObjectAllocator<ListenerLwIp, void(AllocatorConnectionLwIp&, uint16_t, ServerConnectionObserverFactory&)>;
+    using AllocatorListenerLwIp = infra::SharedObjectAllocator<ListenerLwIp, void(AllocatorConnectionLwIp&, uint16_t, GenericServerConnectionFactory)>;
 
     class ConnectorLwIp
     {
     public:
-        ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory);
+        ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPAddress address, uint16_t port, GenericClientConnectionFactory factory);
         ~ConnectorLwIp();
 
     private:
@@ -130,14 +135,15 @@ namespace services
 
     private:
         AllocatorConnectionLwIp& allocator;
-        ClientConnectionObserverFactory& factory;
+        GenericClientConnectionFactory factory;
         tcp_pcb* control;
     };
 
-    using AllocatorConnectorLwIp = infra::SharedObjectAllocator<ConnectorLwIp, void(AllocatorConnectionLwIp& allocator, IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory)>;
+    using AllocatorConnectorLwIp = infra::SharedObjectAllocator<ConnectorLwIp, void(AllocatorConnectionLwIp& allocator, IPAddress address, uint16_t port, GenericClientConnectionFactory factory)>;
 
     class ConnectionFactoryLwIp
         : public ConnectionFactory
+        , public ConnectionIPv6Factory
     {
     public:
         template<std::size_t MaxListeners, std::size_t MaxConnectors, std::size_t MaxConnections>
@@ -151,6 +157,8 @@ namespace services
 
         virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionObserverFactory& factory) override;
         virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory) override;
+        virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionIPv6ObserverFactory& factory) override;
+        virtual infra::SharedPtr<void> Connect(IPv6Address address, uint16_t port, ClientConnectionIPv6ObserverFactory& factory) override;
 
     private:
         AllocatorListenerLwIp& listenerAllocator;

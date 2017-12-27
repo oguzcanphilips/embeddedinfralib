@@ -68,10 +68,24 @@ namespace services
     IPv4Address ConnectionLwIp::Ipv4Address() const
     {
         return IPv4Address{
-            static_cast<uint8_t>(ip_addr_get_ip4_u32(&control->remote_ip) >> 24),
-            static_cast<uint8_t>(ip_addr_get_ip4_u32(&control->remote_ip) >> 16),
-            static_cast<uint8_t>(ip_addr_get_ip4_u32(&control->remote_ip) >> 8),
-            static_cast<uint8_t>(ip_addr_get_ip4_u32(&control->remote_ip))
+            ip4_addr1(ip_2_ip4(&control->remote_ip)),
+            ip4_addr2(ip_2_ip4(&control->remote_ip)),
+            ip4_addr3(ip_2_ip4(&control->remote_ip)),
+            ip4_addr4(ip_2_ip4(&control->remote_ip))
+        };
+    }
+
+    IPv6Address ConnectionLwIp::Ipv6Address() const
+    {
+        return IPv6Address{
+            IP6_ADDR_BLOCK1(ip_2_ip6(&control->remote_ip)),
+            IP6_ADDR_BLOCK2(ip_2_ip6(&control->remote_ip)),
+            IP6_ADDR_BLOCK3(ip_2_ip6(&control->remote_ip)),
+            IP6_ADDR_BLOCK4(ip_2_ip6(&control->remote_ip)),
+            IP6_ADDR_BLOCK5(ip_2_ip6(&control->remote_ip)),
+            IP6_ADDR_BLOCK6(ip_2_ip6(&control->remote_ip)),
+            IP6_ADDR_BLOCK7(ip_2_ip6(&control->remote_ip)),
+            IP6_ADDR_BLOCK8(ip_2_ip6(&control->remote_ip))
         };
     }
 
@@ -270,13 +284,16 @@ namespace services
         return connection.receiveBuffer.size() - sizeRead;
     }
 
-    ListenerLwIp::ListenerLwIp(AllocatorConnectionLwIp& allocator, uint16_t port, ServerConnectionObserverFactory& factory)
+    ListenerLwIp::ListenerLwIp(AllocatorConnectionLwIp& allocator, uint16_t port, GenericServerConnectionFactory factory)
         : allocator(allocator)
         , factory(factory)
     {
         tcp_pcb* pcb = tcp_new();
         assert(pcb != nullptr);
-        err_t err = tcp_bind(pcb, IP_ADDR_ANY, port);
+        if (factory.Is<ServerConnectionObserverFactory*>())
+            err_t err = tcp_bind(pcb, IP4_ADDR_ANY, port);
+        else
+            err_t err = tcp_bind(pcb, IP6_ADDR_ANY, port);
         listenPort = tcp_listen(pcb);
         assert(listenPort != nullptr);
         tcp_accept(listenPort, &ListenerLwIp::Accept);
@@ -299,15 +316,27 @@ namespace services
         infra::SharedPtr<ConnectionLwIp> connection = allocator.Allocate(newPcb);
         if (connection)
         {
-            factory.ConnectionAccepted([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
-            {
-                if (connectionObserver)
+            if (factory.Is<ServerConnectionObserverFactory*>())
+                factory.Get<ServerConnectionObserverFactory*>()->ConnectionAccepted([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
                 {
-                    connectionObserver->Attach(*connection);
-                    connection->SetOwnership(connection, connectionObserver);
-                    connectionObserver->Connected();
-                }
-            });
+                    if (connectionObserver)
+                    {
+                        connectionObserver->Attach(*connection);
+                        connection->SetOwnership(connection, connectionObserver);
+                        connectionObserver->Connected();
+                    }
+                }, connection->Ipv4Address());
+            else
+                factory.Get<ServerConnectionIPv6ObserverFactory*>()->ConnectionAccepted([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
+                {
+                    if (connectionObserver)
+                    {
+                        connectionObserver->Attach(*connection);
+                        connection->SetOwnership(connection, connectionObserver);
+                        connectionObserver->Connected();
+                    }
+                }, connection->Ipv6Address());
+
 
             infra::WeakPtr<ConnectionLwIp> weakConnection = connection;
             connection = nullptr;
@@ -323,7 +352,7 @@ namespace services
         }
     }
 
-    ConnectorLwIp::ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory)
+    ConnectorLwIp::ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPAddress address, uint16_t port, GenericClientConnectionFactory factory)
         : allocator(allocator)
         , factory(factory)
         , control(tcp_new())
@@ -331,10 +360,22 @@ namespace services
         tcp_arg(control, this);
         tcp_err(control, &ConnectorLwIp::StaticError);
 
-        ip_addr_t ipAddress;
-        IP4_ADDR(&ipAddress, address[0], address[1], address[2], address[3]);
-        err_t result = tcp_connect(control, &ipAddress, port, &ConnectorLwIp::StaticConnected);
-        assert(result == ERR_OK);
+        if (address.Is<IPv4Address>())
+        {
+            IPv4Address ipv4Address = address.Get<IPv4Address>();
+            ip_addr_t ipAddress IPADDR4_INIT(0);
+            IP4_ADDR(&ipAddress.u_addr.ip4, ipv4Address[0], ipv4Address[1], ipv4Address[2], ipv4Address[3]);
+            err_t result = tcp_connect(control, &ipAddress, port, &ConnectorLwIp::StaticConnected);
+            assert(result == ERR_OK);
+        }
+        else
+        {
+            IPv6Address ipv6Address = address.Get<IPv6Address>();
+            ip_addr_t ipAddress IPADDR6_INIT(0, 0, 0, 0);
+            IP6_ADDR(&ipAddress.u_addr.ip6, PP_HTONL(ipv6Address[1] + (static_cast<uint32_t>(ipv6Address[0]) << 16)), PP_HTONL(ipv6Address[3] + (static_cast<uint32_t>(ipv6Address[2]) << 16)), PP_HTONL(ipv6Address[5] + (static_cast<uint32_t>(ipv6Address[4]) << 16)), PP_HTONL(ipv6Address[7] + (static_cast<uint32_t>(ipv6Address[6]) << 16)));
+            err_t result = tcp_connect(control, &ipAddress, port, &ConnectorLwIp::StaticConnected);
+            assert(result == ERR_OK);
+        }
     }
 
     ConnectorLwIp::~ConnectorLwIp()
@@ -362,15 +403,26 @@ namespace services
         if (connection)
         {
             control = nullptr;
-            factory.ConnectionEstablished([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
-            {
-                if (connectionObserver)
+            if (factory.Is<ClientConnectionObserverFactory*>())
+                factory.Get<ClientConnectionObserverFactory*>()->ConnectionEstablished([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
                 {
-                    connectionObserver->Attach(*connection);
-                    connection->SetOwnership(connection, connectionObserver);
-                    connectionObserver->Connected();
-                }
-            });
+                    if (connectionObserver)
+                    {
+                        connectionObserver->Attach(*connection);
+                        connection->SetOwnership(connection, connectionObserver);
+                        connectionObserver->Connected();
+                    }
+                });
+            else
+                factory.Get<ClientConnectionIPv6ObserverFactory*>()->ConnectionEstablished([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
+                {
+                    if (connectionObserver)
+                    {
+                        connectionObserver->Attach(*connection);
+                        connection->SetOwnership(connection, connectionObserver);
+                        connectionObserver->Connected();
+                    }
+                });
 
             infra::WeakPtr<ConnectionLwIp> weakConnection = connection;
             connection = nullptr;
@@ -383,7 +435,10 @@ namespace services
         {
             tcp_abort(control);
             control = nullptr;
-            factory.ConnectionFailed(factory.ConnectFailReason::connectionAllocationFailed);
+            if (factory.Is<ClientConnectionObserverFactory*>())
+                factory.Get<ClientConnectionObserverFactory*>()->ConnectionFailed(ClientConnectionObserverFactory::ConnectFailReason::connectionAllocationFailed);
+            else
+                factory.Get<ClientConnectionIPv6ObserverFactory*>()->ConnectionFailed(ClientConnectionIPv6ObserverFactory::ConnectFailReason::connectionAllocationFailed);
             return ERR_ABRT;
         }
     }
@@ -391,7 +446,10 @@ namespace services
     void ConnectorLwIp::Error(err_t err)
     {
         control = nullptr;
-        factory.ConnectionFailed(factory.ConnectFailReason::refused);
+        if (factory.Is<ClientConnectionObserverFactory*>())
+            factory.Get<ClientConnectionObserverFactory*>()->ConnectionFailed(ClientConnectionObserverFactory::ConnectFailReason::refused);
+        else
+            factory.Get<ClientConnectionIPv6ObserverFactory*>()->ConnectionFailed(ClientConnectionIPv6ObserverFactory::ConnectFailReason::refused);
     }
 
     ConnectionFactoryLwIp::ConnectionFactoryLwIp(AllocatorListenerLwIp& listenerAllocator, AllocatorConnectorLwIp& connectorAllocator, AllocatorConnectionLwIp& connectionAllocator)
@@ -402,11 +460,21 @@ namespace services
 
     infra::SharedPtr<void> ConnectionFactoryLwIp::Listen(uint16_t port, ServerConnectionObserverFactory& factory)
     {
-        return listenerAllocator.Allocate(connectionAllocator, port, factory);
+        return listenerAllocator.Allocate(connectionAllocator, port, &factory);
     }
 
     infra::SharedPtr<void> ConnectionFactoryLwIp::Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory)
     {
-        return connectorAllocator.Allocate(connectionAllocator, address, port, factory);
+        return connectorAllocator.Allocate(connectionAllocator, address, port, &factory);
+    }
+
+    infra::SharedPtr<void> ConnectionFactoryLwIp::Listen(uint16_t port, ServerConnectionIPv6ObserverFactory& factory)
+    {
+        return listenerAllocator.Allocate(connectionAllocator, port, &factory);
+    }
+
+    infra::SharedPtr<void> ConnectionFactoryLwIp::Connect(IPv6Address address, uint16_t port, ClientConnectionIPv6ObserverFactory& factory)
+    {
+        return connectorAllocator.Allocate(connectionAllocator, address, port, &factory);
     }
 }
