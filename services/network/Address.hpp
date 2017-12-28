@@ -3,12 +3,13 @@
 
 #include "infra/util/Variant.hpp"
 #include <array>
+#include "infra/util/Variant.hpp"
 
 namespace services
 {
     using IPv4Address = std::array<uint8_t, 4>;
     using IPv6Address = std::array<uint16_t, 8>;
-    using IPAddress = infra::Variant<IPv4Address, IPv6Address>;
+	using GenericAddress = infra::Variant<services::IPv4Address, services::IPv6Address>;
 
     IPv4Address IPv4AddressLocalHost();
     IPv6Address IPv6AddressLocalHost();
