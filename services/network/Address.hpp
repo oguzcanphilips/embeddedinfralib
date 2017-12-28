@@ -9,7 +9,7 @@ namespace services
 {
     using IPv4Address = std::array<uint8_t, 4>;
     using IPv6Address = std::array<uint16_t, 8>;
-	using GenericAddress = infra::Variant<services::IPv4Address, services::IPv6Address>;
+	using IPAddress = infra::Variant<services::IPv4Address, services::IPv6Address>;
 
     IPv4Address IPv4AddressLocalHost();
     IPv6Address IPv6AddressLocalHost();
