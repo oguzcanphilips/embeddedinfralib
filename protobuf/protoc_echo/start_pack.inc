@@ -18,7 +18,7 @@ macro(protocol_buffer_echo input)
 
 		add_custom_command(
 			OUTPUT "${generated_dir_echo}/${source_base}.pb.cpp" "${generated_dir_echo}/${source_base}.pb.hpp"
-			COMMAND ${CMAKE_COMMAND} -E env "\"PATH=${extra_path};${old_path}\"" ${CCOLA_PACK_DIR_protoc}/../bin/protoc.exe --proto_path "${CMAKE_CURRENT_SOURCE_DIR}" --proto_path "${CCOLA_PACK_DIR_protoc}/../../protobuf-3.3.0/src/google/protobuf" --proto_path "${CCOLA_PACK_DIR_protoc}/../../../protobuf/echo_attributes" --plugin=protoc-gen-cpp-infra=${protoc_echo_plugin_path} --cpp-infra_out="${generated_dir_echo}" ${absolute_input}
+			COMMAND ${CMAKE_COMMAND} -E env "\"PATH=${extra_path};${old_path};\"" ${CCOLA_PACK_DIR_protoc}/../bin/protoc.exe --proto_path "${CMAKE_CURRENT_SOURCE_DIR}" --proto_path "${CCOLA_PACK_DIR_protoc}/../../protobuf-3.3.0/src/google/protobuf" --proto_path "${CCOLA_PACK_DIR_protoc}/../../../protobuf/echo_attributes" --plugin=protoc-gen-cpp-infra=${protoc_echo_plugin_path} --cpp-infra_out="${generated_dir_echo}" ${absolute_input}
 			DEPENDS "${absolute_input}"
 			DEPENDS "${generated_dir_echo}"
 			DEPENDS "${protoc_echo_plugin_path}"
