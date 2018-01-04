@@ -35,11 +35,16 @@ namespace services
 
     void TracingConnectionMbedTls::LogFailure(const char* what, int reason)
     {
+    	tracer.Trace() << what << ": ";
+
+#if defined(MBEDTLS_ERROR_C)
         infra::BoundedString::WithStorage<128> description;
         mbedtls2_strerror(reason, description.data(), description.max_size());
 
-        tracer.Trace() << what << ": " << description
-            << " (-0x" << infra::hex << infra::Width(4, '0') << std::abs(reason) << ")";
+        tracer.Continue() << description;
+#endif
+
+        tracer.Continue() << " (-0x" << infra::hex << infra::Width(4, '0') << std::abs(reason) << ")";
     }
 
     AllocatorTracingConnectionMbedTlsAdapter::AllocatorTracingConnectionMbedTlsAdapter(AllocatorTracingConnectionMbedTls& allocator, Tracer& tracer)
