@@ -67,7 +67,9 @@ namespace services
         , allocatorAdapter(connectionAllocator, tracer)
     {
         tracer.Trace() << "TracingConnectionFactoryMbedTls::TracingConnectionFactoryMbedTls()";
+#if defined(MBEDTLS_DEBUG_C)
         mbedtls2_debug_set_threshold(level);
+#endif
     }
 
     TracingConnectionIPv6FactoryMbedTls::TracingConnectionIPv6FactoryMbedTls(AllocatorTracingConnectionMbedTls& connectionAllocator, AllocatorConnectionIPv6MbedTlsListener& listenerAllocator, AllocatorConnectionIPv6MbedTlsConnector& connectorAllocator,
@@ -76,6 +78,8 @@ namespace services
         , allocatorAdapter(connectionAllocator, tracer)
     {
         tracer.Trace() << "TracingConnectionIPv6FactoryMbedTls::TracingConnectionIPv6FactoryMbedTls()";
+#if defined(MBEDTLS_DEBUG_C)
         mbedtls2_debug_set_threshold(level);
+#endif
     }
 }
