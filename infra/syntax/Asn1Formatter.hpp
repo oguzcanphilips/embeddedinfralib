@@ -25,6 +25,8 @@ namespace infra
         void AddBitString(infra::ConstByteRange string);
         void AddPrintableString(infra::ConstByteRange string);
         void AddUtcTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec);
+		void AddGeneralizedTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec);
+		void AddTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec);
 
         template<typename T>
             void AddOptional(infra::Optional<T> value);
@@ -48,8 +50,9 @@ namespace infra
             Oid = 0x06,
             Sequence = 0x10,
             Set = 0x11,
+			PrintableString = 0x13,
             UtcTime = 0x17,
-            PrintableString = 0x13,
+			GeneralizedTime = 0x18,
             Constructed = 0x20,
             ContextSpecific = 0x80
         };
