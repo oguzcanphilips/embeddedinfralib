@@ -79,12 +79,14 @@ namespace services
         : public infra::EnableSharedFromThis<ConnectionLoopBack>
     {
     public:
-        ConnectionLoopBack();
+        ConnectionLoopBack(ClientConnectionObserverFactory& clientObserverFactory);
 
+        ClientConnectionObserverFactory& ClientObserverFactory();
         Connection& Server();
         Connection& Client();
 
     private:
+        ClientConnectionObserverFactory& clientObserverFactory;
         ConnectionLoopBackPeer server;
         ConnectionLoopBackPeer client;
     };

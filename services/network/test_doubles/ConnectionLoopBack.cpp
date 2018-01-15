@@ -138,10 +138,16 @@ namespace services
         return connection.sendBuffer.size() - sizeRead;
     }
 
-    ConnectionLoopBack::ConnectionLoopBack()
-        : server(client, *this)
+    ConnectionLoopBack::ConnectionLoopBack(ClientConnectionObserverFactory& clientObserverFactory)
+        : clientObserverFactory(clientObserverFactory)
+        , server(client, *this)
         , client(server, *this)
     {}
+
+    ClientConnectionObserverFactory& ConnectionLoopBack::ClientObserverFactory()
+    {
+        return clientObserverFactory;
+    }
 
     Connection& ConnectionLoopBack::Server()
     {
@@ -186,14 +192,14 @@ namespace services
 
     void ConnectionLoopBackListener::Accept(ClientConnectionObserverFactory& clientObserverFactory)
     {
-        infra::SharedPtr<ConnectionLoopBack> connection = infra::MakeSharedOnHeap<ConnectionLoopBack>();
-        connectionObserverFactory.ConnectionAccepted([&clientObserverFactory, connection](infra::SharedPtr<services::ConnectionObserver> serverObserver)
+        infra::SharedPtr<ConnectionLoopBack> connection = infra::MakeSharedOnHeap<ConnectionLoopBack>(clientObserverFactory);
+        connectionObserverFactory.ConnectionAccepted([connection](infra::SharedPtr<services::ConnectionObserver> serverObserver)
         {
             if (serverObserver)
             {
                 serverObserver->Attach(connection->Server());
                 connection->Server().SetOwnership(connection, serverObserver);
-                clientObserverFactory.ConnectionEstablished([connection](infra::SharedPtr<services::ConnectionObserver> clientObserver)
+                connection->ClientObserverFactory().ConnectionEstablished([connection](infra::SharedPtr<services::ConnectionObserver> clientObserver)
                 {
                     if (clientObserver)
                     {
@@ -205,7 +211,7 @@ namespace services
                 });
             }
             else
-                clientObserverFactory.ConnectionFailed(services::ClientConnectionObserverFactory::ConnectFailReason::connectionAllocationFailed);
+                connection->ClientObserverFactory().ConnectionFailed(services::ClientConnectionObserverFactory::ConnectFailReason::connectionAllocationFailed);
         }, services::IPv4AddressLocalHost());
     }
 
