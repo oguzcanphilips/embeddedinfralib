@@ -560,7 +560,7 @@ TEST_F(ImageUpgraderDiCommTimeoutTest, WaitForProgrammingCompletionTimeout)
     EXPECT_CALL(timeKeeperTimeout, TimeoutMock()).WillOnce(testing::Return(true));
 
     upgradePackFlash.sectors[0] = { 'a', 'b', 'c', 'd' };
-    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 4, 0), Ok);
+    EXPECT_EQ(application::upgradeErrorCodeExternalImageUpgradeFailed, upgrader.Upgrade(upgradePackFlash, 0, 4, 0));
 }
 
 TEST_F(ImageUpgraderDiCommTimeoutTest, WhenStateIsNotIdleStateIsPolledAgain)
