@@ -45,14 +45,14 @@ namespace services
         : public ConnectionFactoryMbedTls
     {
     public:
-    	enum DebugLevel
-    	{
-    		NoDebug,
-    		Error,
-    		StateChange,
-    		Informational,
-    		Verbose
-    	};
+        enum DebugLevel
+        {
+            NoDebug,
+            Error,
+            StateChange,
+            Informational,
+            Verbose
+        };
 
     public:
         template<std::size_t MaxConnections, std::size_t MaxListeners, std::size_t MaxConnectors>

@@ -14,15 +14,15 @@ TEST(BoundedStringTest, TestConstructedEmpty)
 
 TEST(BoundedStringTest, TestConstructFromMemoryRange)
 {
-	std::array<char, 5> data = { 'a', 'b', 'c', 'd', 'e' };
-	infra::BoundedString string(infra::MakeRange(data), 3);
+    std::array<char, 5> data = { 'a', 'b', 'c', 'd', 'e' };
+    infra::BoundedString string(infra::MakeRange(data), 3);
 
-	EXPECT_EQ('a', string[0]);
-	EXPECT_EQ('b', string[1]);
-	EXPECT_EQ('c', string[2]);
-	EXPECT_EQ(3, string.size());
-	EXPECT_EQ(5, string.max_size());
-	EXPECT_FALSE(string.empty());
+    EXPECT_EQ('a', string[0]);
+    EXPECT_EQ('b', string[1]);
+    EXPECT_EQ('c', string[2]);
+    EXPECT_EQ(3, string.size());
+    EXPECT_EQ(5, string.max_size());
+    EXPECT_FALSE(string.empty());
 }
 
 TEST(BoundedStringTest, TestConstructFromNChars)
@@ -649,22 +649,22 @@ TEST(BoundedStringTest, TestStringAsByteRange)
 
 TEST(BoundedStringTest, TestByteRangeAsString)
 {
-	std::array<uint8_t, 4> data = { "str" };
-	infra::MemoryRange<uint8_t> byteRange(data);
-	infra::MemoryRange<const uint8_t> byteRange2(data);
+    std::array<uint8_t, 4> data = { "str" };
+    infra::MemoryRange<uint8_t> byteRange(data);
+    infra::MemoryRange<const uint8_t> byteRange2(data);
 
-	const auto boudedString = ByteRangeAsString(byteRange);
-	const auto boundedConstString = ByteRangeAsString(infra::ConstByteRange(byteRange));
+    const auto boudedString = ByteRangeAsString(byteRange);
+    const auto boundedConstString = ByteRangeAsString(infra::ConstByteRange(byteRange));
 
-	EXPECT_EQ(boudedString[0], 's');
-	EXPECT_EQ(boudedString[1], 't');
-	EXPECT_EQ(boudedString[2], 'r');
-	EXPECT_EQ(boudedString[3], '\0');
+    EXPECT_EQ(boudedString[0], 's');
+    EXPECT_EQ(boudedString[1], 't');
+    EXPECT_EQ(boudedString[2], 'r');
+    EXPECT_EQ(boudedString[3], '\0');
 
-	EXPECT_EQ(boundedConstString[0], 's');
-	EXPECT_EQ(boundedConstString[1], 't');
-	EXPECT_EQ(boundedConstString[2], 'r');
-	EXPECT_EQ(boundedConstString[3], '\0');
+    EXPECT_EQ(boundedConstString[0], 's');
+    EXPECT_EQ(boundedConstString[1], 't');
+    EXPECT_EQ(boundedConstString[2], 'r');
+    EXPECT_EQ(boundedConstString[3], '\0');
 }
 
 TEST(BoundedStringTest, TestPrintTo1)

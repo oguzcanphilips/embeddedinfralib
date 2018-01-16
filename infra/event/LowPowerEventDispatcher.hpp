@@ -10,7 +10,7 @@ namespace infra
     class MainClockReference
     {
     public:
-    	MainClockReference();
+        MainClockReference();
 
         void Refere();
         void Release();

@@ -27,15 +27,15 @@ namespace services
 
     void TracingConnectionMbedTls::TlsLog(int level, const char* file, int line, const char* message)
     {
-    	infra::BoundedConstString fileCopy(file);
+        infra::BoundedConstString fileCopy(file);
 
-    	tracer.Trace() << "[" << fileCopy.substr(fileCopy.find_last_of('\\') + 1) << ":" << line
-    			       << "] (" << level << "): " << message;
+        tracer.Trace() << "[" << fileCopy.substr(fileCopy.find_last_of('\\') + 1) << ":" << line
+                       << "] (" << level << "): " << message;
     }
 
     void TracingConnectionMbedTls::LogFailure(const char* what, int reason)
     {
-    	tracer.Trace() << what << ": ";
+        tracer.Trace() << what << ": ";
 
 #if defined(MBEDTLS_ERROR_C)
         infra::BoundedString::WithStorage<128> description;

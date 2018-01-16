@@ -108,27 +108,27 @@ namespace infra
         stream << infra::text << 'Z';
     }
 
-	void Asn1Formatter::AddTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec)
-	{
-		if (year >= 1950 && year < 2050)
-			AddUtcTime(year, month, day, hour, min, sec);
-		else
-			AddGeneralizedTime(year, month, day, hour, min, sec);
-	}
+    void Asn1Formatter::AddTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec)
+    {
+        if (year >= 1950 && year < 2050)
+            AddUtcTime(year, month, day, hour, min, sec);
+        else
+            AddGeneralizedTime(year, month, day, hour, min, sec);
+    }
 
-	void Asn1Formatter::AddGeneralizedTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec)
-	{
-		const uint8_t generalizedTimeSize = 15; // "YYYYMMDDhhmmssZ"
-		AddTagLength(Tag::GeneralizedTime, generalizedTimeSize);
+    void Asn1Formatter::AddGeneralizedTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec)
+    {
+        const uint8_t generalizedTimeSize = 15; // "YYYYMMDDhhmmssZ"
+        AddTagLength(Tag::GeneralizedTime, generalizedTimeSize);
 
-		stream << infra::text << infra::Width(4, '0') << year;
-		stream << infra::text << infra::Width(2, '0') << month;
-		stream << infra::text << infra::Width(2, '0') << day;
-		stream << infra::text << infra::Width(2, '0') << hour;
-		stream << infra::text << infra::Width(2, '0') << min;
-		stream << infra::text << infra::Width(2, '0') << sec;
-		stream << infra::text << 'Z';
-	}
+        stream << infra::text << infra::Width(4, '0') << year;
+        stream << infra::text << infra::Width(2, '0') << month;
+        stream << infra::text << infra::Width(2, '0') << day;
+        stream << infra::text << infra::Width(2, '0') << hour;
+        stream << infra::text << infra::Width(2, '0') << min;
+        stream << infra::text << infra::Width(2, '0') << sec;
+        stream << infra::text << 'Z';
+    }
 
     Asn1ContainerFormatter Asn1Formatter::StartSequence()
     {

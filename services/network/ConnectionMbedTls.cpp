@@ -340,7 +340,7 @@ namespace services
 
     void ConnectionMbedTls::StaticDebugWrapper(void* context, int level, const char* file, int line, const char* message)
     {
-    	reinterpret_cast<ConnectionMbedTls*>(context)->TlsLog(level, file, line, message);
+        reinterpret_cast<ConnectionMbedTls*>(context)->TlsLog(level, file, line, message);
     }
 
     ConnectionMbedTls::StreamWriterMbedTls::StreamWriterMbedTls(ConnectionMbedTls& connection)
