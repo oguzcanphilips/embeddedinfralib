@@ -62,14 +62,54 @@ TEST_F(QueueForOneReaderOneIrqWriterTest, get_ContiguousRange)
 }
 
 TEST_F(QueueForOneReaderOneIrqWriterTest, get_ContiguousRange_while_queue_is_wrapped)
-{
-    queue.Emplace(buffer, [this]() { while (!queue->Empty()) queue->Get(); callback.callback(); });
+{    
+    queue.Emplace(buffer, [this]() {});
 
     std::array<uint8_t, 3> data = { { 0, 1, 2 } };
     queue->AddFromInterrupt(data);
+    infra::ConstByteRange range = queue->ContiguousRange();
+    EXPECT_EQ((std::vector<uint8_t>{0,1,2}), (std::vector<uint8_t>{ range.begin(), range.end() }));
+
     queue->Consume(3);
     queue->AddFromInterrupt(data);
+    range = queue->ContiguousRange();
+    EXPECT_EQ((std::vector<uint8_t>{0,1}), (std::vector<uint8_t>{ range.begin(), range.end() }));
 
-    infra::ConstByteRange range = queue->ContiguousRange();
-    EXPECT_EQ((std::vector<uint8_t>(data.begin(), data.begin() + 2)), (std::vector<uint8_t>{ range.begin(), range.end() }));
+    queue->Consume(range.size());
+    range = queue->ContiguousRange();
+    EXPECT_EQ((std::vector<uint8_t>{2}), (std::vector<uint8_t>{ range.begin(), range.end() }));
+}
+
+TEST_F(QueueForOneReaderOneIrqWriterTest, get_ContiguousRange_with_offset)
+{
+    queue.Emplace(buffer, [this]() {});
+
+    std::array<uint8_t, 3> data = { { 0, 1, 2 } };
+    queue->AddFromInterrupt(data);
+
+    infra::ConstByteRange range = queue->ContiguousRange(1);
+    EXPECT_EQ((std::vector<uint8_t>{1, 2}), (std::vector<uint8_t>{ range.begin(), range.end() }));
+
+    queue->Consume(1);
+    range = queue->ContiguousRange();
+    EXPECT_EQ((std::vector<uint8_t>{1, 2}), (std::vector<uint8_t>{ range.begin(), range.end() }));
+}
+
+TEST_F(QueueForOneReaderOneIrqWriterTest, get_ContiguousRange_with_offset_while_queue_is_wrapped)
+{
+    queue.Emplace(buffer, [this]() {});
+
+    std::array<uint8_t, 3> data = { { 0, 1, 2 } };
+    queue->AddFromInterrupt(data);
+    infra::ConstByteRange range = queue->ContiguousRange(2);
+    EXPECT_EQ((std::vector<uint8_t>{ 2 }), (std::vector<uint8_t>{ range.begin(), range.end() }));
+
+    queue->Consume(3);
+
+    queue->AddFromInterrupt(data);
+    range = queue->ContiguousRange(0);
+    EXPECT_EQ((std::vector<uint8_t>{ 0, 1 }), (std::vector<uint8_t>{ range.begin(), range.end() }));
+
+    range = queue->ContiguousRange(2);
+    EXPECT_EQ((std::vector<uint8_t>{ 2 }), (std::vector<uint8_t>{ range.begin(), range.end() }));
 }

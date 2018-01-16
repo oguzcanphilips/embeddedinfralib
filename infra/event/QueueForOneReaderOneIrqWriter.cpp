@@ -71,14 +71,23 @@ namespace infra
         return result;
     }
 
-    infra::ConstByteRange QueueForOneReaderOneIrqWriter::ContiguousRange() const
+    infra::ConstByteRange QueueForOneReaderOneIrqWriter::ContiguousRange(uint32_t offset) const
     {
-        const uint8_t* end = contentsEnd.load();
+        const uint8_t* end = contentsEnd.load();        
+        uint8_t* begin = contentsBegin;
 
-        if (end < contentsBegin)
-            return infra::ConstByteRange(contentsBegin, buffer.end());
+        if (begin + offset >= buffer.end())
+        {
+            offset -= buffer.end() - begin;
+            begin = buffer.begin();
+        }
+
+        begin += offset;
+
+        if (end < begin)
+            return infra::ConstByteRange(begin, buffer.end());
         else
-            return infra::ConstByteRange(contentsBegin, end);
+            return infra::ConstByteRange(begin, end);
     }
 
     void QueueForOneReaderOneIrqWriter::Consume(uint32_t amount)

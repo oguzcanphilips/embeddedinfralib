@@ -24,7 +24,7 @@ namespace infra
         bool Empty() const;
         bool Full() const;
         uint8_t Get();
-        infra::ConstByteRange ContiguousRange() const;
+        infra::ConstByteRange ContiguousRange(uint32_t offset = 0) const;
         void Consume(uint32_t amount);
 
     private:
