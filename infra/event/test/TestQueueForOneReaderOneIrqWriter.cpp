@@ -113,3 +113,30 @@ TEST_F(QueueForOneReaderOneIrqWriterTest, get_ContiguousRange_with_offset_while_
     range = queue->ContiguousRange(2);
     EXPECT_EQ((std::vector<uint8_t>{ 2 }), (std::vector<uint8_t>{ range.begin(), range.end() }));
 }
+
+TEST_F(QueueForOneReaderOneIrqWriterTest, Size)
+{
+    queue.Emplace(buffer, [this]() {});
+    std::array<uint8_t, 4> full = { { 3, 1, 2, 4 } };
+    std::array<uint8_t, 1> data1 = { { 7 } };
+    std::array<uint8_t, 2> data2 = { { 5, 1 } };
+
+    EXPECT_TRUE(queue->Empty());
+    EXPECT_FALSE(queue->Full());
+    EXPECT_EQ(0, queue->Size());
+
+    queue->AddFromInterrupt(full);
+    EXPECT_FALSE(queue->Empty());
+    EXPECT_TRUE(queue->Full());    
+    EXPECT_EQ(4, queue->Size());
+    
+    queue->Consume(2);
+    EXPECT_EQ(2, queue->Size());
+    queue->AddFromInterrupt(data1);    
+    EXPECT_EQ(3, queue->Size());
+
+    queue->Consume(1);
+    EXPECT_EQ(2, queue->Size());
+    queue->AddFromInterrupt(data2);
+    EXPECT_EQ(4, queue->Size());
+}

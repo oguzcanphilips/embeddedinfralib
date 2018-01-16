@@ -26,6 +26,7 @@ namespace infra
         uint8_t Get();
         infra::ConstByteRange ContiguousRange(uint32_t offset = 0) const;
         void Consume(uint32_t amount);
+        std::size_t Size();
 
     private:
         void NotifyDataAvailable();

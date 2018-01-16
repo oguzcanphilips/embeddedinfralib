@@ -101,6 +101,19 @@ namespace infra
         contentsBegin += amount;
     }
 
+    std::size_t QueueForOneReaderOneIrqWriter::Size()
+    {
+        const uint8_t* begin = contentsBegin.load();
+        const uint8_t* end = contentsEnd.load();
+
+        if (Full())        
+            return buffer.size() - 1;        
+        else if (end >= begin)
+            return end - begin;
+                
+        return (buffer.end() - begin) + (end - buffer.begin());        
+    }
+
     void QueueForOneReaderOneIrqWriter::NotifyDataAvailable()
     {
         if (!Empty() && !notificationScheduled.exchange(true))
