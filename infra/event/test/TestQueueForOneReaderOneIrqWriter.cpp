@@ -48,6 +48,23 @@ TEST_F(QueueForOneReaderOneIrqWriterTest, consume_1_before_get)
     EXPECT_EQ(1, queue->Get());
 }
 
+TEST_F(QueueForOneReaderOneIrqWriterTest, get_without_consume_using_array_operator)
+{
+    queue.Emplace(buffer, [this]() {});
+
+    std::array<uint8_t, 4> data = { { 0, 1, 2, 3 } };
+    queue->AddFromInterrupt(data);
+
+    EXPECT_EQ(0, (*queue)[0]);
+    EXPECT_EQ(3, (*queue)[3]);
+
+    queue->Consume(4);
+    queue->AddFromInterrupt(data);
+
+    EXPECT_EQ(0, (*queue)[0]);
+    EXPECT_EQ(3, (*queue)[3]);
+}
+
 TEST_F(QueueForOneReaderOneIrqWriterTest, get_ContiguousRange)
 {
     queue.Emplace(buffer, [this]() { });
@@ -127,12 +144,12 @@ TEST_F(QueueForOneReaderOneIrqWriterTest, Size)
 
     queue->AddFromInterrupt(full);
     EXPECT_FALSE(queue->Empty());
-    EXPECT_TRUE(queue->Full());    
+    EXPECT_TRUE(queue->Full());
     EXPECT_EQ(4, queue->Size());
     
     queue->Consume(2);
     EXPECT_EQ(2, queue->Size());
-    queue->AddFromInterrupt(data1);    
+    queue->AddFromInterrupt(data1);
     EXPECT_EQ(3, queue->Size());
 
     queue->Consume(1);
