@@ -1,9 +1,9 @@
 #ifndef SERVICES_ADDRESS_HPP
 #define SERVICES_ADDRESS_HPP
 
+#include "infra/stream/OutputStream.hpp"
 #include "infra/util/Variant.hpp"
 #include <array>
-#include "infra/util/Variant.hpp"
 
 namespace services
 {
@@ -32,6 +32,13 @@ namespace services
         bool operator==(const Ipv4Config& other) const;
         bool operator!=(const Ipv4Config& other) const;
     };
+}
+
+namespace infra
+{
+    infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const services::IPv4Address& address);
+    infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const services::IPv6Address& address);
+    infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const services::IPAddress& address);
 }
 
 #endif

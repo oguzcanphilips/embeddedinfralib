@@ -38,3 +38,30 @@ namespace services
         return !(*this == other);
     }
 }
+
+namespace infra
+{
+    infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const services::IPv4Address& address)
+    {
+        stream << address[0] << "." << address[1] << "." << address[2] << "." << address[3];
+
+        return stream;
+    }
+
+    infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const services::IPv6Address& address)
+    {
+        stream << infra::hex << address[0] << ":" << address[1] << ":" << address[2] << ":" << address[3] << ":" << address[4] << ":" << address[5] << ":" << address[6] << ":" << address[7];
+
+        return stream;
+    }
+
+    infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, const services::IPAddress& address)
+    {
+        if (address.Is<services::IPv4Address>())
+            stream << address.Get<services::IPv4Address>();
+        else
+            stream << address.Get<services::IPv6Address>();
+
+        return stream;
+    }
+}
