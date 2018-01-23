@@ -103,11 +103,11 @@ namespace services
     DatagramSenderPeerLwIp::StateBufferAllocated::StateBufferAllocated(DatagramSenderPeerLwIp& datagramSender, pbuf* buffer)
         : datagramSender(datagramSender)
         , stream([this]() { this->datagramSender.state.Emplace<StateIdle>(this->datagramSender); })
+        , streamPtr(stream.Emplace(datagramSender.control, buffer))
     {
-        infra::SharedPtr<DatagramSendStreamLwIp> streamPtr = stream.Emplace(datagramSender.control, buffer);
-        infra::EventDispatcherWithWeakPtr::Instance().Schedule([streamPtr](const infra::SharedPtr<DatagramSenderPeerLwIp>& datagramSender)
+        infra::EventDispatcherWithWeakPtr::Instance().Schedule([this](const infra::SharedPtr<DatagramSenderPeerLwIp>& datagramSender)
         {
-            datagramSender->sender.SendStreamAvailable(streamPtr);
+            datagramSender->sender.SendStreamAvailable(std::move(streamPtr));
         }, datagramSender.SharedFromThis());
     }
 

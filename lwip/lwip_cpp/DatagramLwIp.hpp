@@ -86,6 +86,7 @@ namespace services
         private:
             DatagramSenderPeerLwIp& datagramSender;
             infra::NotifyingSharedOptional<DatagramSendStreamLwIp> stream;
+            infra::SharedPtr<DatagramSendStreamLwIp> streamPtr;
         };
 
     private:
