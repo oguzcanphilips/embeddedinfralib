@@ -21,7 +21,7 @@ namespace infra
         template<class... T2>                                                                   //TICS !INT#001
             Variant(const Variant<T2...>& other);
         template<class U>                                                                       //TICS !INT#001
-            Variant(const U& v);                                                                //TICS !INT#001
+            Variant(const U& v, typename std::enable_if<ExistsInTypeList<U, T...>::value>::type* = 0);                                                                //TICS !INT#001
         template<class U, class... Args>
             explicit Variant(InPlaceType<U>, Args&&... args);
         template<class... Args>
@@ -124,7 +124,7 @@ namespace infra
 
     template<class... T>
     template<class U>
-    Variant<T...>::Variant(const U& v)
+    Variant<T...>::Variant(const U& v, typename std::enable_if<ExistsInTypeList<U, T...>::value>::type*)
     {
         ConstructInEmptyVariant<U>(v);
     }
