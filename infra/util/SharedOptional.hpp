@@ -67,7 +67,7 @@ namespace infra
     template<class T>
     SharedOptional<T>::~SharedOptional()
     {
-        assert(allocatable);
+        really_assert(allocatable);
     }
 
     template<class T>
