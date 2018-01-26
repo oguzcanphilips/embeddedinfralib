@@ -5,7 +5,6 @@
 #include "netif/etharp.h"
 #include "lwip/ethip6.h"
 #include "lwip/dhcp.h"
-#include "services/tracer/GlobalTracer.hpp"
 
 namespace services
 {
