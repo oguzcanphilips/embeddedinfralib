@@ -275,6 +275,25 @@ TEST_F(TerminalNavigationTest, remove_character_with_delete)
     ExecuteAllActions();
 }
 
+TEST_F(TerminalTest, move_backward_in_history_with_empty_history)
+{
+    EXPECT_CALL(communication, SendDataMock(std::vector<uint8_t>{ '\r' }));
+    EXPECT_CALL(communication, SendDataMock(std::vector<uint8_t>{ '>', ' ' }));
+
+    communication.dataReceived(std::vector<uint8_t>{ 14 });
+
+    ExecuteAllActions();
+}
+
+TEST_F(TerminalTest, move_forward_in_history_with_empty_history)
+{
+    EXPECT_CALL(communication, SendDataMock(std::vector<uint8_t>{ '\a' }));
+
+    communication.dataReceived(std::vector<uint8_t>{ 16 });
+
+    ExecuteAllActions();
+}
+
 TEST_F(TerminalHistoryTest, move_backward_in_history)
 {
     EXPECT_CALL(communication, SendDataMock(std::vector<uint8_t>{ '\r' }));

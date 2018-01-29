@@ -227,7 +227,7 @@ namespace services
 
     void Terminal::HistoryForward()
     {
-        if (state.historyIndex < history.size() - 1)
+        if (!history.empty() && state.historyIndex < history.size() - 1)
             OverwriteBuffer(history[++state.historyIndex]);
         else
             OverwriteBuffer("");
