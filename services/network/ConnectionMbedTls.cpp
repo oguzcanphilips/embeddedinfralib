@@ -275,10 +275,11 @@ namespace services
         std::copy(streamBuffer.begin(), streamBuffer.end(), buffer.begin());
         ConnectionObserver::Subject().AckReceived();
 
-        infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectionMbedTls>& object) { object->TrySend(); }, SharedFromThis());
-
         if (!streamBuffer.empty())
+        {
+            infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectionMbedTls>& object) { object->TrySend(); }, SharedFromThis());
             return streamBuffer.size();
+        }
         else
             return MBEDTLS_ERR_SSL_WANT_READ;
     }
