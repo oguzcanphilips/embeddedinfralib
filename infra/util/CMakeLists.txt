@@ -23,6 +23,7 @@ ccola_component(util static_library)
         CrcCcittCalculator.hpp
         CyclicBuffer.hpp
         FixedPoint.hpp
+        Function.cpp
         Function.hpp
         InterfaceConnector.hpp
         IntrusiveBinarySearchTree.hpp

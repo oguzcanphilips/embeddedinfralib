@@ -138,7 +138,7 @@ namespace infra
         explicit Execute(Function<void()> f);
     };
 
-    static const infra::Function<void()> emptyFunction = []() {};
+    extern const infra::Function<void()> emptyFunction;
 
     template<std::size_t ExtraSize, class Result, class... Args>
         void swap(Function<Result(Args...), ExtraSize>& x, Function<Result(Args...), ExtraSize>& y);
