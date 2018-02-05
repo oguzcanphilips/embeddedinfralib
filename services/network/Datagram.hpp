@@ -41,8 +41,8 @@ namespace services
         virtual ~DatagramReceiver() = default;
 
     public:
-        virtual void DataReceived(infra::DataInputStream stream, IPv4Address address) = 0;
-        virtual void DataReceived(infra::DataInputStream stream, IPv6Address address) = 0;
+        virtual void DataReceived(infra::DataInputStream stream, IPv4Address address, uint16_t port) = 0;
+        virtual void DataReceived(infra::DataInputStream stream, IPv6Address address, uint16_t port) = 0;
     };
 
     class DatagramProvider

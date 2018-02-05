@@ -27,8 +27,8 @@ namespace services
         : public DatagramReceiver
     {
     public:
-        MOCK_METHOD2(DataReceived, void(infra::DataInputStream stream, IPv4Address address));
-        MOCK_METHOD2(DataReceived, void(infra::DataInputStream stream, IPv6Address address));
+        MOCK_METHOD3(DataReceived, void(infra::DataInputStream stream, IPv4Address address, uint16_t port));
+        MOCK_METHOD3(DataReceived, void(infra::DataInputStream stream, IPv6Address address, uint16_t port));
     };
 }
 #endif
