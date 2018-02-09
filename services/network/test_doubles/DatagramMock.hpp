@@ -1,5 +1,5 @@
 #ifndef DATAGRAM_MOCK_HPP
-#define    DATAGRAM_MOCK_HPP
+#define DATAGRAM_MOCK_HPP
 
 #include "gmock/gmock.h"
 #include "services/network/Datagram.hpp"
@@ -31,4 +31,5 @@ namespace services
         MOCK_METHOD3(DataReceived, void(infra::DataInputStream stream, IPv6Address address, uint16_t port));
     };
 }
+
 #endif
