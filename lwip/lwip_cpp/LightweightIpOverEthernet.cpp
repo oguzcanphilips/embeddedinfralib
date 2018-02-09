@@ -175,7 +175,7 @@ namespace services
         netif_add(&netInterface, ip_2_ip4(&ipaddr), ip_2_ip4(&netmask), ip_2_ip4(&gw), this, &LightweightIpOverEthernetFactory::StaticInit, &ethernet_input);
         netif_set_default(&netInterface);
 
-        netif_set_hostname(&netInterface, config.hostName);
+        netif_set_hostname(&netInterface, config.hostName.Storage().begin());
 
         netif_set_ip6_autoconfig_enabled(&netInterface, 1);
         netif_create_ip6_linklocal_address(&netInterface, 1);
