@@ -44,7 +44,7 @@ TEST(ProtoFormatterTest, PutFixed32)
     infra::ProtoFormatter formatter(stream);
 
     formatter.PutFixed32Field(2, 4);
-    EXPECT_EQ((std::array<uint8_t, 5>{ 4 << 3, 2, 0, 0, 0 }), stream.Writer().Processed());
+    EXPECT_EQ((std::array<uint8_t, 5>{ 4 << 3 | 5, 2, 0, 0, 0 }), stream.Writer().Processed());
 }
 
 TEST(ProtoFormatterTest, PutFixed64)
@@ -53,7 +53,7 @@ TEST(ProtoFormatterTest, PutFixed64)
     infra::ProtoFormatter formatter(stream);
 
     formatter.PutFixed64Field(2, 4);
-    EXPECT_EQ((std::array<uint8_t, 9>{ 4 << 3, 2, 0, 0, 0, 0, 0, 0, 0 }), stream.Writer().Processed());
+    EXPECT_EQ((std::array<uint8_t, 9>{ 4 << 3 | 1, 2, 0, 0, 0, 0, 0, 0, 0 }), stream.Writer().Processed());
 }
 
 TEST(ProtoFormatterTest, PutStringField)

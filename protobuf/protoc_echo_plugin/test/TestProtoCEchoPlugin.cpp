@@ -7,6 +7,50 @@
 #include "infra/syntax/ProtoParser.hpp"
 #include "services/network/test_doubles/ConnectionMock.hpp"
 
+TEST(ProtoCEchoPluginTest, serialize_fixed32)
+{
+    test_messages::TestFixed32 message;
+    message.value = 1020304;
+
+    infra::ByteOutputStream::WithStorage<100> stream;
+    infra::ProtoFormatter formatter(stream);
+    message.Serialize(formatter);
+
+    EXPECT_EQ((std::array<uint8_t, 5>{ 13, 0x90, 0x91, 0x0f, 0 }), stream.Writer().Processed());
+}
+
+TEST(ProtoCEchoPluginTest, deserialize_fixed32)
+{
+    std::array<uint8_t, 5> data{ 13, 0x90, 0x91, 0x0f, 0 };
+    infra::ByteInputStream stream(data);
+    infra::ProtoParser parser(stream);
+
+    test_messages::TestFixed32 message(parser);
+    EXPECT_EQ(1020304, message.value);
+}
+
+TEST(ProtoCEchoPluginTest, serialize_bool)
+{
+    test_messages::TestBool message;
+    message.value = true;
+
+    infra::ByteOutputStream::WithStorage<100> stream;
+    infra::ProtoFormatter formatter(stream);
+    message.Serialize(formatter);
+
+    EXPECT_EQ((std::array<uint8_t, 2>{ 8, 1 }), stream.Writer().Processed());
+}
+
+TEST(ProtoCEchoPluginTest, deserialize_bool)
+{
+    std::array<uint8_t, 2> data{ 8, 1 };
+    infra::ByteInputStream stream(data);
+    infra::ProtoParser parser(stream);
+
+    test_messages::TestBool message(parser);
+    EXPECT_EQ(true, message.value);
+}
+
 TEST(ProtoCEchoPluginTest, serialize_string)
 {
     test_messages::TestString message;

@@ -4,6 +4,14 @@ import "echo_attributes.proto";
 
 package test_messages;
 
+message TestFixed32 {
+  fixed32 value = 1;
+}
+
+message TestBool {
+  bool value = 1;
+}
+
 message TestString {
   string value = 1 [(string_size) = 20];
 }

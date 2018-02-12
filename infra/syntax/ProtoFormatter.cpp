@@ -88,13 +88,13 @@ namespace infra
 
     void ProtoFormatter::PutFixed32Field(uint32_t value, uint32_t fieldNumber)
     {
-        PutVarInt((fieldNumber << 3) | 0);
+        PutVarInt((fieldNumber << 3) | 5);
         PutFixed32(value);
     }
 
     void ProtoFormatter::PutFixed64Field(uint64_t value, uint32_t fieldNumber)
     {
-        PutVarInt((fieldNumber << 3) | 0);
+        PutVarInt((fieldNumber << 3) | 1);
         PutFixed64(value);
     }
 

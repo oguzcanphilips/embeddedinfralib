@@ -84,6 +84,72 @@ namespace application
         printer.Print("\n&& $name$ == other.$name$", "name", google::protobuf::compiler::cpp::FieldName(&descriptor));
     }
 
+    void FieldGeneratorFixed32::GenerateFieldDeclaration(Entities& entities)
+    {
+        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), "uint32_t"));
+    }
+
+    std::string FieldGeneratorFixed32::MaxMessageSize() const
+    {
+        return google::protobuf::SimpleItoa(4 + MaxVarIntSize((descriptor.number() << 3) | 2));
+    }
+
+    void FieldGeneratorFixed32::SerializerBody(google::protobuf::io::Printer& printer)
+    {
+        printer.Print("formatter.PutFixed32Field($name$, $constant$);\n"
+            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
+    }
+
+    void FieldGeneratorFixed32::DeserializerBody(google::protobuf::io::Printer& printer)
+    {
+        printer.Print(R"(case $constant$:
+    $name$ = field.first.Get<uint32_t>();
+    break;
+)"
+, "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+, "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
+    }
+
+    void FieldGeneratorFixed32::GenerateConstructorParameter(Constructor& constructor)
+    {
+        constructor.Parameter("uint32_t " + google::protobuf::compiler::cpp::FieldName(&descriptor));
+        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
+    }
+
+    void FieldGeneratorBool::GenerateFieldDeclaration(Entities& entities)
+    {
+        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), "bool"));
+    }
+
+    std::string FieldGeneratorBool::MaxMessageSize() const
+    {
+        return google::protobuf::SimpleItoa(MaxVarIntSize(1) + MaxVarIntSize((descriptor.number() << 3) | 2));
+    }
+
+    void FieldGeneratorBool::SerializerBody(google::protobuf::io::Printer& printer)
+    {
+        printer.Print("formatter.PutVarIntField($name$, $constant$);\n"
+            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
+    }
+
+    void FieldGeneratorBool::DeserializerBody(google::protobuf::io::Printer& printer)
+    {
+        printer.Print(R"(case $constant$:
+    $name$ = static_cast<bool>(field.first.Get<uint64_t>());
+    break;
+)"
+, "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+, "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
+    }
+
+    void FieldGeneratorBool::GenerateConstructorParameter(Constructor& constructor)
+    {
+        constructor.Parameter("bool " + google::protobuf::compiler::cpp::FieldName(&descriptor));
+        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
+    }
+
     FieldGeneratorString::FieldGeneratorString(const google::protobuf::FieldDescriptor& descriptor)
         : FieldGenerator(descriptor)
         , stringSize(descriptor.options().GetExtension(string_size))
@@ -421,6 +487,12 @@ namespace application
         else
             switch (fieldDescriptor.type())
             {
+                case google::protobuf::FieldDescriptor::TYPE_FIXED32:
+                    fieldGenerators.emplace_back(std::make_shared<FieldGeneratorFixed32>(fieldDescriptor));
+                    break;
+                case google::protobuf::FieldDescriptor::TYPE_BOOL:
+                    fieldGenerators.emplace_back(std::make_shared<FieldGeneratorBool>(fieldDescriptor));
+                    break;
                 case google::protobuf::FieldDescriptor::TYPE_STRING:
                     fieldGenerators.emplace_back(std::make_shared<FieldGeneratorString>(fieldDescriptor));
                     break;
