@@ -1,6 +1,8 @@
 ccola_component(util static_library)
 
     ccola_sources(
+        ConfigurationStore.cpp
+        ConfigurationStore.hpp
         CyclicStore.cpp
         DebouncedButton.cpp
         DebugLed.cpp
@@ -39,6 +41,8 @@ ccola_component(util static_library)
         hal.interfaces
         infra.util
         infra.stream
+		infra.syntax
+        crypto.mbed_tls
     )
 
 ccola_end_component()

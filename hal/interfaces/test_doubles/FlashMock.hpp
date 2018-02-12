@@ -32,6 +32,22 @@ namespace hal
 
         infra::Function<void()> done;
     };
+
+    class CleanFlashMock
+        : public hal::Flash
+    {
+    public:
+        CleanFlashMock() = default;
+        CleanFlashMock(uint32_t numberOfSectors, uint32_t sizeOfEachSector);
+
+        MOCK_CONST_METHOD0(NumberOfSectors, uint32_t());
+        MOCK_CONST_METHOD1(SizeOfSector, uint32_t(uint32_t sectorIndex));
+        MOCK_CONST_METHOD1(SectorOfAddress, uint32_t(uint32_t address));
+        MOCK_CONST_METHOD1(AddressOfSector, uint32_t(uint32_t sectorIndex));
+        MOCK_METHOD3(WriteBuffer, void(infra::ConstByteRange buffer, uint32_t address, infra::Function<void()> onDone));
+        MOCK_METHOD3(ReadBuffer, void(infra::ByteRange buffer, uint32_t address, infra::Function<void()> onDone));
+        MOCK_METHOD3(EraseSectors, void(uint32_t beginIndex, uint32_t endIndex, infra::Function<void()> onDone));
+    };
 }
 
 #endif
