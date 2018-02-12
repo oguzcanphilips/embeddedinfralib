@@ -30,22 +30,22 @@ message TestMessageWithMessageField {
 
 message TestNestedMessage
 {
-	message NestedMessage
-	{
-		uint32 value = 1;
-	}
+    message NestedMessage
+    {
+        uint32 value = 1;
+    }
 
-	NestedMessage message = 1;
+    NestedMessage message = 1;
 }
 
 message TestNestedRepeatedMessage
 {
-	message NestedMessage
-	{
-		uint32 value = 1;
-	}
+    message NestedMessage
+    {
+        uint32 value = 1;
+    }
 
-	repeated NestedMessage message = 1 [(array_size) = 10];
+    repeated NestedMessage message = 1 [(array_size) = 10];
 }
 
 message TestEmptyMessage

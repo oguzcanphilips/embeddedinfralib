@@ -1,7 +1,7 @@
 #include "infra/stream/SavedMarkerStream.hpp"
-#include "protobuf/echo/ProtoFormatter.hpp"
+#include "infra/syntax/ProtoFormatter.hpp"
 
-namespace services
+namespace infra
 {
     ProtoLengthDelimitedFormatter::ProtoLengthDelimitedFormatter(ProtoFormatter& formatter, uint32_t fieldNumber)
         : formatter(formatter)

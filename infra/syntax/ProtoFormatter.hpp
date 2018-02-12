@@ -1,10 +1,10 @@
-#ifndef PROTOBUF_PROTO_FORMATTER_HPP
-#define PROTOBUF_PROTO_FORMATTER_HPP
+#ifndef INFRA_PROTO_FORMATTER_HPP
+#define INFRA_PROTO_FORMATTER_HPP
 
 #include "infra/stream/OutputStream.hpp"
 #include "infra/util/BoundedVector.hpp"
 
-namespace services
+namespace infra
 {
     class ProtoFormatter;
 

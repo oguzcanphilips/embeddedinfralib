@@ -1,6 +1,6 @@
 #include "infra/event/EventDispatcherWithWeakPtr.hpp"
 #include "protobuf/echo/Echo.hpp"
-#include "protobuf/echo/ProtoFormatter.hpp"
+#include "infra/syntax/ProtoFormatter.hpp"
 
 namespace services
 {
@@ -73,14 +73,14 @@ namespace services
         while (!serviceBusy)
         {
             infra::SharedPtr<infra::DataInputStream> stream = services::ConnectionObserver::Subject().ReceiveStream();
-            services::ProtoParser parser(*stream);
+            infra::ProtoParser parser(*stream);
             uint32_t serviceId = static_cast<uint32_t>(parser.GetVarInt());
-            services::ProtoParser::Field message = parser.GetField();
+            infra::ProtoParser::Field message = parser.GetField();
             if (stream->Failed())
                 break;
 
-            assert(message.first.Is<services::ProtoLengthDelimited>());
-            services::ProtoParser argument(message.first.Get<services::ProtoLengthDelimited>().Parser());
+            assert(message.first.Is<infra::ProtoLengthDelimited>());
+            infra::ProtoParser argument(message.first.Get<infra::ProtoLengthDelimited>().Parser());
             uint32_t methodId = message.second;
             if (stream->Failed())
                 break;
@@ -135,7 +135,7 @@ namespace services
         services.erase(service);
     }
 
-    void Echo::ExecuteMethod(uint32_t serviceId, uint32_t methodId, services::ProtoParser& argument)
+    void Echo::ExecuteMethod(uint32_t serviceId, uint32_t methodId, infra::ProtoParser& argument)
     {
         for (auto& service : services)
         {

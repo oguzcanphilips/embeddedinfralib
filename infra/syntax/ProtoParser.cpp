@@ -1,8 +1,8 @@
-#include "protobuf/echo/ProtoParser.hpp"
+#include "infra/syntax/ProtoParser.hpp"
 #include <cassert>
 #include <cstdlib>
 
-namespace services
+namespace infra
 {
     ProtoLengthDelimited::ProtoLengthDelimited(infra::DataInputStream inputStream, uint32_t length)
         : limitedReader(inputStream.Reader(), length)

@@ -1,5 +1,5 @@
-#ifndef PROTOBUF_PROTO_PARSER_HPP
-#define PROTOBUF_PROTO_PARSER_HPP
+#ifndef INFRA_PROTO_PARSER_HPP
+#define INFRA_PROTO_PARSER_HPP
 
 #include "infra/stream/InputStream.hpp"
 #include "infra/stream/LimitedInputStream.hpp"
@@ -7,7 +7,7 @@
 #include "infra/util/Variant.hpp"
 #include <utility>
 
-namespace services
+namespace infra
 {
     class ProtoParser;
 

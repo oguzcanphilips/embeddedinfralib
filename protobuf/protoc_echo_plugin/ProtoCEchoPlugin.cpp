@@ -112,7 +112,7 @@ namespace application
     void FieldGeneratorString::DeserializerBody(google::protobuf::io::Printer& printer)
     {
         printer.Print(R"(case $constant$:
-    field.first.Get<services::ProtoLengthDelimited>().GetString($name$);
+    field.first.Get<infra::ProtoLengthDelimited>().GetString($name$);
     break;
 )"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
@@ -160,7 +160,7 @@ namespace application
     {
         printer.Print(R"(case $constant$:
     $name$.emplace_back();
-    field.first.Get<services::ProtoLengthDelimited>().GetString($name$.back());
+    field.first.Get<infra::ProtoLengthDelimited>().GetString($name$.back());
     break;
 )"
             , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
@@ -201,7 +201,7 @@ namespace application
     void FieldGeneratorBytes::DeserializerBody(google::protobuf::io::Printer& printer)
     {
         printer.Print(R"(case $constant$:
-    field.first.Get<services::ProtoLengthDelimited>().GetBytes($name$);
+    field.first.Get<infra::ProtoLengthDelimited>().GetBytes($name$);
     break;
 )"
 , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
@@ -304,7 +304,7 @@ namespace application
     void FieldGeneratorMessage::SerializerBody(google::protobuf::io::Printer& printer)
     {
         printer.Print(R"({
-    services::ProtoLengthDelimitedFormatter nestedMessage(formatter, $constant$);
+    infra::ProtoLengthDelimitedFormatter nestedMessage(formatter, $constant$);
     $name$.Serialize(formatter);
 }
 )"
@@ -352,7 +352,7 @@ namespace application
     {
         printer.Print(R"(if (!$name$.empty())
 {
-    services::ProtoLengthDelimitedFormatter subFormatter = formatter.LengthDelimitedFormatter($constant$);
+    infra::ProtoLengthDelimitedFormatter subFormatter = formatter.LengthDelimitedFormatter($constant$);
 
     for (auto& subField : $name$)
         subField.Serialize(formatter);
@@ -365,7 +365,7 @@ namespace application
     void FieldGeneratorRepeatedMessage::DeserializerBody(google::protobuf::io::Printer& printer)
     {
         printer.Print(R"(case $constant$:
-    $name$.emplace_back(field.first.Get<services::ProtoLengthDelimited>().Parser());
+    $name$.emplace_back(field.first.Get<infra::ProtoLengthDelimited>().Parser());
     break;
 )"
 , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
@@ -452,7 +452,7 @@ namespace application
         }
 
         auto constructByProtoParser = std::make_shared<Constructor>(descriptor.name(), "Deserialize(parser);\n", 0);
-        constructByProtoParser->Parameter("services::ProtoParser& parser");
+        constructByProtoParser->Parameter("infra::ProtoParser& parser");
         constructors->Add(constructByProtoParser);
         classFormatter->Add(constructors);
     }
@@ -462,11 +462,11 @@ namespace application
         auto functions = std::make_shared<Access>("public");
 
         auto serialize = std::make_shared<Function>("Serialize", SerializerBody(), "void", Function::fConst);
-        serialize->Parameter("services::ProtoFormatter& formatter");
+        serialize->Parameter("infra::ProtoFormatter& formatter");
         functions->Add(serialize);
 
         auto deserialize = std::make_shared<Function>("Deserialize", DeserializerBody(), "void", 0);
-        deserialize->Parameter("services::ProtoParser& parser");
+        deserialize->Parameter("infra::ProtoParser& parser");
         functions->Add(deserialize);
 
         auto compareEqual = std::make_shared<Function>("operator==", CompareEqualBody(), "bool", Function::fConst);
@@ -570,7 +570,7 @@ namespace application
 
             printer.Print(R"(while (!parser.Empty())
 {
-    services::ProtoParser::Field field = parser.GetField();
+    infra::ProtoParser::Field field = parser.GetField();
 
 )");
             if (!fieldGenerators.empty())
@@ -585,16 +585,16 @@ namespace application
                 printer.Outdent(); printer.Outdent();
         
                 printer.Print(R"(        default:
-            if (field.first.Is<services::ProtoLengthDelimited>())
-                field.first.Get<services::ProtoLengthDelimited>().SkipEverything();
+            if (field.first.Is<infra::ProtoLengthDelimited>())
+                field.first.Get<infra::ProtoLengthDelimited>().SkipEverything();
             break;
     }
 }
 )");
             }
             else
-                printer.Print(R"(    if (field.first.Is<services::ProtoLengthDelimited>())
-        field.first.Get<services::ProtoLengthDelimited>().SkipEverything();
+                printer.Print(R"(    if (field.first.Is<infra::ProtoLengthDelimited>())
+        field.first.Get<infra::ProtoLengthDelimited>().SkipEverything();
 }
 )");
         }
@@ -694,7 +694,7 @@ namespace application
 
         auto handle = std::make_shared<Function>("Handle", HandleBody(), "void", Function::fVirtual | Function::fOverride);
         handle->Parameter("uint32_t methodId");
-        handle->Parameter("services::ProtoParser& parser");
+        handle->Parameter("infra::ProtoParser& parser");
         functions->Add(handle);
 
         serviceFormatter->Add(functions);
@@ -782,10 +782,10 @@ namespace application
             google::protobuf::io::OstreamOutputStream stream(&result);
             google::protobuf::io::Printer printer(&stream, '$', nullptr);
 
-            printer.Print(R"(services::ProtoFormatter formatter(Rpc().SendStream());
+            printer.Print(R"(infra::ProtoFormatter formatter(Rpc().SendStream());
 formatter.PutVarInt(serviceId);
 {
-    services::ProtoLengthDelimitedFormatter argumentFormatter = formatter.LengthDelimitedFormatter(id$name$);
+    infra::ProtoLengthDelimitedFormatter argumentFormatter = formatter.LengthDelimitedFormatter(id$name$);
     argument.Serialize(formatter);
 }
 Rpc().Send();
@@ -813,8 +813,8 @@ Rpc().Send();
         includesByHeader->Path("infra/util/BoundedString.hpp");
         includesByHeader->Path("infra/util/BoundedVector.hpp");
         includesByHeader->Path("protobuf/echo/Echo.hpp");
-        includesByHeader->Path("protobuf/echo/ProtoFormatter.hpp");
-        includesByHeader->Path("protobuf/echo/ProtoParser.hpp");
+        includesByHeader->Path("infra/syntax/ProtoFormatter.hpp");
+        includesByHeader->Path("infra/syntax/ProtoParser.hpp");
         formatter.Add(includesByHeader);
         auto includesBySource = std::make_shared<IncludesBySource>();
         includesBySource->Path("generated/echo/" + google::protobuf::compiler::cpp::StripProto(file->name()) + ".pb.hpp");

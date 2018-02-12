@@ -5,6 +5,8 @@ ccola_component(syntax_test gmock_test)
         TestAsn1Formatter.cpp
         TestJson.cpp
         TestJsonFormatter.cpp
+        TestProtoFormatter.cpp
+        TestProtoParser.cpp
     )
 
     ccola_dependencies(
