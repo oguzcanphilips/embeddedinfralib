@@ -1,45 +1,11 @@
 #include "infra/event/EventDispatcherWithWeakPtr.hpp"
 #include "infra/timer/TimerServiceManager.hpp"
+#include "services/network/CertificatesMbedTls.hpp"
 #include "services/network/ConnectionMbedTls.hpp"
 
 namespace services
 {
-    MbedTlsCertificates::MbedTlsCertificates()
-    {
-        mbedtls2_x509_crt_init(&caCertificates);
-        mbedtls2_x509_crt_init(&ownCertificate);
-        mbedtls2_pk_init(&privateKey);
-    }
-
-    MbedTlsCertificates::~MbedTlsCertificates()
-    {
-        mbedtls2_pk_free(&privateKey);
-        mbedtls2_x509_crt_free(&caCertificates);
-        mbedtls2_x509_crt_free(&ownCertificate);
-    }
-
-    void MbedTlsCertificates::AddCertificateAuthority(const infra::BoundedConstString& certificate)
-    {
-        int result = mbedtls2_x509_crt_parse(&caCertificates, reinterpret_cast<const unsigned char*>(certificate.data()), certificate.size());
-        assert(result == 0);
-    }
-
-    void MbedTlsCertificates::AddOwnCertificate(const infra::BoundedConstString& certificate, const infra::BoundedConstString& key)
-    {
-        int result = mbedtls2_x509_crt_parse(&ownCertificate, reinterpret_cast<const unsigned char*>(certificate.data()), certificate.size());
-        assert(result == 0);
-        result = mbedtls2_pk_parse_key(&privateKey, reinterpret_cast<const unsigned char*>(key.data()), key.size(), NULL, 0);
-        assert(result == 0);
-    }
-
-    void MbedTlsCertificates::Config(mbedtls2_ssl_config& sslConfig)
-    {
-        mbedtls2_ssl_conf_ca_chain(&sslConfig, &caCertificates, nullptr);
-        int result = mbedtls2_ssl_conf_own_cert(&sslConfig, &ownCertificate, &privateKey);
-        assert(result == 0);
-    }
-
-    ConnectionMbedTls::ConnectionMbedTls(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver, MbedTlsCertificates& certificates,
+    ConnectionMbedTls::ConnectionMbedTls(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver, CertificatesMbedTls& certificates,
         hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession)
         : createdObserver(std::move(createdObserver))
         , randomDataGenerator(randomDataGenerator)
@@ -433,7 +399,7 @@ namespace services
         return connection.receiveBuffer.size() - sizeRead;
     }
 
-    ConnectionMbedTlsListener::ConnectionMbedTlsListener(AllocatorConnectionMbedTls& allocator, ServerConnectionObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_cache_context& serverCache)
+    ConnectionMbedTlsListener::ConnectionMbedTlsListener(AllocatorConnectionMbedTls& allocator, ServerConnectionObserverFactory& factory, CertificatesMbedTls& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_cache_context& serverCache)
         : allocator(allocator)
         , factory(factory)
         , certificates(certificates)
@@ -462,7 +428,7 @@ namespace services
     }
 
     ConnectionMbedTlsConnector::ConnectionMbedTlsConnector(AllocatorConnectionMbedTls& allocator, ClientConnectionObserverFactory& factory,
-        MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_session& clientSession)
+        CertificatesMbedTls& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_session& clientSession)
         : allocator(allocator)
         , factory(factory)
         , certificates(certificates)
@@ -497,7 +463,7 @@ namespace services
 
     ConnectionFactoryMbedTls::ConnectionFactoryMbedTls(AllocatorConnectionMbedTls& connectionAllocator,
         AllocatorConnectionMbedTlsListener& listenerAllocator, AllocatorConnectionMbedTlsConnector& connectorAllocator,
-        ConnectionFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)
+        ConnectionFactory& factory, CertificatesMbedTls& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)
         : connectionAllocator(connectionAllocator)
         , listenerAllocator(listenerAllocator)
         , connectorAllocator(connectorAllocator)
@@ -549,7 +515,7 @@ namespace services
         return nullptr;
     }
 
-    ConnectionIPv6MbedTlsListener::ConnectionIPv6MbedTlsListener(AllocatorConnectionMbedTls& allocator, ServerConnectionIPv6ObserverFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_cache_context& serverCache)
+    ConnectionIPv6MbedTlsListener::ConnectionIPv6MbedTlsListener(AllocatorConnectionMbedTls& allocator, ServerConnectionIPv6ObserverFactory& factory, CertificatesMbedTls& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_cache_context& serverCache)
         : allocator(allocator)
         , factory(factory)
         , certificates(certificates)
@@ -578,7 +544,7 @@ namespace services
     }
 
     ConnectionIPv6MbedTlsConnector::ConnectionIPv6MbedTlsConnector(AllocatorConnectionMbedTls& allocator, ClientConnectionIPv6ObserverFactory& factory,
-        MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_session& clientSession)
+        CertificatesMbedTls& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_session& clientSession)
         : allocator(allocator)
         , factory(factory)
         , certificates(certificates)
@@ -613,7 +579,7 @@ namespace services
 
     ConnectionIPv6FactoryMbedTls::ConnectionIPv6FactoryMbedTls(AllocatorConnectionMbedTls& connectionAllocator,
         AllocatorConnectionIPv6MbedTlsListener& listenerAllocator, AllocatorConnectionIPv6MbedTlsConnector& connectorAllocator,
-        ConnectionIPv6Factory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)
+        ConnectionIPv6Factory& factory, CertificatesMbedTls& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator)
         : connectionAllocator(connectionAllocator)
         , listenerAllocator(listenerAllocator)
         , connectorAllocator(connectorAllocator)
