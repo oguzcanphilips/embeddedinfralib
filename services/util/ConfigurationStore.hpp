@@ -61,7 +61,7 @@ namespace services
         ConfigurationStoreBase(ConfigurationBlob& blob, const infra::Function<void(bool success)>& onLoaded);
 
     public:
-        void Write();
+        void Write(infra::Function<void()> onDone = infra::Function<void()>());
 
         class LockGuard
         {
@@ -89,6 +89,7 @@ namespace services
     private:
         ConfigurationBlob& blob;
         infra::AutoResetFunction<void(bool success)> onLoaded;
+        infra::AutoResetFunction<void()> onWriteDone;
         uint32_t lockCount = 0;
         bool writingBlob = false;
         bool writeRequested = false;
@@ -99,15 +100,7 @@ namespace services
         : public ConfigurationStoreBase
     {
     public:
-        class WithBlob
-            : public ConfigurationStore<T>
-        {
-        public:
-            WithBlob(hal::Flash& flash1, hal::Flash& flash2, const infra::Function<void(bool success)>& onLoaded);
-
-        private:
-            ConfigurationBlobImpl::WithStorage<T::maxMessageSize> blob;
-        };
+        class WithBlob;
 
         ConfigurationStore(ConfigurationBlob& blob, const infra::Function<void(bool success)>& onLoaded);
 
@@ -122,12 +115,23 @@ namespace services
         T configuration;
     };
 
+    template<class T>
+    class ConfigurationStore<T>::WithBlob
+        : public ConfigurationStore<T>
+    {
+    public:
+        WithBlob(hal::Flash& flashFirst, hal::Flash& flashSecond, const infra::Function<void(bool success)>& onLoaded);
+
+    private:
+        ConfigurationBlobImpl::WithStorage<T::maxMessageSize> blob;
+    };
+
     ////    Implementation    ////
 
     template<class T>
-    ConfigurationStore<T>::WithBlob::WithBlob(hal::Flash& flash1, hal::Flash& flash2, const infra::Function<void(bool success)>& onLoaded)
+    ConfigurationStore<T>::WithBlob::WithBlob(hal::Flash& flashFirst, hal::Flash& flashSecond, const infra::Function<void(bool success)>& onLoaded)
         : ConfigurationStore<T>(blob, onLoaded)
-        , blob(flash1, flash2, [this](bool success) { this->onBlobLoaded(success); })
+        , blob(flashFirst, flashSecond, [this](bool success) { this->OnBlobLoaded(success); })
     {}
 
     template<class T>

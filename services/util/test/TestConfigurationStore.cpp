@@ -228,3 +228,18 @@ TEST_F(ConfigurationStoreTest, during_Lock_Write_is_held)
     EXPECT_CALL(configurationBlob, Write(testing::_)).WillOnce(testing::SaveArg<0>(&onWriteDone));
     lock = infra::none;
 }
+
+TEST_F(ConfigurationStoreTest, onDone_is_called_when_done)
+{
+    EXPECT_CALL(*this, OnLoaded(false));
+    configurationStore.OnBlobLoaded(false);
+
+    infra::Function<void()> onWriteDone;
+    EXPECT_CALL(configurationBlob, Blob()).WillOnce(testing::Return(infra::ByteRange()));
+    EXPECT_CALL(configurationStore.Configuration(), Serialize(testing::_));
+    EXPECT_CALL(configurationBlob, Write(testing::_)).WillOnce(testing::SaveArg<0>(&onWriteDone));
+
+    infra::VerifyingFunctionMock<void()> onDone;
+    configurationStore.Write(onDone);
+    onWriteDone();
+}

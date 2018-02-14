@@ -96,9 +96,12 @@ namespace services
         , onLoaded(onLoaded)
     {}
 
-    void ConfigurationStoreBase::Write()
+    void ConfigurationStoreBase::Write(infra::Function<void()> onDone)
     {
         assert(!onLoaded);
+        if (onDone)
+            onWriteDone = onDone;
+
         writeRequested = true;
         if (!writingBlob && lockCount == 0)
         {
@@ -133,6 +136,8 @@ namespace services
         writingBlob = false;
         if (writeRequested)
             Write();
+        else if (onWriteDone)
+            onWriteDone();
     }
 
     void ConfigurationStoreBase::Unlocked()
