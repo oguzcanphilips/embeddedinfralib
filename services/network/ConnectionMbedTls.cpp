@@ -96,6 +96,12 @@ namespace services
                 receiveBuffer.resize(newBufferStart);
                 break;
             }
+            else if (result == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY)
+            {
+                TlsReadFailure(result);
+                receiveBuffer.resize(newBufferStart);
+                break;
+            }
             else if (result == MBEDTLS_ERR_SSL_BAD_INPUT_DATA)  // Precondition failure
             {
                 TlsReadFailure(result);
