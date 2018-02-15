@@ -81,12 +81,12 @@ namespace application
 
     void FieldGenerator::CompareEqualBody(google::protobuf::io::Printer& printer)
     {
-        printer.Print("\n&& $name$ == other.$name$", "name", google::protobuf::compiler::cpp::FieldName(&descriptor));
+        printer.Print("\n&& $name$ == other.$name$", "name", descriptor.name());
     }
 
     void FieldGeneratorFixed32::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), "uint32_t"));
+        entities.Add(std::make_shared<DataMember>(descriptor.name(), "uint32_t"));
     }
 
     std::string FieldGeneratorFixed32::MaxMessageSize() const
@@ -97,7 +97,7 @@ namespace application
     void FieldGeneratorFixed32::SerializerBody(google::protobuf::io::Printer& printer)
     {
         printer.Print("formatter.PutFixed32Field($name$, $constant$);\n"
-            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "name", descriptor.name()
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
@@ -107,19 +107,19 @@ namespace application
     $name$ = field.first.Get<uint32_t>();
     break;
 )"
-, "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+, "name", descriptor.name()
 , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorFixed32::GenerateConstructorParameter(Constructor& constructor)
     {
-        constructor.Parameter("uint32_t " + google::protobuf::compiler::cpp::FieldName(&descriptor));
-        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
+        constructor.Parameter("uint32_t " + descriptor.name());
+        constructor.Initializer(descriptor.name() + "(" + descriptor.name() + ")");
     }
 
     void FieldGeneratorBool::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), "bool"));
+        entities.Add(std::make_shared<DataMember>(descriptor.name(), "bool"));
     }
 
     std::string FieldGeneratorBool::MaxMessageSize() const
@@ -130,7 +130,7 @@ namespace application
     void FieldGeneratorBool::SerializerBody(google::protobuf::io::Printer& printer)
     {
         printer.Print("formatter.PutVarIntField($name$, $constant$);\n"
-            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "name", descriptor.name()
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
@@ -140,14 +140,14 @@ namespace application
     $name$ = static_cast<bool>(field.first.Get<uint64_t>());
     break;
 )"
-, "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+, "name", descriptor.name()
 , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorBool::GenerateConstructorParameter(Constructor& constructor)
     {
-        constructor.Parameter("bool " + google::protobuf::compiler::cpp::FieldName(&descriptor));
-        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
+        constructor.Parameter("bool " + descriptor.name());
+        constructor.Initializer(descriptor.name() + "(" + descriptor.name() + ")");
     }
 
     FieldGeneratorString::FieldGeneratorString(const google::protobuf::FieldDescriptor& descriptor)
@@ -160,7 +160,7 @@ namespace application
 
     void FieldGeneratorString::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), "infra::BoundedString::WithStorage<" + google::protobuf::SimpleItoa(stringSize) + ">"));
+        entities.Add(std::make_shared<DataMember>(descriptor.name(), "infra::BoundedString::WithStorage<" + google::protobuf::SimpleItoa(stringSize) + ">"));
     }
 
     std::string FieldGeneratorString::MaxMessageSize() const
@@ -171,7 +171,7 @@ namespace application
     void FieldGeneratorString::SerializerBody(google::protobuf::io::Printer& printer)
     {
         printer.Print("formatter.PutStringField($name$, $constant$);\n"
-            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "name", descriptor.name()
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
@@ -181,14 +181,14 @@ namespace application
     field.first.Get<infra::ProtoLengthDelimited>().GetString($name$);
     break;
 )"
-            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "name", descriptor.name()
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorString::GenerateConstructorParameter(Constructor& constructor)
     {
-        constructor.Parameter("infra::BoundedConstString " + google::protobuf::compiler::cpp::FieldName(&descriptor));
-        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
+        constructor.Parameter("infra::BoundedConstString " + descriptor.name());
+        constructor.Initializer(descriptor.name() + "(" + descriptor.name() + ")");
     }
 
     FieldGeneratorRepeatedString::FieldGeneratorRepeatedString(const google::protobuf::FieldDescriptor& descriptor)
@@ -204,7 +204,7 @@ namespace application
 
     void FieldGeneratorRepeatedString::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor)
+        entities.Add(std::make_shared<DataMember>(descriptor.name()
             , "infra::BoundedVector<infra::BoundedString::WithStorage<" + google::protobuf::SimpleItoa(stringSize) + ">>::WithMaxSize<" + google::protobuf::SimpleItoa(arraySize) + ">"));
     }
 
@@ -218,7 +218,7 @@ namespace application
         printer.Print(R"(for (auto& subField : $name$)
     formatter.PutStringField(subField, $constant$);
 )"
-            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "name", descriptor.name()
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
@@ -229,14 +229,14 @@ namespace application
     field.first.Get<infra::ProtoLengthDelimited>().GetString($name$.back());
     break;
 )"
-            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "name", descriptor.name()
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorRepeatedString::GenerateConstructorParameter(Constructor& constructor)
     {
-        constructor.Parameter("const infra::BoundedVector<infra::BoundedString::WithStorage<" + google::protobuf::SimpleItoa(stringSize) + ">>& " + google::protobuf::compiler::cpp::FieldName(&descriptor));
-        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
+        constructor.Parameter("const infra::BoundedVector<infra::BoundedString::WithStorage<" + google::protobuf::SimpleItoa(stringSize) + ">>& " + descriptor.name());
+        constructor.Initializer(descriptor.name() + "(" + descriptor.name() + ")");
     }
 
     FieldGeneratorBytes::FieldGeneratorBytes(const google::protobuf::FieldDescriptor& descriptor)
@@ -249,7 +249,7 @@ namespace application
 
     void FieldGeneratorBytes::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), "infra::BoundedVector<uint8_t>::WithMaxSize<" + google::protobuf::SimpleItoa(bytesSize) + ">"));
+        entities.Add(std::make_shared<DataMember>(descriptor.name(), "infra::BoundedVector<uint8_t>::WithMaxSize<" + google::protobuf::SimpleItoa(bytesSize) + ">"));
     }
 
     std::string FieldGeneratorBytes::MaxMessageSize() const
@@ -260,7 +260,7 @@ namespace application
     void FieldGeneratorBytes::SerializerBody(google::protobuf::io::Printer& printer)
     {
         printer.Print("formatter.PutBytesField($name$, $constant$);\n"
-            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "name", descriptor.name()
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
@@ -270,19 +270,19 @@ namespace application
     field.first.Get<infra::ProtoLengthDelimited>().GetBytes($name$);
     break;
 )"
-, "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+, "name", descriptor.name()
 , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorBytes::GenerateConstructorParameter(Constructor& constructor)
     {
-        constructor.Parameter("infra::BoundedVector<uint8_t>& " + google::protobuf::compiler::cpp::FieldName(&descriptor));
-        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
+        constructor.Parameter("infra::BoundedVector<uint8_t>& " + descriptor.name());
+        constructor.Initializer(descriptor.name() + "(" + descriptor.name() + ")");
     }
 
     void FieldGeneratorUint32::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), "uint32_t"));
+        entities.Add(std::make_shared<DataMember>(descriptor.name(), "uint32_t"));
     }
 
     std::string FieldGeneratorUint32::MaxMessageSize() const
@@ -293,7 +293,7 @@ namespace application
     void FieldGeneratorUint32::SerializerBody(google::protobuf::io::Printer& printer)
     {
         printer.Print("formatter.PutVarIntField($name$, $constant$);\n"
-            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "name", descriptor.name()
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
@@ -303,14 +303,14 @@ namespace application
     $name$ = static_cast<uint32_t>(field.first.Get<uint64_t>());
     break;
 )"
-            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "name", descriptor.name()
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorUint32::GenerateConstructorParameter(Constructor& constructor)
     {
-        constructor.Parameter("uint32_t " + google::protobuf::compiler::cpp::FieldName(&descriptor));
-        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
+        constructor.Parameter("uint32_t " + descriptor.name());
+        constructor.Initializer(descriptor.name() + "(" + descriptor.name() + ")");
     }
 
     FieldGeneratorRepeatedUint32::FieldGeneratorRepeatedUint32(const google::protobuf::FieldDescriptor& descriptor)
@@ -323,7 +323,7 @@ namespace application
 
     void FieldGeneratorRepeatedUint32::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor)
+        entities.Add(std::make_shared<DataMember>(descriptor.name()
             , "infra::BoundedVector<uint32_t>::WithMaxSize<" + google::protobuf::SimpleItoa(arraySize) + ">"));
     }
 
@@ -337,7 +337,7 @@ namespace application
         printer.Print(R"(for (auto& subField : $name$)
     formatter.PutVarIntField(subField, $constant$);
 )"
-, "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+, "name", descriptor.name()
 , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
@@ -347,19 +347,19 @@ namespace application
     $name$.push_back(static_cast<uint32_t>(field.first.Get<uint64_t>()));
     break;
 )"
-, "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+, "name", descriptor.name()
 , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorRepeatedUint32::GenerateConstructorParameter(Constructor& constructor)
     {
-        constructor.Parameter("const infra::BoundedVector<uint32_t>& " + google::protobuf::compiler::cpp::FieldName(&descriptor));
-        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
+        constructor.Parameter("const infra::BoundedVector<uint32_t>& " + descriptor.name());
+        constructor.Initializer(descriptor.name() + "(" + descriptor.name() + ")");
     }
 
     void FieldGeneratorMessage::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor), descriptor.message_type()->name()));
+        entities.Add(std::make_shared<DataMember>(descriptor.name(), descriptor.message_type()->name()));
     }
 
     std::string FieldGeneratorMessage::MaxMessageSize() const
@@ -374,7 +374,7 @@ namespace application
     $name$.Serialize(formatter);
 }
 )"
-            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "name", descriptor.name()
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
@@ -384,14 +384,14 @@ namespace application
     $name$.Deserialize(parser);
     break;
 )"
-            , "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+            , "name", descriptor.name()
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorMessage::GenerateConstructorParameter(Constructor& constructor)
     {
-        constructor.Parameter("const " + descriptor.message_type()->name() + "& " + google::protobuf::compiler::cpp::FieldName(&descriptor));
-        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
+        constructor.Parameter("const " + descriptor.message_type()->name() + "& " + descriptor.name());
+        constructor.Initializer(descriptor.name() + "(" + descriptor.name() + ")");
     }
 
     FieldGeneratorRepeatedMessage::FieldGeneratorRepeatedMessage(const google::protobuf::FieldDescriptor& descriptor)
@@ -404,7 +404,7 @@ namespace application
 
     void FieldGeneratorRepeatedMessage::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldName(&descriptor)
+        entities.Add(std::make_shared<DataMember>(descriptor.name()
             , "infra::BoundedVector<" + descriptor.message_type()->name() + ">::WithMaxSize<" + google::protobuf::SimpleItoa(arraySize) + ">"));
     }
 
@@ -424,7 +424,7 @@ namespace application
         subField.Serialize(formatter);
 }
 )"
-, "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+, "name", descriptor.name()
 , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
@@ -437,14 +437,14 @@ namespace application
     break;
 }
 )"
-, "name", google::protobuf::compiler::cpp::FieldName(&descriptor)
+, "name", descriptor.name()
 , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
     }
 
     void FieldGeneratorRepeatedMessage::GenerateConstructorParameter(Constructor& constructor)
     {
-        constructor.Parameter("const infra::BoundedVector<" + descriptor.message_type()->name() + ">& " + google::protobuf::compiler::cpp::FieldName(&descriptor));
-        constructor.Initializer(google::protobuf::compiler::cpp::FieldName(&descriptor) + "(" + google::protobuf::compiler::cpp::FieldName(&descriptor) + ")");
+        constructor.Parameter("const infra::BoundedVector<" + descriptor.message_type()->name() + ">& " + descriptor.name());
+        constructor.Initializer(descriptor.name() + "(" + descriptor.name() + ")");
     }
 
     MessageGenerator::MessageGenerator(const google::protobuf::Descriptor& descriptor, Entities& formatter)
