@@ -171,14 +171,15 @@ namespace services
                 tbsEnd = contentsStream.Writer().Processed();
 
                 // Sign new certificate
-                int32_t hash_id = ownCertificate.sig_oid.p[8];
                 unsigned char hash[64] = {};
-                //x509_hash(tbsBegin.cend(), std::distance(tbsBegin.cend(), tbsEnd.cend()), hash_id, hash);
 
-                //if (mbedtsl2_rsa_pkcs1_sign(&context, RSA_PRIVATE, (rsa_hash_id_t)hash_id, 0, hash, const_cast<unsigned char*>(cert.sig.p)) != 0)
+                if (mbedtls2_md(mbedtls2_md_info_from_type(ownCertificate.sig_md), tbsBegin.cend(), std::distance(tbsBegin.cend(), tbsEnd.cend()), hash) != 0)
+                    std::abort();
+
+                //if (mbedtsl2_pk_sign(&context, RSA_PRIVATE, (rsa_hash_id_t)hash_id, 0, hash, const_cast<unsigned char*>(cert.sig.p)) != 0)
                 //    std::abort();
 
-                //x509_add_algorithm(certificateSequence, cert.sig_oid2);
+                X509AddAlgorithm(certificateSequence, ownCertificate.sig_oid);
                 //certificateSequence.AddBitString(MakeConstByteRange(cert.sig));
             }
         }
