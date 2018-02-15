@@ -24,7 +24,7 @@ namespace services
 
 		void GenerateNewKey(hal::SynchronousRandomDataGenerator& randomDataGenerator);
 		void WritePrivateKey(infra::BoundedString outputBuffer);
-        void WriteOwnCertificate(infra::BoundedString outputBuffer);
+        void WriteOwnCertificate(infra::BoundedString outputBuffer, hal::SynchronousRandomDataGenerator& randomDataGenerator);
 
 	private:
 		int32_t ExtractExponent(const mbedtls2_rsa_context& rsaContext) const;
@@ -33,7 +33,7 @@ namespace services
         void X509AddName(infra::Asn1Formatter& root, const mbedtls2_x509_name& name) const;
         void X509AddTime(infra::Asn1Formatter& root, const mbedtls2_x509_time& time) const;
 
-	private:
+	protected:
 		mbedtls2_x509_crt caCertificates;
 		mbedtls2_x509_crt ownCertificate;
 		mbedtls2_pk_context privateKey;

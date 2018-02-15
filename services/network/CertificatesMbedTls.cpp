@@ -2,8 +2,10 @@
 #include "infra/stream/StringOutputStream.hpp"
 #include "services/network/CertificatesMbedTls.hpp"
 #include "mbedtls/pk.h"
+#include "mbedtls/oid.h"
 
-namespace {
+namespace
+{
 	int RandomDataGeneratorWrapper(void* data, unsigned char* output, std::size_t size)
 	{
 		reinterpret_cast<hal::SynchronousRandomDataGenerator*>(data)->GenerateRandomData(infra::ByteRange(reinterpret_cast<uint8_t*>(output), reinterpret_cast<uint8_t*>(output) + size));
@@ -100,7 +102,7 @@ namespace services
 		stream << '\0';
 	}
 
-    void CertificatesMbedTls::WriteOwnCertificate(infra::BoundedString outputBuffer)
+    void CertificatesMbedTls::WriteOwnCertificate(infra::BoundedString outputBuffer, hal::SynchronousRandomDataGenerator& randomDataGenerator)
     {
         infra::ByteOutputStream::WithStorage<2048> contentsStream;
 
@@ -149,13 +151,18 @@ namespace services
                     // PublicKeyInfo
                     {
                         auto publicKeyInfoSequence = tbsSequence.StartSequence();
-                        //X509AddAlgorithm(publicKeyInfoSequence, ownCertificate.pk_oid);
+                        mbedtls2_x509_buf pk_oid;
+
+                        mbedtls2_oid_get_oid_by_pk_alg(mbedtls2_pk_get_type(&ownCertificate.pk), const_cast<const char**>(reinterpret_cast<char**>(&pk_oid.p)), &pk_oid.len);
+
+                        X509AddAlgorithm(publicKeyInfoSequence, pk_oid);
 
                         {
                             auto publicKeyBitString = publicKeyInfoSequence.StartBitString();
                             {
                                 auto rsaPublicKeySequence = publicKeyBitString.StartSequence();
                                 mbedtls2_rsa_context* rsaContext = mbedtls2_pk_rsa(ownCertificate.pk);
+                                assert(rsaContext != nullptr);
 
                                 rsaPublicKeySequence.AddBigNumber(MakeByteRange(rsaContext->N));
                                 rsaPublicKeySequence.AddBigNumber(MakeByteRange(rsaContext->E));
@@ -176,11 +183,14 @@ namespace services
                 if (mbedtls2_md(mbedtls2_md_info_from_type(ownCertificate.sig_md), tbsBegin.cend(), std::distance(tbsBegin.cend(), tbsEnd.cend()), hash) != 0)
                     std::abort();
 
-                //if (mbedtsl2_pk_sign(&context, RSA_PRIVATE, (rsa_hash_id_t)hash_id, 0, hash, const_cast<unsigned char*>(cert.sig.p)) != 0)
-                //    std::abort();
+                unsigned char signature[MBEDTLS_MPI_MAX_SIZE];
+                size_t signatureLength = 0;
+
+                if (mbedtls2_pk_sign(&privateKey, ownCertificate.sig_md, hash, 0, signature, &signatureLength, &RandomDataGeneratorWrapper, &randomDataGenerator) != 0)
+                    std::abort();
 
                 X509AddAlgorithm(certificateSequence, ownCertificate.sig_oid);
-                //certificateSequence.AddBitString(MakeConstByteRange(cert.sig));
+                certificateSequence.AddBitString(infra::ConstByteRange(signature, signature + signatureLength));
             }
         }
 
