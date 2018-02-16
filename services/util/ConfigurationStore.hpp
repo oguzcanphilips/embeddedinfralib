@@ -18,8 +18,9 @@ namespace services
         ~ConfigurationBlob() = default;
 
     public:
-        virtual infra::ByteRange Blob() = 0;
-        virtual void Write(const infra::Function<void()>& onDone) = 0;
+        virtual infra::ByteRange CurrentBlob() = 0;
+        virtual infra::ByteRange MaxBlob() = 0;
+        virtual void Write(uint32_t size, const infra::Function<void()>& onDone) = 0;
     };
 
     class ConfigurationBlobImpl
@@ -38,12 +39,14 @@ namespace services
 
         ConfigurationBlobImpl(infra::ByteRange blob, hal::Flash& flashFirst, hal::Flash& flashSecond, const infra::Function<void(bool success)>& onLoaded);
 
-        virtual infra::ByteRange Blob() override;
-        virtual void Write(const infra::Function<void()>& onDone) override;
+        virtual infra::ByteRange CurrentBlob() override;
+        virtual infra::ByteRange MaxBlob() override;
+        virtual void Write(uint32_t size, const infra::Function<void()>& onDone) override;
 
     private:
         void Recover();
-        void EraseInactiveFlashAfterRecovery();
+        void RecoverCurrentSize();
+        void EraseInactiveFlashAfterRecovery(bool success);
         bool BlobIsValid() const;
         void PrepareBlobForWriting();
 
@@ -51,6 +54,7 @@ namespace services
         infra::ByteRange blob;
         hal::Flash* activeFlash;
         hal::Flash* inactiveFlash;
+        uint32_t currentSize = 0;
         infra::AutoResetFunction<void(bool success)> onLoaded;
         infra::AutoResetFunction<void()> onWriteDone;
     };

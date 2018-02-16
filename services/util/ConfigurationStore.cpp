@@ -14,14 +14,20 @@ namespace services
         Recover();
     }
 
-    infra::ByteRange ConfigurationBlobImpl::Blob()
+    infra::ByteRange ConfigurationBlobImpl::CurrentBlob()
+    {
+        return infra::Head(infra::DiscardHead(blob, sizeof(Header)), currentSize);
+    }
+
+    infra::ByteRange ConfigurationBlobImpl::MaxBlob()
     {
         return infra::DiscardHead(blob, sizeof(Header));
     }
 
-    void ConfigurationBlobImpl::Write(const infra::Function<void()>& onDone)
+    void ConfigurationBlobImpl::Write(uint32_t size, const infra::Function<void()>& onDone)
     {
         onWriteDone = onDone;
+        currentSize = size;
         PrepareBlobForWriting();
         std::swap(inactiveFlash, activeFlash);
         activeFlash->WriteBuffer(blob, 0, [this]() { onWriteDone(); });
@@ -32,40 +38,53 @@ namespace services
         activeFlash->ReadBuffer(blob, 0, [this]()
         {
             if (BlobIsValid())
-                EraseInactiveFlashAfterRecovery();
+            {
+                RecoverCurrentSize();
+                EraseInactiveFlashAfterRecovery(true);
+            }
             else
             {
                 std::swap(activeFlash, inactiveFlash);
                 activeFlash->ReadBuffer(blob, 0, [this]()
                 {
                     if (BlobIsValid())
-                        EraseInactiveFlashAfterRecovery();
+                    {
+                        RecoverCurrentSize();
+                        EraseInactiveFlashAfterRecovery(true);
+                    }
                     else
-                        onLoaded(false);
+                        EraseInactiveFlashAfterRecovery(false);
                 });
             }
         });
     }
 
-    void ConfigurationBlobImpl::EraseInactiveFlashAfterRecovery()
+    void ConfigurationBlobImpl::RecoverCurrentSize()
     {
-        inactiveFlash->EraseAll([this]()
+        Header header;
+        infra::Copy(infra::Head(blob, sizeof(header)), infra::MakeByteRange(header));
+
+        currentSize = header.size;
+    }
+
+    void ConfigurationBlobImpl::EraseInactiveFlashAfterRecovery(bool success)
+    {
+        inactiveFlash->EraseAll([this, success]()
         {
-            onLoaded(true);
+            onLoaded(success);
         });
     }
 
     bool ConfigurationBlobImpl::BlobIsValid() const
     {
-        infra::ByteInputStream stream(blob);
         Header header;
-        stream >> header;
+        infra::Copy(infra::Head(blob, sizeof(header)), infra::MakeByteRange(header));
 
         if (header.size + sizeof(Header) > blob.size())
             return false;
 
         std::array<uint8_t, 32> messageHash;
-        mbedtls2_sha256(blob.begin() + sizeof(header.hash), blob.size() - sizeof(header.hash), messageHash.data(), 0);  //TICS !INT#030
+        mbedtls2_sha256(blob.begin() + sizeof(header.hash), std::min<std::size_t>(header.size + sizeof(header.size), blob.size() - sizeof(header.hash)), messageHash.data(), 0);  //TICS !INT#030
 
         return infra::Head(infra::MakeRange(messageHash), sizeof(header.hash)) == header.hash;
     }
@@ -73,22 +92,14 @@ namespace services
     void ConfigurationBlobImpl::PrepareBlobForWriting()
     {
         Header header;
-        {
-            infra::ByteOutputStream stream(blob);
-            header.size = blob.size() - sizeof(header);
-            stream << header;
-        }
+        header.size = currentSize;
+        infra::Copy(infra::MakeByteRange(header), infra::Head(blob, sizeof(header)));
 
         std::array<uint8_t, 32> messageHash;
-        mbedtls2_sha256(blob.begin() + sizeof(header.hash), blob.size() - sizeof(header.hash), messageHash.data(), 0);  //TICS !INT#030
+        mbedtls2_sha256(blob.begin() + sizeof(header.hash), currentSize + sizeof(header.size), messageHash.data(), 0);  //TICS !INT#030
 
         infra::Copy(infra::Head(infra::MakeRange(messageHash), sizeof(header.hash)), infra::MakeRange(header.hash));
-
-        {
-            infra::ByteOutputStream stream(blob);
-            header.size = blob.size() - sizeof(header);
-            stream << header;
-        }
+        infra::Copy(infra::MakeByteRange(header), infra::Head(blob, sizeof(header)));
     }
 
     ConfigurationStoreBase::ConfigurationStoreBase(ConfigurationBlob& blob, const infra::Function<void(bool success)>& onLoaded)
@@ -107,10 +118,10 @@ namespace services
         {
             writeRequested = false;
             writingBlob = true;
-            infra::ByteOutputStream stream(blob.Blob());
+            infra::ByteOutputStream stream(blob.MaxBlob());
             infra::ProtoFormatter formatter(stream);
             Serialize(formatter);
-            blob.Write([this]() { BlobWriteDone(); });
+            blob.Write(stream.Writer().Processed().size(), [this]() { BlobWriteDone(); });
         }
     }
 
@@ -123,7 +134,7 @@ namespace services
     {
         if (success)
         {
-            infra::ByteInputStream stream(blob.Blob());
+            infra::ByteInputStream stream(blob.CurrentBlob());
             infra::ProtoParser parser(stream);
             Deserialize(parser);
         }
