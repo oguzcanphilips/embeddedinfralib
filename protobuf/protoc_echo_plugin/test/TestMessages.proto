@@ -46,6 +46,22 @@ message TestNestedMessage
     NestedMessage message = 1;
 }
 
+message TestMoreNestedMessage
+{
+    message NestedMessage1
+    {
+        uint32 value = 1;
+    }
+
+	message NestedMessage2
+    {
+        uint32 value = 2;
+    }
+
+    NestedMessage1 message1 = 1;
+    NestedMessage2 message2 = 2;
+}
+
 message TestNestedRepeatedMessage
 {
     message NestedMessage

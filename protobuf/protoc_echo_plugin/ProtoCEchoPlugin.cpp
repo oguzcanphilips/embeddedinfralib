@@ -381,8 +381,11 @@ namespace application
     void FieldGeneratorMessage::DeserializerBody(google::protobuf::io::Printer& printer)
     {
         printer.Print(R"(case $constant$:
-    $name$.Deserialize(parser);
+{
+    infra::ProtoParser nestedParser = field.first.Get<infra::ProtoLengthDelimited>().Parser();
+    $name$.Deserialize(nestedParser);
     break;
+}
 )"
             , "name", descriptor.name()
             , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));

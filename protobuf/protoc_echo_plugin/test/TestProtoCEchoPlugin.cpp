@@ -216,6 +216,30 @@ TEST(ProtoCEchoPluginTest, deserialize_nested_message)
     EXPECT_EQ(5, message.message.value);
 }
 
+TEST(ProtoCEchoPluginTest, serialize_more_nested_message)
+{
+    test_messages::TestMoreNestedMessage message;
+    message.message1.value = 5;
+    message.message2.value = 10;
+
+    infra::ByteOutputStream::WithStorage<100> stream;
+    infra::ProtoFormatter formatter(stream);
+    message.Serialize(formatter);
+
+    EXPECT_EQ((std::array<uint8_t, 8>{ (1 << 3) | 2, 2, 1 << 3, 5, (2 << 3) | 2, 2, 2 << 3, 10 }), stream.Writer().Processed());
+}
+
+TEST(ProtoCEchoPluginTest, deserialize_more_nested_message)
+{
+    std::array<uint8_t, 8> data{ (1 << 3) | 2, 2, 1 << 3, 5, (2 << 3) | 2, 2, 2 << 3, 10 };
+    infra::ByteInputStream stream(data);
+    infra::ProtoParser parser(stream);
+
+    test_messages::TestMoreNestedMessage message(parser);
+    EXPECT_EQ(5, message.message1.value);
+    EXPECT_EQ(10, message.message2.value);
+}
+
 TEST(ProtoCEchoPluginTest, serialize_nested_repeated_message)
 {
     test_messages::TestNestedRepeatedMessage message;
