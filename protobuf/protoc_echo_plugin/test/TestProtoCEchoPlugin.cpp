@@ -245,22 +245,25 @@ TEST(ProtoCEchoPluginTest, serialize_nested_repeated_message)
     test_messages::TestNestedRepeatedMessage message;
     message.message.push_back(test_messages::TestNestedRepeatedMessage::NestedMessage());
     message.message[0].value = 5;
+    message.message.push_back(test_messages::TestNestedRepeatedMessage::NestedMessage());
+    message.message[1].value = 6;
 
     infra::ByteOutputStream::WithStorage<100> stream;
     infra::ProtoFormatter formatter(stream);
     message.Serialize(formatter);
 
-    EXPECT_EQ((std::array<uint8_t, 4>{ (1 << 3) | 2, 2, 1 << 3, 5 }), stream.Writer().Processed());
+    EXPECT_EQ((std::array<uint8_t, 8>{ (1 << 3) | 2, 2, 1 << 3, 5, (1 << 3) | 2, 2, 1 << 3, 6 }), stream.Writer().Processed());
 }
 
 TEST(ProtoCEchoPluginTest, deserialize_nested_repeated_message)
 {
-    std::array<uint8_t, 4> data{ (1 << 3) | 2, 2, 1 << 3, 5 };
+    std::array<uint8_t, 8> data{ (1 << 3) | 2, 2, 1 << 3, 5, (1 << 3) | 2, 2, 1 << 3, 6 };
     infra::ByteInputStream stream(data);
     infra::ProtoParser parser(stream);
 
     test_messages::TestNestedRepeatedMessage message(parser);
     EXPECT_EQ(5, message.message[0].value);
+    EXPECT_EQ(6, message.message[1].value);
 }
 
 TEST(ProtoCEchoPluginTest, invoke_service_proxy_method)

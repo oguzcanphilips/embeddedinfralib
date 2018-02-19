@@ -421,10 +421,11 @@ namespace application
     {
         printer.Print(R"(if (!$name$.empty())
 {
-    infra::ProtoLengthDelimitedFormatter subFormatter = formatter.LengthDelimitedFormatter($constant$);
-
     for (auto& subField : $name$)
+    {
+        infra::ProtoLengthDelimitedFormatter subFormatter = formatter.LengthDelimitedFormatter($constant$);
         subField.Serialize(formatter);
+    }
 }
 )"
 , "name", descriptor.name()
