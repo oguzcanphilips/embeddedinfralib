@@ -139,7 +139,10 @@ TEST_F(ConfigurationBlobTest, Write_writes_to_inactive_flash)
 
     std::array<uint8_t, 20> blobData = { 0x21, 0xf1, 0xfb, 0x20, 0xaf, 0x91, 0x92, 0x86, 8, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 0 };
     EXPECT_EQ(blobData, writeBuffer);
+
+    EXPECT_CALL(flash1, EraseSectors(0, 1, testing::_)).WillOnce(testing::SaveArg<2>(&onEraseDone));
     onWriteDone();
+    onEraseDone();
 }
 
 class ConfigurationBlobMock

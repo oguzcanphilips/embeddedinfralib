@@ -30,7 +30,7 @@ namespace services
         currentSize = size;
         PrepareBlobForWriting();
         std::swap(inactiveFlash, activeFlash);
-        activeFlash->WriteBuffer(blob, 0, [this]() { onWriteDone(); });
+        activeFlash->WriteBuffer(blob, 0, [this]() { inactiveFlash->EraseAll([this]() { onWriteDone(); }); });
     }
 
     void ConfigurationBlobImpl::Recover()
