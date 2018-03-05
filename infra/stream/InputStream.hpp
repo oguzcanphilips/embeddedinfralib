@@ -1,6 +1,7 @@
 #ifndef INFRA_INPUT_STREAM_HPP
 #define INFRA_INPUT_STREAM_HPP
 
+#include "infra/stream/StreamErrorPolicy.hpp"
 #include "infra/stream/StreamManipulators.hpp"
 #include "infra/util/BoundedString.hpp"
 #include "infra/util/ByteRange.hpp"

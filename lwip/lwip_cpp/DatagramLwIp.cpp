@@ -51,20 +51,13 @@ namespace services
         pbuf_free(buffer);
     }
 
-    void DatagramSenderPeerLwIp::UdpWriter::Insert(infra::ConstByteRange range)
+    void DatagramSenderPeerLwIp::UdpWriter::Insert(infra::ConstByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
-        ReportResult(range.size() <= Available());
+        errorPolicy.ReportResult(range.size() <= Available());
         range.shrink_from_back_to(Available());
         err_t result = pbuf_take_at(buffer, range.begin(), static_cast<uint16_t>(range.size()), bufferOffset);
         assert(result == ERR_OK);
         bufferOffset += static_cast<uint16_t>(range.size());
-    }
-
-    void DatagramSenderPeerLwIp::UdpWriter::Insert(uint8_t element)
-    {
-        ReportResult(Available() >= 1);
-        pbuf_put_at(buffer, bufferOffset, element);
-        ++bufferOffset;
     }
 
     std::size_t DatagramSenderPeerLwIp::UdpWriter::Available() const

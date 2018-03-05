@@ -54,14 +54,9 @@ namespace services
         : connection(connection)
     {}
 
-    void ConnectionStub::StreamWriterStub::Insert(infra::ConstByteRange range)
+    void ConnectionStub::StreamWriterStub::Insert(infra::ConstByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
         connection.sentData.insert(connection.sentData.end(), range.begin(), range.end());
-    }
-
-    void ConnectionStub::StreamWriterStub::Insert(uint8_t element)
-    {
-        connection.sentData.push_back(element);
     }
 
     std::size_t ConnectionStub::StreamWriterStub::Available() const

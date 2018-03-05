@@ -13,12 +13,9 @@ namespace infra
     {
     public:
         explicit StdStringOutputStreamWriter(std::string& string);
-        StdStringOutputStreamWriter(std::string& string, SoftFail);
-        StdStringOutputStreamWriter(std::string& string, NoFail);
 
     private:
-        virtual void Insert(ConstByteRange range) override;
-        virtual void Insert(uint8_t element) override;
+        virtual void Insert(ConstByteRange range, StreamErrorPolicy& errorPolicy) override;
         virtual std::size_t Available() const override;
 
     private:

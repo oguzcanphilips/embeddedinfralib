@@ -12,8 +12,7 @@ namespace infra
         : public StreamWriter
     {
     private:
-        virtual void Insert(ConstByteRange range) override;
-        virtual void Insert(uint8_t element) override;
+        virtual void Insert(ConstByteRange range, StreamErrorPolicy& errorPolicy) override;
         virtual std::size_t Available() const override;
 
         virtual const uint8_t* ConstructSaveMarker() const override;

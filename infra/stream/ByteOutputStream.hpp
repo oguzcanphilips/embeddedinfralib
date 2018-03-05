@@ -26,8 +26,6 @@ namespace infra
     {
     public:
         explicit ByteOutputStreamWriter(ByteRange range);
-        ByteOutputStreamWriter(ByteRange range, SoftFail);
-        ByteOutputStreamWriter(ByteRange range, NoFail);
 
         ByteRange Processed() const;   // Invariant: Processed() ++ Remaining() == range
         ByteRange Remaining() const;
@@ -35,11 +33,10 @@ namespace infra
         void Reset();
 
         template<class T>
-            ReservedProxy<T> Reserve();
+            ReservedProxy<T> Reserve(StreamErrorPolicy& errorPolicy);
 
     private:
-        virtual void Insert(ConstByteRange range) override;
-        virtual void Insert(uint8_t element) override;
+        virtual void Insert(ConstByteRange range, StreamErrorPolicy& errorPolicy) override;
         std::size_t Available() const override;
 
         virtual const uint8_t* ConstructSaveMarker() const override;
@@ -65,12 +62,12 @@ namespace infra
     ////    Implementation    ////
 
     template<class T>
-    ReservedProxy<T> ByteOutputStreamWriter::Reserve()
+    ReservedProxy<T> ByteOutputStreamWriter::Reserve(StreamErrorPolicy& errorPolicy)
     {
         ByteRange reservedRange(streamRange.begin() + offset, streamRange.begin() + offset + sizeof(T));
         std::size_t spaceLeft = streamRange.size() - offset;
         bool spaceOk = reservedRange.size() <= spaceLeft;
-        ReportResult(spaceOk);
+        errorPolicy.ReportResult(spaceOk);
         if (!spaceOk)
             reservedRange.shrink_from_back_to(spaceLeft);
 

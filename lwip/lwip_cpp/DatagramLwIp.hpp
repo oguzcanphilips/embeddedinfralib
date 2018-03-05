@@ -31,8 +31,7 @@ namespace services
             UdpWriter(udp_pcb* control, pbuf* buffer);
             ~UdpWriter();
 
-            virtual void Insert(infra::ConstByteRange range) override;
-            virtual void Insert(uint8_t element) override;
+            virtual void Insert(infra::ConstByteRange range, infra::StreamErrorPolicy& errorPolicy) override;
             virtual std::size_t Available() const override;
 
         private:

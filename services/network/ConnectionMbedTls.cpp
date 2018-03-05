@@ -320,16 +320,10 @@ namespace services
             connection.TrySend();
     }
 
-    void ConnectionMbedTls::StreamWriterMbedTls::Insert(infra::ConstByteRange range)
+    void ConnectionMbedTls::StreamWriterMbedTls::Insert(infra::ConstByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
         connection.sendBuffer.insert(connection.sendBuffer.end(), range.begin(), range.end());
         sent += range.size();
-    }
-
-    void ConnectionMbedTls::StreamWriterMbedTls::Insert(uint8_t element)
-    {
-        connection.sendBuffer.push_back(element);
-        ++sent;
     }
 
     std::size_t ConnectionMbedTls::StreamWriterMbedTls::Available() const

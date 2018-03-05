@@ -29,7 +29,7 @@ namespace infra
     }
 
     ProtoFormatter::ProtoFormatter(infra::DataOutputStream output)
-        : output(output.Writer())
+        : output(output.Writer(), output.ErrorPolicy())
     {}
 
     void ProtoFormatter::PutVarInt(uint64_t value)

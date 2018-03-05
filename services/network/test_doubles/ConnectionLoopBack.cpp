@@ -78,16 +78,10 @@ namespace services
         }
     }
 
-    void ConnectionLoopBackPeer::StreamWriterLoopBack::Insert(infra::ConstByteRange range)
+    void ConnectionLoopBackPeer::StreamWriterLoopBack::Insert(infra::ConstByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
         connection.sendBuffer.insert(connection.sendBuffer.end(), range.begin(), range.end());
         sent += range.size();
-    }
-
-    void ConnectionLoopBackPeer::StreamWriterLoopBack::Insert(uint8_t element)
-    {
-        connection.sendBuffer.push_back(element);
-        ++sent;
     }
 
     std::size_t ConnectionLoopBackPeer::StreamWriterLoopBack::Available() const
