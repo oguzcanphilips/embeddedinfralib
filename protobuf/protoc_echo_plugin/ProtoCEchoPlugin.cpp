@@ -84,6 +84,39 @@ namespace application
         printer.Print("\n&& $name$ == other.$name$", "name", descriptor.name());
     }
 
+    void FieldGeneratorInt32::GenerateFieldDeclaration(Entities& entities)
+    {
+        entities.Add(std::make_shared<DataMember>(descriptor.name(), "int32_t"));
+    }
+
+    std::string FieldGeneratorInt32::MaxMessageSize() const
+    {
+        return google::protobuf::SimpleItoa(MaxVarIntSize(std::numeric_limits<uint32_t>::max()) + MaxVarIntSize((descriptor.number() << 3) | 2));
+    }
+
+    void FieldGeneratorInt32::SerializerBody(google::protobuf::io::Printer& printer)
+    {
+        printer.Print("formatter.PutVarIntField($name$, $constant$);\n"
+            , "name", descriptor.name()
+            , "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
+    }
+
+    void FieldGeneratorInt32::DeserializerBody(google::protobuf::io::Printer& printer)
+    {
+        printer.Print(R"(case $constant$:
+    $name$ = static_cast<int32_t>(field.first.Get<uint64_t>());
+    break;
+)"
+, "name", descriptor.name()
+, "constant", google::protobuf::compiler::cpp::FieldConstantName(&descriptor));
+    }
+
+    void FieldGeneratorInt32::GenerateConstructorParameter(Constructor& constructor)
+    {
+        constructor.Parameter("int32_t " + descriptor.name());
+        constructor.Initializer(descriptor.name() + "(" + descriptor.name() + ")");
+    }
+
     void FieldGeneratorFixed32::GenerateFieldDeclaration(Entities& entities)
     {
         entities.Add(std::make_shared<DataMember>(descriptor.name(), "uint32_t"));
@@ -494,6 +527,9 @@ namespace application
         else
             switch (fieldDescriptor.type())
             {
+                case google::protobuf::FieldDescriptor::TYPE_INT32:
+                    fieldGenerators.emplace_back(std::make_shared<FieldGeneratorInt32>(fieldDescriptor));
+                    break;
                 case google::protobuf::FieldDescriptor::TYPE_FIXED32:
                     fieldGenerators.emplace_back(std::make_shared<FieldGeneratorFixed32>(fieldDescriptor));
                     break;

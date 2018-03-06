@@ -4,6 +4,10 @@ import "echo_attributes.proto";
 
 package test_messages;
 
+message TestInt32 {
+  int32 value = 1;
+}
+
 message TestFixed32 {
   fixed32 value = 1;
 }

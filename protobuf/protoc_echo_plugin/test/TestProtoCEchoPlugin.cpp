@@ -7,6 +7,28 @@
 #include "infra/syntax/ProtoParser.hpp"
 #include "services/network/test_doubles/ConnectionMock.hpp"
 
+TEST(ProtoCEchoPluginTest, serialize_int32)
+{
+    test_messages::TestInt32 message;
+    message.value = -1;
+
+    infra::ByteOutputStream::WithStorage<100> stream;
+    infra::ProtoFormatter formatter(stream);
+    message.Serialize(formatter);
+
+    EXPECT_EQ((std::array<uint8_t, 11>{ 8, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 1 }), stream.Writer().Processed());
+}
+
+TEST(ProtoCEchoPluginTest, deserialize_int32)
+{
+    std::array<uint8_t, 11> data{ 8, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 1 };
+    infra::ByteInputStream stream(data);
+    infra::ProtoParser parser(stream);
+
+    test_messages::TestInt32 message(parser);
+    EXPECT_EQ(-1, message.value);
+}
+
 TEST(ProtoCEchoPluginTest, serialize_fixed32)
 {
     test_messages::TestFixed32 message;
