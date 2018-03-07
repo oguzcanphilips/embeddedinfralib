@@ -65,28 +65,27 @@ namespace services
     }
 
     ConnectionStub::StreamReaderStub::StreamReaderStub(ConnectionStub& connection)
-        : infra::StreamReader(infra::softFail)
-        , connection(connection)
+        : connection(connection)
     {}
 
-    void ConnectionStub::StreamReaderStub::Extract(infra::ByteRange range)
+    void ConnectionStub::StreamReaderStub::Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
-        ReportResult(connection.receivingData.size() - connection.receivingIndex >= range.size());
+        errorPolicy.ReportResult(connection.receivingData.size() - connection.receivingIndex >= range.size());
         range.shrink_from_back_to(connection.receivingData.size() - connection.receivingIndex);
         std::copy(connection.receivingData.begin() + connection.receivingIndex, connection.receivingData.begin() + connection.receivingIndex + range.size(), range.begin());
         connection.receivingIndex += range.size();
     }
 
-    uint8_t ConnectionStub::StreamReaderStub::ExtractOne()
+    uint8_t ConnectionStub::StreamReaderStub::ExtractOne(infra::StreamErrorPolicy& errorPolicy)
     {
         uint8_t result;
-        Extract(infra::MakeByteRange(result));
+        Extract(infra::MakeByteRange(result), errorPolicy);
         return result;
     }
 
-    uint8_t ConnectionStub::StreamReaderStub::Peek()
+    uint8_t ConnectionStub::StreamReaderStub::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
-        ReportResult(connection.receivingData.size() - connection.receivingIndex >= 1);
+        errorPolicy.ReportResult(connection.receivingData.size() - connection.receivingIndex >= 1);
         if (connection.receivingData.size() - connection.receivingIndex >= 1)
             return connection.receivingData[connection.receivingIndex];
         else

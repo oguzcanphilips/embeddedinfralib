@@ -13,12 +13,11 @@ namespace infra
     {
     public:
         explicit StdStringInputStreamReader(const std::string& string);
-        StdStringInputStreamReader(const std::string& string, SoftFail);
 
     private:
-        virtual void Extract(ByteRange range) override;
-        virtual uint8_t ExtractOne() override;
-        virtual uint8_t Peek() override;
+        virtual void Extract(ByteRange range, StreamErrorPolicy& errorPolicy) override;
+        virtual uint8_t ExtractOne(StreamErrorPolicy& errorPolicy) override;
+        virtual uint8_t Peek(StreamErrorPolicy& errorPolicy) override;
         virtual ConstByteRange ExtractContiguousRange(std::size_t max) override;
         virtual bool Empty() const override;
         virtual std::size_t Available() const override;
@@ -34,7 +33,9 @@ namespace infra
     public:
         using WithStorage = infra::WithStorage<TextInputStream::WithReader<StdStringInputStreamReader>, std::string>;
 
-        using TextInputStream::WithReader<StdStringInputStreamReader>::WithReader;
+        StdStringInputStream(std::string& storage);
+        StdStringInputStream(std::string& storage, const SoftFail&);
+        StdStringInputStream(std::string& storage, const NoFail&);
     };
 }
 

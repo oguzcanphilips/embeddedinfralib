@@ -114,9 +114,9 @@ namespace services
             UdpReader(pbuf* buffer);
             ~UdpReader();
 
-            virtual void Extract(infra::ByteRange range) override;
-            virtual uint8_t ExtractOne() override;
-            virtual uint8_t Peek() override;
+            virtual void Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy) override;
+            virtual uint8_t ExtractOne(infra::StreamErrorPolicy& errorPolicy) override;
+            virtual uint8_t Peek(infra::StreamErrorPolicy& errorPolicy) override;
             virtual infra::ConstByteRange ExtractContiguousRange(std::size_t max) override;
             virtual bool Empty() const override;
             virtual std::size_t Available() const override;

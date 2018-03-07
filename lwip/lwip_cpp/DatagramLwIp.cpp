@@ -147,8 +147,7 @@ namespace services
     }
 
     DatagramReceiverPeerLwIp::UdpReader::UdpReader(pbuf* buffer)
-        : infra::StreamReader(infra::softFail)
-        , buffer(buffer)
+        : buffer(buffer)
     {}
 
     DatagramReceiverPeerLwIp::UdpReader::~UdpReader()
@@ -156,9 +155,9 @@ namespace services
         pbuf_free(buffer);
     }
 
-    void DatagramReceiverPeerLwIp::UdpReader::Extract(infra::ByteRange range)
+    void DatagramReceiverPeerLwIp::UdpReader::Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
-        ReportResult(range.size() <= Available());
+        errorPolicy.ReportResult(range.size() <= Available());
         range.shrink_from_back_to(Available());
 
         u16_t numCopied = pbuf_copy_partial(buffer, range.begin(), static_cast<uint16_t>(range.size()), bufferOffset);
@@ -166,16 +165,16 @@ namespace services
         bufferOffset += static_cast<uint16_t>(range.size());
     }
 
-    uint8_t DatagramReceiverPeerLwIp::UdpReader::ExtractOne()
+    uint8_t DatagramReceiverPeerLwIp::UdpReader::ExtractOne(infra::StreamErrorPolicy& errorPolicy)
     {
         uint8_t result;
-        Extract(infra::MakeByteRange(result));
+        Extract(infra::MakeByteRange(result), errorPolicy);
         return result;
     }
 
-    uint8_t DatagramReceiverPeerLwIp::UdpReader::Peek()
+    uint8_t DatagramReceiverPeerLwIp::UdpReader::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
-        ReportResult(!Empty());
+        errorPolicy.ReportResult(!Empty());
 
         uint8_t result;
         pbuf_copy_partial(buffer, &result, 1, bufferOffset);

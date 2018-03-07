@@ -17,36 +17,26 @@ namespace infra
     {
     protected:
         StreamReader() = default;
-        StreamReader(SoftFail);
         StreamReader(const StreamReader& other) = delete;
         StreamReader& operator=(const StreamReader& other) = delete;
-        ~StreamReader();
+        ~StreamReader() = default;
 
     public:
-        virtual void Extract(ByteRange range) = 0;
-        virtual uint8_t ExtractOne() = 0;
-        virtual uint8_t Peek() = 0;
+        virtual void Extract(ByteRange range, StreamErrorPolicy& errorPolicy) = 0;
+        virtual uint8_t ExtractOne(StreamErrorPolicy& errorPolicy) = 0;
+        virtual uint8_t Peek(StreamErrorPolicy& errorPolicy) = 0;
         virtual ConstByteRange ExtractContiguousRange(std::size_t max) = 0;
 
         virtual bool Empty() const = 0;
         virtual std::size_t Available() const = 0;
-
-        virtual bool Failed() const;
-        virtual void ReportResult(bool ok);
-
-        virtual void SetSoftFail();
-
-    private:
-        bool softFail = false;
-        bool failed = false;
-        mutable bool checkedFail = true;
     };
 
     class InputStream
     {
+    public:
+        InputStream(StreamReader& reader, StreamErrorPolicy& errorPolicy);
+
     protected:
-        explicit InputStream(StreamReader& reader);
-        InputStream(StreamReader& reader, infra::SoftFail);
         ~InputStream() = default;
 
     public:
@@ -56,9 +46,11 @@ namespace infra
         bool Failed() const;
 
         StreamReader& Reader();
+        StreamErrorPolicy& ErrorPolicy() const;
 
     private:
         StreamReader& reader;
+        StreamErrorPolicy& errorPolicy;
     };
 
     class DataInputStream
@@ -67,9 +59,9 @@ namespace infra
     public:
         template<class Reader>
             class WithReader;
+        class WithErrorPolicy;
 
-        explicit DataInputStream(StreamReader& reader);
-        DataInputStream(StreamReader& reader, SoftFail);
+        using InputStream::InputStream;
 
         TextInputStream operator>>(Text);
         DataInputStream& operator>>(ByteRange range);
@@ -83,9 +75,9 @@ namespace infra
     public:
         template<class Reader>
             class WithReader;
+        class WithErrorPolicy;
 
-        explicit TextInputStream(StreamReader& reader);
-        TextInputStream(StreamReader& reader, SoftFail);
+        using InputStream::InputStream;
 
         DataInputStream operator>>(Data);
         TextInputStream operator>>(Hex);
@@ -124,8 +116,27 @@ namespace infra
     public:
         template<class... Args>
             WithReader(Args&&... args);
+        template<class Storage, class... Args>
+            WithReader(Storage&& storage, const SoftFail&, Args&&... args);
+        template<class Storage, class... Args>
+            WithReader(Storage&& storage, const NoFail&, Args&&... args);
 
         TheReader& Reader();
+
+    private:
+        StreamErrorPolicy errorPolicy;
+    };
+
+    class DataInputStream::WithErrorPolicy
+        : public DataInputStream
+    {
+    public:
+        WithErrorPolicy(StreamReader& writer);
+        WithErrorPolicy(StreamReader& writer, SoftFail);
+        WithErrorPolicy(StreamReader& writer, NoFail);
+
+    private:
+        StreamErrorPolicy errorPolicy;
     };
 
     template<class TheReader>
@@ -136,8 +147,27 @@ namespace infra
     public:
         template<class... Args>
             WithReader(Args&&... args);
+        template<class Storage, class... Args>
+            WithReader(Storage&& storage, const SoftFail&, Args&&... args);
+        template<class Storage, class... Args>
+            WithReader(Storage&& storage, const NoFail&, Args&&... args);
 
         TheReader& Reader();
+
+    private:
+        StreamErrorPolicy errorPolicy;
+    };
+
+    class TextInputStream::WithErrorPolicy
+        : public TextInputStream
+    {
+    public:
+        WithErrorPolicy(StreamReader& writer);
+        WithErrorPolicy(StreamReader& writer, SoftFail);
+        WithErrorPolicy(StreamReader& writer, NoFail);
+
+    private:
+        StreamErrorPolicy errorPolicy;
     };
 
     ////    Implementation    ////
@@ -146,7 +176,7 @@ namespace infra
     DataInputStream& DataInputStream::operator>>(Data& data)
     {
         MemoryRange<typename std::remove_const<uint8_t>::type> dataRange(ReinterpretCastMemoryRange<typename std::remove_const<uint8_t>::type>(MakeRange(&data, &data + 1)));
-        Reader().Extract(dataRange);
+        Reader().Extract(dataRange, ErrorPolicy());
         return *this;
     }
 
@@ -154,7 +184,23 @@ namespace infra
     template<class... Args>
     DataInputStream::WithReader<TheReader>::WithReader(Args&&... args)
         : detail::StorageHolder<TheReader, WithReader<TheReader>>(std::forward<Args>(args)...)
-        , DataInputStream(this->storage)
+        , DataInputStream(this->storage, errorPolicy)
+    {}
+
+    template<class TheReader>
+    template<class Storage, class... Args>
+    DataInputStream::WithReader<TheReader>::WithReader(Storage&& storage, const SoftFail&, Args&&... args)
+        : detail::StorageHolder<TheReader, WithReader<TheReader>>(std::forward<Storage>(storage), std::forward<Args>(args)...)
+        , DataInputStream(this->storage, errorPolicy)
+        , errorPolicy(softFail)
+    {}
+
+    template<class TheReader>
+    template<class Storage, class... Args>
+    DataInputStream::WithReader<TheReader>::WithReader(Storage&& storage, const NoFail&, Args&&... args)
+        : detail::StorageHolder<TheReader, WithReader<TheReader>>(std::forward<Storage>(storage), std::forward<Args>(args)...)
+        , DataInputStream(this->storage, errorPolicy)
+        , errorPolicy(noFail)
     {}
 
     template<class TheReader>
@@ -167,7 +213,23 @@ namespace infra
     template<class... Args>
     TextInputStream::WithReader<TheReader>::WithReader(Args&&... args)
         : detail::StorageHolder<TheReader, WithReader<TheReader>>(std::forward<Args>(args)...)
-        , TextInputStream(this->storage)
+        , TextInputStream(this->storage, errorPolicy)
+    {}
+
+    template<class TheReader>
+    template<class Storage, class... Args>
+    TextInputStream::WithReader<TheReader>::WithReader(Storage&& storage, const SoftFail&, Args&&... args)
+        : detail::StorageHolder<TheReader, WithReader<TheReader>>(std::forward<Storage>(storage), std::forward<Args>(args)...)
+        , TextInputStream(this->storage, errorPolicy)
+        , errorPolicy(softFail)
+    {}
+
+    template<class TheReader>
+    template<class Storage, class... Args>
+    TextInputStream::WithReader<TheReader>::WithReader(Storage&& storage, const NoFail&, Args&&... args)
+        : detail::StorageHolder<TheReader, WithReader<TheReader>>(std::forward<Storage>(storage), std::forward<Args>(args)...)
+        , TextInputStream(this->storage, errorPolicy)
+        , errorPolicy(noFail)
     {}
 
     template<class TheReader>

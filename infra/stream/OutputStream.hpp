@@ -43,7 +43,7 @@ namespace infra
     class OutputStream
     {
     public:
-        explicit OutputStream(StreamWriter& writer, StreamErrorPolicy& errorPolicy);
+        OutputStream(StreamWriter& writer, StreamErrorPolicy& errorPolicy);
 
     protected:
         ~OutputStream() = default;

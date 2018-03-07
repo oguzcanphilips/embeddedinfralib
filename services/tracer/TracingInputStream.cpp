@@ -7,22 +7,22 @@ namespace services
         , tracer(tracer)
     {}
 
-    void TracingStreamReader::Extract(infra::ByteRange range)
+    void TracingStreamReader::Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
-        reader.Extract(range);
+        reader.Extract(range, errorPolicy);
         tracer.Trace() << "" << infra::AsHex(range);
     }
 
-    uint8_t TracingStreamReader::ExtractOne()
+    uint8_t TracingStreamReader::ExtractOne(infra::StreamErrorPolicy& errorPolicy)
     {
-        uint8_t result = reader.ExtractOne();
+        uint8_t result = reader.ExtractOne(errorPolicy);
         tracer.Trace() << "" << infra::AsHex(infra::MakeByteRange(result));
         return result;
     }
 
-    uint8_t TracingStreamReader::Peek()
+    uint8_t TracingStreamReader::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
-        return reader.Peek();
+        return reader.Peek(errorPolicy);
     }
 
     infra::ConstByteRange TracingStreamReader::ExtractContiguousRange(std::size_t max)
@@ -40,21 +40,6 @@ namespace services
     std::size_t TracingStreamReader::Available() const
     {
         return reader.Available();
-    }
-
-    bool TracingStreamReader::Failed() const
-    {
-        return reader.Failed();
-    }
-
-    void TracingStreamReader::ReportResult(bool ok)
-    {
-        reader.ReportResult(ok);
-    }
-
-    void TracingStreamReader::SetSoftFail()
-    {
-        reader.SetSoftFail();
     }
 
     TracingInputStream::TracingInputStream(infra::DataInputStream& stream, services::Tracer& tracer)

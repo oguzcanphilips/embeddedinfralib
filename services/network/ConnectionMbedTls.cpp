@@ -332,8 +332,7 @@ namespace services
     }
 
     ConnectionMbedTls::StreamReaderMbedTls::StreamReaderMbedTls(ConnectionMbedTls& connection)
-        : infra::StreamReader(infra::softFail)
-        , connection(connection)
+        : connection(connection)
     {}
 
     void ConnectionMbedTls::StreamReaderMbedTls::ConsumeRead()
@@ -342,10 +341,10 @@ namespace services
         sizeRead = 0;
     }
 
-    void ConnectionMbedTls::StreamReaderMbedTls::Extract(infra::ByteRange range)
+    void ConnectionMbedTls::StreamReaderMbedTls::Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
         bool ok = sizeRead + range.size() <= connection.receiveBuffer.size();
-        ReportResult(ok);
+        errorPolicy.ReportResult(ok);
 
         if (ok)
         {
@@ -354,10 +353,10 @@ namespace services
         }
     }
 
-    uint8_t ConnectionMbedTls::StreamReaderMbedTls::ExtractOne()
+    uint8_t ConnectionMbedTls::StreamReaderMbedTls::ExtractOne(infra::StreamErrorPolicy& errorPolicy)
     {
         bool ok = sizeRead + 1 <= connection.receiveBuffer.size();
-        ReportResult(ok);
+        errorPolicy.ReportResult(ok);
 
         if (ok)
             return connection.receiveBuffer[sizeRead++];
@@ -365,10 +364,10 @@ namespace services
             return 0;
     }
 
-    uint8_t ConnectionMbedTls::StreamReaderMbedTls::Peek()
+    uint8_t ConnectionMbedTls::StreamReaderMbedTls::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
         bool ok = sizeRead + 1 <= connection.receiveBuffer.size();
-        ReportResult(ok);
+        errorPolicy.ReportResult(ok);
 
         if (ok)
             return connection.receiveBuffer[sizeRead];

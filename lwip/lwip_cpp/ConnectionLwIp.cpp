@@ -215,8 +215,7 @@ namespace services
     }
 
     ConnectionLwIp::StreamReaderLwIp::StreamReaderLwIp(ConnectionLwIp& connection)
-        : infra::StreamReader(infra::softFail)
-        , connection(connection)
+        : connection(connection)
     {}
 
     void ConnectionLwIp::StreamReaderLwIp::ConsumeRead()
@@ -226,7 +225,7 @@ namespace services
         sizeRead = 0;
     }
 
-    void ConnectionLwIp::StreamReaderLwIp::Extract(infra::ByteRange range)
+    void ConnectionLwIp::StreamReaderLwIp::Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
         while (!range.empty() && !Empty())
         {
@@ -237,25 +236,25 @@ namespace services
             sizeRead += static_cast<uint16_t>(inputRange.size());
         }
 
-        ReportResult(range.empty());
+        errorPolicy.ReportResult(range.empty());
     }
 
-    uint8_t ConnectionLwIp::StreamReaderLwIp::ExtractOne()
+    uint8_t ConnectionLwIp::StreamReaderLwIp::ExtractOne(infra::StreamErrorPolicy& errorPolicy)
     {
         bool available = !Empty();
 
-        ReportResult(available);
+        errorPolicy.ReportResult(available);
         if (available)
             return connection.receiveBuffer[sizeRead++];
         else
             return 0;
     }
 
-    uint8_t ConnectionLwIp::StreamReaderLwIp::Peek()
+    uint8_t ConnectionLwIp::StreamReaderLwIp::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
         bool available = !Empty();
 
-        ReportResult(available);
+        errorPolicy.ReportResult(available);
         if (available)
             return connection.receiveBuffer[sizeRead];
         else

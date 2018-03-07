@@ -158,8 +158,7 @@ namespace services
     }
 
     ConnectionWin::StreamReaderWin::StreamReaderWin(ConnectionWin& connection)
-        : infra::StreamReader(infra::softFail)
-        , connection(connection)
+        : connection(connection)
     {}
 
     void ConnectionWin::StreamReaderWin::ConsumeRead()
@@ -168,18 +167,18 @@ namespace services
         sizeRead = 0;
     }
 
-    void ConnectionWin::StreamReaderWin::Extract(infra::ByteRange range)
+    void ConnectionWin::StreamReaderWin::Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
         std::copy(connection.receiveBuffer.begin() + sizeRead, connection.receiveBuffer.begin() + sizeRead + range.size(), range.begin());
         sizeRead += range.size();
     }
 
-    uint8_t ConnectionWin::StreamReaderWin::ExtractOne()
+    uint8_t ConnectionWin::StreamReaderWin::ExtractOne(infra::StreamErrorPolicy& errorPolicy)
     {
         return connection.receiveBuffer[sizeRead++];
     }
 
-    uint8_t ConnectionWin::StreamReaderWin::Peek()
+    uint8_t ConnectionWin::StreamReaderWin::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
         return connection.receiveBuffer[sizeRead];
     }

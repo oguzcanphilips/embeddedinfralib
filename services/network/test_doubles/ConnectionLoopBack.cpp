@@ -99,18 +99,18 @@ namespace services
         sizeRead = 0;
     }
 
-    void ConnectionLoopBackPeer::StreamReaderLoopBack::Extract(infra::ByteRange range)
+    void ConnectionLoopBackPeer::StreamReaderLoopBack::Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
         std::copy(connection.sendBuffer.begin() + sizeRead, connection.sendBuffer.begin() + sizeRead + range.size(), range.begin());
         sizeRead += range.size();
     }
 
-    uint8_t ConnectionLoopBackPeer::StreamReaderLoopBack::ExtractOne()
+    uint8_t ConnectionLoopBackPeer::StreamReaderLoopBack::ExtractOne(infra::StreamErrorPolicy& errorPolicy)
     {
         return connection.sendBuffer[sizeRead++];
     }
 
-    uint8_t ConnectionLoopBackPeer::StreamReaderLoopBack::Peek()
+    uint8_t ConnectionLoopBackPeer::StreamReaderLoopBack::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
         return connection.sendBuffer[sizeRead];
     }

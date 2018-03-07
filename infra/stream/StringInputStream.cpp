@@ -6,22 +6,17 @@ namespace infra
         : string(string)
     {}
 
-    StringInputStreamReader::StringInputStreamReader(BoundedConstString string, SoftFail)
-        : StreamReader(infra::softFail)
-        , string(string)
-    {}
-
-    void StringInputStreamReader::Extract(ByteRange range)
+    void StringInputStreamReader::Extract(ByteRange range, StreamErrorPolicy& errorPolicy)
     {
-        ReportResult(offset + range.size() <= string.size());
+        errorPolicy.ReportResult(offset + range.size() <= string.size());
         range.shrink_from_back_to(string.size() - offset);
         std::copy(string.begin() + offset, string.begin() + offset + range.size(), range.begin());
         offset += range.size();
     }
 
-    uint8_t StringInputStreamReader::ExtractOne()
+    uint8_t StringInputStreamReader::ExtractOne(StreamErrorPolicy& errorPolicy)
     {
-        uint8_t element = Peek();
+        uint8_t element = Peek(errorPolicy);
 
         if (offset < string.size())
             ++offset;
@@ -29,16 +24,16 @@ namespace infra
         return element;
     }
 
-    uint8_t StringInputStreamReader::Peek()
+    uint8_t StringInputStreamReader::Peek(StreamErrorPolicy& errorPolicy)
     {
         if (offset == string.size())
         {
-            ReportResult(false);
+            errorPolicy.ReportResult(false);
             return 0;
         }
         else
         {
-            ReportResult(true);
+            errorPolicy.ReportResult(true);
             return static_cast<uint8_t>(string.begin()[offset]);
         }
     }
@@ -60,4 +55,16 @@ namespace infra
     {
         return string.size() - offset;
     }
+
+    StringInputStream::StringInputStream(BoundedConstString storage)
+        : TextInputStream::WithReader<StringInputStreamReader>(storage)
+    {}
+
+    StringInputStream::StringInputStream(BoundedConstString storage, const SoftFail&)
+        : TextInputStream::WithReader<StringInputStreamReader>(storage, softFail)
+    {}
+
+    StringInputStream::StringInputStream(BoundedConstString storage, const NoFail&)
+        : TextInputStream::WithReader<StringInputStreamReader>(storage, noFail)
+    {}
 }
