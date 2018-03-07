@@ -173,11 +173,6 @@ namespace services
         sizeRead += range.size();
     }
 
-    uint8_t ConnectionWin::StreamReaderWin::ExtractOne(infra::StreamErrorPolicy& errorPolicy)
-    {
-        return connection.receiveBuffer[sizeRead++];
-    }
-
     uint8_t ConnectionWin::StreamReaderWin::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
         return connection.receiveBuffer[sizeRead];

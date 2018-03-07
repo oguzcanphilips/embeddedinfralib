@@ -76,13 +76,6 @@ namespace services
         connection.receivingIndex += range.size();
     }
 
-    uint8_t ConnectionStub::StreamReaderStub::ExtractOne(infra::StreamErrorPolicy& errorPolicy)
-    {
-        uint8_t result;
-        Extract(infra::MakeByteRange(result), errorPolicy);
-        return result;
-    }
-
     uint8_t ConnectionStub::StreamReaderStub::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
         errorPolicy.ReportResult(connection.receivingData.size() - connection.receivingIndex >= 1);

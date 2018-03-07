@@ -353,17 +353,6 @@ namespace services
         }
     }
 
-    uint8_t ConnectionMbedTls::StreamReaderMbedTls::ExtractOne(infra::StreamErrorPolicy& errorPolicy)
-    {
-        bool ok = sizeRead + 1 <= connection.receiveBuffer.size();
-        errorPolicy.ReportResult(ok);
-
-        if (ok)
-            return connection.receiveBuffer[sizeRead++];
-        else
-            return 0;
-    }
-
     uint8_t ConnectionMbedTls::StreamReaderMbedTls::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
         bool ok = sizeRead + 1 <= connection.receiveBuffer.size();

@@ -13,7 +13,6 @@ namespace infra
         using infra::StreamReader::StreamReader;
 
         MOCK_METHOD2(Extract, void(ByteRange range, StreamErrorPolicy& errorPolicy));
-        MOCK_METHOD1(ExtractOne, uint8_t(StreamErrorPolicy& errorPolicy));
         MOCK_METHOD1(Peek, uint8_t(StreamErrorPolicy& errorPolicy));
         MOCK_METHOD1(ExtractContiguousRange, infra::ConstByteRange(std::size_t max));
         MOCK_CONST_METHOD0(Empty, bool());

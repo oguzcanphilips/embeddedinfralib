@@ -14,16 +14,6 @@ namespace infra
         offset += range.size();
     }
 
-    uint8_t StdStringInputStreamReader::ExtractOne(StreamErrorPolicy& errorPolicy)
-    {
-        uint8_t element = Peek(errorPolicy);
-
-        if (offset < string.size())
-            ++offset;
-
-        return element;
-    }
-
     uint8_t StdStringInputStreamReader::Peek(StreamErrorPolicy& errorPolicy)
     {
         if (offset == string.size())

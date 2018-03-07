@@ -82,7 +82,7 @@ namespace infra
 
     TextInputStream& TextInputStream::operator>>(char& c)
     {
-        c = Reader().ExtractOne(ErrorPolicy());
+        Reader().Extract(infra::MakeByteRange(c), ErrorPolicy());
         return *this;
     }
 
@@ -141,13 +141,13 @@ namespace infra
         char c = static_cast<char>(reader.Peek(ErrorPolicy()));
         if (c == '.')
         {
-            reader.ExtractOne(ErrorPolicy());
+            reader.Extract(infra::MakeByteRange(c), ErrorPolicy());
             c = static_cast<char>(reader.Peek(ErrorPolicy()));
             while (c >= '0' && c <= '9')
             {
                 div *= 10;
                 frac = frac * 10 + static_cast<uint8_t>(c - '0');
-                reader.ExtractOne(ErrorPolicy());
+                reader.Extract(infra::MakeByteRange(c), ErrorPolicy());
                 c = static_cast<char>(reader.Peek(ErrorPolicy()));
             }
         }
@@ -162,7 +162,8 @@ namespace infra
     {
         while (*literal != '\0')
         {
-            char c = static_cast<char>(Reader().ExtractOne(ErrorPolicy()));
+            char c;
+            Reader().Extract(infra::MakeByteRange(c), ErrorPolicy());
             ErrorPolicy().ReportResult(c == *literal);
             ++literal;
         }
@@ -175,7 +176,7 @@ namespace infra
         char c = static_cast<char>(Reader().Peek(ErrorPolicy()));
         while (c == ' ')
         {
-            Reader().ExtractOne(ErrorPolicy());
+            Reader().Extract(infra::MakeByteRange(c), ErrorPolicy());
             c = static_cast<char>(Reader().Peek(ErrorPolicy()));
         }
     }
@@ -203,7 +204,7 @@ namespace infra
 
         if (c == '-')
         {
-            Reader().ExtractOne(ErrorPolicy());
+            Reader().Extract(infra::MakeByteRange(c), ErrorPolicy());
             v = -1;
         }
         else
@@ -231,7 +232,7 @@ namespace infra
                 break;
             }
 
-            Reader().ExtractOne(ErrorPolicy());
+            Reader().Extract(infra::MakeByteRange(c), ErrorPolicy());
         }
     }
 
@@ -241,7 +242,7 @@ namespace infra
         char c = static_cast<char>(Reader().Peek(ErrorPolicy()));
         if (c == '-')
         {
-            Reader().ExtractOne(ErrorPolicy());
+            Reader().Extract(infra::MakeByteRange(c), ErrorPolicy());
             v = -1;
         }
         else
@@ -274,7 +275,7 @@ namespace infra
                 break;
             }
 
-            Reader().ExtractOne(ErrorPolicy());
+            Reader().Extract(infra::MakeByteRange(c), ErrorPolicy());
         }
     }
 

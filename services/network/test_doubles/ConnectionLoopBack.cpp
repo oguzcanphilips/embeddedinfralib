@@ -105,11 +105,6 @@ namespace services
         sizeRead += range.size();
     }
 
-    uint8_t ConnectionLoopBackPeer::StreamReaderLoopBack::ExtractOne(infra::StreamErrorPolicy& errorPolicy)
-    {
-        return connection.sendBuffer[sizeRead++];
-    }
-
     uint8_t ConnectionLoopBackPeer::StreamReaderLoopBack::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
         return connection.sendBuffer[sizeRead];

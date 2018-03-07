@@ -13,13 +13,6 @@ namespace services
         tracer.Trace() << "" << infra::AsHex(range);
     }
 
-    uint8_t TracingStreamReader::ExtractOne(infra::StreamErrorPolicy& errorPolicy)
-    {
-        uint8_t result = reader.ExtractOne(errorPolicy);
-        tracer.Trace() << "" << infra::AsHex(infra::MakeByteRange(result));
-        return result;
-    }
-
     uint8_t TracingStreamReader::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
         return reader.Peek(errorPolicy);

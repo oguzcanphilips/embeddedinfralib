@@ -239,17 +239,6 @@ namespace services
         errorPolicy.ReportResult(range.empty());
     }
 
-    uint8_t ConnectionLwIp::StreamReaderLwIp::ExtractOne(infra::StreamErrorPolicy& errorPolicy)
-    {
-        bool available = !Empty();
-
-        errorPolicy.ReportResult(available);
-        if (available)
-            return connection.receiveBuffer[sizeRead++];
-        else
-            return 0;
-    }
-
     uint8_t ConnectionLwIp::StreamReaderLwIp::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
         bool available = !Empty();

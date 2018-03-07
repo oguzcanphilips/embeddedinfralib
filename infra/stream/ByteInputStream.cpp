@@ -23,13 +23,6 @@ namespace infra
         offset += dataRange.size();
     }
 
-    uint8_t ByteInputStreamReader::ExtractOne(StreamErrorPolicy& errorPolicy)
-    {
-        uint8_t element;
-        Extract(MakeByteRange(element), errorPolicy);
-        return element;
-    }
-
     uint8_t ByteInputStreamReader::Peek(StreamErrorPolicy& errorPolicy)
     {
         uint8_t element;

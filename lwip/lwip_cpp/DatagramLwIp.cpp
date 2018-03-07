@@ -165,13 +165,6 @@ namespace services
         bufferOffset += static_cast<uint16_t>(range.size());
     }
 
-    uint8_t DatagramReceiverPeerLwIp::UdpReader::ExtractOne(infra::StreamErrorPolicy& errorPolicy)
-    {
-        uint8_t result;
-        Extract(infra::MakeByteRange(result), errorPolicy);
-        return result;
-    }
-
     uint8_t DatagramReceiverPeerLwIp::UdpReader::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
         errorPolicy.ReportResult(!Empty());

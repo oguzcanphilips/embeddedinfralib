@@ -14,20 +14,6 @@ TEST(LimitedInputStreamTest, Extract)
     EXPECT_TRUE(errorPolicy.Failed());
 }
 
-TEST(LimitedInputStreamTest, ExtractOne)
-{
-    testing::StrictMock<infra::StreamReaderMock> reader;
-    infra::LimitedStreamReader limitedReader(reader, 1);
-    infra::StreamErrorPolicy errorPolicy(infra::softFail);
-
-    EXPECT_CALL(reader, ExtractOne(testing::Ref(errorPolicy))).WillOnce(testing::Return(4));
-    EXPECT_EQ(4, limitedReader.ExtractOne(errorPolicy));
-    EXPECT_FALSE(errorPolicy.Failed());
-
-    EXPECT_EQ(0, limitedReader.ExtractOne(errorPolicy));
-    EXPECT_TRUE(errorPolicy.Failed());
-}
-
 TEST(LimitedInputStreamTest, Peek_with_data_available)
 {
     testing::StrictMock<infra::StreamReaderMock> reader;

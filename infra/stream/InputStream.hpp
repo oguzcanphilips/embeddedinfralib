@@ -23,7 +23,6 @@ namespace infra
 
     public:
         virtual void Extract(ByteRange range, StreamErrorPolicy& errorPolicy) = 0;
-        virtual uint8_t ExtractOne(StreamErrorPolicy& errorPolicy) = 0;
         virtual uint8_t Peek(StreamErrorPolicy& errorPolicy) = 0;
         virtual ConstByteRange ExtractContiguousRange(std::size_t max) = 0;
 

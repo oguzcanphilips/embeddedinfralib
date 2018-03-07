@@ -20,22 +20,6 @@ namespace infra
         input.Extract(range, errorPolicy);
     }
 
-    uint8_t LimitedStreamReader::ExtractOne(StreamErrorPolicy& errorPolicy)
-    {
-        if (length >= 1)
-        {
-            --length;
-            uint8_t result = input.ExtractOne(errorPolicy);
-            return result;
-        }
-        else
-        {
-            errorPolicy.ReportResult(false);
-
-            return 0;
-        }
-    }
-
     uint8_t LimitedStreamReader::Peek(StreamErrorPolicy& errorPolicy)
     {
         errorPolicy.ReportResult(length != 0);
