@@ -39,7 +39,7 @@ namespace services
 
     infra::SharedPtr<infra::DataInputStream> ConnectionLwIp::ReceiveStream()
     {
-        return receiveStream.Emplace(*this);
+        return receiveStream.Emplace(*this, infra::softFail);
     }
 
     void ConnectionLwIp::AckReceived()

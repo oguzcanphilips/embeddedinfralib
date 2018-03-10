@@ -36,7 +36,7 @@ namespace services
 
     infra::SharedPtr<infra::DataInputStream> ConnectionWin::ReceiveStream()
     {
-        return receiveStream.Emplace(*this);
+        return receiveStream.Emplace(*this, infra::softFail);
     }
 
     void ConnectionWin::AckReceived()

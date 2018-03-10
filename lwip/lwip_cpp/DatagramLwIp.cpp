@@ -138,7 +138,7 @@ namespace services
 
     void DatagramReceiverPeerLwIp::Recv(pbuf* buffer, const ip_addr_t* address, u16_t port)
     {
-        infra::DataInputStream::WithReader<UdpReader> stream(buffer);
+        infra::DataInputStream::WithReader<UdpReader> stream(buffer, infra::softFail);
         if (IP_GET_TYPE(address) == IPADDR_TYPE_V4)
             receiver.DataReceived(stream, IPv4Address{ ip4_addr1(ip_2_ip4(address)), ip4_addr2(ip_2_ip4(address)), ip4_addr3(ip_2_ip4(address)), ip4_addr4(ip_2_ip4(address)) }, port);
         else

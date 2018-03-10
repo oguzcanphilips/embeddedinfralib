@@ -23,7 +23,7 @@ namespace services
 
     infra::SharedPtr<infra::DataInputStream> ConnectionLoopBackPeer::ReceiveStream()
     {
-        return receiveStream.Emplace(peer);
+        return receiveStream.Emplace(peer, infra::softFail);
     }
 
     void ConnectionLoopBackPeer::AckReceived()

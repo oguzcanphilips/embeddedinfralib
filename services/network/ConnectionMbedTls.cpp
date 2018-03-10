@@ -146,7 +146,7 @@ namespace services
 
     infra::SharedPtr<infra::DataInputStream> ConnectionMbedTls::ReceiveStream()
     {
-        return receiveStream.Emplace(*this);
+        return receiveStream.Emplace(*this, infra::softFail);
     }
 
     void ConnectionMbedTls::AckReceived()
