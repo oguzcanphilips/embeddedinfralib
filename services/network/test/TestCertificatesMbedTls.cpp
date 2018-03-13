@@ -80,11 +80,23 @@ TEST_F(CertificatesMbedTlsTest, generate_new_key)
     infra::BoundedString::WithStorage<2048> privateKey;
     certificates.WritePrivateKey(privateKey);
 
-    EXPECT_STRNE(privateKey.data(), mbedtls2_test_srv_key);
+    EXPECT_FALSE(CompareStringIgnoreNewline(mbedtls2_test_srv_key, privateKey.data()));
 }
 
 TEST_F(CertificatesMbedTlsTest, write_certificate)
 {
+    infra::BoundedString::WithStorage<2048> ownCertificate;
+    certificates.WriteOwnCertificate(ownCertificate, randomDataGenerator);
+
+    certificates.VerifyCertificate();
+}
+
+TEST_F(CertificatesMbedTlsTest, sign_certificate_with_new_key)
+{
+    infra::BoundedString::WithStorage<2048> privateKey;
+    certificates.GenerateNewKey(randomDataGenerator);
+    certificates.WritePrivateKey(privateKey);
+
     infra::BoundedString::WithStorage<2048> ownCertificate;
     certificates.WriteOwnCertificate(ownCertificate, randomDataGenerator);
 

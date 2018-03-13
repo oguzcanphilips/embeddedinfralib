@@ -62,13 +62,13 @@ namespace services
 
     void CertificatesMbedTls::GenerateNewKey(hal::SynchronousRandomDataGenerator& randomDataGenerator)
     {
-        if (mbedtls2_pk_get_type(&ownCertificate.pk) != MBEDTLS_PK_RSA)
+        if (mbedtls2_pk_get_type(&privateKey) != MBEDTLS_PK_RSA)
             return;
 
-        mbedtls2_rsa_context* rsaContext = mbedtls2_pk_rsa(ownCertificate.pk);
+        mbedtls2_rsa_context* rsaContext = mbedtls2_pk_rsa(privateKey);
         assert(rsaContext != nullptr);
 
-        size_t keySizeInBits = mbedtls2_pk_get_bitlen(&ownCertificate.pk);
+        size_t keySizeInBits = mbedtls2_pk_get_bitlen(&privateKey);
         int32_t exponent = ExtractExponent(*rsaContext);
 
         mbedtls2_rsa_gen_key(rsaContext, &RandomDataGeneratorWrapper, &randomDataGenerator, keySizeInBits, exponent);
@@ -126,7 +126,7 @@ namespace services
                     // Serial
                     tbsSequence.AddSerial(MakeConstByteRange(ownCertificate.serial));
 
-                    // Signature Object ID 1
+                    // Signature Object ID
                     X509AddAlgorithm(tbsSequence, ownCertificate.sig_oid);
 
                     // Issuer Name
@@ -153,7 +153,7 @@ namespace services
                         auto publicKeyInfoSequence = tbsSequence.StartSequence();
                         mbedtls2_x509_buf pk_oid;
 
-                        mbedtls2_oid_get_oid_by_pk_alg(mbedtls2_pk_get_type(&ownCertificate.pk), const_cast<const char**>(reinterpret_cast<char**>(&pk_oid.p)), &pk_oid.len);
+                        mbedtls2_oid_get_oid_by_pk_alg(mbedtls2_pk_get_type(&privateKey), const_cast<const char**>(reinterpret_cast<char**>(&pk_oid.p)), &pk_oid.len);
 
                         X509AddAlgorithm(publicKeyInfoSequence, pk_oid);
 
@@ -161,7 +161,7 @@ namespace services
                             auto publicKeyBitString = publicKeyInfoSequence.StartBitString();
                             {
                                 auto rsaPublicKeySequence = publicKeyBitString.StartSequence();
-                                mbedtls2_rsa_context* rsaContext = mbedtls2_pk_rsa(ownCertificate.pk);
+                                mbedtls2_rsa_context* rsaContext = mbedtls2_pk_rsa(privateKey);
                                 assert(rsaContext != nullptr);
 
                                 rsaPublicKeySequence.AddBigNumber(MakeByteRange(rsaContext->N));
