@@ -156,7 +156,7 @@ TEST_F(SecondStageToRamLoaderTest, NoUpgrade)
     EXPECT_FALSE(secondStageToRamLoader.Load(infra::ByteRange(), decryptorSpy, verifierSpy));
 }
 
-TEST_F(SecondStageToRamLoaderTest, LoadSecondStage)
+TEST_F(SecondStageToRamLoaderTest, load_second_stage_when_readyToDeploy)
 {
     UpgradePackHeaderNoSecurity header(CreateReadyToDeployHeader(1));
 
@@ -170,6 +170,59 @@ TEST_F(SecondStageToRamLoaderTest, LoadSecondStage)
     std::vector<uint8_t> ram(expectedRam.size(), 0);
 
     EXPECT_TRUE(secondStageToRamLoader.Load(ram, decryptorSpy, verifierSpy));
+    EXPECT_EQ(expectedRam, ram);
+}
+
+TEST_F(SecondStageToRamLoaderTest, load_second_stage_when_deployStarted)
+{
+    UpgradePackHeaderNoSecurity header(CreateReadyToDeployHeader(1));
+    header.prologue.status = application::UpgradePackStatus::deployStarted;
+
+    const std::vector<uint8_t> secondStageImage{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 3, 5, 8, 13, 21 };
+    application::ImageHeaderPrologue secondStageImageHeader(CreateImageHeader("boot2nd", secondStageImage.size()));
+
+    infra::ByteOutputStream stream(upgradePackFlash.sectors[0]);
+    stream << header << secondStageImageHeader << infra::ConstByteRange(secondStageImage);
+
+    std::vector<uint8_t> expectedRam(secondStageImage.begin() + 8, secondStageImage.end());
+    std::vector<uint8_t> ram(expectedRam.size(), 0);
+
+    EXPECT_TRUE(secondStageToRamLoader.Load(ram, decryptorSpy, verifierSpy));
+    EXPECT_EQ(expectedRam, ram);
+}
+
+TEST_F(SecondStageToRamLoaderTest, dont_load_second_stage_when_not_ready_to_deply)
+{
+    UpgradePackHeaderNoSecurity header(CreateReadyToDeployHeader(1));
+    header.prologue.status = application::UpgradePackStatus::downloaded;
+
+    const std::vector<uint8_t> secondStageImage{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 3, 5, 8, 13, 21 };
+    application::ImageHeaderPrologue secondStageImageHeader(CreateImageHeader("boot2nd", secondStageImage.size()));
+
+    infra::ByteOutputStream stream(upgradePackFlash.sectors[0]);
+    stream << header << secondStageImageHeader << infra::ConstByteRange(secondStageImage);
+
+    std::vector<uint8_t> expectedRam(secondStageImage.begin() + 8, secondStageImage.end());
+    std::vector<uint8_t> ram(expectedRam.size(), 0);
+
+    EXPECT_FALSE(secondStageToRamLoader.Load(ram, decryptorSpy, verifierSpy));
+}
+
+TEST_F(SecondStageToRamLoaderTest, load_second_stage_when_status_is_overridden)
+{
+    UpgradePackHeaderNoSecurity header(CreateReadyToDeployHeader(1));
+    header.prologue.status = application::UpgradePackStatus::downloaded;
+
+    const std::vector<uint8_t> secondStageImage{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 3, 5, 8, 13, 21 };
+    application::ImageHeaderPrologue secondStageImageHeader(CreateImageHeader("boot2nd", secondStageImage.size()));
+
+    infra::ByteOutputStream stream(upgradePackFlash.sectors[0]);
+    stream << header << secondStageImageHeader << infra::ConstByteRange(secondStageImage);
+
+    std::vector<uint8_t> expectedRam(secondStageImage.begin() + 8, secondStageImage.end());
+    std::vector<uint8_t> ram(expectedRam.size(), 0);
+
+    EXPECT_TRUE(secondStageToRamLoader.Load(ram, decryptorSpy, verifierSpy, true));
     EXPECT_EQ(expectedRam, ram);
 }
 

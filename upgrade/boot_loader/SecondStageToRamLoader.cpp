@@ -9,13 +9,13 @@ namespace application
         , product(product)
     {}
 
-    bool SecondStageToRamLoader::Load(infra::ByteRange ram, Decryptor& decryptor, const Verifier& verifier)
+    bool SecondStageToRamLoader::Load(infra::ByteRange ram, Decryptor& decryptor, const Verifier& verifier, bool override)
     {
         UpgradePackHeaderPrologue headerPrologue;
         upgradePackFlash.ReadBuffer(infra::MakeByteRange(headerPrologue), address);
         address += sizeof(UpgradePackHeaderPrologue);
 
-        bool sanity = (headerPrologue.status == UpgradePackStatus::readyToDeploy || headerPrologue.status == UpgradePackStatus::deployStarted) && headerPrologue.magic == upgradePackMagic;
+        bool sanity = (override || headerPrologue.status == UpgradePackStatus::readyToDeploy || headerPrologue.status == UpgradePackStatus::deployStarted) && headerPrologue.magic == upgradePackMagic;
 
         if (!sanity)
             return false;

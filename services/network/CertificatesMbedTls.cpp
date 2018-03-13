@@ -6,16 +6,16 @@
 
 namespace
 {
-	int RandomDataGeneratorWrapper(void* data, unsigned char* output, std::size_t size)
-	{
-		reinterpret_cast<hal::SynchronousRandomDataGenerator*>(data)->GenerateRandomData(infra::ByteRange(reinterpret_cast<uint8_t*>(output), reinterpret_cast<uint8_t*>(output) + size));
-		return 0;
-	}
+    int RandomDataGeneratorWrapper(void* data, unsigned char* output, std::size_t size)
+    {
+        reinterpret_cast<hal::SynchronousRandomDataGenerator*>(data)->GenerateRandomData(infra::ByteRange(reinterpret_cast<uint8_t*>(output), reinterpret_cast<uint8_t*>(output) + size));
+        return 0;
+    }
 
-	infra::ByteRange MakeByteRange(const mbedtls2_mpi& number)
-	{
-		return infra::ByteRange(reinterpret_cast<unsigned char*>(number.p), reinterpret_cast<unsigned char*>(number.p + number.n));
-	}
+    infra::ByteRange MakeByteRange(const mbedtls2_mpi& number)
+    {
+        return infra::ByteRange(reinterpret_cast<unsigned char*>(number.p), reinterpret_cast<unsigned char*>(number.p + number.n));
+    }
 
     infra::ConstByteRange MakeConstByteRange(const mbedtls2_x509_buf& buffer)
     {
@@ -25,82 +25,82 @@ namespace
 
 namespace services
 {
-	CertificatesMbedTls::CertificatesMbedTls()
-	{
-		mbedtls2_x509_crt_init(&caCertificates);
-		mbedtls2_x509_crt_init(&ownCertificate);
-		mbedtls2_pk_init(&privateKey);
-	}
+    CertificatesMbedTls::CertificatesMbedTls()
+    {
+        mbedtls2_x509_crt_init(&caCertificates);
+        mbedtls2_x509_crt_init(&ownCertificate);
+        mbedtls2_pk_init(&privateKey);
+    }
 
-	CertificatesMbedTls::~CertificatesMbedTls()
-	{
-		mbedtls2_pk_free(&privateKey);
-		mbedtls2_x509_crt_free(&caCertificates);
-		mbedtls2_x509_crt_free(&ownCertificate);
-	}
+    CertificatesMbedTls::~CertificatesMbedTls()
+    {
+        mbedtls2_pk_free(&privateKey);
+        mbedtls2_x509_crt_free(&caCertificates);
+        mbedtls2_x509_crt_free(&ownCertificate);
+    }
 
-	void CertificatesMbedTls::AddCertificateAuthority(const infra::BoundedConstString& certificate)
-	{
-		int result = mbedtls2_x509_crt_parse(&caCertificates, reinterpret_cast<const unsigned char*>(certificate.data()), certificate.size());
-		assert(result == 0);
-	}
+    void CertificatesMbedTls::AddCertificateAuthority(const infra::BoundedConstString& certificate)
+    {
+        int result = mbedtls2_x509_crt_parse(&caCertificates, reinterpret_cast<const unsigned char*>(certificate.data()), certificate.size());
+        assert(result == 0);
+    }
 
-	void CertificatesMbedTls::AddOwnCertificate(const infra::BoundedConstString& certificate, const infra::BoundedConstString& key)
-	{
-		int result = mbedtls2_x509_crt_parse(&ownCertificate, reinterpret_cast<const unsigned char*>(certificate.data()), certificate.size());
-		assert(result == 0);
-		result = mbedtls2_pk_parse_key(&privateKey, reinterpret_cast<const unsigned char*>(key.data()), key.size(), NULL, 0);
-		assert(result == 0);
-	}
+    void CertificatesMbedTls::AddOwnCertificate(const infra::BoundedConstString& certificate, const infra::BoundedConstString& key)
+    {
+        int result = mbedtls2_x509_crt_parse(&ownCertificate, reinterpret_cast<const unsigned char*>(certificate.data()), certificate.size());
+        assert(result == 0);
+        result = mbedtls2_pk_parse_key(&privateKey, reinterpret_cast<const unsigned char*>(key.data()), key.size(), NULL, 0);
+        assert(result == 0);
+    }
 
-	void CertificatesMbedTls::Config(mbedtls2_ssl_config& sslConfig)
-	{
-		mbedtls2_ssl_conf_ca_chain(&sslConfig, &caCertificates, nullptr);
-		int result = mbedtls2_ssl_conf_own_cert(&sslConfig, &ownCertificate, &privateKey);
-		assert(result == 0);
-	}
+    void CertificatesMbedTls::Config(mbedtls2_ssl_config& sslConfig)
+    {
+        mbedtls2_ssl_conf_ca_chain(&sslConfig, &caCertificates, nullptr);
+        int result = mbedtls2_ssl_conf_own_cert(&sslConfig, &ownCertificate, &privateKey);
+        assert(result == 0);
+    }
 
-	void CertificatesMbedTls::GenerateNewKey(hal::SynchronousRandomDataGenerator& randomDataGenerator)
-	{
-		if (mbedtls2_pk_get_type(&ownCertificate.pk) != MBEDTLS_PK_RSA)
-			return;
+    void CertificatesMbedTls::GenerateNewKey(hal::SynchronousRandomDataGenerator& randomDataGenerator)
+    {
+        if (mbedtls2_pk_get_type(&privateKey) != MBEDTLS_PK_RSA)
+            return;
 
-		mbedtls2_rsa_context* rsaContext = mbedtls2_pk_rsa(ownCertificate.pk);
-		assert(rsaContext != nullptr);
+        mbedtls2_rsa_context* rsaContext = mbedtls2_pk_rsa(privateKey);
+        assert(rsaContext != nullptr);
 
-		size_t keySizeInBits = mbedtls2_pk_get_bitlen(&ownCertificate.pk);
-		int32_t exponent = ExtractExponent(*rsaContext);
+        size_t keySizeInBits = mbedtls2_pk_get_bitlen(&privateKey);
+        int32_t exponent = ExtractExponent(*rsaContext);
 
-		mbedtls2_rsa_gen_key(rsaContext, &RandomDataGeneratorWrapper, &randomDataGenerator, keySizeInBits, exponent);
-	}
+        mbedtls2_rsa_gen_key(rsaContext, &RandomDataGeneratorWrapper, &randomDataGenerator, keySizeInBits, exponent);
+    }
 
-	void CertificatesMbedTls::WritePrivateKey(infra::BoundedString outputBuffer)
-	{
-		infra::ByteOutputStream::WithStorage<2048> contentsStream;
-		infra::Asn1Formatter formatter(contentsStream);
-		{
-			auto sequence = formatter.StartSequence();
+    void CertificatesMbedTls::WritePrivateKey(infra::BoundedString outputBuffer)
+    {
+        infra::ByteOutputStream::WithStorage<2048> contentsStream;
+        infra::Asn1Formatter formatter(contentsStream);
+        {
+            auto sequence = formatter.StartSequence();
 
-			mbedtls2_rsa_context& rsaContext = *mbedtls2_pk_rsa(privateKey);
+            mbedtls2_rsa_context& rsaContext = *mbedtls2_pk_rsa(privateKey);
 
-			sequence.Add(uint8_t(rsaContext.ver));
-			sequence.AddBigNumber(MakeByteRange(rsaContext.N));
-			sequence.AddBigNumber(MakeByteRange(rsaContext.E));
-			sequence.AddBigNumber(MakeByteRange(rsaContext.D));
-			sequence.AddBigNumber(MakeByteRange(rsaContext.P));
-			sequence.AddBigNumber(MakeByteRange(rsaContext.Q));
-			sequence.AddBigNumber(MakeByteRange(rsaContext.DP));
-			sequence.AddBigNumber(MakeByteRange(rsaContext.DQ));
-			sequence.AddBigNumber(MakeByteRange(rsaContext.QP));
-		}
+            sequence.Add(uint8_t(rsaContext.ver));
+            sequence.AddBigNumber(MakeByteRange(rsaContext.N));
+            sequence.AddBigNumber(MakeByteRange(rsaContext.E));
+            sequence.AddBigNumber(MakeByteRange(rsaContext.D));
+            sequence.AddBigNumber(MakeByteRange(rsaContext.P));
+            sequence.AddBigNumber(MakeByteRange(rsaContext.Q));
+            sequence.AddBigNumber(MakeByteRange(rsaContext.DP));
+            sequence.AddBigNumber(MakeByteRange(rsaContext.DQ));
+            sequence.AddBigNumber(MakeByteRange(rsaContext.QP));
+        }
 
-		outputBuffer.clear();
-		infra::StringOutputStream stream(outputBuffer);
-		stream << "-----BEGIN RSA PRIVATE KEY-----\r\n";
-		stream << infra::AsBase64(contentsStream.Writer().Processed());
-		stream << "-----END RSA PRIVATE KEY-----\r\n";
-		stream << '\0';
-	}
+        outputBuffer.clear();
+        infra::StringOutputStream stream(outputBuffer);
+        stream << "-----BEGIN RSA PRIVATE KEY-----\r\n";
+        stream << infra::AsBase64(contentsStream.Writer().Processed());
+        stream << "-----END RSA PRIVATE KEY-----\r\n";
+        stream << '\0';
+    }
 
     void CertificatesMbedTls::WriteOwnCertificate(infra::BoundedString outputBuffer, hal::SynchronousRandomDataGenerator& randomDataGenerator)
     {
@@ -126,7 +126,7 @@ namespace services
                     // Serial
                     tbsSequence.AddSerial(MakeConstByteRange(ownCertificate.serial));
 
-                    // Signature Object ID 1
+                    // Signature Object ID
                     X509AddAlgorithm(tbsSequence, ownCertificate.sig_oid);
 
                     // Issuer Name
@@ -153,7 +153,7 @@ namespace services
                         auto publicKeyInfoSequence = tbsSequence.StartSequence();
                         mbedtls2_x509_buf pk_oid;
 
-                        mbedtls2_oid_get_oid_by_pk_alg(mbedtls2_pk_get_type(&ownCertificate.pk), const_cast<const char**>(reinterpret_cast<char**>(&pk_oid.p)), &pk_oid.len);
+                        mbedtls2_oid_get_oid_by_pk_alg(mbedtls2_pk_get_type(&privateKey), const_cast<const char**>(reinterpret_cast<char**>(&pk_oid.p)), &pk_oid.len);
 
                         X509AddAlgorithm(publicKeyInfoSequence, pk_oid);
 
@@ -161,7 +161,7 @@ namespace services
                             auto publicKeyBitString = publicKeyInfoSequence.StartBitString();
                             {
                                 auto rsaPublicKeySequence = publicKeyBitString.StartSequence();
-                                mbedtls2_rsa_context* rsaContext = mbedtls2_pk_rsa(ownCertificate.pk);
+                                mbedtls2_rsa_context* rsaContext = mbedtls2_pk_rsa(privateKey);
                                 assert(rsaContext != nullptr);
 
                                 rsaPublicKeySequence.AddBigNumber(MakeByteRange(rsaContext->N));
@@ -202,15 +202,15 @@ namespace services
         stream << '\0';
     }
 
-	int32_t CertificatesMbedTls::ExtractExponent(const mbedtls2_rsa_context& rsaContext) const
-	{
-		uint32_t exponent = 0;
-		mbedtls2_mpi_write_binary(&rsaContext.E, reinterpret_cast<unsigned char*>(&exponent), sizeof(uint32_t));
-		exponent = (exponent << 16) | (exponent >> 16);
-		exponent = ((exponent & 0x00ff00ff) << 8) | ((exponent & 0xff00ff00) >> 8);
+    int32_t CertificatesMbedTls::ExtractExponent(const mbedtls2_rsa_context& rsaContext) const
+    {
+        uint32_t exponent = 0;
+        mbedtls2_mpi_write_binary(&rsaContext.E, reinterpret_cast<unsigned char*>(&exponent), sizeof(uint32_t));
+        exponent = (exponent << 16) | (exponent >> 16);
+        exponent = ((exponent & 0x00ff00ff) << 8) | ((exponent & 0xff00ff00) >> 8);
 
-		return exponent;
-	}
+        return exponent;
+    }
 
     void CertificatesMbedTls::X509AddAlgorithm(infra::Asn1Formatter& root, const mbedtls2_x509_buf& oid) const
     {
