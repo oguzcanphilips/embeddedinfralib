@@ -69,6 +69,19 @@ namespace application
         const google::protobuf::FieldDescriptor& descriptor;
     };
 
+    class FieldGeneratorInt32
+        : public FieldGenerator
+    {
+    public:
+        using FieldGenerator::FieldGenerator;
+
+        virtual void GenerateFieldDeclaration(Entities& formatter) override;
+        virtual std::string MaxMessageSize() const override;
+        virtual void SerializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void DeserializerBody(google::protobuf::io::Printer& printer) override;
+        virtual void GenerateConstructorParameter(Constructor& constructor) override;
+    };
+
     class FieldGeneratorFixed32
         : public FieldGenerator
     {

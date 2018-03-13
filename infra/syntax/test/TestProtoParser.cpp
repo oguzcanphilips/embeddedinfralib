@@ -18,6 +18,14 @@ TEST(ProtoParserTest, GetVarInt_from_multiple_bytes)
     EXPECT_EQ(389, parser.GetVarInt());
 }
 
+TEST(ProtoParserTest, GetVarInt_largest)
+{
+    infra::ByteInputStream stream(std::array<uint8_t, 10>{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 1 });
+    infra::ProtoParser parser(stream);
+
+    EXPECT_EQ(std::numeric_limits<uint64_t>::max(), parser.GetVarInt());
+}
+
 TEST(ProtoParserTest, GetFixed32)
 {
     infra::ByteInputStream stream(std::array<uint8_t, 4>{ 1, 0, 0, 0 });
