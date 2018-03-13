@@ -7,6 +7,28 @@
 #include "infra/syntax/ProtoParser.hpp"
 #include "services/network/test_doubles/ConnectionMock.hpp"
 
+TEST(ProtoCEchoPluginTest, serialize_int32)
+{
+    test_messages::TestInt32 message;
+    message.value = -1;
+
+    infra::ByteOutputStream::WithStorage<100> stream;
+    infra::ProtoFormatter formatter(stream);
+    message.Serialize(formatter);
+
+    EXPECT_EQ((std::array<uint8_t, 11>{ 8, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 1 }), stream.Writer().Processed());
+}
+
+TEST(ProtoCEchoPluginTest, deserialize_int32)
+{
+    std::array<uint8_t, 11> data{ 8, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 1 };
+    infra::ByteInputStream stream(data);
+    infra::ProtoParser parser(stream);
+
+    test_messages::TestInt32 message(parser);
+    EXPECT_EQ(-1, message.value);
+}
+
 TEST(ProtoCEchoPluginTest, serialize_fixed32)
 {
     test_messages::TestFixed32 message;
@@ -216,27 +238,54 @@ TEST(ProtoCEchoPluginTest, deserialize_nested_message)
     EXPECT_EQ(5, message.message.value);
 }
 
-TEST(ProtoCEchoPluginTest, serialize_nested_repeated_message)
+TEST(ProtoCEchoPluginTest, serialize_more_nested_message)
 {
-    test_messages::TestNestedRepeatedMessage message;
-    message.message.push_back(test_messages::TestNestedRepeatedMessage::NestedMessage());
-    message.message[0].value = 5;
+    test_messages::TestMoreNestedMessage message;
+    message.message1.value = 5;
+    message.message2.value = 10;
 
     infra::ByteOutputStream::WithStorage<100> stream;
     infra::ProtoFormatter formatter(stream);
     message.Serialize(formatter);
 
-    EXPECT_EQ((std::array<uint8_t, 4>{ (1 << 3) | 2, 2, 1 << 3, 5 }), stream.Writer().Processed());
+    EXPECT_EQ((std::array<uint8_t, 8>{ (1 << 3) | 2, 2, 1 << 3, 5, (2 << 3) | 2, 2, 2 << 3, 10 }), stream.Writer().Processed());
+}
+
+TEST(ProtoCEchoPluginTest, deserialize_more_nested_message)
+{
+    std::array<uint8_t, 8> data{ (1 << 3) | 2, 2, 1 << 3, 5, (2 << 3) | 2, 2, 2 << 3, 10 };
+    infra::ByteInputStream stream(data);
+    infra::ProtoParser parser(stream);
+
+    test_messages::TestMoreNestedMessage message(parser);
+    EXPECT_EQ(5, message.message1.value);
+    EXPECT_EQ(10, message.message2.value);
+}
+
+TEST(ProtoCEchoPluginTest, serialize_nested_repeated_message)
+{
+    test_messages::TestNestedRepeatedMessage message;
+    message.message.push_back(test_messages::TestNestedRepeatedMessage::NestedMessage());
+    message.message[0].value = 5;
+    message.message.push_back(test_messages::TestNestedRepeatedMessage::NestedMessage());
+    message.message[1].value = 6;
+
+    infra::ByteOutputStream::WithStorage<100> stream;
+    infra::ProtoFormatter formatter(stream);
+    message.Serialize(formatter);
+
+    EXPECT_EQ((std::array<uint8_t, 8>{ (1 << 3) | 2, 2, 1 << 3, 5, (1 << 3) | 2, 2, 1 << 3, 6 }), stream.Writer().Processed());
 }
 
 TEST(ProtoCEchoPluginTest, deserialize_nested_repeated_message)
 {
-    std::array<uint8_t, 4> data{ (1 << 3) | 2, 2, 1 << 3, 5 };
+    std::array<uint8_t, 8> data{ (1 << 3) | 2, 2, 1 << 3, 5, (1 << 3) | 2, 2, 1 << 3, 6 };
     infra::ByteInputStream stream(data);
     infra::ProtoParser parser(stream);
 
     test_messages::TestNestedRepeatedMessage message(parser);
     EXPECT_EQ(5, message.message[0].value);
+    EXPECT_EQ(6, message.message[1].value);
 }
 
 TEST(ProtoCEchoPluginTest, invoke_service_proxy_method)

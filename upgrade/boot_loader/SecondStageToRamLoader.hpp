@@ -12,7 +12,7 @@ namespace application
     public:
         SecondStageToRamLoader(hal::SynchronousFlash& upgradePackFlash, const char* product);
 
-        bool Load(infra::ByteRange ram, Decryptor& decryptor, const Verifier& verifier);
+        bool Load(infra::ByteRange ram, Decryptor& decryptor, const Verifier& verifier, bool override = false);
         void MarkAsError(uint32_t errorCode);
 
     private:
