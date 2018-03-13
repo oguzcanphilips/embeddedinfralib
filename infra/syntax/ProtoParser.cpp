@@ -6,14 +6,14 @@ namespace infra
 {
     ProtoLengthDelimited::ProtoLengthDelimited(infra::DataInputStream inputStream, uint32_t length)
         : limitedReader(inputStream.Reader(), length)
-        , input(limitedReader)
+        , input(limitedReader, inputStream.ErrorPolicy())
     {
-        inputStream.Reader().ReportResult(inputStream.Available() >= length);
+        inputStream.ErrorPolicy().ReportResult(inputStream.Available() >= length);
     }
 
     ProtoLengthDelimited::ProtoLengthDelimited(const ProtoLengthDelimited& other)
         : limitedReader(other.limitedReader)
-        , input(limitedReader)
+        , input(limitedReader, other.input.ErrorPolicy())
     {}
 
     void ProtoLengthDelimited::SkipEverything()
@@ -43,7 +43,7 @@ namespace infra
 
     ProtoParser::ProtoParser(infra::DataInputStream inputStream)
         : limitedReader(inputStream.Reader(), inputStream.Available())
-        , input(limitedReader)
+        , input(limitedReader, inputStream.ErrorPolicy())
     {}
 
     bool ProtoParser::Empty() const

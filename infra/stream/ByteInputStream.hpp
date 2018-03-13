@@ -11,15 +11,13 @@ namespace infra
     {
     public:
         explicit ByteInputStreamReader(ConstByteRange range);
-        ByteInputStreamReader(ConstByteRange range, SoftFail);
 
         ConstByteRange Processed() const;   // Invariant: Processed() ++ Remaining() == range
         ConstByteRange Remaining() const;
 
     private:
-        virtual void Extract(ByteRange range) override;
-        virtual uint8_t ExtractOne() override;
-        virtual uint8_t Peek() override;
+        virtual void Extract(ByteRange range, StreamErrorPolicy& errorPolicy) override;
+        virtual uint8_t Peek(StreamErrorPolicy& errorPolicy) override;
         virtual ConstByteRange ExtractContiguousRange(std::size_t max) override;
         virtual bool Empty() const override;
         virtual std::size_t Available() const override;

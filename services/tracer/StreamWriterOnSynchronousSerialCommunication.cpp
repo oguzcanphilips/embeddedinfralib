@@ -6,14 +6,9 @@ namespace services
         : communication(communication)
     {}
 
-    void StreamWriterOnSynchronousSerialCommunication::Insert(infra::ConstByteRange range)
+    void StreamWriterOnSynchronousSerialCommunication::Insert(infra::ConstByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
         communication.SendData(range);
-    }
-
-    void StreamWriterOnSynchronousSerialCommunication::Insert(uint8_t element)
-    {
-        Insert(infra::MakeByteRange(element));
     }
 
     std::size_t StreamWriterOnSynchronousSerialCommunication::Available() const

@@ -23,7 +23,7 @@ namespace services
 
     infra::SharedPtr<infra::DataInputStream> ConnectionLoopBackPeer::ReceiveStream()
     {
-        return receiveStream.Emplace(peer);
+        return receiveStream.Emplace(peer, infra::softFail);
     }
 
     void ConnectionLoopBackPeer::AckReceived()
@@ -78,16 +78,10 @@ namespace services
         }
     }
 
-    void ConnectionLoopBackPeer::StreamWriterLoopBack::Insert(infra::ConstByteRange range)
+    void ConnectionLoopBackPeer::StreamWriterLoopBack::Insert(infra::ConstByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
         connection.sendBuffer.insert(connection.sendBuffer.end(), range.begin(), range.end());
         sent += range.size();
-    }
-
-    void ConnectionLoopBackPeer::StreamWriterLoopBack::Insert(uint8_t element)
-    {
-        connection.sendBuffer.push_back(element);
-        ++sent;
     }
 
     std::size_t ConnectionLoopBackPeer::StreamWriterLoopBack::Available() const
@@ -105,18 +99,13 @@ namespace services
         sizeRead = 0;
     }
 
-    void ConnectionLoopBackPeer::StreamReaderLoopBack::Extract(infra::ByteRange range)
+    void ConnectionLoopBackPeer::StreamReaderLoopBack::Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
         std::copy(connection.sendBuffer.begin() + sizeRead, connection.sendBuffer.begin() + sizeRead + range.size(), range.begin());
         sizeRead += range.size();
     }
 
-    uint8_t ConnectionLoopBackPeer::StreamReaderLoopBack::ExtractOne()
-    {
-        return connection.sendBuffer[sizeRead++];
-    }
-
-    uint8_t ConnectionLoopBackPeer::StreamReaderLoopBack::Peek()
+    uint8_t ConnectionLoopBackPeer::StreamReaderLoopBack::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
         return connection.sendBuffer[sizeRead];
     }

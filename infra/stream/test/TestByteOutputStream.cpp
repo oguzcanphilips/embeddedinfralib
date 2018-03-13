@@ -43,7 +43,7 @@ TEST(ByteOutputStreamTest, reserve_type)
 {
     infra::ByteOutputStream::WithStorage<5> stream;
     stream << uint8_t(1);
-    auto reservedSpace = stream.Writer().Reserve<uint8_t>();
+    auto reservedSpace = stream.Writer().Reserve<uint8_t>(stream.ErrorPolicy());
     stream << uint8_t(3);
     reservedSpace = uint8_t(2);
 
@@ -54,7 +54,7 @@ TEST(ByteOutputStreamTest, reserve_type_without_space)
 {
     infra::ByteOutputStream::WithStorage<2> stream(infra::softFail);
     stream << uint8_t(1);
-    auto reservedSpace = stream.Writer().Reserve<uint32_t>();
+    auto reservedSpace = stream.Writer().Reserve<uint32_t>(stream.ErrorPolicy());
     reservedSpace = uint32_t(32);
 
     EXPECT_TRUE(stream.Failed());

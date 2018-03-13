@@ -13,15 +13,12 @@ namespace infra
     {
     public:
         explicit StringOutputStreamWriter(BoundedString& string);
-        StringOutputStreamWriter(BoundedString& string, SoftFail);
-        StringOutputStreamWriter(BoundedString& string, NoFail);
 
         template<class T>
-            ReservedProxy<T> Reserve();
+            ReservedProxy<T> Reserve(StreamErrorPolicy& errorPolicy);
 
     private:
-        virtual void Insert(ConstByteRange range) override;
-        virtual void Insert(uint8_t element) override;
+        virtual void Insert(ConstByteRange range, StreamErrorPolicy& errorPolicy) override;
         virtual std::size_t Available() const override;
 
         virtual const uint8_t* ConstructSaveMarker() const override;
@@ -46,12 +43,12 @@ namespace infra
     ////    Implementation    ////
 
     template<class T>
-    ReservedProxy<T> StringOutputStreamWriter::Reserve()
+    ReservedProxy<T> StringOutputStreamWriter::Reserve(StreamErrorPolicy& errorPolicy)
     {
         ByteRange range(ReinterpretCastByteRange(MemoryRange<char>(string.end(), string.end() + sizeof(T))));
         std::size_t spaceLeft = string.max_size() - string.size();
         bool spaceOk = range.size() <= spaceLeft;
-        ReportResult(spaceOk);
+        errorPolicy.ReportResult(spaceOk);
         if (!spaceOk)
             range.shrink_from_back_to(spaceLeft);
 

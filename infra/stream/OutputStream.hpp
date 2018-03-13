@@ -1,6 +1,7 @@
 #ifndef INFRA_OUTPUT_STREAM_HPP
 #define INFRA_OUTPUT_STREAM_HPP
 
+#include "infra/stream/StreamErrorPolicy.hpp"
 #include "infra/stream/StreamManipulators.hpp"
 #include "infra/util/BoundedString.hpp"
 #include "infra/util/ByteRange.hpp"
@@ -15,37 +16,18 @@ namespace infra
     {
     protected:
         StreamWriter() = default;
-        explicit StreamWriter(SoftFail);
-        explicit StreamWriter(NoFail);
         StreamWriter(const StreamWriter&) = delete;
         StreamWriter& operator=(const StreamWriter&) = delete;
-        ~StreamWriter();
+        ~StreamWriter() = default;
 
     public:
-        virtual void Insert(ConstByteRange range) = 0;
-        virtual void Insert(uint8_t element) = 0;
+        virtual void Insert(ConstByteRange range, StreamErrorPolicy& errorPolicy) = 0;
         virtual std::size_t Available() const = 0;
 
         virtual const uint8_t* ConstructSaveMarker() const;
         virtual std::size_t GetProcessedBytesSince(const uint8_t* marker) const;
         virtual infra::ByteRange SaveState(const uint8_t* marker);
         virtual void RestoreState(infra::ByteRange range);
-
-        void SetNoFail();
-        bool HasFailed() const;
-        void ReportResult(bool ok);
-
-    private:
-        enum class FailureMode
-        {
-            assertion,
-            soft,
-            no
-        };
-
-        FailureMode failureMode = FailureMode::assertion;
-        bool failed = false;
-        mutable bool checkedFail = true;
     };
 
     class StreamWriterDummy
@@ -54,28 +36,30 @@ namespace infra
     public:
         StreamWriterDummy();
 
-        virtual void Insert(ConstByteRange range);
-        virtual void Insert(uint8_t element);
+        virtual void Insert(ConstByteRange range, StreamErrorPolicy& errorPolicy);
         virtual std::size_t Available() const;
     };
 
     class OutputStream
     {
+    public:
+        OutputStream(StreamWriter& writer, StreamErrorPolicy& errorPolicy);
+
     protected:
-        explicit OutputStream(StreamWriter& writer);
         ~OutputStream() = default;
 
     public:
-        void SetNoFail();
         bool Failed() const;
         const uint8_t* SaveMarker() const;
         std::size_t ProcessedBytesSince(const uint8_t* marker) const;
         std::size_t Available() const;
 
         StreamWriter& Writer();
+        StreamErrorPolicy& ErrorPolicy();
 
     private:
         StreamWriter& writer;
+        StreamErrorPolicy& errorPolicy;
     };
 
     class DataOutputStream
@@ -84,8 +68,9 @@ namespace infra
     public:
         template<class Writer>
             class WithWriter;
+        class WithErrorPolicy;
 
-        explicit DataOutputStream(StreamWriter& writer);
+        using OutputStream::OutputStream;
 
         TextOutputStream operator<<(Text);
 
@@ -101,8 +86,9 @@ namespace infra
     public:
         template<class Writer>
             class WithWriter;
+        class WithErrorPolicy;
 
-        explicit TextOutputStream(StreamWriter& stream);
+        using OutputStream::OutputStream;
 
         TextOutputStream operator<<(Hex);
         TextOutputStream operator<<(Bin);
@@ -189,8 +175,27 @@ namespace infra
     public:
         template<class... Args>
             WithWriter(Args&&... args);
+        template<class Storage, class... Args>
+            WithWriter(Storage&& storage, const SoftFail&, Args&&... args);
+        template<class Storage, class... Args>
+            WithWriter(Storage&& storage, const NoFail&, Args&&... args);
 
         TheWriter& Writer();
+
+    private:
+        StreamErrorPolicy errorPolicy;
+    };
+
+    class DataOutputStream::WithErrorPolicy
+        : public DataOutputStream
+    {
+    public:
+        WithErrorPolicy(StreamWriter& writer);
+        WithErrorPolicy(StreamWriter& writer, SoftFail);
+        WithErrorPolicy(StreamWriter& writer, NoFail);
+
+    private:
+        StreamErrorPolicy errorPolicy;
     };
 
     template<class TheWriter>
@@ -201,8 +206,27 @@ namespace infra
     public:
         template<class... Args>
             WithWriter(Args&&... args);
+        template<class Storage, class... Args>
+            WithWriter(Storage&& storage, const SoftFail&, Args&&... args);
+        template<class Storage, class... Args>
+            WithWriter(Storage&& storage, const NoFail&, Args&&... args);
 
         TheWriter& Writer();
+
+    private:
+        StreamErrorPolicy errorPolicy;
+    };
+
+    class TextOutputStream::WithErrorPolicy
+        : public TextOutputStream
+    {
+    public:
+        WithErrorPolicy(StreamWriter& writer);
+        WithErrorPolicy(StreamWriter& writer, SoftFail);
+        WithErrorPolicy(StreamWriter& writer, NoFail);
+
+    private:
+        StreamErrorPolicy errorPolicy;
     };
 
     class AsAsciiHelper
@@ -261,7 +285,7 @@ namespace infra
     DataOutputStream& DataOutputStream::operator<<(const Data& data)
     {
         ConstByteRange dataRange(ReinterpretCastByteRange(MakeRange(&data, &data + 1)));
-        Writer().Insert(dataRange);
+        Writer().Insert(dataRange, ErrorPolicy());
         return *this;
     }
 
@@ -269,7 +293,7 @@ namespace infra
     DataOutputStream& DataOutputStream::operator<<(MemoryRange<Data> data)
     {
         ConstByteRange dataRange(ReinterpretCastByteRange(data));
-        Writer().Insert(dataRange);
+        Writer().Insert(dataRange, ErrorPolicy());
         return *this;
     }
 
@@ -277,7 +301,23 @@ namespace infra
     template<class... Args>
     DataOutputStream::WithWriter<TheWriter>::WithWriter(Args&&... args)
         : detail::StorageHolder<TheWriter, WithWriter<TheWriter>>(std::forward<Args>(args)...)
-        , DataOutputStream(this->storage)
+        , DataOutputStream(this->storage, errorPolicy)
+    {}
+
+    template<class TheWriter>
+    template<class Storage, class... Args>
+    DataOutputStream::WithWriter<TheWriter>::WithWriter(Storage&& storage, const SoftFail&, Args&&... args)
+        : detail::StorageHolder<TheWriter, WithWriter<TheWriter>>(std::forward<Storage>(storage), std::forward<Args>(args)...)
+        , DataOutputStream(this->storage, errorPolicy)
+        , errorPolicy(softFail)
+    {}
+
+    template<class TheWriter>
+    template<class Storage, class... Args>
+    DataOutputStream::WithWriter<TheWriter>::WithWriter(Storage&& storage, const NoFail&, Args&&... args)
+        : detail::StorageHolder<TheWriter, WithWriter<TheWriter>>(std::forward<Storage>(storage), std::forward<Args>(args)...)
+        , DataOutputStream(this->storage, errorPolicy)
+        , errorPolicy(noFail)
     {}
 
     template<class TheWriter>
@@ -290,7 +330,23 @@ namespace infra
     template<class... Args>
     TextOutputStream::WithWriter<TheWriter>::WithWriter(Args&&... args)
         : detail::StorageHolder<TheWriter, WithWriter<TheWriter>>(std::forward<Args>(args)...)
-        , TextOutputStream(this->storage)
+        , TextOutputStream(this->storage, errorPolicy)
+    {}
+
+    template<class TheWriter>
+    template<class Storage, class... Args>
+    TextOutputStream::WithWriter<TheWriter>::WithWriter(Storage&& storage, const SoftFail&, Args&&... args)
+        : detail::StorageHolder<TheWriter, WithWriter<TheWriter>>(std::forward<Storage>(storage), std::forward<Args>(args)...)
+        , TextOutputStream(this->storage, errorPolicy)
+        , errorPolicy(softFail)
+    {}
+
+    template<class TheWriter>
+    template<class Storage, class... Args>
+    TextOutputStream::WithWriter<TheWriter>::WithWriter(Storage&& storage, const NoFail&, Args&&... args)
+        : detail::StorageHolder<TheWriter, WithWriter<TheWriter>>(std::forward<Storage>(storage), std::forward<Args>(args)...)
+        , TextOutputStream(this->storage, errorPolicy)
+        , errorPolicy(noFail)
     {}
 
     template<class TheWriter>

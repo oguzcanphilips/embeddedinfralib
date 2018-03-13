@@ -13,15 +13,11 @@ namespace infra
         LimitedStreamReader(const LimitedStreamReader& other);
 
     public:
-        virtual void Extract(ByteRange range) override;
-        virtual uint8_t ExtractOne() override;
-        virtual uint8_t Peek() override;
+        virtual void Extract(ByteRange range, StreamErrorPolicy& errorPolicy) override;
+        virtual uint8_t Peek(StreamErrorPolicy& errorPolicy) override;
         virtual ConstByteRange ExtractContiguousRange(std::size_t max) override;
         virtual bool Empty() const override;
         virtual std::size_t Available() const override;
-        virtual bool Failed() const override;
-        virtual void ReportResult(bool ok) override;
-        virtual void SetSoftFail() override;
 
     private:
         StreamReader& input;

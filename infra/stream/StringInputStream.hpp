@@ -12,12 +12,10 @@ namespace infra
     {
     public:
         explicit StringInputStreamReader(BoundedConstString string);
-        StringInputStreamReader(BoundedConstString string, SoftFail);
 
     private:
-        virtual void Extract(ByteRange range) override;
-        virtual uint8_t ExtractOne() override;
-        virtual uint8_t Peek() override;
+        virtual void Extract(ByteRange range, StreamErrorPolicy& errorPolicy) override;
+        virtual uint8_t Peek(StreamErrorPolicy& errorPolicy) override;
         virtual ConstByteRange ExtractContiguousRange(std::size_t max) override;
         virtual bool Empty() const override;
         virtual std::size_t Available() const override;
@@ -34,7 +32,9 @@ namespace infra
         template<std::size_t Max>
             using WithStorage = infra::WithStorage<TextInputStream::WithReader<StringInputStreamReader>, infra::BoundedString::WithStorage<Max>>;
 
-        using TextInputStream::WithReader<StringInputStreamReader>::WithReader;
+        StringInputStream(BoundedConstString storage);
+        StringInputStream(BoundedConstString storage, const SoftFail&);
+        StringInputStream(BoundedConstString storage, const NoFail&);
     };
 }
 

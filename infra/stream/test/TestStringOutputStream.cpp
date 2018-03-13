@@ -367,7 +367,7 @@ TEST(StringOutputStreamTest, reserve_type)
 {
     infra::StringOutputStream::WithStorage<64> stream;
     stream << "a";
-    auto reservedSpace = stream.Writer().Reserve<uint8_t>();
+    auto reservedSpace = stream.Writer().Reserve<uint8_t>(stream.ErrorPolicy());
     stream << "c";
     reservedSpace = 'b';
 
@@ -378,7 +378,7 @@ TEST(StringOutputStreamTest, reserve_type_without_space)
 {
     infra::StringOutputStream::WithStorage<2> stream(infra::softFail);
     stream << "a";
-    auto reservedSpace = stream.Writer().Reserve<uint32_t>();
+    auto reservedSpace = stream.Writer().Reserve<uint32_t>(stream.ErrorPolicy());
     reservedSpace = uint32_t(32);
 
     EXPECT_TRUE(stream.Failed());

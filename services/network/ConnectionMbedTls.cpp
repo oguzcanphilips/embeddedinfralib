@@ -152,7 +152,7 @@ namespace services
 
     infra::SharedPtr<infra::DataInputStream> ConnectionMbedTls::ReceiveStream()
     {
-        return receiveStream.Emplace(*this);
+        return receiveStream.Emplace(*this, infra::softFail);
     }
 
     void ConnectionMbedTls::AckReceived()
@@ -326,16 +326,10 @@ namespace services
             connection.TrySend();
     }
 
-    void ConnectionMbedTls::StreamWriterMbedTls::Insert(infra::ConstByteRange range)
+    void ConnectionMbedTls::StreamWriterMbedTls::Insert(infra::ConstByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
         connection.sendBuffer.insert(connection.sendBuffer.end(), range.begin(), range.end());
         sent += range.size();
-    }
-
-    void ConnectionMbedTls::StreamWriterMbedTls::Insert(uint8_t element)
-    {
-        connection.sendBuffer.push_back(element);
-        ++sent;
     }
 
     std::size_t ConnectionMbedTls::StreamWriterMbedTls::Available() const
@@ -344,8 +338,7 @@ namespace services
     }
 
     ConnectionMbedTls::StreamReaderMbedTls::StreamReaderMbedTls(ConnectionMbedTls& connection)
-        : infra::StreamReader(infra::softFail)
-        , connection(connection)
+        : connection(connection)
     {}
 
     void ConnectionMbedTls::StreamReaderMbedTls::ConsumeRead()
@@ -354,10 +347,10 @@ namespace services
         sizeRead = 0;
     }
 
-    void ConnectionMbedTls::StreamReaderMbedTls::Extract(infra::ByteRange range)
+    void ConnectionMbedTls::StreamReaderMbedTls::Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
         bool ok = sizeRead + range.size() <= connection.receiveBuffer.size();
-        ReportResult(ok);
+        errorPolicy.ReportResult(ok);
 
         if (ok)
         {
@@ -366,21 +359,10 @@ namespace services
         }
     }
 
-    uint8_t ConnectionMbedTls::StreamReaderMbedTls::ExtractOne()
+    uint8_t ConnectionMbedTls::StreamReaderMbedTls::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
         bool ok = sizeRead + 1 <= connection.receiveBuffer.size();
-        ReportResult(ok);
-
-        if (ok)
-            return connection.receiveBuffer[sizeRead++];
-        else
-            return 0;
-    }
-
-    uint8_t ConnectionMbedTls::StreamReaderMbedTls::Peek()
-    {
-        bool ok = sizeRead + 1 <= connection.receiveBuffer.size();
-        ReportResult(ok);
+        errorPolicy.ReportResult(ok);
 
         if (ok)
             return connection.receiveBuffer[sizeRead];

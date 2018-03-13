@@ -5,14 +5,9 @@
 
 namespace infra
 {
-    void IoOutputStreamWriter::Insert(ConstByteRange range)
+    void IoOutputStreamWriter::Insert(ConstByteRange range, StreamErrorPolicy& errorPolicy)
     {
         std::cout << std::string(range.begin(), range.end()) << std::flush;
-    }
-
-    void IoOutputStreamWriter::Insert(uint8_t element)
-    {
-        std::cout << static_cast<char>(element);
     }
 
     std::size_t IoOutputStreamWriter::Available() const

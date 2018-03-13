@@ -6,16 +6,6 @@ namespace infra
         : streamRange(streamRange)
     {}
 
-    ByteOutputStreamWriter::ByteOutputStreamWriter(ByteRange streamRange, SoftFail)
-        : StreamWriter(infra::softFail)
-        , streamRange(streamRange)
-    {}
-
-    ByteOutputStreamWriter::ByteOutputStreamWriter(ByteRange streamRange, NoFail)
-        : StreamWriter(infra::noFail)
-        , streamRange(streamRange)
-    {}
-
     ByteRange ByteOutputStreamWriter::Processed() const
     {
         return MakeRange(streamRange.begin(), streamRange.begin() + offset);
@@ -31,18 +21,11 @@ namespace infra
         offset = 0;
     }
 
-    void ByteOutputStreamWriter::Insert(ConstByteRange dataRange)
+    void ByteOutputStreamWriter::Insert(ConstByteRange dataRange, StreamErrorPolicy& errorPolicy)
     {
-        ReportResult(dataRange.size() <= streamRange.size() - offset);
+        errorPolicy.ReportResult(dataRange.size() <= streamRange.size() - offset);
         std::copy(dataRange.begin(), dataRange.begin() + dataRange.size(), streamRange.begin() + offset);
         offset += dataRange.size();
-    }
-
-    void ByteOutputStreamWriter::Insert(uint8_t element)
-    {
-        ReportResult(streamRange.size() - offset > 0);
-        *(streamRange.begin() + offset) = element;
-        ++offset;
     }
 
     std::size_t ByteOutputStreamWriter::Available() const
