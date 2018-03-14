@@ -1,4 +1,5 @@
 #include "infra/syntax/JsonFormatter.hpp"
+#include <ctime>
 
 namespace infra
 {
@@ -111,6 +112,40 @@ namespace infra
         InsertSeparation();
         *stream << '"' << tagName << R"(":")";
         InsertEscapedTag(*stream, tag);
+        *stream << '"';
+    }
+
+    void JsonObjectFormatter::Add(const char* tagName, infra::Duration duration)
+    {
+        if (duration < infra::Duration::zero())
+            *stream << '"' << tagName << R"(":")" << "-" << infra::Width(2, '0') << std::chrono::duration_cast<std::chrono::hours>(-duration).count()
+            << ":" << std::chrono::duration_cast<std::chrono::minutes>(-duration).count() % 60;
+        else
+            *stream << '"' << tagName << R"(":")" << "+" << infra::Width(2, '0') << std::chrono::duration_cast<std::chrono::hours>(duration).count()
+            << ":" << std::chrono::duration_cast<std::chrono::minutes>(duration).count() % 60;
+        *stream << '"';
+    }
+
+    void JsonObjectFormatter::AddIsoTime(const char* tagName, infra::TimePoint timePoint, infra::Duration offset)
+    {
+        auto timeAsTimeType = std::chrono::system_clock::to_time_t(timePoint);
+        auto timeAsGmTime = std::gmtime(&timeAsTimeType);
+        assert(timeAsGmTime != nullptr);
+        std::array<char, 64> buffer = {};
+
+        std::size_t size = std::strftime(buffer.data(), buffer.size(), "%FT%T", timeAsGmTime);
+
+        if (size > 0)
+            *stream << '"' << tagName << R"(":")" << buffer.data();
+        else
+            return;
+
+        if (offset < infra::Duration::zero())
+            *stream << "-" << infra::Width(2, '0') << std::chrono::duration_cast<std::chrono::hours>(-offset).count()
+            << ":" << std::chrono::duration_cast<std::chrono::minutes>(-offset).count() % 60;
+        else
+            *stream << "+" << infra::Width(2, '0') << std::chrono::duration_cast<std::chrono::hours>(offset).count()
+            << ":" << std::chrono::duration_cast<std::chrono::minutes>(offset).count() % 60;
         *stream << '"';
     }
 

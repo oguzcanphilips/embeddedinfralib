@@ -78,6 +78,32 @@ TEST(JsonObjectFormatter, add_BoundedConstString)
     EXPECT_EQ(R"({ "tag":"test" })", string);
 }
 
+TEST(JsonObjectFormatter, add_duration)
+{
+    infra::BoundedString::WithStorage<64> string;
+    infra::Duration duration = std::chrono::hours(2) + std::chrono::minutes(30);
+
+    {
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
+        formatter.Add("tag", duration);
+    }
+
+    EXPECT_EQ(R"({ "tag":"+02:30" })", string);
+}
+
+TEST(JsonObjectFormatter, add_iso_time)
+{
+    infra::BoundedString::WithStorage<64> string;
+    infra::Duration duration = std::chrono::hours(2) + std::chrono::minutes(30);
+
+    {
+        infra::JsonObjectFormatter::WithStringStream formatter(infra::inPlace, string);
+        formatter.AddIsoTime("tag", infra::TimePoint(), duration);
+    }
+
+    EXPECT_EQ(R"({ "tag":"1970-01-01T00:00:00+02:30" })", string);
+}
+
 TEST(JsonObjectFormatter, add_milli_float)
 {
     infra::BoundedString::WithStorage<64> string;

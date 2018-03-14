@@ -1,6 +1,7 @@
 #ifndef INFRA_JSON_FORMATTER_HPP
 #define INFRA_JSON_FORMATTER_HPP
 
+#include "infra/timer/Timer.hpp"
 #include "infra/stream/StringOutputStream.hpp"
 #include "infra/util/BoundedString.hpp"
 #include "infra/util/Optional.hpp"
@@ -28,6 +29,8 @@ namespace infra
         void Add(const char* tagName, int64_t tag);
         void Add(const char* tagName, const char* tag);
         void Add(const char* tagName, infra::BoundedConstString tag);
+        void Add(const char* tagName, infra::Duration duration);
+        void AddIsoTime(const char* tagName, infra::TimePoint timePoint, infra::Duration offset);
         void AddMilliFloat(const char* tagName, uint32_t intValue, uint32_t milliFractionalValue);
         void AddSubObject(const char* tagName, infra::BoundedConstString json);
         JsonObjectFormatter SubObject(infra::BoundedConstString tagName);
