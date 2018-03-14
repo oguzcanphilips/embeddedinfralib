@@ -117,7 +117,6 @@ namespace infra
 
     void JsonObjectFormatter::Add(const char* tagName, infra::Duration duration)
     {
-        InsertSeparation();
         if (duration < infra::Duration::zero())
             *stream << '"' << tagName << R"(":")" << "-" << infra::Width(2, '0') << std::chrono::duration_cast<std::chrono::hours>(-duration).count()
             << ":" << std::chrono::duration_cast<std::chrono::minutes>(-duration).count() % 60;
@@ -129,7 +128,6 @@ namespace infra
 
     void JsonObjectFormatter::AddIsoTime(const char* tagName, infra::TimePoint timePoint, infra::Duration offset)
     {
-        InsertSeparation();
         auto timeAsTimeType = std::chrono::system_clock::to_time_t(timePoint);
         auto timeAsGmTime = std::gmtime(&timeAsTimeType);
         assert(timeAsGmTime != nullptr);
