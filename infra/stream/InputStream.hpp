@@ -44,7 +44,7 @@ namespace infra
         ConstByteRange ContiguousRange(std::size_t max = std::numeric_limits<std::size_t>::max());
         bool Failed() const;
 
-        StreamReader& Reader();
+        StreamReader& Reader() const;
         StreamErrorPolicy& ErrorPolicy() const;
 
     private:
@@ -119,6 +119,7 @@ namespace infra
             WithReader(Storage&& storage, const SoftFail&, Args&&... args);
         template<class Storage, class... Args>
             WithReader(Storage&& storage, const NoFail&, Args&&... args);
+        WithReader(const WithReader& other);
 
         TheReader& Reader();
 
@@ -133,6 +134,7 @@ namespace infra
         WithErrorPolicy(StreamReader& writer);
         WithErrorPolicy(StreamReader& writer, SoftFail);
         WithErrorPolicy(StreamReader& writer, NoFail);
+        WithErrorPolicy(const WithErrorPolicy& other);
 
     private:
         StreamErrorPolicy errorPolicy;
@@ -150,6 +152,7 @@ namespace infra
             WithReader(Storage&& storage, const SoftFail&, Args&&... args);
         template<class Storage, class... Args>
             WithReader(Storage&& storage, const NoFail&, Args&&... args);
+        WithReader(const WithReader& other);
 
         TheReader& Reader();
 
@@ -164,6 +167,7 @@ namespace infra
         WithErrorPolicy(StreamReader& writer);
         WithErrorPolicy(StreamReader& writer, SoftFail);
         WithErrorPolicy(StreamReader& writer, NoFail);
+        WithErrorPolicy(const WithErrorPolicy& other);
 
     private:
         StreamErrorPolicy errorPolicy;
@@ -203,6 +207,13 @@ namespace infra
     {}
 
     template<class TheReader>
+    DataInputStream::WithReader<TheReader>::WithReader(const WithReader& other)
+        : detail::StorageHolder<TheReader, WithReader<TheReader>>(static_cast<detail::StorageHolder<TheReader, WithReader<TheReader>>&>(other))
+        , DataInputStream(this->storage, errorPolicy)
+        , errorPolicy(other.ErrorPolicy())
+    {}
+
+    template<class TheReader>
     TheReader& DataInputStream::WithReader<TheReader>::Reader()
     {
         return this->storage;
@@ -229,6 +240,13 @@ namespace infra
         : detail::StorageHolder<TheReader, WithReader<TheReader>>(std::forward<Storage>(storage), std::forward<Args>(args)...)
         , TextInputStream(this->storage, errorPolicy)
         , errorPolicy(noFail)
+    {}
+
+    template<class TheReader>
+    TextInputStream::WithReader<TheReader>::WithReader(const WithReader& other)
+        : detail::StorageHolder<TheReader, WithReader<TheReader>>(static_cast<detail::StorageHolder<TheReader, WithReader<TheReader>>&>(other))
+        , TextInputStream(this->storage, errorPolicy)
+        , errorPolicy(other.ErrorPolicy())
     {}
 
     template<class TheReader>

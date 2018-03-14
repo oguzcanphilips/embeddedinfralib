@@ -28,7 +28,7 @@ namespace infra
         return errorPolicy.Failed();
     }
 
-    StreamReader& InputStream::Reader()
+    StreamReader& InputStream::Reader() const
     {
         return reader;
     }
@@ -293,6 +293,11 @@ namespace infra
         , errorPolicy(softFail)
     {}
 
+    DataInputStream::WithErrorPolicy::WithErrorPolicy(const WithErrorPolicy& other)
+        : DataInputStream(other.Reader(), errorPolicy)
+        , errorPolicy(other.ErrorPolicy())
+    {}
+
     TextInputStream::WithErrorPolicy::WithErrorPolicy(StreamReader& writer)
         : TextInputStream(writer, errorPolicy)
     {}
@@ -305,5 +310,10 @@ namespace infra
     TextInputStream::WithErrorPolicy::WithErrorPolicy(StreamReader& writer, NoFail)
         : TextInputStream(writer, errorPolicy)
         , errorPolicy(noFail)
+    {}
+
+    TextInputStream::WithErrorPolicy::WithErrorPolicy(const WithErrorPolicy& other)
+        : TextInputStream(other.Reader(), errorPolicy)
+        , errorPolicy(other.ErrorPolicy())
     {}
 }

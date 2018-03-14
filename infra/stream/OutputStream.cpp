@@ -60,12 +60,12 @@ namespace infra
         return writer.Available();
     }
     
-    StreamWriter& OutputStream::Writer()
+    StreamWriter& OutputStream::Writer() const
     {
         return writer;
     }
     
-    StreamErrorPolicy& OutputStream::ErrorPolicy()
+    StreamErrorPolicy& OutputStream::ErrorPolicy() const
     {
         return errorPolicy;
     }
@@ -406,6 +406,11 @@ namespace infra
         , errorPolicy(softFail)
     {}
 
+    DataOutputStream::WithErrorPolicy::WithErrorPolicy(const WithErrorPolicy& other)
+        : DataOutputStream(other.Writer(), errorPolicy)
+        , errorPolicy(other.ErrorPolicy())
+    {}
+
     TextOutputStream::WithErrorPolicy::WithErrorPolicy(StreamWriter& writer)
         : TextOutputStream(writer, errorPolicy)
     {}
@@ -418,6 +423,11 @@ namespace infra
     TextOutputStream::WithErrorPolicy::WithErrorPolicy(StreamWriter& writer, NoFail)
         : TextOutputStream(writer, errorPolicy)
         , errorPolicy(noFail)
+    {}
+
+    TextOutputStream::WithErrorPolicy::WithErrorPolicy(const WithErrorPolicy& other)
+        : TextOutputStream(other.Writer(), errorPolicy)
+        , errorPolicy(other.ErrorPolicy())
     {}
 
     AsAsciiHelper::AsAsciiHelper(infra::ConstByteRange data)

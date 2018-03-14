@@ -19,7 +19,7 @@ namespace services
     {
         assert(receiveStream.Allocatable());
         receivingIndex = 0;
-        return receiveStream.Emplace(*this);
+        return receiveStream.Emplace(*this, infra::softFail);
     }
 
     void ConnectionStub::AckReceived()

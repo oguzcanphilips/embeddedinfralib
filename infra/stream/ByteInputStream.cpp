@@ -50,4 +50,16 @@ namespace infra
     {
         return range.size() - offset;
     }
+
+    ByteInputStream::ByteInputStream(ConstByteRange storage)
+        : DataInputStream::WithReader<ByteInputStreamReader>(storage)
+    {}
+
+    ByteInputStream::ByteInputStream(ConstByteRange storage, const SoftFail&)
+        : DataInputStream::WithReader<ByteInputStreamReader>(storage, softFail)
+    {}
+
+    ByteInputStream::ByteInputStream(ConstByteRange storage, const NoFail&)
+        : DataInputStream::WithReader<ByteInputStreamReader>(storage, noFail)
+    {}
 }

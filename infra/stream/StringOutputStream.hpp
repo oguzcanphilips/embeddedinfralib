@@ -37,7 +37,9 @@ namespace infra
         template<std::size_t Max>
             using WithStorage = infra::WithStorage<TextOutputStream::WithWriter<StringOutputStreamWriter>, BoundedString::WithStorage<Max>>;
 
-        using TextOutputStream::WithWriter<StringOutputStreamWriter>::WithWriter;
+        StringOutputStream(BoundedString& storage);
+        StringOutputStream(BoundedString& storage, const SoftFail&);
+        StringOutputStream(BoundedString& storage, const NoFail&);
     };
 
     ////    Implementation    ////

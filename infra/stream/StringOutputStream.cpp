@@ -12,7 +12,7 @@ namespace infra
         bool spaceOk = range.size() <= spaceLeft;
         errorPolicy.ReportResult(spaceOk);
         if (!spaceOk)
-            range.shrink_from_back_to(spaceLeft);            
+            range.shrink_from_back_to(spaceLeft);
         string.append(reinterpret_cast<const char*>(range.begin()), range.size());
     }
 
@@ -46,5 +46,16 @@ namespace infra
         std::copy(reinterpret_cast<char*>(range.end()), string.end(), reinterpret_cast<char*>(range.begin()));
         string.resize(string.size() - range.size());
     }
-}
 
+    StringOutputStream::StringOutputStream(BoundedString& storage)
+        : TextOutputStream::WithWriter<StringOutputStreamWriter>(storage)
+    {}
+
+    StringOutputStream::StringOutputStream(BoundedString& storage, const SoftFail&)
+        : TextOutputStream::WithWriter<StringOutputStreamWriter>(storage, softFail)
+    {}
+
+    StringOutputStream::StringOutputStream(BoundedString& storage, const NoFail&)
+        : TextOutputStream::WithWriter<StringOutputStreamWriter>(storage, noFail)
+    {}
+}

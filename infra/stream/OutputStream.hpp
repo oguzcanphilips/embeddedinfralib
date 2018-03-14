@@ -54,8 +54,8 @@ namespace infra
         std::size_t ProcessedBytesSince(const uint8_t* marker) const;
         std::size_t Available() const;
 
-        StreamWriter& Writer();
-        StreamErrorPolicy& ErrorPolicy();
+        StreamWriter& Writer() const;
+        StreamErrorPolicy& ErrorPolicy() const;
 
     private:
         StreamWriter& writer;
@@ -179,6 +179,7 @@ namespace infra
             WithWriter(Storage&& storage, const SoftFail&, Args&&... args);
         template<class Storage, class... Args>
             WithWriter(Storage&& storage, const NoFail&, Args&&... args);
+        WithWriter(const WithWriter& other);
 
         TheWriter& Writer();
 
@@ -193,6 +194,7 @@ namespace infra
         WithErrorPolicy(StreamWriter& writer);
         WithErrorPolicy(StreamWriter& writer, SoftFail);
         WithErrorPolicy(StreamWriter& writer, NoFail);
+        WithErrorPolicy(const WithErrorPolicy& other);
 
     private:
         StreamErrorPolicy errorPolicy;
@@ -210,6 +212,7 @@ namespace infra
             WithWriter(Storage&& storage, const SoftFail&, Args&&... args);
         template<class Storage, class... Args>
             WithWriter(Storage&& storage, const NoFail&, Args&&... args);
+        WithWriter(const WithWriter& other);
 
         TheWriter& Writer();
 
@@ -224,6 +227,7 @@ namespace infra
         WithErrorPolicy(StreamWriter& writer);
         WithErrorPolicy(StreamWriter& writer, SoftFail);
         WithErrorPolicy(StreamWriter& writer, NoFail);
+        WithErrorPolicy(const WithErrorPolicy& other);
 
     private:
         StreamErrorPolicy errorPolicy;
@@ -321,6 +325,13 @@ namespace infra
     {}
 
     template<class TheWriter>
+    DataOutputStream::WithWriter<TheWriter>::WithWriter(const WithWriter& other)
+        : detail::StorageHolder<TheWriter, WithWriter<TheWriter>>(static_cast<detail::StorageHolder<TheWriter, WithWriter<TheWriter>>&>(other))
+        , DataOutputStream(this->storage, errorPolicy)
+        , errorPolicy(other.ErrorPolicy())
+    {}
+
+    template<class TheWriter>
     TheWriter& DataOutputStream::WithWriter<TheWriter>::Writer()
     {
         return this->storage;
@@ -347,6 +358,13 @@ namespace infra
         : detail::StorageHolder<TheWriter, WithWriter<TheWriter>>(std::forward<Storage>(storage), std::forward<Args>(args)...)
         , TextOutputStream(this->storage, errorPolicy)
         , errorPolicy(noFail)
+    {}
+
+    template<class TheWriter>
+    TextOutputStream::WithWriter<TheWriter>::WithWriter(const WithWriter& other)
+        : detail::StorageHolder<TheWriter, WithWriter<TheWriter>>(static_cast<detail::StorageHolder<TheWriter, WithWriter<TheWriter>>&>(other))
+        , TextOutputStream(this->storage, errorPolicy)
+        , errorPolicy(other.ErrorPolicy())
     {}
 
     template<class TheWriter>
