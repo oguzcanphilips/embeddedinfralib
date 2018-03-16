@@ -10,8 +10,8 @@ class ConfigurationBlobTest
 {
 public:
     ConfigurationBlobTest()
-        : flash1(1, 16)
-        , flash2(1, 16)
+        : flash1(1, 20)
+        , flash2(1, 20)
         , execute([this]() { EXPECT_CALL(flash1, ReadBuffer(testing::_, 0, testing::_)).WillOnce(testing::DoAll(testing::SaveArg<0>(&buffer), testing::SaveArg<2>(&onReadDone))); })
         , configurationBlob(flash1, flash2, [this](bool success) { OnLoaded(success); })
     {}

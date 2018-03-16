@@ -11,6 +11,9 @@ namespace services
         , inactiveFlash(&flashSecond)
         , onLoaded(onLoaded)
     {
+        really_assert(blob.size() <= flashFirst.TotalSize());
+        really_assert(blob.size() <= flashSecond.TotalSize());
+
         Recover();
     }
 
