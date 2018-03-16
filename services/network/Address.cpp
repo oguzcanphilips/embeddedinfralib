@@ -13,6 +13,21 @@ namespace services
         return IPv6Address{ 0, 0, 0, 0, 0, 0, 0, 1 };
     }
 
+    uint32_t ConvertToUint32(IPv4Address address)
+    {
+        return address[3] | (address[2] << 8) | (address[1] << 16) | (address[0] << 24);
+    }
+
+    IPv4Address ConvertFromUint32(uint32_t address)
+    {
+        return services::IPv4Address{
+            static_cast<uint8_t>(address >> 24),
+            static_cast<uint8_t>(address >> 16),
+            static_cast<uint8_t>(address >> 8),
+            static_cast<uint8_t>(address)
+        };
+    }
+
     bool IPv4InterfaceAddresses::operator==(const IPv4InterfaceAddresses& other) const
     {
         return infra::Equals()

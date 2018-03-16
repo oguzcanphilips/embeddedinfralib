@@ -14,6 +14,9 @@ namespace services
     IPv4Address IPv4AddressLocalHost();
     IPv6Address IPv6AddressLocalHost();
 
+    uint32_t ConvertToUint32(IPv4Address address);
+    IPv4Address ConvertFromUint32(uint32_t address);
+
     struct IPv4InterfaceAddresses
     {
         IPv4Address address;
