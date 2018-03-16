@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "echo_attributes.proto";
+
+package network;
+
+message IpConfig
+{
+	bool usesDhcp = 1;
+	fixed32 ipAddress = 2;
+	fixed32 netmask = 3;
+	fixed32 gateway = 4;
+}

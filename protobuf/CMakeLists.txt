@@ -9,6 +9,7 @@ ccola_package(protobuf)
 	ccola_pack_directory(protoc_echo)
 
 	ccola_subdirectories(
+		services
 		protoc_echo_plugin/test
 	)
 
