@@ -16,9 +16,23 @@ macro(protocol_buffer_echo input)
 
 		string(REPLACE "\"" "" old_path "$ENV{PATH}")
 
+		set(protopath)
+		foreach(dependency ${PROTOBUF_DEPENDENCIES})
+			ccola_read_public_property("${dependency}" proto paths)
+			foreach(path ${paths})
+				list(APPEND protopath --proto_path ${path})
+			endforeach()
+		endforeach()
+
+		foreach(dependency_path "${CMAKE_CURRENT_SOURCE_DIR}" "${CCOLA_PACK_DIR_protoc}/../../protobuf-3.3.0/src/google/protobuf" "${CCOLA_PACK_DIR_protoc}/../../../protobuf/echo_attributes")
+			foreach(path ${dependency_path})
+				list(APPEND protopath --proto_path ${path})
+			endforeach()
+		endforeach()
+
 		add_custom_command(
 			OUTPUT "${generated_dir_echo}/${source_base}.pb.cpp" "${generated_dir_echo}/${source_base}.pb.hpp"
-			COMMAND ${CMAKE_COMMAND} -E env "\"PATH=${extra_path};${old_path};\"" ${CCOLA_PACK_DIR_protoc}/../bin/protoc.exe --proto_path "${CMAKE_CURRENT_SOURCE_DIR}" --proto_path "${CCOLA_PACK_DIR_protoc}/../../protobuf-3.3.0/src/google/protobuf" --proto_path "${CCOLA_PACK_DIR_protoc}/../../../protobuf/echo_attributes" --plugin=protoc-gen-cpp-infra=${protoc_echo_plugin_path} --cpp-infra_out="${generated_dir_echo}" ${absolute_input}
+			COMMAND ${CMAKE_COMMAND} -E env "\"PATH=${extra_path};${old_path};\"" ${CCOLA_PACK_DIR_protoc}/../bin/protoc.exe ${protopath} --plugin=protoc-gen-cpp-infra=${protoc_echo_plugin_path} --cpp-infra_out="${generated_dir_echo}" ${absolute_input}
 			DEPENDS "${absolute_input}"
 			DEPENDS "${generated_dir_echo}"
 			DEPENDS "${protoc_echo_plugin_path}"
@@ -27,6 +41,7 @@ macro(protocol_buffer_echo input)
 		ccola_sources("${generated_dir_echo}/${source_base}.pb.cpp" "${generated_dir_echo}/${source_base}.pb.hpp")
 		ccola_set_source_group("Generated Files" "${generated_dir_echo}/${source_base}.pb.cpp" "${generated_dir_echo}/${source_base}.pb.hpp")
 		ccola_inheritable_include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+		ccola_public_property(proto "${CMAKE_CURRENT_SOURCE_DIR}")
 
 		ccola_dependencies(
 			protobuf.echo

@@ -22,6 +22,17 @@ namespace application
 
             return result;
         }
+
+        std::string QualifiedName(const google::protobuf::Descriptor& descriptor)
+        {
+            std::string namespaceString;
+
+            namespaceString = descriptor.file()->package() + "::";
+            for (auto containingType = descriptor.containing_type(); containingType != nullptr; containingType = containingType->containing_type())
+                namespaceString += containingType->name() + "::";
+
+            return namespaceString + descriptor.name();
+        }
     }
 
     bool CppInfraCodeGenerator::Generate(const google::protobuf::FileDescriptor* file, const std::string& parameter,
@@ -170,7 +181,7 @@ namespace application
     void FieldGeneratorBool::DeserializerBody(google::protobuf::io::Printer& printer)
     {
         printer.Print(R"(case $constant$:
-    $name$ = static_cast<bool>(field.first.Get<uint64_t>());
+    $name$ = field.first.Get<uint64_t>() != 0;
     break;
 )"
 , "name", descriptor.name()
@@ -392,12 +403,12 @@ namespace application
 
     void FieldGeneratorMessage::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(descriptor.name(), descriptor.message_type()->name()));
+        entities.Add(std::make_shared<DataMember>(descriptor.name(), QualifiedName(*descriptor.message_type())));
     }
 
     std::string FieldGeneratorMessage::MaxMessageSize() const
     {
-        return descriptor.message_type()->name() + "::maxMessageSize + " + google::protobuf::SimpleItoa(MaxVarIntSize((descriptor.number() << 3) | 2));
+        return QualifiedName(*descriptor.message_type()) + "::maxMessageSize + " + google::protobuf::SimpleItoa(MaxVarIntSize((descriptor.number() << 3) | 2));
     }
 
     void FieldGeneratorMessage::SerializerBody(google::protobuf::io::Printer& printer)
@@ -426,7 +437,7 @@ namespace application
 
     void FieldGeneratorMessage::GenerateConstructorParameter(Constructor& constructor)
     {
-        constructor.Parameter("const " + descriptor.message_type()->name() + "& " + descriptor.name());
+        constructor.Parameter("const " + QualifiedName(*descriptor.message_type()) + "& " + descriptor.name());
         constructor.Initializer(descriptor.name() + "(" + descriptor.name() + ")");
     }
 
@@ -441,12 +452,12 @@ namespace application
     void FieldGeneratorRepeatedMessage::GenerateFieldDeclaration(Entities& entities)
     {
         entities.Add(std::make_shared<DataMember>(descriptor.name()
-            , "infra::BoundedVector<" + descriptor.message_type()->name() + ">::WithMaxSize<" + google::protobuf::SimpleItoa(arraySize) + ">"));
+            , "infra::BoundedVector<" + QualifiedName(*descriptor.message_type()) + ">::WithMaxSize<" + google::protobuf::SimpleItoa(arraySize) + ">"));
     }
 
     std::string FieldGeneratorRepeatedMessage::MaxMessageSize() const
     {
-        return google::protobuf::SimpleItoa(arraySize) + " * " + descriptor.message_type()->name() + "::maxMessageSize + " + 
+        return google::protobuf::SimpleItoa(arraySize) + " * " + QualifiedName(*descriptor.message_type()) + "::maxMessageSize + " +
             google::protobuf::SimpleItoa(arraySize * MaxVarIntSize((descriptor.number() << 3) | 2));
     }
 
@@ -480,7 +491,7 @@ namespace application
 
     void FieldGeneratorRepeatedMessage::GenerateConstructorParameter(Constructor& constructor)
     {
-        constructor.Parameter("const infra::BoundedVector<" + descriptor.message_type()->name() + ">& " + descriptor.name());
+        constructor.Parameter("const infra::BoundedVector<" + QualifiedName(*descriptor.message_type()) + ">& " + descriptor.name());
         constructor.Initializer(descriptor.name() + "(" + descriptor.name() + ")");
     }
 
@@ -930,6 +941,11 @@ Rpc().Send();
         includesByHeader->Path("protobuf/echo/Echo.hpp");
         includesByHeader->Path("infra/syntax/ProtoFormatter.hpp");
         includesByHeader->Path("infra/syntax/ProtoParser.hpp");
+
+        for (int i = 0; i != file->dependency_count(); ++i)
+            if (file->dependency(i)->name() != "echo_attributes.proto")
+                includesByHeader->Path("generated/echo/" + google::protobuf::compiler::cpp::StripProto(file->dependency(i)->name()) + ".pb.hpp");
+
         formatter.Add(includesByHeader);
         auto includesBySource = std::make_shared<IncludesBySource>();
         includesBySource->Path("generated/echo/" + google::protobuf::compiler::cpp::StripProto(file->name()) + ".pb.hpp");

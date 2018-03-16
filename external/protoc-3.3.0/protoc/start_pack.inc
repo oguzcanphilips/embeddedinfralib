@@ -24,3 +24,20 @@ macro(protocol_buffer_cpp input)
 	)
 
 endmacro()
+
+macro(protocol_buffer_dependencies)
+
+	if(NOT CCOLA_COMPONENT_SKIP)
+		ccola_assert(CCOLA_COMPONENT_NAME "This command may only be used in a component")
+
+		set(dependencies "${ARGV}")
+		ccola_parse_selection_list(dependencies)
+
+		foreach(item ${dependencies})
+			ccola_make_full_component_name(item)
+			ccola_dependencies(${item})
+			set(PROTOBUF_DEPENDENCIES ${PROTOBUF_DEPENDENCIES} ${item})
+		endforeach()
+	endif()
+
+endmacro()
