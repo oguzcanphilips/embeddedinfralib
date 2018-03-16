@@ -13,6 +13,8 @@ ccola_component(tracer static_library)
         TracerWithDateTime.hpp
         TracerAdapterPrintf.cpp
         TracerAdapterPrintf.hpp
+        TracingFlash.cpp
+        TracingFlash.hpp
         TracingInputStream.cpp
         TracingInputStream.hpp
     )
