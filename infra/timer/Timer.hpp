@@ -25,6 +25,8 @@ namespace infra
 
     const uint32_t systemTimerServiceId = 0;
 
+    TimePoint Now(uint32_t timerServiceId = systemTimerServiceId);
+
     class Timer
         : public infra::IntrusiveForwardList<Timer>::NodeType
     {

@@ -1,5 +1,4 @@
 #include "infra/event/EventDispatcherWithWeakPtr.hpp"
-#include "infra/timer/TimerServiceManager.hpp"
 #include "services/network/CertificatesMbedTls.hpp"
 #include "services/network/ConnectionMbedTls.hpp"
 

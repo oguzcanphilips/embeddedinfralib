@@ -1,5 +1,4 @@
 #include "infra/event/EventDispatcher.hpp"
-#include "infra/timer/TimerServiceManager.hpp"
 #include "infra/timer/test_helper/ClockFixture.hpp"
 
 namespace infra
@@ -60,7 +59,7 @@ namespace infra
 
     bool ClockFixture::TimeMatcher::MatchAndExplain(const std::tuple<>& x, testing::MatchResultListener* listener) const
     {
-        return expectedCallTime == infra::TimerServiceManager::Instance().GetTimerService(infra::systemTimerServiceId).Now();
+        return expectedCallTime == infra::Now();
     }
 
     void ClockFixture::TimeMatcher::DescribeTo(std::ostream* os) const
@@ -68,7 +67,7 @@ namespace infra
         if (os)
         {
             *os << "To be called at " << TimeToString(expectedCallTime) << std::endl
-                << "                   It is now       " << TimeToString(infra::TimerServiceManager::Instance().GetTimerService(infra::systemTimerServiceId).Now()) << std::endl;
+                << "                   It is now       " << TimeToString(infra::Now()) << std::endl;
         }
     }
 }
