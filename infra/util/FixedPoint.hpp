@@ -57,7 +57,7 @@ namespace infra
     template<class T, T Factor>
     T FixedPoint<T, Factor>::FractionalPart() const { return value % Factor; }
     template<class T, T Factor>
-    T FixedPoint<T, Factor>::Rounded() const { return (value + Factor / 2) / Factor; }
+    T FixedPoint<T, Factor>::Rounded() const { return value >= 0 ? (value + Factor / 2) / Factor : (value - Factor / 2) / Factor; }
 
     template<class T, T Factor>
     FixedPoint<T, Factor>& FixedPoint<T, Factor>::operator+=(const FixedPoint& x) { value += x.value; return *this; }

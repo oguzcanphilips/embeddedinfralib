@@ -25,6 +25,8 @@ TEST(FixedPointTest, Rounded)
 {
     EXPECT_EQ(3, (infra::FixedPoint<int, 10>(infra::unscaled, 34).Rounded()));
     EXPECT_EQ(4, (infra::FixedPoint<int, 10>(infra::unscaled, 35).Rounded()));
+    EXPECT_EQ(-3, (infra::FixedPoint<int, 10>(infra::unscaled, -34).Rounded()));
+    EXPECT_EQ(-4, (infra::FixedPoint<int, 10>(infra::unscaled, -35).Rounded()));
 }
 
 TEST(FixedPointTest, Addition)
