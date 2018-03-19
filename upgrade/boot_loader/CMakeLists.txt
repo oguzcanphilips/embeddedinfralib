@@ -1,36 +1,38 @@
 ccola_component(boot_loader static_library)
 
     ccola_sources(
-        DecryptorAesMbedTls.cpp
-        DecryptorAesTiny.cpp
-        DecryptorNone.cpp
-        DecryptorXtea.cpp
-        DiCommUart.cpp
-        ImageUpgrader.cpp
-        ImageUpgraderDiComm.cpp
-        ImageUpgraderInternalFlash.cpp
-        ImageUpgraderSkip.cpp
-        PackUpgrader.cpp
-        SecondStageToRamLoader.cpp
-        VerifierEcDsa.cpp
-        VerifierNone.cpp
-        VerifierRsa.cpp
         Decryptor.hpp
+        DecryptorAesMbedTls.cpp
         DecryptorAesMbedTls.hpp
+        DecryptorAesTiny.cpp
         DecryptorAesTiny.hpp
+        DecryptorNone.cpp
         DecryptorNone.hpp
+        DecryptorXtea.cpp
         DecryptorXtea.hpp
         DiComm.hpp
+        DiCommUart.cpp
         DiCommUart.hpp
+        ImageUpgrader.cpp
         ImageUpgrader.hpp
+        ImageUpgraderDiComm.cpp
         ImageUpgraderDiComm.hpp
+        ImageUpgraderEraseSectors.cpp
+        ImageUpgraderEraseSectors.hpp
+        ImageUpgraderInternalFlash.cpp
         ImageUpgraderInternalFlash.hpp
+        ImageUpgraderSkip.cpp
         ImageUpgraderSkip.hpp
+        PackUpgrader.cpp
         PackUpgrader.hpp
-        SecondStageToRamLoader.hpp
+        SecondStageToRamLoader.cpp
+        PackUpgrader.hpp
         Verifier.hpp
+        VerifierEcDsa.cpp
         VerifierEcDsa.hpp
+        VerifierNone.cpp
         VerifierNone.hpp
+        VerifierRsa.cpp
         VerifierRsa.hpp
     )
 

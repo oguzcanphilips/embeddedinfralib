@@ -8,6 +8,7 @@ ccola_component(boot_loader_test gmock_test)
         TestDecryptorAes.cpp
         TestDiCommUart.cpp
         TestImageUpgraderDiComm.cpp
+        TestImageUpgraderEraseSectors.cpp
         TestImageUpgraderInternalFlash.cpp
         TestImageUpgraderSkip.cpp
         TestPackUpgrader.cpp

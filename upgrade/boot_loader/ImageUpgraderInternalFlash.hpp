@@ -2,7 +2,6 @@
 #define UPGRADE_IMAGE_UPGRADER_INTERNAL_FLASH_HPP
 
 #include "infra/util/WithStorage.hpp"
-#include "upgrade/boot_loader/DecryptorNone.hpp"
 #include "upgrade/boot_loader/ImageUpgrader.hpp"
 
 namespace application
