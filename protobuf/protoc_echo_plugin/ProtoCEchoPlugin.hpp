@@ -1,5 +1,5 @@
-#ifndef PROTOBUF_PROTO_C_CPP_INFRA_PLUGIN_HPP
-#define PROTOBUF_PROTO_C_CPP_INFRA_PLUGIN_HPP
+#ifndef PROTOBUF_PROTO_C_ECHO_PLUGIN_HPP
+#define PROTOBUF_PROTO_C_ECHO_PLUGIN_HPP
 
 #include "google/protobuf/compiler/code_generator.h"
 #include "google/protobuf/io/printer.h"

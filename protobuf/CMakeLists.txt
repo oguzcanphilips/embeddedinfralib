@@ -3,6 +3,7 @@ ccola_package(protobuf)
 	ccola_subdirectories(
 		echo_attributes
 		protoc_echo_plugin
+		protoc_echo_plugin_csharp
 		echo
 	)
 
