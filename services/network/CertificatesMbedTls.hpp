@@ -26,12 +26,18 @@ namespace services
         void WritePrivateKey(infra::BoundedString outputBuffer);
         void WriteOwnCertificate(infra::BoundedString outputBuffer, hal::SynchronousRandomDataGenerator& randomDataGenerator);
 
+        void UpdateValidToDate();
+
     private:
         int32_t ExtractExponent(const mbedtls2_rsa_context& rsaContext) const;
 
         void X509AddAlgorithm(infra::Asn1Formatter& root, const mbedtls2_x509_buf& oid) const;
         void X509AddName(infra::Asn1Formatter& root, const mbedtls2_x509_name& name) const;
         void X509AddTime(infra::Asn1Formatter& root, const mbedtls2_x509_time& time) const;
+
+    private:
+        // As per rfc5280 the well-defined date for having no expiration is 99991231235959Z.
+        const mbedtls2_x509_time unlimitedExpirationDate = { 9999, 12, 31, 23, 59, 59 };
 
     protected:
         mbedtls2_x509_crt caCertificates;

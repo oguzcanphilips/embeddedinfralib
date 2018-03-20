@@ -4,6 +4,16 @@
 #include "mbedtls/certs.h"
 #include "services/network/CertificatesMbedTls.hpp"
 
+bool operator==(const mbedtls2_x509_time& lhs, const mbedtls2_x509_time& rhs)
+{
+    return lhs.year == rhs.year &&
+        lhs.mon == rhs.mon &&
+        lhs.day == rhs.day &&
+        lhs.hour == rhs.hour &&
+        lhs.min == rhs.min &&
+        lhs.sec == rhs.sec;
+}
+
 class CertificatesMbedTlsWithVerify
     : public services::CertificatesMbedTls
 {
@@ -24,6 +34,11 @@ public:
         }
 
         EXPECT_EQ(0, flags);
+    }
+
+    void CompareDate(const mbedtls2_x509_time& date)
+    {
+        EXPECT_EQ(date, ownCertificate.valid_to);
     }
 };
 
@@ -89,6 +104,16 @@ TEST_F(CertificatesMbedTlsTest, write_certificate)
     certificates.WriteOwnCertificate(ownCertificate, randomDataGenerator);
 
     certificates.VerifyCertificate();
+}
+
+TEST_F(CertificatesMbedTlsTest, update_valid_to_date)
+{
+    certificates.UpdateValidToDate();
+
+    infra::BoundedString::WithStorage<2048> ownCertificate;
+    certificates.WriteOwnCertificate(ownCertificate, randomDataGenerator);
+
+    certificates.CompareDate({ 9999, 12, 31, 23, 59, 59 });
 }
 
 TEST_F(CertificatesMbedTlsTest, sign_certificate_with_new_key)

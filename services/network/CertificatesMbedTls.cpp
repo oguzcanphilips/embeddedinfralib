@@ -202,6 +202,11 @@ namespace services
         stream << '\0';
     }
 
+    void CertificatesMbedTls::UpdateValidToDate()
+    {
+        ownCertificate.valid_to = unlimitedExpirationDate;
+    }
+
     int32_t CertificatesMbedTls::ExtractExponent(const mbedtls2_rsa_context& rsaContext) const
     {
         uint32_t exponent = 0;
