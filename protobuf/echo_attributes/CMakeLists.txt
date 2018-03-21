@@ -4,7 +4,8 @@ ccola_component(echo_attributes win: static_library other: skip)
 
     ccola_definitions(LIBPROTOC_EXPORTS)
 
-    protocol_buffer_cpp(echo_attributes.proto)
+    protocol_buffer_cpp(EchoAttributes.proto)
+	protocol_buffer_csharp(EchoAttributes.proto)
 
     ccola_dependencies(
         libprotobuf

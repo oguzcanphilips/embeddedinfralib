@@ -1,4 +1,4 @@
-#include "generated/proto_cpp/echo_attributes.pb.h"
+#include "generated/proto_cpp/EchoAttributes.pb.h"
 #include "google/protobuf/compiler/cpp/cpp_helpers.h"
 #include "google/protobuf/compiler/plugin.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
@@ -943,7 +943,7 @@ Rpc().Send();
         includesByHeader->Path("infra/syntax/ProtoParser.hpp");
 
         for (int i = 0; i != file->dependency_count(); ++i)
-            if (file->dependency(i)->name() != "echo_attributes.proto")
+            if (file->dependency(i)->name() != "EchoAttributes.proto")
                 includesByHeader->Path("generated/echo/" + google::protobuf::compiler::cpp::StripProto(file->dependency(i)->name()) + ".pb.hpp");
 
         formatter.Add(includesByHeader);
