@@ -10,6 +10,7 @@ namespace services
     {
     public:
         DebouncedButton(hal::GpioPin& buttonPin, infra::Function<void()> onPressed, infra::Function<void()> onReleased = infra::emptyFunction, infra::Duration debounceDuration = std::chrono::milliseconds(10));
+        ~DebouncedButton();
 
     private:
         void ButtonChanged();
