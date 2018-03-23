@@ -1,15 +1,9 @@
 #include "hal/windows/FileSystemWin.hpp"
-#include "upgrade/pack_builder/BinaryObject.hpp"
-#include "mbedtls/memory_buffer_alloc.h"
+#include "infra/syntax/Json.hpp"
 #include "upgrade/pack_builder/BuildReferenceUpgradePack.hpp"
 #include "upgrade/pack_builder/UpgradePackBuilder.hpp"
 #include "upgrade/pack_builder/UpgradePackInputFactory.hpp"
 #include <cctype>
-#include <cstdlib>
-#include <ctime>
-#include <iomanip>
-#include <iostream>
-#include <windows.h>
 
 namespace application
 {
@@ -32,6 +26,16 @@ namespace application
     {
         ReferenceUpgradePackBuilderFacade builderFacade(headerInfo);
         builderFacade.Build(supportedHexTargets, supportedBinaryTargets, argc, argv, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey, otherTargets);
+        return builderFacade.Result();
+    }
+
+    int BuildReferenceUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
+        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, std::string outputFilename,
+        std::vector<std::pair<std::string, std::string>>& targetAndFiles, std::vector<std::pair<std::string, std::string>>& buildOptions, infra::ConstByteRange aesKey,
+        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets)
+    {
+        ReferenceUpgradePackBuilderFacade builderFacade(headerInfo);
+        builderFacade.Build(supportedHexTargets, supportedBinaryTargets, outputFilename, targetAndFiles, buildOptions, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey, otherTargets);
         return builderFacade.Result();
     }
 
@@ -63,5 +67,25 @@ namespace application
             reinterpret_cast<UpgradePackHeaderEpilogue*>(builder.UpgradePack().data() + sizeof(UpgradePackHeaderPrologue) + signer.SignatureLength())->headerVersion = 0xff;
         if (invalidSignature)
             std::fill(builder.UpgradePack().begin() + sizeof(UpgradePackHeaderPrologue), builder.UpgradePack().begin() + sizeof(UpgradePackHeaderPrologue) + signer.SignatureLength(), 0xff);
+    }
+
+    void ReferenceUpgradePackBuilderFacade::PreBuilder(std::vector<std::pair<std::string, std::string>> buildOptions)
+    {
+        for (auto option : buildOptions)
+            if (option.first == "invalidProduct")
+                invalidProduct = true;
+
+        PreBuilder();
+    }
+
+    void ReferenceUpgradePackBuilderFacade::PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, std::vector<std::pair<std::string, std::string>> buildOptions)
+    {
+        for (auto option : buildOptions)
+            if (option.first == "invalidHeaderVersion")
+                invalidHeaderVersion = true;
+            else if (option.first == "invalidSignature")
+                invalidSignature = true;
+
+        PostBuilder(builder, signer);
     }
 }
