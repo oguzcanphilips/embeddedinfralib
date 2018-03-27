@@ -5,6 +5,8 @@ ccola_component(windows win: static_library other: noncompile)
         FileSystemWin.hpp
         SynchronousRandomDataGeneratorWin.hpp
         SynchronousRandomDataGeneratorWin.cpp
+        TimerServiceWin.cpp
+        TimerServiceWin.hpp
     )
 
     ccola_dependencies(
