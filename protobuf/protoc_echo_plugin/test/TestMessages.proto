@@ -57,7 +57,7 @@ message TestMoreNestedMessage
         uint32 value = 1;
     }
 
-	message NestedMessage2
+    message NestedMessage2
     {
         uint32 value = 2;
     }
