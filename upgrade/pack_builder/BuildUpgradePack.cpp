@@ -114,14 +114,19 @@ namespace application
         std::string outputFilename, std::vector<std::pair<std::string, std::string>>& targetAndFiles, std::vector<std::pair<std::string, std::string>>& buildOptions, infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey,
         infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets)
     {
-        application::SecureRandomNumberGenerator randomNumberGenerator;
+        application::FixedRandomNumberGenerator randomNumberGenerator(std::vector<uint8_t>(1000, 5));
         hal::FileSystemWin fileSystem;
         application::ImageEncryptorAes imageEncryptorAes(randomNumberGenerator, aesKey);
         application::UpgradePackInputFactory inputFactory(supportedHexTargets, supportedBinaryTargets, fileSystem, imageEncryptorAes, otherTargets);
         application::ImageSignerEcDsa signer(randomNumberGenerator, ecDsa224PublicKey, ecDsa224PrivateKey);
 
         PreBuilder(buildOptions);
-        application::UpgradePackBuilder builder(targetAndFiles, this->headerInfo, inputFactory, signer);
+
+        std::vector<std::unique_ptr<application::Input>> inputs;
+        for (auto targetAndFile : targetAndFiles)
+            inputs.push_back(inputFactory.CreateInput(targetAndFile.first, targetAndFile.second));
+        application::UpgradePackBuilder builder(this->headerInfo, std::move(inputs), signer);
+
         PostBuilder(builder, signer, buildOptions);
 
         builder.WriteUpgradePack(outputFilename, fileSystem);
@@ -177,20 +182,6 @@ namespace application
     int UpgradePackBuilderFacade::Result() const
     {
         return result;
-    }
-
-    void UpgradePackBuilderFacade::ParseArgument(int& index, int argc, const char* argv[])
-    {
-        std::string target(ToLower(argv[index]));
-
-        if (index + 1 == argc || target.front() != '-')
-            throw UsageException();
-
-        target.erase(0, 1);
-        std::string fileName(argv[index + 1]);
-
-        targetAndFiles.push_back(std::make_pair(target, fileName));
-        ++index;
     }
 
     void UpgradePackBuilderFacade::PreBuilder(std::vector<std::pair<std::string, std::string>> buildOptions)

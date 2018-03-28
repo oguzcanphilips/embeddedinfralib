@@ -10,13 +10,9 @@
 namespace application
 {
     int BuildUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
-        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey,
-        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets = std::vector<NoFileInputFactory*>());
-
-    int BuildUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
         const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, std::string outputFilename,
         std::vector<std::pair<std::string, std::string>> targetAndFiles, std::vector<std::pair<std::string, std::string>> buildOptions, infra::ConstByteRange aesKey,
-        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets);
+        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets = std::vector<NoFileInputFactory*>());
 
     class UpgradePackBuilderFacade
     {
@@ -31,7 +27,6 @@ namespace application
         int Result() const;
 
     protected:
-        virtual void ParseArgument(int& index, int argc, const char* argv[]);
         virtual void PreBuilder(std::vector<std::pair<std::string, std::string>> buildOptions);
         virtual void PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, std::vector<std::pair<std::string, std::string>> buildOptions);
 
