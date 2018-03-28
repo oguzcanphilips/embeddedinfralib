@@ -1,5 +1,4 @@
 #include "hal/windows/FileSystemWin.hpp"
-#include "infra/syntax/Json.hpp"
 #include "upgrade/pack_builder/BuildReferenceUpgradePack.hpp"
 #include "upgrade/pack_builder/UpgradePackBuilder.hpp"
 #include "upgrade/pack_builder/UpgradePackInputFactory.hpp"
@@ -34,19 +33,29 @@ namespace application
         : UpgradePackBuilderFacade(headerInfo)
     {}
 
-    void ReferenceUpgradePackBuilderFacade::PreBuilder(std::vector<std::pair<std::string, std::string>> buildOptions)
+    void ReferenceUpgradePackBuilderFacade::PreBuilder(std::vector<std::unique_ptr<application::Input>>& inputs, const std::vector<std::pair<std::string, std::string>>& buildOptions)
     {
         for (auto option : buildOptions)
+        {
             if (option.first == "invalidProduct")
                 headerInfo.productName = "Unknown Product Name";
+            else if (option.first == "app_version")
+            {
+                auto appInput = std::find_if(inputs.begin(), inputs.end(), [](const std::unique_ptr<application::Input>& in) {return in->TargetName() == "app"; });
+                if (appInput == inputs.end())
+                    ;//application::VersionEditor((*appInput)->Image());
+            }
+        }
     }
 
-    void ReferenceUpgradePackBuilderFacade::PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, std::vector<std::pair<std::string, std::string>> buildOptions)
+    void ReferenceUpgradePackBuilderFacade::PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, const std::vector<std::pair<std::string, std::string>>& buildOptions)
     {
         for (auto option : buildOptions)
+        {
             if (option.first == "invalidHeaderVersion")
                 reinterpret_cast<UpgradePackHeaderEpilogue*>(builder.UpgradePack().data() + sizeof(UpgradePackHeaderPrologue) + signer.SignatureLength())->headerVersion = 0xff;
             else if (option.first == "invalidSignature")
                 std::fill(builder.UpgradePack().begin() + sizeof(UpgradePackHeaderPrologue), builder.UpgradePack().begin() + sizeof(UpgradePackHeaderPrologue) + signer.SignatureLength(), 0xff);
+        }
     }
 }

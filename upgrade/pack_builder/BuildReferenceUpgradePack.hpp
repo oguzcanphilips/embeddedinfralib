@@ -3,7 +3,6 @@
 
 #include "infra/util/ByteRange.hpp"
 #include "upgrade/pack_builder/BuildUpgradePack.hpp"
-#include <string>
 #include <vector>
 #include <utility>
 
@@ -20,9 +19,9 @@ namespace application
     public:
         explicit ReferenceUpgradePackBuilderFacade(const application::UpgradePackBuilder::HeaderInfo& headerInfo);
     
-    private:
-        virtual void PreBuilder(std::vector<std::pair<std::string, std::string>> buildOptions) override;
-        virtual void PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, std::vector<std::pair<std::string, std::string>> buildOptions) override;
+    protected:
+        virtual void PreBuilder(std::vector<std::unique_ptr<application::Input>>& inputs, const std::vector<std::pair<std::string, std::string>>& buildOptions) override;
+        virtual void PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, const std::vector<std::pair<std::string, std::string>>& buildOptions) override;
     };
 }
 

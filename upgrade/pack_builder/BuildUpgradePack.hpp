@@ -27,8 +27,8 @@ namespace application
         int Result() const;
 
     protected:
-        virtual void PreBuilder(std::vector<std::pair<std::string, std::string>> buildOptions);
-        virtual void PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, std::vector<std::pair<std::string, std::string>> buildOptions);
+        virtual void PreBuilder(std::vector<std::unique_ptr<application::Input>>& inputs, const std::vector<std::pair<std::string, std::string>>& buildOptions);
+        virtual void PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, const std::vector<std::pair<std::string, std::string>>& buildOptions);
 
     private:
         void TryBuild(const std::vector<std::string>& supportedHexTargets, const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets,
@@ -47,7 +47,6 @@ namespace application
 
     private:
         int result = 0;
-        std::vector<std::pair<std::string, std::string>> targetAndFiles;
     };
 }
 

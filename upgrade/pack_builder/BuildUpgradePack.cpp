@@ -7,8 +7,6 @@
 #include "upgrade/pack_builder/UpgradePackBuilder.hpp"
 #include "upgrade/pack_builder/UpgradePackInputFactory.hpp"
 #include <cctype>
-#include <cstdlib>
-#include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <windows.h>
@@ -120,13 +118,12 @@ namespace application
         application::UpgradePackInputFactory inputFactory(supportedHexTargets, supportedBinaryTargets, fileSystem, imageEncryptorAes, otherTargets);
         application::ImageSignerEcDsa signer(randomNumberGenerator, ecDsa224PublicKey, ecDsa224PrivateKey);
 
-        PreBuilder(buildOptions);
-
         std::vector<std::unique_ptr<application::Input>> inputs;
         for (auto targetAndFile : targetAndFiles)
             inputs.push_back(inputFactory.CreateInput(targetAndFile.first, targetAndFile.second));
-        application::UpgradePackBuilder builder(this->headerInfo, std::move(inputs), signer);
 
+        PreBuilder(inputs, buildOptions);
+        application::UpgradePackBuilder builder(this->headerInfo, std::move(inputs), signer);
         PostBuilder(builder, signer, buildOptions);
 
         builder.WriteUpgradePack(outputFilename, fileSystem);
@@ -184,9 +181,9 @@ namespace application
         return result;
     }
 
-    void UpgradePackBuilderFacade::PreBuilder(std::vector<std::pair<std::string, std::string>> buildOptions)
+    void UpgradePackBuilderFacade::PreBuilder(std::vector<std::unique_ptr<application::Input>>& inputs, const std::vector<std::pair<std::string, std::string>>& buildOptions)
     {}
 
-    void UpgradePackBuilderFacade::PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, std::vector<std::pair<std::string, std::string>> buildOptions)
+    void UpgradePackBuilderFacade::PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, const std::vector<std::pair<std::string, std::string>>& buildOptions)
     {}
 }
