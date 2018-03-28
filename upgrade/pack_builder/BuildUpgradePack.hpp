@@ -23,10 +23,6 @@ namespace application
     public:
         explicit UpgradePackBuilderFacade(const application::UpgradePackBuilder::HeaderInfo& headerInfo);
         virtual ~UpgradePackBuilderFacade() = default;
-            
-        void Build(const std::vector<std::string>& supportedHexTargets, const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets,
-            int argc, const char* argv[], infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey,
-            const std::vector<NoFileInputFactory*>& otherTargets);
 
         void Build(const std::vector<std::string>& supportedHexTargets, const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets,
             std::string outputFilename, std::vector<std::pair<std::string, std::string>>& targetAndFiles, std::vector<std::pair<std::string, std::string>>& buildOptions,
@@ -36,9 +32,6 @@ namespace application
 
     protected:
         virtual void ParseArgument(int& index, int argc, const char* argv[]);
-        virtual void PreBuilder();
-        virtual void PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer);
-
         virtual void PreBuilder(std::vector<std::pair<std::string, std::string>> buildOptions);
         virtual void PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, std::vector<std::pair<std::string, std::string>> buildOptions);
 

@@ -10,13 +10,9 @@
 namespace application
 {
     int BuildReferenceUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
-        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey,
-        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets = std::vector<NoFileInputFactory*>());
-
-    int BuildReferenceUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
         const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, std::string outputFilename,
         std::vector<std::pair<std::string, std::string>>& targetAndFiles, std::vector<std::pair<std::string, std::string>>& buildOptions, infra::ConstByteRange aesKey,
-        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets);
+        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets = std::vector<NoFileInputFactory*>());
 
     class ReferenceUpgradePackBuilderFacade
         : public UpgradePackBuilderFacade
@@ -25,17 +21,8 @@ namespace application
         explicit ReferenceUpgradePackBuilderFacade(const application::UpgradePackBuilder::HeaderInfo& headerInfo);
     
     private:
-        virtual void ParseArgument(int& index, int argc, const char* argv[]) override;
-        virtual void PreBuilder() override;
-        virtual void PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer) override;
-
         virtual void PreBuilder(std::vector<std::pair<std::string, std::string>> buildOptions) override;
         virtual void PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, std::vector<std::pair<std::string, std::string>> buildOptions) override;
-
-    private:
-        bool invalidHeaderVersion = false;
-        bool invalidProduct = false;
-        bool invalidSignature = false;
     };
 }
 

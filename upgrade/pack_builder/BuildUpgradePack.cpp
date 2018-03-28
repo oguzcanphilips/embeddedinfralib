@@ -29,15 +29,6 @@ namespace application
     }
 
     int BuildUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
-        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey,
-        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets)
-    {
-        UpgradePackBuilderFacade builderFacade(headerInfo);
-        builderFacade.Build(supportedHexTargets, supportedBinaryTargets, argc, argv, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey, otherTargets);
-        return builderFacade.Result();
-    }
-
-    int BuildUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
         const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, std::string outputFilename,
         std::vector<std::pair<std::string, std::string>> targetAndFiles, std::vector<std::pair<std::string, std::string>> buildOptions, infra::ConstByteRange aesKey,
         infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets)
@@ -53,81 +44,6 @@ namespace application
         // Initialize the MbedTLS memory pool
         unsigned char memory_buf[100000];
         mbedtls2_memory_buffer_alloc_init(memory_buf, sizeof(memory_buf));
-    }
-
-    void UpgradePackBuilderFacade::Build(const std::vector<std::string>& supportedHexTargets,
-        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey,
-        infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets)
-    {
-        try
-        {
-            if (argc < 3)
-                throw UsageException();
-
-            std::string outputFilename = argv[1];
-            std::cout << "Creating upgrade pack " << outputFilename << "..." << std::endl;
-
-            for (int i = 2; i < argc; ++i)
-                ParseArgument(i, argc, argv);
-
-            //TryBuild(supportedHexTargets, supportedBinaryTargets, outputFilename, targetAndFiles, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey, otherTargets);
-
-            std::cout << "Done" << std::endl;
-        }
-        catch (UsageException&)
-        {
-            ShowUsage(argc, argv, supportedHexTargets, supportedBinaryTargets, otherTargets);
-            result = 1;
-        }
-        catch (application::IncorrectCrcException& exception)
-        {
-            std::cout << "Incorrect CRC in file " << exception.file << " at line " << exception.line << std::endl;
-            result = 1;
-        }
-        catch (application::NoEndOfFileException& exception)
-        {
-            std::cout << "No end of file found in file " << exception.file << " at line " << exception.line << std::endl;
-            result = 1;
-        }
-        catch (application::DataAfterEndOfFileException& exception)
-        {
-            std::cout << "Data found after end of file in file " << exception.file << " at line " << exception.line << std::endl;
-            result = 1;
-        }
-        catch (application::UnknownRecordException& exception)
-        {
-            std::cout << "Unknown record in file " << exception.file << " at line " << exception.line << std::endl;
-            result = 1;
-        }
-        catch (application::RecordTooShortException& exception)
-        {
-            std::cout << "Record too short in file " << exception.file << " at line " << exception.line << std::endl;
-            result = 1;
-        }
-        catch (application::RecordTooLongException& exception)
-        {
-            std::cout << "Record too long in file " << exception.file << " at line " << exception.line << std::endl;
-            result = 1;
-        }
-        catch (application::OverwriteException& exception)
-        {
-            std::cout << "Contents specified twice for memory location at address 0x" << std::hex << std::setw(8) << std::setfill('0') << exception.position << std::endl;
-            result = 1;
-        }
-        catch (hal::CannotOpenFileException& exception)
-        {
-            std::cout << exception.what() << std::endl;
-            result = 1;
-        }
-        catch (application::SignatureDoesNotVerifyException&)
-        {
-            std::cout << "Signature does not verify" << std::endl;
-        }
-        catch (std::exception& e)
-        {
-            std::cout << e.what() << std::endl;
-            result = 1;
-        }
     }
 
     void UpgradePackBuilderFacade::Build(const std::vector<std::string>& supportedHexTargets, const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets,
@@ -276,12 +192,6 @@ namespace application
         targetAndFiles.push_back(std::make_pair(target, fileName));
         ++index;
     }
-
-    void UpgradePackBuilderFacade::PreBuilder()
-    {}
-
-    void UpgradePackBuilderFacade::PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer)
-    {}
 
     void UpgradePackBuilderFacade::PreBuilder(std::vector<std::pair<std::string, std::string>> buildOptions)
     {}
