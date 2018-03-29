@@ -33,18 +33,12 @@ namespace application
         : UpgradePackBuilderFacade(headerInfo)
     {}
 
-    void ReferenceUpgradePackBuilderFacade::PreBuilder(std::vector<std::unique_ptr<application::Input>>& inputs, const std::vector<std::pair<std::string, std::string>>& buildOptions)
+    void ReferenceUpgradePackBuilderFacade::PreBuilder(std::vector<std::pair<std::string, std::string>>& targetAndFiles, const std::vector<std::pair<std::string, std::string>>& buildOptions)
     {
         for (auto option : buildOptions)
         {
             if (option.first == "invalidProduct")
                 headerInfo.productName = "Unknown Product Name";
-            else if (option.first == "app_version")
-            {
-                auto appInput = std::find_if(inputs.begin(), inputs.end(), [](const std::unique_ptr<application::Input>& in) {return in->TargetName() == "app"; });
-                if (appInput == inputs.end())
-                    ;//application::VersionEditor((*appInput)->Image());
-            }
         }
     }
 

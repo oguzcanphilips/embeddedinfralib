@@ -20,7 +20,7 @@ namespace application
         explicit ReferenceUpgradePackBuilderFacade(const application::UpgradePackBuilder::HeaderInfo& headerInfo);
     
     protected:
-        virtual void PreBuilder(std::vector<std::unique_ptr<application::Input>>& inputs, const std::vector<std::pair<std::string, std::string>>& buildOptions) override;
+        virtual void PreBuilder(std::vector<std::pair<std::string, std::string>>& targetAndFiles, const std::vector<std::pair<std::string, std::string>>& buildOptions) override;
         virtual void PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, const std::vector<std::pair<std::string, std::string>>& buildOptions) override;
     };
 }
