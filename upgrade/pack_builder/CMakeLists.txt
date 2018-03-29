@@ -37,6 +37,8 @@ ccola_component(pack_builder win: static_library other: noncompile)
         SparseVector.hpp
         UpgradePackBuilder.hpp
         UpgradePackInputFactory.hpp
+        UpgradePackConfigParser.cpp
+        UpgradePackConfigParser.hpp
     )
 
     ccola_dependencies(

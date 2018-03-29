@@ -112,7 +112,7 @@ namespace application
         std::string outputFilename, std::vector<std::pair<std::string, std::string>>& targetAndFiles, std::vector<std::pair<std::string, std::string>>& buildOptions, infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey,
         infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets)
     {
-        application::FixedRandomNumberGenerator randomNumberGenerator(std::vector<uint8_t>(1000, 5));
+        application::SecureRandomNumberGenerator randomNumberGenerator;
         hal::FileSystemWin fileSystem;
         application::ImageEncryptorAes imageEncryptorAes(randomNumberGenerator, aesKey);
         application::UpgradePackInputFactory inputFactory(supportedHexTargets, supportedBinaryTargets, fileSystem, imageEncryptorAes, otherTargets);

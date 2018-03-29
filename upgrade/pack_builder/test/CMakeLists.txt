@@ -4,6 +4,7 @@ ccola_component(pack_builder_test gmock_test)
         ImageSecurityNone.cpp
         ImageSecurityNone.hpp
         TestBinaryObject.cpp
+        TestConfigParser.cpp
         TestImageAuthenticatorHmac.cpp
         TestImageEncryptorAes.cpp
         TestImageSecurityXteaHmac.cpp
@@ -19,6 +20,7 @@ ccola_component(pack_builder_test gmock_test)
         pack_builder
         infra.timer_test_helper
         hal.test_doubles
+        infra.syntax
     )
 
 ccola_end_component()
