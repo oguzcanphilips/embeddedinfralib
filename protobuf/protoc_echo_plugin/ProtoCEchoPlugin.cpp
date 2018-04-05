@@ -1,4 +1,4 @@
-#include "generated/proto_cpp/echo_attributes.pb.h"
+#include "generated/proto_cpp/EchoAttributes.pb.h"
 #include "google/protobuf/compiler/cpp/cpp_helpers.h"
 #include "google/protobuf/compiler/plugin.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
@@ -814,7 +814,8 @@ namespace application
         for (int i = 0; i != service.method_count(); ++i)
         {
             auto serviceMethod = std::make_shared<Function>(service.method(i)->name(), "", "void", Function::fVirtual | Function::fAbstract);
-            serviceMethod->Parameter("const " + QualifiedName(*service.method(i)->input_type()) + "& argument");
+            if (service.method(i)->input_type()->full_name() != EmptyRequest::descriptor()->full_name())
+                serviceMethod->Parameter("const " + QualifiedName(*service.method(i)->input_type()) + "& argument");
             functions->Add(serviceMethod);
         }
 
@@ -833,7 +834,8 @@ namespace application
         for (int i = 0; i != service.method_count(); ++i)
         {
             auto serviceMethod = std::make_shared<Function>(service.method(i)->name(), ProxyMethodBody(*service.method(i)), "void", 0);
-            serviceMethod->Parameter("const " + QualifiedName(*service.method(i)->input_type()) + "& argument");
+            if (service.method(i)->input_type()->full_name() != EmptyRequest::descriptor()->full_name())
+                serviceMethod->Parameter("const " + QualifiedName(*service.method(i)->input_type()) + "& argument");
             functions->Add(serviceMethod);
         }
 
@@ -869,7 +871,10 @@ namespace application
             if (methodId == 0)
                 throw UnspecifiedMethodId{ service.name(), service.method(i)->name() };
 
-            result = "std::max<uint32_t>(" + google::protobuf::SimpleItoa(MaxVarIntSize(serviceId) + MaxVarIntSize((methodId << 3) | 2)) + " + 10 + " + QualifiedName(*service.method(i)->input_type()) + "::maxMessageSize, " + result + ")";
+            if (service.method(i)->input_type()->full_name() != EmptyRequest::descriptor()->full_name())
+                result = "std::max<uint32_t>(" + google::protobuf::SimpleItoa(MaxVarIntSize(serviceId) + MaxVarIntSize((methodId << 3) | 2)) + " + 10 + " + QualifiedName(*service.method(i)->input_type()) + "::maxMessageSize, " + result + ")";
+            else
+                result = "std::max<uint32_t>(" + google::protobuf::SimpleItoa(MaxVarIntSize(serviceId) + MaxVarIntSize((methodId << 3) | 2)) + " + 10, " + result + ")";
         }
 
         return result;
@@ -886,13 +891,21 @@ namespace application
 
             for (int i = 0; i != service.method_count(); ++i)
             {
-                printer.Print(R"(    case id$name$:
+                if (service.method(i)->input_type()->full_name() != EmptyRequest::descriptor()->full_name())
+                    printer.Print(R"(    case id$name$:
     {
         $argument$ argument(parser);
         $name$(argument);
         break;
     }
 )", "name", service.method(i)->name(), "argument", QualifiedName(*service.method(i)->input_type()));
+                else
+                    printer.Print(R"(    case id$name$:
+    {
+        $name$();
+        break;
+    }
+)", "name", service.method(i)->name());
             }
 
             printer.Print("}\n");
@@ -912,10 +925,15 @@ namespace application
 formatter.PutVarInt(serviceId);
 {
     infra::ProtoLengthDelimitedFormatter argumentFormatter = formatter.LengthDelimitedFormatter(id$name$);
-    argument.Serialize(formatter);
-}
-Rpc().Send();
 )", "name", descriptor.name());
+
+            if (descriptor.input_type()->full_name() != EmptyRequest::descriptor()->full_name())
+                printer.Print(R"(    argument.Serialize(formatter);
+)");
+
+            printer.Print(R"(}
+Rpc().Send();
+)");
         }
 
         return result.str();
@@ -943,7 +961,7 @@ Rpc().Send();
         includesByHeader->Path("infra/syntax/ProtoParser.hpp");
 
         for (int i = 0; i != file->dependency_count(); ++i)
-            if (file->dependency(i)->name() != "echo_attributes.proto")
+            if (file->dependency(i)->name() != "EchoAttributes.proto")
                 includesByHeader->Path("generated/echo/" + google::protobuf::compiler::cpp::StripProto(file->dependency(i)->name()) + ".pb.hpp");
 
         formatter.Add(includesByHeader);

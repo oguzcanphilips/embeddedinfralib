@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "echo_attributes.proto";
+import "EchoAttributes.proto";
 
 package network;
 

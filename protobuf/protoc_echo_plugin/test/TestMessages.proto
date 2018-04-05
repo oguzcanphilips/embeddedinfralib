@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "echo_attributes.proto";
+import "EchoAttributes.proto";
 
 package test_messages;
 
@@ -57,7 +57,7 @@ message TestMoreNestedMessage
         uint32 value = 1;
     }
 
-	message NestedMessage2
+    message NestedMessage2
     {
         uint32 value = 2;
     }

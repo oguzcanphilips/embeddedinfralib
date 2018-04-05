@@ -12,6 +12,11 @@ namespace services
         this->buttonPin.EnableInterrupt([this]() { ButtonChanged(); }, hal::InterruptTrigger::bothEdges);
     }
 
+    DebouncedButton::~DebouncedButton()
+    {
+        buttonPin.DisableInterrupt();
+    }
+
     void DebouncedButton::ButtonChanged()
     {
         bool buttonState = buttonPin.Get();

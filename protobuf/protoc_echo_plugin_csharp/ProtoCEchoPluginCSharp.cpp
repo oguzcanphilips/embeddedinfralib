@@ -1,4 +1,4 @@
-#include "generated/proto_cpp/echo_attributes.pb.h"
+#include "generated/proto_cpp/EchoAttributes.pb.h"
 #include "google/protobuf/compiler/cpp/cpp_helpers.h"
 #include "google/protobuf/compiler/plugin.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
@@ -59,7 +59,8 @@ namespace application
         {
             std::string namespaceString;
 
-            namespaceString = UnderscoresToCamelCase(descriptor.file()->package(), true) + ".";
+            if (!descriptor.file()->package().empty())
+                namespaceString = UnderscoresToCamelCase(descriptor.file()->package(), true) + ".";
             for (auto containingType = descriptor.containing_type(); containingType != nullptr; containingType = containingType->containing_type())
                 namespaceString += UnderscoresToCamelCase(containingType->name(), true) + ".";
 
@@ -136,7 +137,10 @@ namespace application
     {
         for (int i = 0; i != service.method_count(); ++i)
         {
-            printer.Print("        public delegate void $method$Delegate($parameter$ parameter);\n", "method", service.method(i)->name(), "parameter", QualifiedName(*service.method(i)->input_type()));
+            if (service.method(i)->input_type()->full_name() != EmptyRequest::descriptor()->full_name())
+                printer.Print("        public delegate void $method$Delegate($parameter$ parameter);\n", "method", service.method(i)->name(), "parameter", QualifiedName(*service.method(i)->input_type()));
+            else
+                printer.Print("        public delegate void $method$Delegate();\n", "method", service.method(i)->name());
             printer.Print("        public $method$Delegate $method_var$;\n", "method", service.method(i)->name(), "method_var", service.method(i)->name());
         }
 
@@ -162,7 +166,8 @@ namespace application
 
         for (int i = 0; i != service.method_count(); ++i)
         {
-            printer.Print(R"(                case id$method_type$:
+            if (service.method(i)->input_type()->full_name() != EmptyRequest::descriptor()->full_name())
+                printer.Print(R"(                case id$method_type$:
                 {
                     var parameter = new $parameter_type$();
                     parameter.MergeFrom(stream);
@@ -170,6 +175,14 @@ namespace application
                     break;
                 }
 )", "method_type", service.method(i)->name(), "method", service.method(i)->name(), "parameter_type", QualifiedName(*service.method(i)->input_type()));
+            else
+                printer.Print(R"(                case id$method_type$:
+                {
+                    $method$();
+                    break;
+                }
+)", "method_type", service.method(i)->name(), "method", service.method(i)->name());
+
         }
 
         printer.Print(R"(            }
@@ -238,18 +251,29 @@ namespace application
     {
         for (int i = 0; i != service.method_count(); ++i)
         {
-            printer.Print(R"(        public void $method$($parameter_type$ parameter)
-        {
+            if (service.method(i)->input_type()->full_name() != EmptyRequest::descriptor()->full_name())
+                printer.Print(R"(        public void $method$($parameter_type$ parameter)
+)", "method", service.method(i)->name(), "parameter_type", QualifiedName(*service.method(i)->input_type()));
+            else
+                printer.Print(R"(        public void $method$()
+)", "method", service.method(i)->name());
+            printer.Print(R"(        {
             var stream = echo.GetOutputStream();
 
             stream.WriteInt32(serviceId);
             stream.WriteUInt32(pb.WireFormat.MakeTag(id$method$, pb.WireFormat.WireType.LengthDelimited));
-            stream.WriteMessage(parameter);
-
+)", "method", service.method(i)->name());
+            if (service.method(i)->input_type()->full_name() != EmptyRequest::descriptor()->full_name())
+                printer.Print(R"(            stream.WriteMessage(parameter);
+)");
+            else
+                printer.Print(R"(            stream.WriteUInt32(0);
+)");
+            printer.Print(R"(
             echo.SendOutputStream(stream);
         }
 
-)", "method", service.method(i)->name(), "parameter_type", QualifiedName(*service.method(i)->input_type()));
+)");
         }
     }
 

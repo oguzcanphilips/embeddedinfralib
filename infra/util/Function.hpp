@@ -95,7 +95,7 @@ namespace infra
 
     public:
         Function() = default;
-        explicit Function(std::nullptr_t);
+        Function(std::nullptr_t);                                                       //TICS !INT#001
         Function(const Function& other);
 
         template<class F>                                                               //TICS !INT#001
