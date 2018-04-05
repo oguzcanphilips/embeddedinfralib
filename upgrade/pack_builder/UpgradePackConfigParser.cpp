@@ -1,4 +1,5 @@
 #include "UpgradePackConfigParser.hpp"
+#include <complex.h>
 
 namespace
 {
@@ -77,6 +78,8 @@ namespace application
         {
             if (it->value.Is<infra::BoundedConstString>())
                 result.push_back(StdStringPair(it->key, it->value.Get<infra::BoundedConstString>()));
+            else if (it->value.Is<int32_t>())
+                result.push_back(std::pair<std::string, std::string>(StdString(it->key), std::to_string(it->value.Get<int32_t>())));
             else
                 throw ParseException("ConfigParser error: invalid value for option: " + StdString(it->key));
         }

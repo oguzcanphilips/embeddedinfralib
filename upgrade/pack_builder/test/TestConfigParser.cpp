@@ -14,8 +14,8 @@ namespace {
                 "filesys": "filesystem.bin",
             },
             "options": {
-                "app_version": "10",
-                "invalidHeaderVersion": ""
+                "integer_option": 10,
+                "string_option": "value"
             }
           })";
 }
@@ -165,8 +165,8 @@ TEST_F(TestConfigParser, GetOptions_returns_options_list_with_all_options)
 {
     configJson.Emplace(infra::BoundedConstString(completeConfig.c_str()));
     std::vector<std::pair<std::string, std::string>> optionsList;
-    optionsList.push_back(std::pair<std::string, std::string>("app_version", "10"));
-    optionsList.push_back(std::pair<std::string, std::string>("invalidHeaderVersion", ""));
+    optionsList.push_back(std::pair<std::string, std::string>("integer_option", "10"));
+    optionsList.push_back(std::pair<std::string, std::string>("string_option", "value"));
 
     application::UpgradePackConfigParser parser(*configJson);
     ASSERT_EQ(optionsList, parser.GetOptions());
