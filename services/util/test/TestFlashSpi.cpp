@@ -57,6 +57,20 @@ TEST_F(FlashSpiTest, ReadData)
     EXPECT_EQ(receiveData, buffer);
 }
 
+TEST_F(FlashSpiTest, ReadId)
+{
+    std::vector<uint8_t> receiveData = { 1, 2, 3 };
+    EXPECT_CALL(spiMock, SendDataMock(CreateInstruction(services::FlashSpi::commandReadId), hal::SpiAction::continueSession));
+    EXPECT_CALL(spiMock, ReceiveDataMock(hal::SpiAction::stop)).WillOnce(testing::Return(receiveData));
+    EXPECT_CALL(finished, callback());
+
+    std::vector<uint8_t> buffer(3, 0);
+    flash.ReadFlashId(buffer, [this]() { finished.callback(); });
+    ExecuteAllActions();
+
+    EXPECT_EQ(receiveData, buffer);
+}
+
 TEST_F(FlashSpiTest, ReadDataAtNonZeroAddress)
 {
     std::vector<uint8_t> receiveData = { 1, 2, 3, 4 };
