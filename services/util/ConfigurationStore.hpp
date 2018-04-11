@@ -2,6 +2,8 @@
 #define SERVICES_CONFIGURATION_STORE_HPP
 
 #include "hal/interfaces/Flash.hpp"
+#include "infra/stream/ByteInputStream.hpp"
+#include "infra/stream/ByteOutputStream.hpp"
 #include "infra/syntax/ProtoFormatter.hpp"
 #include "infra/syntax/ProtoParser.hpp"
 #include "infra/util/AutoResetFunction.hpp"
@@ -62,10 +64,13 @@ namespace services
     class ConfigurationStoreBase
     {
     public:
-        ConfigurationStoreBase(ConfigurationBlob& blob1, ConfigurationBlob& blob2, const infra::Function<void(bool success)>& onLoaded);
+        ConfigurationStoreBase(ConfigurationBlob& blob1, ConfigurationBlob& blob2);
 
     public:
         void Write(infra::Function<void()> onDone = infra::Function<void()>());
+
+        virtual void Serialize(ConfigurationBlob& blob, const infra::Function<void()>& onDone) = 0;
+        virtual void Deserialize(ConfigurationBlob& blob) = 0;
 
         class LockGuard
         {
@@ -82,8 +87,8 @@ namespace services
         LockGuard Lock();
 
     protected:
-        virtual void Serialize(infra::ProtoFormatter& formatter) = 0;
-        virtual void Deserialize(infra::ProtoParser& parser) = 0;
+        void Recover();
+        virtual void OnLoaded(bool success) = 0;
 
     private:
         void OnBlobLoaded(bool success);
@@ -93,7 +98,6 @@ namespace services
     private:
         ConfigurationBlob* activeBlob;
         ConfigurationBlob* inactiveBlob;
-        infra::AutoResetFunction<void(bool success)> onLoaded;
         infra::AutoResetFunction<void()> onWriteDone;
         uint32_t lockCount = 0;
         bool writingBlob = false;
@@ -104,9 +108,6 @@ namespace services
     class ConfigurationStore
         : public ConfigurationStoreBase
     {
-    protected:
-        class Blobs;
-
     public:
         class WithBlob;
 
@@ -115,51 +116,45 @@ namespace services
         const T& Configuration() const;
         T& Configuration();
 
+        virtual void Serialize(ConfigurationBlob& blob, const infra::Function<void()>& onDone) override;
+        virtual void Deserialize(ConfigurationBlob& blob) override;
+
     protected:
-        virtual void Serialize(infra::ProtoFormatter& formatter) override;
-        virtual void Deserialize(infra::ProtoParser& parser) override;
+        virtual void OnLoaded(bool success) override;
 
     private:
         T configuration;
-    };
-
-    template<class T>
-    class ConfigurationStore<T>::Blobs
-    {
-    public:
-        Blobs(hal::Flash& flashFirst, hal::Flash& flashSecond);
-
-        ConfigurationBlobImpl::WithStorage<T::maxMessageSize> blob1;
-        ConfigurationBlobImpl blob2;
+        infra::AutoResetFunction<void(bool success)> onLoaded;
     };
 
     template<class T>
     class ConfigurationStore<T>::WithBlob
-        : public Blobs
-        , public ConfigurationStore<T>
+        : public ConfigurationStore<T>
     {
     public:
         WithBlob(hal::Flash& flashFirst, hal::Flash& flashSecond, const infra::Function<void(bool success)>& onLoaded);
+
+    private:
+        typename ConfigurationBlobImpl::WithStorage<T::maxMessageSize> blob1;
+        ConfigurationBlobImpl blob2;
     };
 
     ////    Implementation    ////
 
     template<class T>
-    ConfigurationStore<T>::Blobs::Blobs(hal::Flash& flashFirst, hal::Flash& flashSecond)
-        : blob1(flashFirst)
-        , blob2(blob1.MaxBlob(), flashSecond)
-    {}
-
-    template<class T>
     ConfigurationStore<T>::WithBlob::WithBlob(hal::Flash& flashFirst, hal::Flash& flashSecond, const infra::Function<void(bool success)>& onLoaded)
-        : Blobs(flashFirst, flashSecond)
-        , ConfigurationStore<T>(this->blob1, this->blob2, onLoaded)
+        : ConfigurationStore<T>(this->blob1, this->blob2, onLoaded)
+        , blob1(flashFirst, Configuration())
+        , blob2(blob1.MaxBlob(), flashSecond, Configuration())
     {}
 
     template<class T>
     ConfigurationStore<T>::ConfigurationStore(ConfigurationBlob& blob1, ConfigurationBlob& blob2, const infra::Function<void(bool success)>& onLoaded)
-        : ConfigurationStoreBase(blob1, blob2, onLoaded)
-    {}
+        : ConfigurationStoreBase(blob1, blob2)
+        , onLoaded(onLoaded)
+    {
+        Recover();
+    }
 
     template<class T>
     const T& ConfigurationStore<T>::Configuration() const
@@ -174,16 +169,27 @@ namespace services
     }
 
     template<class T>
-    void ConfigurationStore<T>::Serialize(infra::ProtoFormatter& formatter)
+    void ConfigurationStore<T>::Serialize(ConfigurationBlob& blob, const infra::Function<void()>& onDone)
     {
+        infra::ByteOutputStream stream(blob.MaxBlob());
+        infra::ProtoFormatter formatter(stream);
         configuration.Serialize(formatter);
+        blob.Write(stream.Writer().Processed().size(), onDone);
     }
 
     template<class T>
-    void ConfigurationStore<T>::Deserialize(infra::ProtoParser& parser)
+    void ConfigurationStore<T>::Deserialize(ConfigurationBlob& blob)
     {
+        infra::ByteInputStream stream(blob.CurrentBlob());
+        infra::ProtoParser parser(stream);
         configuration.Deserialize(parser);
     }
- }
+
+    template<class T>
+    void ConfigurationStore<T>::OnLoaded(bool success)
+    {
+        onLoaded(success);
+    }
+}
 
 #endif

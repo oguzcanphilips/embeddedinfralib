@@ -135,7 +135,7 @@ public:
     MOCK_METHOD0(CurrentBlob, infra::ByteRange());
     MOCK_METHOD0(MaxBlob, infra::ByteRange());
     MOCK_METHOD1(Recover, void(const infra::Function<void(bool success)>& onLoaded));
-    MOCK_METHOD2(Write, void(uint32_t size, const infra::Function<void()>& onDone));
+    MOCK_METHOD2(Write, void(std::size_t size, const infra::Function<void()>& onDone));
     MOCK_METHOD1(Erase, void(const infra::Function<void()>& onDone));
 };
 

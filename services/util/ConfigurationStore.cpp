@@ -1,5 +1,3 @@
-#include "infra/stream/ByteInputStream.hpp"
-#include "infra/stream/ByteOutputStream.hpp"
 #include "mbedtls/sha256.h"
 #include "services/util/ConfigurationStore.hpp"
 
@@ -37,16 +35,16 @@ namespace services
         });
     }
 
+    void ConfigurationBlobImpl::Erase(const infra::Function<void()>& onDone)
+    {
+        flash.EraseAll(onDone);
+    }
+
     void ConfigurationBlobImpl::Write(uint32_t size, const infra::Function<void()>& onDone)
     {
         currentSize = size;
         PrepareBlobForWriting();
         flash.WriteBuffer(blob, 0, onDone);
-    }
-
-    void ConfigurationBlobImpl::Erase(const infra::Function<void()>& onDone)
-    {
-        flash.EraseAll(onDone);
     }
 
     void ConfigurationBlobImpl::RecoverCurrentSize()
@@ -84,10 +82,31 @@ namespace services
         infra::Copy(infra::MakeByteRange(header), infra::Head(blob, sizeof(header)));
     }
 
-    ConfigurationStoreBase::ConfigurationStoreBase(ConfigurationBlob& blob1, ConfigurationBlob& blob2, const infra::Function<void(bool success)>& onLoaded)
+    ConfigurationStoreBase::ConfigurationStoreBase(ConfigurationBlob& blob1, ConfigurationBlob& blob2)
         : activeBlob(&blob1)
         , inactiveBlob(&blob2)
-        , onLoaded(onLoaded)
+    {}
+
+    void ConfigurationStoreBase::Write(infra::Function<void()> onDone)
+    {
+        if (onDone)
+            onWriteDone = onDone;
+
+        writeRequested = true;
+        if (!writingBlob && lockCount == 0)
+        {
+            writeRequested = false;
+            writingBlob = true;
+            Serialize(*activeBlob, [this]() { inactiveBlob->Erase([this]() { BlobWriteDone(); }); });
+        }
+    }
+
+    ConfigurationStoreBase::LockGuard ConfigurationStoreBase::Lock()
+    {
+        return LockGuard(*this);
+    }
+
+    void ConfigurationStoreBase::Recover()
     {
         activeBlob->Recover([this](bool success)
         {
@@ -104,41 +123,14 @@ namespace services
         });
     }
 
-    void ConfigurationStoreBase::Write(infra::Function<void()> onDone)
-    {
-        assert(!onLoaded);
-        if (onDone)
-            onWriteDone = onDone;
-
-        writeRequested = true;
-        if (!writingBlob && lockCount == 0)
-        {
-            writeRequested = false;
-            writingBlob = true;
-            infra::ByteOutputStream stream(activeBlob->MaxBlob());
-            infra::ProtoFormatter formatter(stream);
-            Serialize(formatter);
-            activeBlob->Write(stream.Writer().Processed().size(), [this]() { inactiveBlob->Erase([this]() { BlobWriteDone(); }); });
-        }
-    }
-
-    ConfigurationStoreBase::LockGuard ConfigurationStoreBase::Lock()
-    {
-        return LockGuard(*this);
-    }
-
     void ConfigurationStoreBase::OnBlobLoaded(bool success)
     {
         std::swap(activeBlob, inactiveBlob);
 
         if (success)
-        {
-            infra::ByteInputStream stream(inactiveBlob->CurrentBlob());
-            infra::ProtoParser parser(stream);
-            Deserialize(parser);
-        }
+            Deserialize(*inactiveBlob);
 
-        onLoaded(success);
+        OnLoaded(success);
     }
 
     void ConfigurationStoreBase::BlobWriteDone()
