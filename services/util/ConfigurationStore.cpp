@@ -198,7 +198,7 @@ namespace services
         , factoryDefaultBlob(factoryDefaultBlob)
     {}
 
-    void FactoryDefaultConfigurationStoreBase::Recover(const infra::Function<void()>& onLoadFactoryDefault, const infra::Function<void()>& onRecovered)
+    void FactoryDefaultConfigurationStoreBase::Recover(const infra::Function<void()>& onLoadFactoryDefault, const infra::Function<void(bool isFactoryDefault)>& onRecovered)
     {
         this->onLoadFactoryDefault = onLoadFactoryDefault;
         this->onRecovered = onRecovered;
@@ -213,7 +213,7 @@ namespace services
                 {
                     configurationStore.Serialize(factoryDefaultBlob, [this]()
                     {
-                        configurationStore.Erase([this]() { this->onRecovered(); });
+                        configurationStore.Erase([this]() { this->onRecovered(true); });
                     });
                 });
             }
@@ -225,7 +225,7 @@ namespace services
 
                 configurationStore.Recover([this](bool success)
                 {
-                    this->onRecovered();
+                    this->onRecovered(!success);
                 });
             }
         });

@@ -343,7 +343,7 @@ public:
     {}
 
     MOCK_METHOD0(OnLoadFactoryDefault, void());
-    MOCK_METHOD0(OnRecovered, void());
+    MOCK_METHOD1(OnRecovered, void(bool isFactoryDefault));
 
 public:
     infra::Function<void(bool success)> onRecoverDone;
@@ -357,7 +357,7 @@ public:
 TEST_F(FactoryDefaultConfigurationStoreTest, failed_factory_default_results_in_OnLoadFactoryDefault)
 {
     EXPECT_CALL(configurationBlobFactoryDefault, Recover(testing::_)).WillOnce(testing::SaveArg<0>(&onRecoverDone));
-    configurationStore.Recover([this]() { OnLoadFactoryDefault(); }, [this]() { OnRecovered(); });
+    configurationStore.Recover([this]() { OnLoadFactoryDefault(); }, [this](bool isFactoryDefault) { OnRecovered(isFactoryDefault); });
 
     EXPECT_CALL(*this, OnLoadFactoryDefault());
     EXPECT_CALL(configurationBlobFactoryDefault, Erase(testing::_)).WillOnce(testing::SaveArg<0>(&onEraseDone));
@@ -376,14 +376,14 @@ TEST_F(FactoryDefaultConfigurationStoreTest, failed_factory_default_results_in_O
     EXPECT_CALL(configurationBlob1, Erase(testing::_)).WillOnce(testing::SaveArg<0>(&onEraseDone));
     onEraseDone();
 
-    EXPECT_CALL(*this, OnRecovered());
+    EXPECT_CALL(*this, OnRecovered(true));
     onEraseDone();
 }
 
 TEST_F(FactoryDefaultConfigurationStoreTest, successful_factory_default_results_in_ConfigurationStore_Recover)
 {
     EXPECT_CALL(configurationBlobFactoryDefault, Recover(testing::_)).WillOnce(testing::SaveArg<0>(&onRecoverDone));
-    configurationStore.Recover([this]() { OnLoadFactoryDefault(); }, [this]() { OnRecovered(); });
+    configurationStore.Recover([this]() { OnLoadFactoryDefault(); }, [this](bool isFactoryDefault) { OnRecovered(isFactoryDefault); });
 
     EXPECT_CALL(configurationBlobFactoryDefault, CurrentBlob()).WillOnce(testing::Return(infra::ByteRange()));
     EXPECT_CALL(configurationStore.Configuration(), Deserialize(testing::_));
@@ -395,14 +395,14 @@ TEST_F(FactoryDefaultConfigurationStoreTest, successful_factory_default_results_
 
     EXPECT_CALL(configurationBlob1, CurrentBlob()).WillOnce(testing::Return(infra::ByteRange()));
     EXPECT_CALL(configurationStore.Configuration(), Deserialize(testing::_));
-    EXPECT_CALL(*this, OnRecovered());
+    EXPECT_CALL(*this, OnRecovered(false));
     onEraseDone();
 }
 
 TEST_F(FactoryDefaultConfigurationStoreTest, when_ConfigurationStore_Recover_fails_no_additional_configuration_is_deserialized)
 {
     EXPECT_CALL(configurationBlobFactoryDefault, Recover(testing::_)).WillOnce(testing::SaveArg<0>(&onRecoverDone));
-    configurationStore.Recover([this]() { OnLoadFactoryDefault(); }, [this]() { OnRecovered(); });
+    configurationStore.Recover([this]() { OnLoadFactoryDefault(); }, [this](bool isFactoryDefault) { OnRecovered(isFactoryDefault); });
 
     EXPECT_CALL(configurationBlobFactoryDefault, CurrentBlob()).WillOnce(testing::Return(infra::ByteRange()));
     EXPECT_CALL(configurationStore.Configuration(), Deserialize(testing::_));
@@ -415,7 +415,7 @@ TEST_F(FactoryDefaultConfigurationStoreTest, when_ConfigurationStore_Recover_fai
     EXPECT_CALL(configurationBlob1, Erase(testing::_)).WillOnce(testing::SaveArg<0>(&onEraseDone));
     onRecoverDone(false);    // Blob 2 is not recovered
 
-    EXPECT_CALL(*this, OnRecovered());
+    EXPECT_CALL(*this, OnRecovered(true));
     onEraseDone();
 }
 
@@ -432,11 +432,11 @@ public:
 
     void ConstructConfigurationStore()
     {
-        configurationStore.Emplace(flashFactoryDefault, flashBlob1, flashBlob2, [this]() { OnLoadFactoryDefault(); }, [this]() { OnRecovered(); });
+        configurationStore.Emplace(flashFactoryDefault, flashBlob1, flashBlob2, [this]() { OnLoadFactoryDefault(); }, [this](bool isFactoryDefault) { OnRecovered(isFactoryDefault); });
     }
 
     MOCK_METHOD0(OnLoadFactoryDefault, void());
-    MOCK_METHOD0(OnRecovered, void());
+    MOCK_METHOD1(OnRecovered, void(bool isFactoryDefault));
 
     struct Data
     {
@@ -483,7 +483,7 @@ TEST_F(FactoryDefaultConfigurationStoreIntegrationTest, start_with_empty_flash_r
         configurationStore->Configuration().data = std::array<uint8_t, 8>{ 4, 3, 2, 1, 8, 7, 6, 5 };
     }));
 
-    EXPECT_CALL(*this, OnRecovered());
+    EXPECT_CALL(*this, OnRecovered(true));
 
     ConstructConfigurationStore();
     ExecuteAllActions();
@@ -511,7 +511,7 @@ TEST_F(FactoryDefaultConfigurationStoreIntegrationTest, start_with_corrupt_facto
         configurationStore->Configuration().data = std::array<uint8_t, 8>{ 4, 3, 2, 1, 8, 7, 6, 5 };
     }));
 
-    EXPECT_CALL(*this, OnRecovered());
+    EXPECT_CALL(*this, OnRecovered(true));
 
     ConstructConfigurationStore();
     ExecuteAllActions();
@@ -540,7 +540,7 @@ TEST_F(FactoryDefaultConfigurationStoreIntegrationTest, factory_default_is_recov
         0x00, 0x00, 0xaa, 0xaa, 0xaa, 0x51, 0x1f, 0xfe, 0x0a, 0x00, 0x00, 0x00, 0x0a, 0x08, 0x04, 0x03,
         0x00, 0x00, 0x08, 0x07, 0x06, 0x05, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
-    EXPECT_CALL(*this, OnRecovered());
+    EXPECT_CALL(*this, OnRecovered(true));
 
     ConstructConfigurationStore();
     ExecuteAllActions();
@@ -581,7 +581,7 @@ TEST_F(FactoryDefaultConfigurationStoreIntegrationTest, both_blobs_are_correct_s
         0xfb, 0x76, 0x16, 0x1c, 0x5a, 0x51, 0x1f, 0xfe, 0x0a, 0x00, 0x00, 0x00, 0x0a, 0x08, 0x04, 0x03,
         0x02, 0x01, 0x08, 0x07, 0x06, 0x05, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
-    EXPECT_CALL(*this, OnRecovered());
+    EXPECT_CALL(*this, OnRecovered(false));
 
     ConstructConfigurationStore();
     ExecuteAllActions();
@@ -624,7 +624,7 @@ TEST_F(FactoryDefaultConfigurationStoreIntegrationTest, second_blob_is_recovered
         0xfb, 0x76, 0x16, 0x1c, 0x5a, 0x51, 0x1f, 0xfe, 0x0a, 0x00, 0x00, 0x00, 0x0a, 0x08, 0x04, 0x03,
         0x02, 0x01, 0x08, 0x07, 0x06, 0x05, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
-    EXPECT_CALL(*this, OnRecovered());
+    EXPECT_CALL(*this, OnRecovered(false));
 
     ConstructConfigurationStore();
     ExecuteAllActions();

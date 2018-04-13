@@ -139,14 +139,14 @@ namespace services
     public:
         FactoryDefaultConfigurationStoreBase(ConfigurationStoreBase& configurationStore, ConfigurationBlob& factoryDefaultBlob);
 
-        void Recover(const infra::Function<void()>& onLoadFactoryDefault, const infra::Function<void()>& onRecovered);
+        void Recover(const infra::Function<void()>& onLoadFactoryDefault, const infra::Function<void(bool isFactoryDefault)>& onRecovered);
         void Write(infra::Function<void()> onDone = infra::Function<void()>());
 
     private:
         ConfigurationStoreBase& configurationStore;
         ConfigurationBlob& factoryDefaultBlob;
         infra::AutoResetFunction<void()> onLoadFactoryDefault;
-        infra::AutoResetFunction<void()> onRecovered;
+        infra::AutoResetFunction<void(bool isFactoryDefault)> onRecovered;
     };
 
     template<class T>
@@ -171,7 +171,7 @@ namespace services
     {
     public:
         WithBlobs(hal::Flash& flashFactoryDefault, hal::Flash& flashFirst, hal::Flash& flashSecond
-            , const infra::Function<void()>& onLoadFactoryDefault, const infra::Function<void()>& onRecovered);
+            , const infra::Function<void()>& onLoadFactoryDefault, const infra::Function<void(bool isFactoryDefault)>& onRecovered);
 
     private:
         ConfigurationBlobImpl::WithStorage<T::maxMessageSize> factoryDefaultBlob;
@@ -244,7 +244,7 @@ namespace services
 
     template<class T>
     FactoryDefaultConfigurationStore<T>::WithBlobs::WithBlobs(hal::Flash& flashFactoryDefault, hal::Flash& flashFirst, hal::Flash& flashSecond
-        , const infra::Function<void()>& onLoadFactoryDefault, const infra::Function<void()>& onRecovered)
+        , const infra::Function<void()>& onLoadFactoryDefault, const infra::Function<void(bool isFactoryDefault)>& onRecovered)
         : FactoryDefaultConfigurationStore(factoryDefaultBlob, blob1, blob2)
         , factoryDefaultBlob(flashFactoryDefault)
         , blob1(factoryDefaultBlob.Storage(), flashFirst)
