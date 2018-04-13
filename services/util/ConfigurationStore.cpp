@@ -20,18 +20,18 @@ namespace services
         return infra::DiscardHead(blob, sizeof(Header));
     }
 
-    void ConfigurationBlobImpl::Recover(const infra::Function<void(bool success)>& onLoaded)
+    void ConfigurationBlobImpl::Recover(const infra::Function<void(bool success)>& onRecovered)
     {
-        this->onLoaded = onLoaded;
+        this->onRecovered = onRecovered;
         flash.ReadBuffer(blob, 0, [this]()
         {
             if (BlobIsValid())
             {
                 RecoverCurrentSize();
-                this->onLoaded(true);
+                this->onRecovered(true);
             }
             else
-                this->onLoaded(false);
+                this->onRecovered(false);
         });
     }
 
@@ -101,23 +101,33 @@ namespace services
         }
     }
 
+    void ConfigurationStoreBase::Erase(infra::Function<void()> onDone)
+    {
+        onWriteDone = onDone;
+        inactiveBlob->Erase([this]() { activeBlob->Erase([this]() { onWriteDone(); }); });
+    }
+
     ConfigurationStoreBase::LockGuard ConfigurationStoreBase::Lock()
     {
         return LockGuard(*this);
     }
 
-    void ConfigurationStoreBase::Recover()
+    void ConfigurationStoreBase::Recover(const infra::Function<void(bool success)>& onRecovered)
     {
+        this->onRecovered = onRecovered;
+
         activeBlob->Recover([this](bool success)
         {
             if (success)
-                OnBlobLoaded(true);
+            {
+                inactiveBlob->Erase([this]() { OnBlobLoaded(true); });
+            }
             else
             {
                 std::swap(activeBlob, inactiveBlob);
                 activeBlob->Recover([this](bool success)
                 {
-                    OnBlobLoaded(success);
+                    inactiveBlob->Erase([this, success]() { OnBlobLoaded(success); });
                 });
             }
         });
@@ -130,7 +140,7 @@ namespace services
         if (success)
             Deserialize(*inactiveBlob);
 
-        OnLoaded(success);
+        onRecovered(success);
     }
 
     void ConfigurationStoreBase::BlobWriteDone()
@@ -181,5 +191,48 @@ namespace services
         --store->lockCount;
         if (store->lockCount == 0)
             store->Unlocked();
+    }
+
+    FactoryDefaultConfigurationStoreBase::FactoryDefaultConfigurationStoreBase(ConfigurationStoreBase& configurationStore, ConfigurationBlob& factoryDefaultBlob)
+        : configurationStore(configurationStore)
+        , factoryDefaultBlob(factoryDefaultBlob)
+    {}
+
+    void FactoryDefaultConfigurationStoreBase::Recover(const infra::Function<void()>& onLoadFactoryDefault, const infra::Function<void()>& onRecovered)
+    {
+        this->onLoadFactoryDefault = onLoadFactoryDefault;
+        this->onRecovered = onRecovered;
+
+        factoryDefaultBlob.Recover([this](bool success)
+        {
+            if (!success)
+            {
+                this->onLoadFactoryDefault();
+
+                factoryDefaultBlob.Erase([this]()
+                {
+                    configurationStore.Serialize(factoryDefaultBlob, [this]()
+                    {
+                        configurationStore.Erase([this]() { this->onRecovered(); });
+                    });
+                });
+            }
+            else
+            {
+                configurationStore.Deserialize(factoryDefaultBlob);
+
+                this->onLoadFactoryDefault = nullptr;
+
+                configurationStore.Recover([this](bool success)
+                {
+                    this->onRecovered();
+                });
+            }
+        });
+    }
+
+    void FactoryDefaultConfigurationStoreBase::Write(infra::Function<void()> onDone)
+    {
+        configurationStore.Write(onDone);
     }
 }
