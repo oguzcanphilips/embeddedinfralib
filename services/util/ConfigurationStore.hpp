@@ -252,9 +252,9 @@ namespace services
 
     template<class T>
     ConfigurationStoreImpl<T>::WithBlobs::WithBlobs(hal::Flash& flashFirst, hal::Flash& flashSecond, const infra::Function<void(bool success)>& onRecovered)
-        : ConfigurationStoreImpl<T>(this->blob1, this->blob2, onRecovered)
-        , blob1(flashFirst, Configuration())
-        , blob2(blob1.Storage(), flashSecond, Configuration())
+        : ConfigurationStoreImpl<T>(blob1, blob2)
+        , blob1(flashFirst)
+        , blob2(blob1.Storage(), flashSecond)
     {
         Recover(onRecovered);
     }
