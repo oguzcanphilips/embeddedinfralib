@@ -105,15 +105,29 @@ namespace services
 
     template<class T>
     class ConfigurationStore
+    {
+    public:
+        virtual const T& Configuration() const = 0;
+        virtual T& Configuration() = 0;
+
+        virtual void Write(infra::Function<void()> onDone = infra::Function<void()>()) = 0;
+        virtual ConfigurationStoreBase::LockGuard Lock() = 0;
+    };
+
+    template<class T>
+    class ConfigurationStoreImpl
         : public ConfigurationStoreBase
+        , public ConfigurationStore<T>
     {
     public:
         class WithBlobs;
 
-        ConfigurationStore(ConfigurationBlob& blob1, ConfigurationBlob& blob2);
+        ConfigurationStoreImpl(ConfigurationBlob& blob1, ConfigurationBlob& blob2);
 
-        const T& Configuration() const;
-        T& Configuration();
+        virtual const T& Configuration() const override;
+        virtual T& Configuration() override;
+        virtual void Write(infra::Function<void()> onDone = infra::Function<void()>()) override;
+        virtual ConfigurationStoreBase::LockGuard Lock() override;
 
         virtual void Serialize(ConfigurationBlob& blob, const infra::Function<void()>& onDone) override;
         virtual void Deserialize(ConfigurationBlob& blob) override;
@@ -123,8 +137,8 @@ namespace services
     };
 
     template<class T>
-    class ConfigurationStore<T>::WithBlobs
-        : public ConfigurationStore<T>
+    class ConfigurationStoreImpl<T>::WithBlobs
+        : public ConfigurationStoreImpl<T>
     {
     public:
         WithBlobs(hal::Flash& flashFirst, hal::Flash& flashSecond, const infra::Function<void(bool success)>& onRecovered);
@@ -152,17 +166,20 @@ namespace services
     template<class T>
     class FactoryDefaultConfigurationStore
         : public FactoryDefaultConfigurationStoreBase
+        , public ConfigurationStore<T>
     {
     public:
         class WithBlobs;
 
         FactoryDefaultConfigurationStore(ConfigurationBlob& blobFactoryDefault, ConfigurationBlob& blob1, ConfigurationBlob& blob2);
 
-        const T& Configuration() const;
-        T& Configuration();
+        virtual const T& Configuration() const override;
+        virtual T& Configuration() override;
+        virtual void Write(infra::Function<void()> onDone = infra::Function<void()>()) override;
+        virtual ConfigurationStoreBase::LockGuard Lock() override;
 
     private:
-        ConfigurationStore<T> configurationStore;
+        ConfigurationStoreImpl<T> configurationStore;
     };
 
     template<class T>
@@ -182,24 +199,36 @@ namespace services
     ////    Implementation    ////
 
     template<class T>
-    ConfigurationStore<T>::ConfigurationStore(ConfigurationBlob& blob1, ConfigurationBlob& blob2)
+    ConfigurationStoreImpl<T>::ConfigurationStoreImpl(ConfigurationBlob& blob1, ConfigurationBlob& blob2)
         : ConfigurationStoreBase(blob1, blob2)
     {}
 
     template<class T>
-    const T& ConfigurationStore<T>::Configuration() const
+    const T& ConfigurationStoreImpl<T>::Configuration() const
     {
         return configuration;
     }
 
     template<class T>
-    T& ConfigurationStore<T>::Configuration()
+    T& ConfigurationStoreImpl<T>::Configuration()
     {
         return configuration;
     }
 
     template<class T>
-    void ConfigurationStore<T>::Serialize(ConfigurationBlob& blob, const infra::Function<void()>& onDone)
+    void ConfigurationStoreImpl<T>::Write(infra::Function<void()> onDone)
+    {
+        ConfigurationStoreBase::Write(onDone);
+    }
+
+    template<class T>
+    ConfigurationStoreBase::LockGuard ConfigurationStoreImpl<T>::Lock()
+    {
+        return ConfigurationStoreBase::Lock();
+    }
+
+    template<class T>
+    void ConfigurationStoreImpl<T>::Serialize(ConfigurationBlob& blob, const infra::Function<void()>& onDone)
     {
         infra::ByteOutputStream stream(blob.MaxBlob());
         infra::ProtoFormatter formatter(stream);
@@ -208,16 +237,22 @@ namespace services
     }
 
     template<class T>
-    void ConfigurationStore<T>::Deserialize(ConfigurationBlob& blob)
+    void ConfigurationStoreImpl<T>::Deserialize(ConfigurationBlob& blob)
     {
         infra::ByteInputStream stream(blob.CurrentBlob());
         infra::ProtoParser parser(stream);
+
+        // Reset the configuration object by invoking the destructor, followed by the constructor
+        // We do it this way instead of "configuration = T()", because T might be several kB in size, which overflows the stack
+        configuration.~T();
+        new (&configuration) T();
+
         configuration.Deserialize(parser);
     }
 
     template<class T>
-    ConfigurationStore<T>::WithBlobs::WithBlobs(hal::Flash& flashFirst, hal::Flash& flashSecond, const infra::Function<void(bool success)>& onRecovered)
-        : ConfigurationStore<T>(this->blob1, this->blob2, onRecovered)
+    ConfigurationStoreImpl<T>::WithBlobs::WithBlobs(hal::Flash& flashFirst, hal::Flash& flashSecond, const infra::Function<void(bool success)>& onRecovered)
+        : ConfigurationStoreImpl<T>(this->blob1, this->blob2, onRecovered)
         , blob1(flashFirst, Configuration())
         , blob2(blob1.Storage(), flashSecond, Configuration())
     {
@@ -240,6 +275,18 @@ namespace services
     T& FactoryDefaultConfigurationStore<T>::Configuration()
     {
         return configurationStore.Configuration();
+    }
+
+    template<class T>
+    void FactoryDefaultConfigurationStore<T>::Write(infra::Function<void()> onDone)
+    {
+        FactoryDefaultConfigurationStoreBase::Write(onDone);
+    }
+
+    template<class T>
+    ConfigurationStoreBase::LockGuard FactoryDefaultConfigurationStore<T>::Lock()
+    {
+        return configurationStore.Lock();
     }
 
     template<class T>
