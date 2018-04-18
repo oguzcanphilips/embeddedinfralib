@@ -11,6 +11,7 @@ namespace services
     const uint8_t FlashSpi::commandEraseSubSector = 0x20;
     const uint8_t FlashSpi::commandEraseSector = 0xd8;
     const uint8_t FlashSpi::commandEraseBulk = 0xc7;
+    const uint8_t FlashSpi::commandReadId = 0x9f;
 
     FlashSpi::FlashSpi(hal::SpiMaster& spi, uint32_t numberOfSubSectors)
         : hal::FlashHomogeneous(numberOfSubSectors, sizeSubSector)
@@ -61,6 +62,20 @@ namespace services
                 HoldWhileWriteInProgress();
             sequencer.EndWhile();
             sequencer.Execute([this]() { infra::EventDispatcher::Instance().Schedule([this]() { this->onDone(); }); });
+        });
+    }
+
+    void FlashSpi::ReadFlashId(infra::ByteRange buffer, infra::Function<void()> onDone)
+    {
+        this->onDone = onDone;
+        readBuffer = buffer;
+
+        spi.SendData(infra::MakeByteRange(commandReadId), hal::SpiAction::continueSession, [this]()
+        {
+            spi.ReceiveData(readBuffer, hal::SpiAction::stop, [this]()
+            {
+                this->onDone();
+            });
         });
     }
 
