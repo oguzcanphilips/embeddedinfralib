@@ -60,7 +60,7 @@ public:
     application::ImageHeaderPrologue CreateImageHeaderPrologue(const std::string& targetName, std::size_t ExtraSize) const
     {
         application::ImageHeaderPrologue header;
-        header.lengthOfHeaderAndImage = sizeof(header) + ExtraSize;
+        header.lengthOfHeaderAndImage = sizeof(header) + sizeof(application::ImageHeaderEpilogue) + ExtraSize;
         AssignZeroFilledString(targetName, header.targetName);
         header.encryptionAndMacMethod = 0;
 
@@ -219,4 +219,38 @@ TEST_F(PackUpgraderTest, WhenUpgraderCannotUpgradePackIsMarkedAsError)
     application::UpgradePackHeaderPrologue& prologue = reinterpret_cast<application::UpgradePackHeaderPrologue&>(upgradePackFlash.sectors[0][0]);
     EXPECT_FALSE(static_cast<uint8_t>(prologue.status) & ~static_cast<uint8_t>(application::UpgradePackStatus::invalid));
     EXPECT_EQ(application::upgradeErrorCodeImageUpgradeFailed, prologue.errorCode);
+}
+
+TEST_F(PackUpgraderTest, HasImage_finds_image)
+{
+    UpgradePackHeaderNoSecurity header(CreateReadyToDeployHeader(1));
+
+    const std::vector<uint8_t> image{ 1, 5 };
+    application::ImageHeaderPrologue imageHeaderPrologue(CreateImageHeaderPrologue("image", image.size()));
+    application::ImageHeaderEpilogue imageHeaderEpilogue = CreateImageHeaderEpilogue();
+
+    infra::ByteOutputStream stream(upgradePackFlash.sectors[0]);
+    stream << header << imageHeaderPrologue << imageHeaderEpilogue << infra::ConstByteRange(image);
+
+    application::PackUpgrader packUpgrader(upgradePackFlash);
+    EXPECT_TRUE(packUpgrader.HasImage("image"));
+    EXPECT_FALSE(packUpgrader.HasImage("nomage"));
+}
+
+
+TEST_F(PackUpgraderTest, HasImage_finds_second_image)
+{
+    UpgradePackHeaderNoSecurity header(CreateReadyToDeployHeader(2));
+
+    const std::vector<uint8_t> image{ 1, 5 };
+    application::ImageHeaderPrologue imageHeaderPrologue(CreateImageHeaderPrologue("image", image.size()));
+    application::ImageHeaderEpilogue imageHeaderEpilogue = CreateImageHeaderEpilogue();
+    application::ImageHeaderPrologue imageHeader2Prologue(CreateImageHeaderPrologue("2image", image.size()));
+    application::ImageHeaderEpilogue imageHeader2Epilogue = CreateImageHeaderEpilogue();
+
+    infra::ByteOutputStream stream(upgradePackFlash.sectors[0]);
+    stream << header << imageHeaderPrologue << imageHeaderEpilogue << infra::ConstByteRange(image) << imageHeader2Prologue << imageHeader2Epilogue << infra::ConstByteRange(image);
+
+    application::PackUpgrader packUpgrader(upgradePackFlash);
+    EXPECT_TRUE(packUpgrader.HasImage("2image"));
 }
