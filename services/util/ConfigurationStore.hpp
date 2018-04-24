@@ -2,6 +2,8 @@
 #define SERVICES_CONFIGURATION_STORE_HPP
 
 #include "hal/interfaces/Flash.hpp"
+#include "infra/stream/ByteInputStream.hpp"
+#include "infra/stream/ByteOutputStream.hpp"
 #include "infra/syntax/ProtoFormatter.hpp"
 #include "infra/syntax/ProtoParser.hpp"
 #include "infra/util/AutoResetFunction.hpp"
@@ -20,7 +22,9 @@ namespace services
     public:
         virtual infra::ByteRange CurrentBlob() = 0;
         virtual infra::ByteRange MaxBlob() = 0;
+        virtual void Recover(const infra::Function<void(bool success)>& onRecovered) = 0;
         virtual void Write(uint32_t size, const infra::Function<void()>& onDone) = 0;
+        virtual void Erase(const infra::Function<void()>& onDone) = 0;
     };
 
     class ConfigurationBlobImpl
@@ -37,35 +41,38 @@ namespace services
         template<std::size_t Size>
             using WithStorage = infra::WithStorage<ConfigurationBlobImpl, std::array<uint8_t, Size + sizeof(Header)>>;
 
-        ConfigurationBlobImpl(infra::ByteRange blob, hal::Flash& flashFirst, hal::Flash& flashSecond, const infra::Function<void(bool success)>& onLoaded);
+        ConfigurationBlobImpl(infra::ByteRange blob, hal::Flash& flash);
 
         virtual infra::ByteRange CurrentBlob() override;
         virtual infra::ByteRange MaxBlob() override;
+        virtual void Recover(const infra::Function<void(bool success)>& onRecovered) override;
         virtual void Write(uint32_t size, const infra::Function<void()>& onDone) override;
+        virtual void Erase(const infra::Function<void()>& onDone) override;
 
     private:
-        void Recover();
         void RecoverCurrentSize();
-        void EraseInactiveFlashAfterRecovery(bool success);
         bool BlobIsValid() const;
         void PrepareBlobForWriting();
 
     private:
         infra::ByteRange blob;
-        hal::Flash* activeFlash;
-        hal::Flash* inactiveFlash;
+        hal::Flash& flash;
         uint32_t currentSize = 0;
-        infra::AutoResetFunction<void(bool success)> onLoaded;
-        infra::AutoResetFunction<void()> onWriteDone;
+        infra::AutoResetFunction<void(bool success)> onRecovered;
     };
 
     class ConfigurationStoreBase
     {
     public:
-        ConfigurationStoreBase(ConfigurationBlob& blob, const infra::Function<void(bool success)>& onLoaded);
+        ConfigurationStoreBase(ConfigurationBlob& blob1, ConfigurationBlob& blob2);
 
     public:
+        void Recover(const infra::Function<void(bool success)>& onRecovered);
         void Write(infra::Function<void()> onDone = infra::Function<void()>());
+        void Erase(infra::Function<void()> onDone);
+
+        virtual void Serialize(ConfigurationBlob& blob, const infra::Function<void()>& onDone) = 0;
+        virtual void Deserialize(ConfigurationBlob& blob) = 0;
 
         class LockGuard
         {
@@ -80,20 +87,17 @@ namespace services
         };
 
         LockGuard Lock();
-        void OnBlobLoaded(bool success);
-
-    protected:
-        virtual void Serialize(infra::ProtoFormatter& formatter) = 0;
-        virtual void Deserialize(infra::ProtoParser& parser) = 0;
 
     private:
+        void OnBlobLoaded(bool success);
         void BlobWriteDone();
         void Unlocked();
 
     private:
-        ConfigurationBlob& blob;
-        infra::AutoResetFunction<void(bool success)> onLoaded;
+        ConfigurationBlob* activeBlob;
+        ConfigurationBlob* inactiveBlob;
         infra::AutoResetFunction<void()> onWriteDone;
+        infra::AutoResetFunction<void(bool success)> onRecovered;
         uint32_t lockCount = 0;
         bool writingBlob = false;
         bool writeRequested = false;
@@ -101,71 +105,200 @@ namespace services
 
     template<class T>
     class ConfigurationStore
-        : public ConfigurationStoreBase
     {
     public:
-        class WithBlob;
+        virtual const T& Configuration() const = 0;
+        virtual T& Configuration() = 0;
 
-        ConfigurationStore(ConfigurationBlob& blob, const infra::Function<void(bool success)>& onLoaded);
+        virtual void Write(infra::Function<void()> onDone = infra::Function<void()>()) = 0;
+        virtual ConfigurationStoreBase::LockGuard Lock() = 0;
+    };
 
-        const T& Configuration() const;
-        T& Configuration();
+    template<class T>
+    class ConfigurationStoreImpl
+        : public ConfigurationStoreBase
+        , public ConfigurationStore<T>
+    {
+    public:
+        class WithBlobs;
 
-    protected:
-        virtual void Serialize(infra::ProtoFormatter& formatter) override;
-        virtual void Deserialize(infra::ProtoParser& parser) override;
+        ConfigurationStoreImpl(ConfigurationBlob& blob1, ConfigurationBlob& blob2);
+
+        virtual const T& Configuration() const override;
+        virtual T& Configuration() override;
+        virtual void Write(infra::Function<void()> onDone = infra::Function<void()>()) override;
+        virtual ConfigurationStoreBase::LockGuard Lock() override;
+
+        virtual void Serialize(ConfigurationBlob& blob, const infra::Function<void()>& onDone) override;
+        virtual void Deserialize(ConfigurationBlob& blob) override;
 
     private:
         T configuration;
     };
 
     template<class T>
-    class ConfigurationStore<T>::WithBlob
-        : public ConfigurationStore<T>
+    class ConfigurationStoreImpl<T>::WithBlobs
+        : public ConfigurationStoreImpl<T>
     {
     public:
-        WithBlob(hal::Flash& flashFirst, hal::Flash& flashSecond, const infra::Function<void(bool success)>& onLoaded);
+        WithBlobs(hal::Flash& flashFirst, hal::Flash& flashSecond, const infra::Function<void(bool success)>& onRecovered);
 
     private:
-        ConfigurationBlobImpl::WithStorage<T::maxMessageSize> blob;
+        typename ConfigurationBlobImpl::WithStorage<T::maxMessageSize> blob1;
+        ConfigurationBlobImpl blob2;
+    };
+
+    class FactoryDefaultConfigurationStoreBase
+    {
+    public:
+        FactoryDefaultConfigurationStoreBase(ConfigurationStoreBase& configurationStore, ConfigurationBlob& factoryDefaultBlob);
+
+        void Recover(const infra::Function<void()>& onLoadFactoryDefault, const infra::Function<void(bool isFactoryDefault)>& onRecovered);
+        void Write(infra::Function<void()> onDone = infra::Function<void()>());
+
+    private:
+        ConfigurationStoreBase& configurationStore;
+        ConfigurationBlob& factoryDefaultBlob;
+        infra::AutoResetFunction<void()> onLoadFactoryDefault;
+        infra::AutoResetFunction<void(bool isFactoryDefault)> onRecovered;
+    };
+
+    template<class T>
+    class FactoryDefaultConfigurationStore
+        : public FactoryDefaultConfigurationStoreBase
+        , public ConfigurationStore<T>
+    {
+    public:
+        class WithBlobs;
+
+        FactoryDefaultConfigurationStore(ConfigurationBlob& blobFactoryDefault, ConfigurationBlob& blob1, ConfigurationBlob& blob2);
+
+        virtual const T& Configuration() const override;
+        virtual T& Configuration() override;
+        virtual void Write(infra::Function<void()> onDone = infra::Function<void()>()) override;
+        virtual ConfigurationStoreBase::LockGuard Lock() override;
+
+    private:
+        ConfigurationStoreImpl<T> configurationStore;
+    };
+
+    template<class T>
+    class FactoryDefaultConfigurationStore<T>::WithBlobs
+        : public FactoryDefaultConfigurationStore<T>
+    {
+    public:
+        WithBlobs(hal::Flash& flashFactoryDefault, hal::Flash& flashFirst, hal::Flash& flashSecond
+            , const infra::Function<void()>& onLoadFactoryDefault, const infra::Function<void(bool isFactoryDefault)>& onRecovered);
+
+    private:
+        ConfigurationBlobImpl::WithStorage<T::maxMessageSize> factoryDefaultBlob;
+        ConfigurationBlobImpl blob1;
+        ConfigurationBlobImpl blob2;
     };
 
     ////    Implementation    ////
 
     template<class T>
-    ConfigurationStore<T>::WithBlob::WithBlob(hal::Flash& flashFirst, hal::Flash& flashSecond, const infra::Function<void(bool success)>& onLoaded)
-        : ConfigurationStore<T>(blob, onLoaded)
-        , blob(flashFirst, flashSecond, [this](bool success) { this->OnBlobLoaded(success); })
+    ConfigurationStoreImpl<T>::ConfigurationStoreImpl(ConfigurationBlob& blob1, ConfigurationBlob& blob2)
+        : ConfigurationStoreBase(blob1, blob2)
     {}
 
     template<class T>
-    ConfigurationStore<T>::ConfigurationStore(ConfigurationBlob& blob, const infra::Function<void(bool success)>& onLoaded)
-        : ConfigurationStoreBase(blob, onLoaded)
-    {}
-
-    template<class T>
-    const T& ConfigurationStore<T>::Configuration() const
+    const T& ConfigurationStoreImpl<T>::Configuration() const
     {
         return configuration;
     }
 
     template<class T>
-    T& ConfigurationStore<T>::Configuration()
+    T& ConfigurationStoreImpl<T>::Configuration()
     {
         return configuration;
     }
 
     template<class T>
-    void ConfigurationStore<T>::Serialize(infra::ProtoFormatter& formatter)
+    void ConfigurationStoreImpl<T>::Write(infra::Function<void()> onDone)
     {
+        ConfigurationStoreBase::Write(onDone);
+    }
+
+    template<class T>
+    ConfigurationStoreBase::LockGuard ConfigurationStoreImpl<T>::Lock()
+    {
+        return ConfigurationStoreBase::Lock();
+    }
+
+    template<class T>
+    void ConfigurationStoreImpl<T>::Serialize(ConfigurationBlob& blob, const infra::Function<void()>& onDone)
+    {
+        infra::ByteOutputStream stream(blob.MaxBlob());
+        infra::ProtoFormatter formatter(stream);
         configuration.Serialize(formatter);
+        blob.Write(stream.Writer().Processed().size(), onDone);
     }
 
     template<class T>
-    void ConfigurationStore<T>::Deserialize(infra::ProtoParser& parser)
+    void ConfigurationStoreImpl<T>::Deserialize(ConfigurationBlob& blob)
     {
+        infra::ByteInputStream stream(blob.CurrentBlob());
+        infra::ProtoParser parser(stream);
+
+        // Reset the configuration object by invoking the destructor, followed by the constructor
+        // We do it this way instead of "configuration = T()", because T might be several kB in size, which overflows the stack
+        configuration.~T();
+        new (&configuration) T();
+
         configuration.Deserialize(parser);
     }
- }
+
+    template<class T>
+    ConfigurationStoreImpl<T>::WithBlobs::WithBlobs(hal::Flash& flashFirst, hal::Flash& flashSecond, const infra::Function<void(bool success)>& onRecovered)
+        : ConfigurationStoreImpl<T>(blob1, blob2)
+        , blob1(flashFirst)
+        , blob2(blob1.Storage(), flashSecond)
+    {
+        Recover(onRecovered);
+    }
+
+    template<class T>
+    FactoryDefaultConfigurationStore<T>::FactoryDefaultConfigurationStore(ConfigurationBlob& blobFactoryDefault, ConfigurationBlob& blob1, ConfigurationBlob& blob2)
+        : FactoryDefaultConfigurationStoreBase(configurationStore, blobFactoryDefault)
+        , configurationStore(blob1, blob2)
+    {}
+
+    template<class T>
+    const T& FactoryDefaultConfigurationStore<T>::Configuration() const
+    {
+        return configurationStore.Configuration();
+    }
+
+    template<class T>
+    T& FactoryDefaultConfigurationStore<T>::Configuration()
+    {
+        return configurationStore.Configuration();
+    }
+
+    template<class T>
+    void FactoryDefaultConfigurationStore<T>::Write(infra::Function<void()> onDone)
+    {
+        FactoryDefaultConfigurationStoreBase::Write(onDone);
+    }
+
+    template<class T>
+    ConfigurationStoreBase::LockGuard FactoryDefaultConfigurationStore<T>::Lock()
+    {
+        return configurationStore.Lock();
+    }
+
+    template<class T>
+    FactoryDefaultConfigurationStore<T>::WithBlobs::WithBlobs(hal::Flash& flashFactoryDefault, hal::Flash& flashFirst, hal::Flash& flashSecond
+        , const infra::Function<void()>& onLoadFactoryDefault, const infra::Function<void(bool isFactoryDefault)>& onRecovered)
+        : FactoryDefaultConfigurationStore(factoryDefaultBlob, blob1, blob2)
+        , factoryDefaultBlob(flashFactoryDefault)
+        , blob1(factoryDefaultBlob.Storage(), flashFirst)
+        , blob2(factoryDefaultBlob.Storage(), flashSecond)
+    {
+        Recover(onLoadFactoryDefault, onRecovered);
+    }
+}
 
 #endif
