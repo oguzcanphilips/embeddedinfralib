@@ -49,8 +49,6 @@ namespace services
         virtual void Connected() override;
 
     private:
-        class MqttParser;
-
         enum class PacketType : uint8_t
         {
             packetTypeConnect = 1,
@@ -69,12 +67,49 @@ namespace services
             packetTypeDisconnect = 14
         };
 
-        static uint8_t MakePacketType(PacketType packetType, uint8_t flags = 0);
+        class MqttFormatter
+        {
+        private:
+            template<PacketType packetType>
+                struct InPlaceType {};
 
-        template<class T>
-            static void StreamHeader(infra::DataOutputStream stream, uint8_t packetType, T packet, std::size_t payloadSize = 0);
-        static void StreamString(infra::DataOutputStream stream, infra::BoundedConstString value);
-        static std::size_t EncodedLength(infra::BoundedConstString value);
+        public:
+            MqttFormatter(infra::DataOutputStream stream);
+
+            template<PacketType packetType, class... Args>
+                void Message(Args&&... args);
+
+            template<PacketType packetType, class... Args>
+                static std::size_t MessageSize(Args&&... args);
+
+        private:
+            void MessageImpl(InPlaceType<PacketType::packetTypeConnect>, infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password);
+            static std::size_t MessageSizeImpl(InPlaceType<PacketType::packetTypeConnect>, infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password);
+            static std::size_t EncodedLength(infra::BoundedConstString value);
+            void AddString(infra::BoundedConstString value);
+            void Header(PacketType packetType, std::size_t size, uint8_t flags = 0);
+            uint8_t MakePacketType(PacketType packetType, uint8_t flags);
+
+        private:
+            infra::DataOutputStream stream;
+        };
+
+        class MqttParser
+        {
+        public:
+            MqttParser(infra::DataInputStream stream);
+
+            PacketType GetPacketType() const;
+
+        private:
+            void ExtractType();
+            void ExtractSize();
+
+        private:
+            infra::DataInputStream stream;
+            PacketType packetType;
+            uint32_t size = 0;
+        };
 
         struct BigEndianUint16
         {
@@ -91,7 +126,7 @@ namespace services
         struct PacketConnect
         {
             BigEndianUint16  protocolNameLength = 4;
-            std::array<char, 4> protocolName{ 'M', 'Q', 'T', 'T' };
+            std::array<char, 4> protocolName{{ 'M', 'Q', 'T', 'T' }};
             uint8_t protocolLevel = 4;
             uint8_t connectFlags = 0xc1;    // Username, password, clean session, no will
             BigEndianUint16 keepAliveMsb = 0;

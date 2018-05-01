@@ -2,38 +2,96 @@
 
 namespace services
 {
-    class MqttClientConnection::MqttParser
+    MqttClientConnection::MqttFormatter::MqttFormatter(infra::DataOutputStream stream)
+        : stream(stream)
+    {}
+
+    template<MqttClientConnection::PacketType packetType, class... Args>
+    void MqttClientConnection::MqttFormatter::Message(Args&&... args)
     {
-    public:
-        MqttParser(infra::DataInputStream stream)
-            : stream(stream)
-        {
-            uint8_t combinedPacketType;
-            this->stream >> combinedPacketType;
-            packetType = static_cast<PacketType>(combinedPacketType >> 4);
+        MessageImpl(InPlaceType<packetType>(), std::forward<Args>(args)...);
+    }
 
-            uint8_t sizeByte;
-            uint8_t shift = 0;
-            this->stream >> sizeByte;
-            while (!stream.Failed() && sizeByte > 127)
-            {
-                size += sizeByte << shift;
-                shift += 8;
-                this->stream >> sizeByte;
-            }
-            size += sizeByte << shift;
+    template<MqttClientConnection::PacketType packetType, class... Args>
+    std::size_t MqttClientConnection::MqttFormatter::MessageSize(Args&&... args)
+    {
+        return MessageSizeImpl(InPlaceType<packetType>(), std::forward<Args>(args)...);
+    }
+
+    void MqttClientConnection::MqttFormatter::MessageImpl(InPlaceType<PacketType::packetTypeConnect>, infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password)
+    {
+        PacketConnect packetHeader {};
+        Header(PacketType::packetTypeConnect, sizeof(packetHeader) + EncodedLength(clientId) + EncodedLength(username) + EncodedLength(password));
+        stream << packetHeader;
+        AddString(clientId);
+        AddString(username);
+        AddString(password);
+    }
+
+    std::size_t MqttClientConnection::MqttFormatter::MessageSizeImpl(InPlaceType<PacketType::packetTypeConnect>, infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password)
+    {
+        return 5 + sizeof(PacketConnect) + EncodedLength(clientId) + EncodedLength(username) + EncodedLength(password);
+    }
+
+    std::size_t MqttClientConnection::MqttFormatter::EncodedLength(infra::BoundedConstString value)
+    {
+        return 2 + value.size();
+    }
+
+    void MqttClientConnection::MqttFormatter::AddString(infra::BoundedConstString value)
+    {
+        stream << BigEndianUint16(static_cast<uint16_t>(value.size())) << infra::StringAsByteRange(value);
+    }
+
+    void MqttClientConnection::MqttFormatter::Header(PacketType packetType, std::size_t size, uint8_t flags)
+    {
+        stream << MakePacketType(packetType, flags);
+
+        while (size > 127)
+        {
+            stream << static_cast<uint8_t>((size & 0x7f) | 0x80);
+            size >>= 8;
         }
+        stream << static_cast<uint8_t>(size);
+    }
 
-        PacketType GetPacketType() const
+    uint8_t MqttClientConnection::MqttFormatter::MakePacketType(PacketType packetType, uint8_t flags)
+    {
+        return static_cast<uint8_t>((static_cast<uint8_t>(packetType) << 4) | flags);
+    }
+
+    MqttClientConnection::MqttParser::MqttParser(infra::DataInputStream stream)
+        : stream(stream)
+    {
+        ExtractType();
+        ExtractSize();
+    }
+
+    MqttClientConnection::PacketType MqttClientConnection::MqttParser::GetPacketType() const
+    {
+        return packetType;
+    }
+
+    void MqttClientConnection::MqttParser::ExtractType()
+    {
+        uint8_t combinedPacketType;
+        this->stream >> combinedPacketType;
+        packetType = static_cast<PacketType>(combinedPacketType >> 4);
+    }
+
+    void MqttClientConnection::MqttParser::ExtractSize()
+    {
+        uint8_t sizeByte;
+        uint8_t shift = 0;
+        this->stream >> sizeByte;
+        while (!stream.Failed() && sizeByte > 127)
         {
-            return packetType;
-        };
-
-    private:
-        infra::DataInputStream stream;
-        PacketType packetType;
-        uint32_t size = 0;
-    };
+            size += sizeByte << shift;
+            shift += 8;
+            this->stream >> sizeByte;
+        }
+        size += sizeByte << shift;
+    }
 
     MqttClientConnection::MqttClientConnection(MqttClientFactory& factory, infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password)
         : state(infra::InPlaceType<StateConnecting>(), *this, factory, clientId, username, password)
@@ -52,37 +110,6 @@ namespace services
     void MqttClientConnection::Connected()
     {
         state->Connected();
-    }
-
-    uint8_t MqttClientConnection::MakePacketType(PacketType packetType, uint8_t flags)
-    {
-        return static_cast<uint8_t>((static_cast<uint8_t>(packetType) << 4) | flags);
-    }
-
-    template<class T>
-    void MqttClientConnection::StreamHeader(infra::DataOutputStream stream, uint8_t packetType, T packet, std::size_t payloadSize)
-    {
-        stream << packetType;
-
-        std::size_t size = sizeof(packet) + payloadSize;
-        while (size > 127)
-        {
-            stream << static_cast<uint8_t>((size & 0x7f) | 0x80);
-            size >>= 8;
-        }
-        stream << static_cast<uint8_t>(size);
-
-        stream << packet;
-    }
-
-    void MqttClientConnection::StreamString(infra::DataOutputStream stream, infra::BoundedConstString value)
-    {
-        stream << BigEndianUint16(static_cast<uint16_t>(value.size())) << infra::StringAsByteRange(value);
-    }
-
-    std::size_t MqttClientConnection::EncodedLength(infra::BoundedConstString value)
-    {
-        return 2 + value.size();
     }
 
     MqttClientConnection::StateBase::StateBase(MqttClientConnection& clientConnection)
@@ -105,15 +132,13 @@ namespace services
 
     void MqttClientConnection::StateConnecting::Connected()
     {
-        clientConnection.ConnectionObserver::Subject().RequestSendStream(5 + sizeof(PacketConnect) + EncodedLength(clientId) + EncodedLength(username) + EncodedLength(password));
+        clientConnection.ConnectionObserver::Subject().RequestSendStream(MqttFormatter::MessageSize<PacketType::packetTypeConnect>(clientId, username, password));
     }
 
     void MqttClientConnection::StateConnecting::SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream)
     {
-        StreamHeader(*stream, MakePacketType(PacketType::packetTypeConnect), PacketConnect{}, EncodedLength(clientId) + EncodedLength(username) + EncodedLength(password));
-        StreamString(*stream, clientId);
-        StreamString(*stream, username);
-        StreamString(*stream, password);
+        MqttFormatter formatter(*stream);
+        formatter.Message<PacketType::packetTypeConnect>(clientId, username, password);
     }
 
     void MqttClientConnection::StateConnecting::DataReceived(infra::DataInputStream stream)
