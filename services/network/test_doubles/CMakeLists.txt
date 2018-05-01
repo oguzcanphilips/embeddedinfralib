@@ -8,6 +8,7 @@ ccola_component(network_test_doubles win: static_library other: noncompile)
         ConnectionStub.cpp
         ConnectionStub.hpp
         DatagramMock.hpp
+        MqttMock.hpp
         MulticastMock.hpp
     )
 
