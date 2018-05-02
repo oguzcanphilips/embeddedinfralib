@@ -84,7 +84,10 @@ TEST_F(MqttClientTest, after_conack_MqttClient_is_connected)
 
     ExecuteAllActions();
 
-    EXPECT_CALL(factory, ConnectionEstablished(testing::_));
+    EXPECT_CALL(factory, ConnectionEstablished(testing::_)).WillOnce(infra::Lambda([this](infra::AutoResetFunction<void(infra::SharedPtr<services::MqttClientObserver> client)>& createdClient)
+    {
+        createdClient(clientPtr);
+    }));
     connection.SimulateDataReceived(std::vector<uint8_t>{ 0x20, 0x00 });
     ExecuteAllActions();
 }
@@ -135,6 +138,27 @@ TEST_F(MqttClientTest, timeout_results_in_ConnectionFailed)
     EXPECT_CALL(factory, ConnectionFailed(services::MqttClientObserverFactory::ConnectFailReason::initializationTimedOut));
     EXPECT_CALL(connection, AbortAndDestroyMock());
     ForwardTime(std::chrono::minutes(1));
+}
+
+TEST_F(MqttClientTest, client_observer_allocation_failure_results_in_connection_aborted)
+{
+    connector.ConnectionEstablished([this](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
+    {
+        connectionObserver->Attach(connection);
+        connection.SetOwnership(nullptr, connectionObserver);
+        connectionObserver->Connected();
+    });
+
+    ExecuteAllActions();
+
+    EXPECT_CALL(factory, ConnectionEstablished(testing::_)).WillOnce(infra::Lambda([this](infra::AutoResetFunction<void(infra::SharedPtr<services::MqttClientObserver> client)>& createdClient)
+    {
+        createdClient(nullptr);
+    }));
+    connection.SimulateDataReceived(std::vector<uint8_t>{ 0x20, 0x00 });
+    EXPECT_CALL(connection, AbortAndDestroyMock());
+    ExecuteAllActions();
+
 }
 
 TEST_F(MqttClientTest, Publish_some_data)

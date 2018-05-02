@@ -158,15 +158,20 @@ namespace services
         {
             if (parser.GetPacketType() == PacketType::packetTypeConAck)
             {
+                clientConnection.ConnectionObserver::Subject().AckReceived();
+
                 factory.ConnectionEstablished([this, &stream](infra::SharedPtr<MqttClientObserver> client)
                 {
-                    client->Attach(clientConnection);
-                    clientConnection.client = client;
-                    auto& newState = clientConnection.state.Emplace<StateConnected>(clientConnection);
-                    newState.DataReceived(stream);
+                    if (client)
+                    {
+                        client->Attach(clientConnection);
+                        clientConnection.client = client;
+                        auto& newState = clientConnection.state.Emplace<StateConnected>(clientConnection);
+                        newState.DataReceived(stream);
+                    }
+                    else
+                        clientConnection.ConnectionObserver::Subject().AbortAndDestroy();
                 });
-
-                clientConnection.ConnectionObserver::Subject().AckReceived();
             }
             else
             {
