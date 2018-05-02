@@ -6,8 +6,13 @@ namespace services
     void ConnectionStub::RequestSendStream(std::size_t sendSize)
     {
         assert(sendStream.Allocatable());
+        assert(sendSize <= MaxSendStreamSize());
         sendStreamPtr = sendStream.Emplace(*this);
-        infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectionStub>& object) { object->GetObserver().SendStreamAvailable(std::move(object->sendStreamPtr)); }, SharedFromThis());
+        infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectionStub>& object)
+        {
+            infra::SharedPtr<infra::DataOutputStream> stream = std::move(object->sendStreamPtr);
+            object->GetObserver().SendStreamAvailable(std::move(stream));
+        }, SharedFromThis());
     }
 
     std::size_t ConnectionStub::MaxSendStreamSize() const
