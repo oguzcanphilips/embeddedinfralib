@@ -78,8 +78,6 @@ namespace services
         infra::SharedPtr<infra::DataOutputStream> sendStream;
         infra::IntrusiveList<ServiceProxy> sendRequesters;
         infra::Optional<uint32_t> serviceBusy;
-
-        static const uint32_t maxMessageSize = 1024;
     };
 }
 
