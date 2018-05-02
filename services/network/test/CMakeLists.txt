@@ -3,7 +3,7 @@ ccola_component(network_test gmock_test)
     ccola_sources(
         TestCertificatesMbedTls.cpp
         TestConnectionMbedTls.cpp
-        TestMqtt.cpp
+        TestMqttClient.cpp
     )
 
     ccola_dependencies(

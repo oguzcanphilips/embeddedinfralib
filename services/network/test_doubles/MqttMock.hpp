@@ -6,18 +6,18 @@
 
 namespace services
 {
-    class MqttClientMock
-        : public MqttClient
+    class MqttClientObserverMock
+        : public MqttClientObserver
     {
     public:
         MOCK_METHOD0(PublishDone, void());
     };
 
-    class MqttClientFactoryMock
-        : public MqttClientFactory
+    class MqttClientObserverFactoryMock
+        : public MqttClientObserverFactory
     {
     public:
-        MOCK_METHOD1(ConnectionEstablished, void(infra::AutoResetFunction<void(infra::SharedPtr<MqttClient> client)>&& createdClient));
+        MOCK_METHOD1(ConnectionEstablished, void(infra::AutoResetFunction<void(infra::SharedPtr<MqttClientObserver> client)>&& createdClientObserver));
         MOCK_METHOD1(ConnectionFailed, void(ConnectFailReason reason));
     };
 }

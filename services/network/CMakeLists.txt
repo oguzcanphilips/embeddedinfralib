@@ -11,7 +11,8 @@ ccola_component(network static_library)
         ConnectionMbedTls.hpp
         Datagram.hpp
         Mqtt.hpp
-        Mqtt.cpp
+        MqttClientImpl.hpp
+        MqttClientImpl.cpp
         Multicast.hpp
         TracingConnectionMbedTls.cpp
         TracingConnectionMbedTls.hpp
