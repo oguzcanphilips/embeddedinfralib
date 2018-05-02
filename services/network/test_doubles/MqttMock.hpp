@@ -6,6 +6,13 @@
 
 namespace services
 {
+    class MqttClientMock
+        : public MqttClient
+    {
+    public:
+        MOCK_METHOD0(PublishDone, void());
+    };
+
     class MqttClientFactoryMock
         : public MqttClientFactory
     {
