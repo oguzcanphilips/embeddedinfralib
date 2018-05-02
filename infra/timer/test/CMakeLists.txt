@@ -5,6 +5,7 @@ ccola_component(timer_test gmock_test)
         TestScalableDerivedTimerService.cpp
         TestTimer.cpp
         TestTimerAlternating.cpp
+        TestTimerEvolving.cpp
         TestTimerLimitedRepeating.cpp
         TestTimerLimitedRepeatingWithClosingAction.cpp
     )
