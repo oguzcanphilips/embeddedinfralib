@@ -10,6 +10,7 @@ namespace services
         : public MqttClientObserver
     {
     public:
+        MOCK_METHOD0(Connected, void());
         MOCK_METHOD0(PublishDone, void());
     };
 

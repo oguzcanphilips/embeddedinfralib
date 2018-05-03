@@ -100,8 +100,8 @@ namespace services
             BigEndianUint16  protocolNameLength = 4;
             std::array<char, 4> protocolName{{ 'M', 'Q', 'T', 'T' }};
             uint8_t protocolLevel = 4;
-            uint8_t connectFlags = 0xc1;    // Username, password, clean session, no will
-            BigEndianUint16 keepAliveMsb = 0;
+            uint8_t connectFlags = 0xc2;    // Username, password, clean session, no will
+            BigEndianUint16 keepAlive = 0;
         };
 
         class StateBase

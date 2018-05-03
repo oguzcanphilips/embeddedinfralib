@@ -23,7 +23,7 @@ namespace services
 
     void MqttClientImpl::MqttFormatter::MessagePublish(infra::BoundedConstString topic, infra::BoundedConstString payload)
     {
-        Header(PacketType::packetTypePublish, EncodedLength(topic) + EncodedLength(payload));
+        Header(PacketType::packetTypePublish, EncodedLength(topic) + payload.size());
         AddString(topic);
         stream << infra::StringAsByteRange(payload);
     }
@@ -50,7 +50,7 @@ namespace services
         while (size > 127)
         {
             stream << static_cast<uint8_t>((size & 0x7f) | 0x80);
-            size >>= 8;
+            size >>= 7;
         }
         stream << static_cast<uint8_t>(size);
     }
@@ -154,30 +154,38 @@ namespace services
     void MqttClientImpl::StateConnecting::DataReceived(infra::DataInputStream stream)
     {
         MqttParser parser(stream);
-        if (!stream.Failed())
-        {
-            if (parser.GetPacketType() == PacketType::packetTypeConAck)
-            {
-                clientConnection.ConnectionObserver::Subject().AckReceived();
+        if (stream.Failed())
+            return;
 
-                factory.ConnectionEstablished([this, &stream](infra::SharedPtr<MqttClientObserver> client)
-                {
-                    if (client)
-                    {
-                        client->Attach(clientConnection);
-                        clientConnection.client = client;
-                        auto& newState = clientConnection.state.Emplace<StateConnected>(clientConnection);
-                        newState.DataReceived(stream);
-                    }
-                    else
-                        clientConnection.ConnectionObserver::Subject().AbortAndDestroy();
-                });
-            }
-            else
+        if (parser.GetPacketType() == PacketType::packetTypeConAck)
+        {
+            uint8_t connectAcknowledgeFlags;
+            uint8_t connectReturnCode;
+            stream >> connectAcknowledgeFlags >> connectReturnCode;
+
+            if (stream.Failed())
+                return;
+
+            clientConnection.ConnectionObserver::Subject().AckReceived();
+
+            factory.ConnectionEstablished([this, &stream](infra::SharedPtr<MqttClientObserver> client)
             {
-                factory.ConnectionFailed(MqttClientObserverFactory::ConnectFailReason::initializationFailed);
-                clientConnection.ConnectionObserver::Subject().AbortAndDestroy();
-            }
+                if (client)
+                {
+                    client->Attach(clientConnection);
+                    clientConnection.client = client;
+                    auto& newState = clientConnection.state.Emplace<StateConnected>(clientConnection);
+                    client->Connected();
+                    newState.DataReceived(stream);
+                }
+                else
+                    clientConnection.ConnectionObserver::Subject().AbortAndDestroy();
+            });
+        }
+        else
+        {
+            factory.ConnectionFailed(MqttClientObserverFactory::ConnectFailReason::initializationFailed);
+            clientConnection.ConnectionObserver::Subject().AbortAndDestroy();
         }
     }
 
