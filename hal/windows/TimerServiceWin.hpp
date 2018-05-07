@@ -22,8 +22,8 @@ namespace hal
         void WaitForTrigger();
 
     private:
-        std::condition_variable condition;
-        std::mutex mutex;
+        std::condition_variable_any condition;
+        std::recursive_mutex mutex;
         infra::TimePoint nextTrigger;
         std::thread triggerThread;
     };

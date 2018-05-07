@@ -14,7 +14,7 @@ namespace hal
 
     void TimerServiceWin::NextTriggerChanged()
     {
-        std::unique_lock<std::mutex> lock(mutex);
+        std::unique_lock<std::recursive_mutex> lock(mutex);
         nextTrigger = NextTrigger();
         condition.notify_one();
     }
@@ -42,7 +42,7 @@ namespace hal
 
     void TimerServiceWin::WaitForTrigger()
     {
-        std::unique_lock<std::mutex> lock(mutex);
+        std::unique_lock<std::recursive_mutex> lock(mutex);
 
         while (true)
         {
@@ -57,7 +57,7 @@ namespace hal
 
                 infra::EventDispatcher::Instance().Schedule([this]()
                 {
-                    std::unique_lock<std::mutex> lock(mutex);
+                    std::unique_lock<std::recursive_mutex> lock(mutex);
                     Progressed(Now());
                     NextTriggerChanged();
                 });
