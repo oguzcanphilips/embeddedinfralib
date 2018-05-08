@@ -21,23 +21,12 @@ namespace hal
 
     infra::TimePoint TimerServiceWin::Now() const
     {
-        LARGE_INTEGER counter;
-        BOOL result = QueryPerformanceCounter(&counter);
-        assert(result != 0);
-        
-        LARGE_INTEGER frequency;
-        result = QueryPerformanceFrequency(&frequency);
-        assert(result != 0);
-
-        return infra::TimePoint() + std::chrono::microseconds(counter.QuadPart) / (frequency.QuadPart / 1000000);
+        return std::chrono::system_clock::now();
     }
 
     infra::Duration TimerServiceWin::Resolution() const
     {
-        LARGE_INTEGER frequency;
-        BOOL result = QueryPerformanceFrequency(&frequency);
-        assert(result != 0);
-        return std::chrono::seconds(1) / frequency.QuadPart;
+        return std::chrono::duration<long long, std::chrono::system_clock::period>(1);
     }
 
     void TimerServiceWin::WaitForTrigger()
