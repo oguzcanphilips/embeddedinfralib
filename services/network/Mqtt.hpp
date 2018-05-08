@@ -43,6 +43,18 @@ namespace services
     public:
         virtual void Publish(infra::BoundedConstString topic, infra::BoundedConstString payload) = 0;
     };
+
+    class MqttClientConnector
+    {
+    protected:
+        MqttClientConnector() = default;
+        MqttClientConnector(const MqttClientConnector& other) = delete;
+        MqttClientConnector& operator=(const MqttClientConnector& other) = delete;
+        ~MqttClientConnector() = default;
+
+    public:
+        virtual infra::SharedPtr<void> Connect(MqttClientObserverFactory& factory) = 0;
+    };
 }
 
 #endif

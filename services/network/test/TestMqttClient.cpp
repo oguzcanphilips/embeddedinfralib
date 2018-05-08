@@ -2,6 +2,7 @@
 #include "infra/timer/test_helper/ClockFixture.hpp"
 #include "infra/util/test_helper/MockHelpers.hpp"
 #include "services/network/MqttClientImpl.hpp"
+#include "services/network/test_doubles/ConnectionMock.hpp"
 #include "services/network/test_doubles/ConnectionStub.hpp"
 #include "services/network/test_doubles/MqttMock.hpp"
 
@@ -11,10 +12,13 @@ class MqttClientTest
 {
 public:
     MqttClientTest()
-        : connector(factory, "clientId", "username", "password")
+        : connector("clientId", "username", "password", services::IPv4Address{ 127, 0, 0, 1 }, 1234, connectionFactory)
         , connectionPtr(infra::UnOwnedSharedPtr(connection))
         , clientPtr(infra::UnOwnedSharedPtr(client))
-    {}
+    {
+        EXPECT_CALL(connectionFactory, Connect(services::IPv4Address{ 127, 0, 0, 1 }, 1234, testing::Ref(connector)));
+        connector.Connect(factory);
+    }
 
     void Connect()
     {
@@ -38,8 +42,9 @@ public:
         connection.sentData.clear();
     }
 
+    testing::StrictMock<services::ConnectionFactoryMock> connectionFactory;
     testing::StrictMock<services::MqttClientObserverFactoryMock> factory;
-    services::MqttClientConnector connector;
+    services::MqttClientConnectorImpl connector;
     testing::StrictMock<services::ConnectionStub> connection;
     infra::SharedPtr<services::Connection> connectionPtr;
     testing::StrictMock<services::MqttClientObserverMock> client;

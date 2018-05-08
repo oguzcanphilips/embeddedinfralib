@@ -162,24 +162,32 @@ namespace services
 
     private:
         infra::PolymorphicVariant<StateBase, StateConnecting, StateConnected> state;
-        infra::SharedPtr<MqttClientObserver> client;
+        infra::SharedPtr<MqttClientObserver> observer;
     };
 
-    class MqttClientConnector
-        : public ClientConnectionObserverFactory
+    class MqttClientConnectorImpl
+        : public MqttClientConnector
+        , public ClientConnectionObserverFactory
     {
     public:
-        MqttClientConnector(MqttClientObserverFactory& factory, infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password);
+        MqttClientConnectorImpl(infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password, services::IPv4Address address, uint16_t port, services::ConnectionFactory& connectionFactory);
 
+        // Implementation of MqttClientConnector
+        virtual infra::SharedPtr<void> Connect(MqttClientObserverFactory& factory) override;
+
+        // Implementation of ClientConnectionObserverFactory
         virtual void ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) override;
         virtual void ConnectionFailed(ConnectFailReason reason) override;
-
+        
     private:
-        MqttClientObserverFactory& factory;
-        infra::SharedOptional<MqttClientImpl> connection;
+        services::IPv4Address address;
+        uint16_t port;
+        services::ConnectionFactory& connectionFactory;
         infra::BoundedConstString clientId;
         infra::BoundedConstString username;
         infra::BoundedConstString password;
+        infra::SharedOptional<MqttClientImpl> client;
+        MqttClientObserverFactory* clientObserverFactory = nullptr;
     };
 }
 

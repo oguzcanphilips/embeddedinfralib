@@ -168,14 +168,14 @@ namespace services
 
             clientConnection.ConnectionObserver::Subject().AckReceived();
 
-            factory.ConnectionEstablished([this, &stream](infra::SharedPtr<MqttClientObserver> client)
+            factory.ConnectionEstablished([this, &stream](infra::SharedPtr<MqttClientObserver> observer)
             {
-                if (client)
+                if (observer)
                 {
-                    client->Attach(clientConnection);
-                    clientConnection.client = client;
+                    observer->Attach(clientConnection);
+                    clientConnection.observer = observer;
                     auto& newState = clientConnection.state.Emplace<StateConnected>(clientConnection);
-                    client->Connected();
+                    observer->Connected();
                     newState.DataReceived(stream);
                 }
                 else
@@ -214,27 +214,36 @@ namespace services
         clientConnection.ConnectionObserver::Subject().RequestSendStream(MqttFormatter::MessageSizePublish(topic, payload));
     }
 
-    MqttClientConnector::MqttClientConnector(MqttClientObserverFactory& factory, infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password)
-        : factory(factory)
+    MqttClientConnectorImpl::MqttClientConnectorImpl(infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password, services::IPv4Address address, uint16_t port, services::ConnectionFactory& connectionFactory)
+        : address(address)
+        , port(port)
+        , connectionFactory(connectionFactory)
         , clientId(clientId)
         , username(username)
         , password(password)
     {}
 
-    void MqttClientConnector::ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver)
+    infra::SharedPtr<void> MqttClientConnectorImpl::Connect(MqttClientObserverFactory& factory)
     {
-        createdObserver(connection.Emplace(factory, clientId, username, password));
+        assert(client.Allocatable());
+        clientObserverFactory = &factory;
+        return connectionFactory.Connect(address, port, *this);
     }
 
-    void MqttClientConnector::ConnectionFailed(ConnectFailReason reason)
+    void MqttClientConnectorImpl::ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver)
+    {
+        createdObserver(client.Emplace(*clientObserverFactory, clientId, username, password));
+    }
+
+    void MqttClientConnectorImpl::ConnectionFailed(ConnectFailReason reason)
     {
         switch (reason)
         {
             case ConnectFailReason::refused:
-                factory.ConnectionFailed(MqttClientObserverFactory::ConnectFailReason::refused);
+                clientObserverFactory->ConnectionFailed(MqttClientObserverFactory::ConnectFailReason::refused);
                 break;
             case ConnectFailReason::connectionAllocationFailed:
-                factory.ConnectionFailed(MqttClientObserverFactory::ConnectFailReason::connectionAllocationFailed);
+                clientObserverFactory->ConnectionFailed(MqttClientObserverFactory::ConnectFailReason::connectionAllocationFailed);
                 break;
             default:
                 std::abort();
