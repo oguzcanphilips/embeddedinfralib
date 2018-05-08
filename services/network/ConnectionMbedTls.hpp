@@ -249,31 +249,6 @@ namespace services
     using AllocatorConnectionIPv6MbedTlsListener = infra::SharedObjectAllocator<ConnectionIPv6MbedTlsListener,
         void(AllocatorConnectionMbedTls& allocator, ServerConnectionIPv6ObserverFactory& factory, CertificatesMbedTls& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_cache_context& serverCache, bool clientAuthenticationNeeded)>;
 
-    class ConnectionIPv6MbedTlsConnector
-        : public ClientConnectionIPv6ObserverFactory
-    {
-    public:
-        ConnectionIPv6MbedTlsConnector(AllocatorConnectionMbedTls& allocator, ClientConnectionIPv6ObserverFactory& factory,
-            CertificatesMbedTls& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_session& clientSession);
-
-        virtual void ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) override;
-        virtual void ConnectionFailed(ConnectFailReason reason) override;
-
-        void SetConnector(infra::SharedPtr<void> connector);
-
-    private:
-        AllocatorConnectionMbedTls& allocator;
-        ClientConnectionIPv6ObserverFactory& factory;
-        CertificatesMbedTls& certificates;
-        hal::SynchronousRandomDataGenerator& randomDataGenerator;
-        mbedtls2_ssl_session& clientSession;
-        infra::SharedPtr<void> connector;
-    };
-
-    using AllocatorConnectionIPv6MbedTlsConnector = infra::SharedObjectAllocator<ConnectionIPv6MbedTlsConnector,
-        void(AllocatorConnectionMbedTls& allocator, ClientConnectionIPv6ObserverFactory& factory, CertificatesMbedTls& certificates,
-            hal::SynchronousRandomDataGenerator& randomDataGenerator, mbedtls2_ssl_session& clientSession)>;
-
     class ConnectionIPv6FactoryMbedTls
         : public ConnectionIPv6Factory
     {
@@ -282,14 +257,14 @@ namespace services
             using WithMaxConnectionsListenersAndConnectors = infra::WithStorage<infra::WithStorage<infra::WithStorage<ConnectionFactoryMbedTls
                 , AllocatorConnectionMbedTls::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxConnections>>
                 , AllocatorConnectionIPv6MbedTlsListener::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxListeners>>
-                , AllocatorConnectionIPv6MbedTlsConnector::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxConnectors>>;
+                , AllocatorConnectionMbedTlsConnector::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MaxConnectors>>;
 
-        ConnectionIPv6FactoryMbedTls(AllocatorConnectionMbedTls& connectionAllocator, AllocatorConnectionIPv6MbedTlsListener& listenerAllocator, AllocatorConnectionIPv6MbedTlsConnector& connectorAllocator,
+        ConnectionIPv6FactoryMbedTls(AllocatorConnectionMbedTls& connectionAllocator, AllocatorConnectionIPv6MbedTlsListener& listenerAllocator, AllocatorConnectionMbedTlsConnector& connectorAllocator,
             ConnectionIPv6Factory& factory, CertificatesMbedTls& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool needsAuthenticationDefault = false);
         ~ConnectionIPv6FactoryMbedTls();
 
         virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionIPv6ObserverFactory& connectionObserverFactory) override;
-        virtual infra::SharedPtr<void> Connect(IPv6Address address, uint16_t port, ClientConnectionIPv6ObserverFactory& connectionObserverFactory) override;
+        virtual infra::SharedPtr<void> Connect(IPv6Address address, uint16_t port, ClientConnectionObserverFactory& connectionObserverFactory) override;
 
     protected:
         virtual bool NeedsAuthentication(uint16_t port) const;
@@ -297,7 +272,7 @@ namespace services
     private:
         AllocatorConnectionMbedTls& connectionAllocator;
         AllocatorConnectionIPv6MbedTlsListener& listenerAllocator;
-        AllocatorConnectionIPv6MbedTlsConnector& connectorAllocator;
+        AllocatorConnectionMbedTlsConnector& connectorAllocator;
         ConnectionIPv6Factory& factory;
         CertificatesMbedTls& certificates;
         hal::SynchronousRandomDataGenerator& randomDataGenerator;

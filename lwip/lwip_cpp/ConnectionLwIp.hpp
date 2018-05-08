@@ -15,7 +15,6 @@
 namespace services
 {
     using GenericServerConnectionFactory = infra::Variant<ServerConnectionObserverFactory*, ServerConnectionIPv6ObserverFactory*>;
-    using GenericClientConnectionFactory = infra::Variant<ClientConnectionObserverFactory*, ClientConnectionIPv6ObserverFactory*>;
 
     class ConnectionLwIp
         : public services::Connection
@@ -123,7 +122,7 @@ namespace services
     class ConnectorLwIp
     {
     public:
-        ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPAddress address, uint16_t port, GenericClientConnectionFactory factory);
+        ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPAddress address, uint16_t port, ClientConnectionObserverFactory& factory);
         ~ConnectorLwIp();
 
     private:
@@ -134,11 +133,11 @@ namespace services
 
     private:
         AllocatorConnectionLwIp& allocator;
-        GenericClientConnectionFactory factory;
+        ClientConnectionObserverFactory& factory;
         tcp_pcb* control;
     };
 
-    using AllocatorConnectorLwIp = infra::SharedObjectAllocator<ConnectorLwIp, void(AllocatorConnectionLwIp& allocator, IPAddress address, uint16_t port, GenericClientConnectionFactory factory)>;
+    using AllocatorConnectorLwIp = infra::SharedObjectAllocator<ConnectorLwIp, void(AllocatorConnectionLwIp& allocator, IPAddress address, uint16_t port, ClientConnectionObserverFactory& factory)>;
 
     class ConnectionFactoryLwIp
         : public ConnectionFactory
@@ -157,7 +156,7 @@ namespace services
         virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionObserverFactory& factory) override;
         virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory) override;
         virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionIPv6ObserverFactory& factory) override;
-        virtual infra::SharedPtr<void> Connect(IPv6Address address, uint16_t port, ClientConnectionIPv6ObserverFactory& factory) override;
+        virtual infra::SharedPtr<void> Connect(IPv6Address address, uint16_t port, ClientConnectionObserverFactory& factory) override;
 
     private:
         AllocatorListenerLwIp& listenerAllocator;

@@ -73,7 +73,7 @@ namespace services
     {
     public:
         virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionIPv6ObserverFactory& factory) override;
-        MOCK_METHOD3(Connect, infra::SharedPtr<void>(services::IPv6Address address, uint16_t port, services::ClientConnectionIPv6ObserverFactory& factory));
+        MOCK_METHOD3(Connect, infra::SharedPtr<void>(services::IPv6Address address, uint16_t port, services::ClientConnectionObserverFactory& factory));
 
         MOCK_METHOD1(ListenMock, infra::SharedPtr<void>(uint16_t));
 

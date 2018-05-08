@@ -121,25 +121,6 @@ namespace services
         virtual void ConnectionAccepted(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver, IPv6Address address) = 0;
     };
 
-    class ClientConnectionIPv6ObserverFactory
-    {
-    protected:
-        ClientConnectionIPv6ObserverFactory() = default;
-        ClientConnectionIPv6ObserverFactory(const ClientConnectionIPv6ObserverFactory& other) = delete;
-        ClientConnectionIPv6ObserverFactory& operator=(const ClientConnectionIPv6ObserverFactory& other) = delete;
-        ~ClientConnectionIPv6ObserverFactory() = default;
-
-    public:
-        enum ConnectFailReason
-        {
-            refused,
-            connectionAllocationFailed
-        };
-
-        virtual void ConnectionEstablished(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver) = 0;
-        virtual void ConnectionFailed(ConnectFailReason reason) = 0;
-    };
-
     class ConnectionIPv6Factory
     {
     protected:
@@ -150,7 +131,7 @@ namespace services
 
     public:
         virtual infra::SharedPtr<void> Listen(uint16_t port, ServerConnectionIPv6ObserverFactory& factory) = 0;
-        virtual infra::SharedPtr<void> Connect(IPv6Address address, uint16_t port, ClientConnectionIPv6ObserverFactory& factory) = 0;
+        virtual infra::SharedPtr<void> Connect(IPv6Address address, uint16_t port, ClientConnectionObserverFactory& factory) = 0;
     };
 
     static const uint32_t ethernetMtu = 1500;

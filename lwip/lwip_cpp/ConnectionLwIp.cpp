@@ -340,7 +340,7 @@ namespace services
         }
     }
 
-    ConnectorLwIp::ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPAddress address, uint16_t port, GenericClientConnectionFactory factory)
+    ConnectorLwIp::ConnectorLwIp(AllocatorConnectionLwIp& allocator, IPAddress address, uint16_t port, ClientConnectionObserverFactory& factory)
         : allocator(allocator)
         , factory(factory)
         , control(tcp_new())
@@ -391,26 +391,15 @@ namespace services
         if (connection)
         {
             control = nullptr;
-            if (factory.Is<ClientConnectionObserverFactory*>())
-                factory.Get<ClientConnectionObserverFactory*>()->ConnectionEstablished([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
+            factory.ConnectionEstablished([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
+            {
+                if (connectionObserver)
                 {
-                    if (connectionObserver)
-                    {
-                        connectionObserver->Attach(*connection);
-                        connection->SetOwnership(connection, connectionObserver);
-                        connectionObserver->Connected();
-                    }
-                });
-            else
-                factory.Get<ClientConnectionIPv6ObserverFactory*>()->ConnectionEstablished([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
-                {
-                    if (connectionObserver)
-                    {
-                        connectionObserver->Attach(*connection);
-                        connection->SetOwnership(connection, connectionObserver);
-                        connectionObserver->Connected();
-                    }
-                });
+                    connectionObserver->Attach(*connection);
+                    connection->SetOwnership(connection, connectionObserver);
+                    connectionObserver->Connected();
+                }
+            });
 
             infra::WeakPtr<ConnectionLwIp> weakConnection = connection;
             connection = nullptr;
@@ -423,10 +412,7 @@ namespace services
         {
             tcp_abort(control);
             control = nullptr;
-            if (factory.Is<ClientConnectionObserverFactory*>())
-                factory.Get<ClientConnectionObserverFactory*>()->ConnectionFailed(ClientConnectionObserverFactory::ConnectFailReason::connectionAllocationFailed);
-            else
-                factory.Get<ClientConnectionIPv6ObserverFactory*>()->ConnectionFailed(ClientConnectionIPv6ObserverFactory::ConnectFailReason::connectionAllocationFailed);
+            factory.ConnectionFailed(ClientConnectionObserverFactory::ConnectFailReason::connectionAllocationFailed);
             return ERR_ABRT;
         }
     }
@@ -434,10 +420,7 @@ namespace services
     void ConnectorLwIp::Error(err_t err)
     {
         control = nullptr;
-        if (factory.Is<ClientConnectionObserverFactory*>())
-            factory.Get<ClientConnectionObserverFactory*>()->ConnectionFailed(ClientConnectionObserverFactory::ConnectFailReason::refused);
-        else
-            factory.Get<ClientConnectionIPv6ObserverFactory*>()->ConnectionFailed(ClientConnectionIPv6ObserverFactory::ConnectFailReason::refused);
+        factory.ConnectionFailed(ClientConnectionObserverFactory::ConnectFailReason::refused);
     }
 
     ConnectionFactoryLwIp::ConnectionFactoryLwIp(AllocatorListenerLwIp& listenerAllocator, AllocatorConnectorLwIp& connectorAllocator, AllocatorConnectionLwIp& connectionAllocator)
@@ -453,7 +436,7 @@ namespace services
 
     infra::SharedPtr<void> ConnectionFactoryLwIp::Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory)
     {
-        return connectorAllocator.Allocate(connectionAllocator, address, port, &factory);
+        return connectorAllocator.Allocate(connectionAllocator, address, port, factory);
     }
 
     infra::SharedPtr<void> ConnectionFactoryLwIp::Listen(uint16_t port, ServerConnectionIPv6ObserverFactory& factory)
@@ -461,8 +444,8 @@ namespace services
         return listenerAllocator.Allocate(connectionAllocator, port, &factory);
     }
 
-    infra::SharedPtr<void> ConnectionFactoryLwIp::Connect(IPv6Address address, uint16_t port, ClientConnectionIPv6ObserverFactory& factory)
+    infra::SharedPtr<void> ConnectionFactoryLwIp::Connect(IPv6Address address, uint16_t port, ClientConnectionObserverFactory& factory)
     {
-        return connectorAllocator.Allocate(connectionAllocator, address, port, &factory);
+        return connectorAllocator.Allocate(connectionAllocator, address, port, factory);
     }
 }
