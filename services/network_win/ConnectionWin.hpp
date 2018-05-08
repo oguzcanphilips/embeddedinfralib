@@ -33,10 +33,9 @@ namespace services
         IPv4Address Ipv4Address() const;
         void SetObserver(infra::SharedPtr<services::ConnectionObserver> connectionObserver);
 
-        bool ReadyToReceive() const;
-        bool ReadyToSend() const;
         void Receive();
         void Send();
+        void UpdateEventFlags();
 
     private:
         void TryAllocateSendStream();
@@ -79,6 +78,7 @@ namespace services
 
         EventDispatcherWithNetwork& network;
         SOCKET socket;
+        WSAEVENT event = WSACreateEvent();
 
         infra::BoundedDeque<uint8_t>::WithMaxSize<2048> receiveBuffer;
         infra::BoundedDeque<uint8_t>::WithMaxSize<2048> sendBuffer;
@@ -105,10 +105,12 @@ namespace services
         EventDispatcherWithNetwork& network;
         services::ServerConnectionObserverFactory& factory;
         SOCKET listenSocket;
+        WSAEVENT event = WSACreateEvent();
     };
 
     class ConnectorWin
         : public infra::IntrusiveList<ConnectorWin>::NodeType
+        , public infra::EnableSharedFromThis<ConnectorWin>
     {
     public:
         ConnectorWin(EventDispatcherWithNetwork& network, IPv4Address address, uint16_t port, services::ClientConnectionObserverFactory& factory);
@@ -123,6 +125,7 @@ namespace services
         EventDispatcherWithNetwork& network;
         services::ClientConnectionObserverFactory& factory;
         SOCKET connectSocket;
+        WSAEVENT event = WSACreateEvent();
     };
 
     class EventDispatcherWithNetwork
@@ -144,12 +147,14 @@ namespace services
         virtual infra::SharedPtr<void> Connect(IPv4Address address, uint16_t port, ClientConnectionObserverFactory& factory) override;
 
     protected:
+        virtual void RequestExecution();
         virtual void Idle() override;
 
     private:
         std::list<infra::WeakPtr<ConnectionWin>> connections;
         infra::IntrusiveList<ListenerWin> listeners;
         infra::IntrusiveList<ConnectorWin> connectors;
+        WSAEVENT wakeUpEvent = WSACreateEvent();
     };
 }
 
