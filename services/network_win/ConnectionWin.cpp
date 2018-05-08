@@ -139,17 +139,19 @@ namespace services
             TryAllocateSendStream();
     }
 
+    void ConnectionWin::TrySend()
+    {
+        if (trySend)
+        {
+            trySend = false;
+            Send();
+        }
+    }
+
     void ConnectionWin::UpdateEventFlags()
     {
-        static long bufferedFlags = 0;
-        long flags = (!receiveBuffer.full() ? FD_READ : 0) | (!sendBuffer.empty() ? FD_WRITE : 0) | FD_CLOSE;
-
-        if (flags != bufferedFlags)
-        {
-            bufferedFlags = flags;
-            int result = WSAEventSelect(socket, event, flags);
-            assert(result == 0);
-        }
+        int result = WSAEventSelect(socket, event, (!receiveBuffer.full() ? FD_READ : 0) | (!sendBuffer.empty() ? FD_WRITE : 0) | FD_CLOSE);
+        assert(result == 0);
     }
 
     void ConnectionWin::TryAllocateSendStream()
@@ -177,7 +179,7 @@ namespace services
     ConnectionWin::StreamWriterWin::~StreamWriterWin()
     {
         connection.sendBuffer.insert(connection.sendBuffer.end(), Processed().begin(), Processed().end());
-        connection.Send();
+        connection.trySend = true;
     }
 
     ConnectionWin::StreamReaderWin::StreamReaderWin(ConnectionWin& connection)
@@ -392,6 +394,7 @@ namespace services
         {
             WSANETWORKEVENTS networkEvents;
             WSAEnumNetworkEvents(listener.listenSocket, listener.event, &networkEvents);
+            assert((networkEvents.lNetworkEvents & FD_ACCEPT) != 0);
 
             events.push_back(listener.event);
             functions.push_back([&listener]() { listener.Accept(); });
@@ -404,14 +407,18 @@ namespace services
             {
                 WSANETWORKEVENTS networkEvents;
                 WSAEnumNetworkEvents(connector.connectSocket, connector.event, &networkEvents);
-
                 assert((networkEvents.lNetworkEvents & FD_CONNECT) != 0);
+
                 if (networkEvents.iErrorCode[FD_CONNECT_BIT] != 0)
                     connector.Failed();
                 else
                     connector.Connected();
             });
         }
+
+        for (auto& weakConnection : connections)
+            if (infra::SharedPtr<ConnectionWin> connection = weakConnection)
+                connection->TrySend();
 
         for (auto& weakConnection : connections)
         {

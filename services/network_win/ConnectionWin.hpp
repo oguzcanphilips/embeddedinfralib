@@ -35,6 +35,7 @@ namespace services
 
         void Receive();
         void Send();
+        void TrySend();
         void UpdateEventFlags();
 
     private:
@@ -86,6 +87,7 @@ namespace services
         infra::SharedOptional<infra::DataOutputStream::WithWriter<StreamWriterWin>> sendStream;
         std::size_t requestedSendSize = 0;
         infra::SharedOptional<infra::DataInputStream::WithReader<StreamReaderWin>> receiveStream;
+        bool trySend = false;
     };
 
     using AllocatorConnectionWin = infra::SharedObjectAllocator<ConnectionWin, void(EventDispatcherWithNetwork&, SOCKET)>;
