@@ -123,7 +123,6 @@ namespace services
             UpdateEventFlags();     // If there is something to send, update the flags before calling send, because FD_SEND is an edge-triggered event.
             sent = send(socket, reinterpret_cast<char*>(sendBuffer.contiguous_range(sendBuffer.begin()).begin())
                 , sendBuffer.contiguous_range(sendBuffer.begin()).size(), 0);
-            UpdateEventFlags();
 
             if (sent == SOCKET_ERROR)
             {
@@ -131,6 +130,8 @@ namespace services
                     ResetOwnership();
                 return;
             }
+
+            UpdateEventFlags();
 
             sendBuffer.erase(sendBuffer.begin(), sendBuffer.begin() + sent);
         } while (sent != 0 && !sendBuffer.empty());
@@ -433,11 +434,11 @@ namespace services
                         WSANETWORKEVENTS networkEvents;
                         WSAEnumNetworkEvents(connection->socket, connection->event, &networkEvents);
 
-                        if ((networkEvents.lNetworkEvents & FD_READ_BIT) != 0)
+                        if ((networkEvents.lNetworkEvents & FD_READ) != 0)
                             connection->Receive();
-                        if ((networkEvents.lNetworkEvents & FD_WRITE_BIT) != 0)
+                        if ((networkEvents.lNetworkEvents & FD_WRITE) != 0)
                             connection->Send();
-                        if ((networkEvents.lNetworkEvents & FD_CLOSE_BIT) != 0)
+                        if ((networkEvents.lNetworkEvents & FD_CLOSE) != 0)
                             connection->Receive();
                     }
                 });
