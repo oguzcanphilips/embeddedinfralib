@@ -112,6 +112,9 @@ TEST_F(MqttClientTest, partial_conack_is_ignored)
 
     connection.SimulateDataReceived(std::vector<uint8_t>{ 0x20 });
     ExecuteAllActions();
+
+    connection.SimulateDataReceived(std::vector<uint8_t>{ 0x00, 0x00 });
+    ExecuteAllActions();
 }
 
 TEST_F(MqttClientTest, invalid_response_results_in_ConnectionFailed)
@@ -179,4 +182,26 @@ TEST_F(MqttClientTest, Publish_some_data)
     connection.SimulateDataReceived(std::vector<uint8_t>{ 0x40, 0x00, 0x01, 0x00 });
     EXPECT_CALL(client, PublishDone());
     ExecuteAllActions();
+}
+
+TEST_F(MqttClientTest, partial_puback_is_ignored)
+{
+    Connect();
+
+    client.Subject().Publish("topic", "payload");
+
+    ExecuteAllActions();
+    EXPECT_EQ((std::vector<uint8_t>{ 0x32, 0x10, 0x00, 0x05, 't', 'o', 'p', 'i', 'c', 0, 1, 'p', 'a', 'y', 'l', 'o', 'a', 'd' }), connection.sentData);
+
+    connection.SimulateDataReceived(std::vector<uint8_t>{ 0x40, 0x00, 0x01 });
+    ExecuteAllActions();
+}
+
+TEST_F(MqttClientTest, closed_connection_results_in_ClosingConnection)
+{
+    Connect();
+
+    EXPECT_CALL(connection, AbortAndDestroyMock());
+    EXPECT_CALL(client, ClosingConnection());
+    connection.AbortAndDestroy();
 }

@@ -217,6 +217,7 @@ namespace services
     void MqttClientImpl::StateConnected::ClosingConnection()
     {
         clientConnection.GetObserver().ClosingConnection();
+        clientConnection.observer->Detach();
     }
 
     void MqttClientImpl::StateConnected::SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream)
