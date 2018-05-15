@@ -2,6 +2,7 @@
 #define MULTICAST_MOCK_HPP
 
 #include "gmock/gmock.h"
+#include "infra/util/test_helper/BoundedStringMatcher.hpp"
 #include "services/network/Mqtt.hpp"
 
 namespace services
@@ -21,6 +22,13 @@ namespace services
     public:
         MOCK_METHOD1(ConnectionEstablished, void(infra::AutoResetFunction<void(infra::SharedPtr<MqttClientObserver> client)>&& createdClientObserver));
         MOCK_METHOD1(ConnectionFailed, void(ConnectFailReason reason));
+    };
+
+    class MqttClientMock
+        : public MqttClient
+    {
+    public:
+        MOCK_METHOD2(Publish, void(infra::BoundedConstString topic, infra::BoundedConstString payload));
     };
 }
 #endif
