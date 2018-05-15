@@ -8,7 +8,7 @@ namespace services
 
     void MqttClientImpl::MqttFormatter::MessageConnect(infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password)
     {
-        PacketConnect packetHeader {};
+        PacketConnect packetHeader{};
         Header(PacketType::packetTypeConnect, sizeof(packetHeader) + EncodedLength(clientId) + EncodedLength(username) + EncodedLength(password));
         stream << packetHeader;
         AddString(clientId);
@@ -23,8 +23,11 @@ namespace services
 
     void MqttClientImpl::MqttFormatter::MessagePublish(infra::BoundedConstString topic, infra::BoundedConstString payload)
     {
-        Header(PacketType::packetTypePublish, EncodedLength(topic) + payload.size());
+        Header(PacketType::packetTypePublish, EncodedLength(topic) + payload.size() + 2, 2);
         AddString(topic);
+
+        uint16_t packetIdentifier = 1;
+        stream << BigEndianUint16(packetIdentifier);
         stream << infra::StringAsByteRange(payload);
     }
 
@@ -93,8 +96,9 @@ namespace services
         size += sizeByte << shift;
     }
 
-    MqttClientImpl::MqttClientImpl(MqttClientObserverFactory& factory, infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password)
-        : state(infra::InPlaceType<StateConnecting>(), *this, factory, clientId, username, password)
+    MqttClientImpl::MqttClientImpl(MqttClientObserverFactory& factory, infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password, infra::Duration publishTimeout)
+        : publishTimeout(publishTimeout)
+        , state(infra::InPlaceType<StateConnecting>(), *this, factory, clientId, username, password)
     {}
 
     void MqttClientImpl::Publish(infra::BoundedConstString topic, infra::BoundedConstString payload)
@@ -117,6 +121,11 @@ namespace services
         state->Connected();
     }
 
+    void MqttClientImpl::ClosingConnection()
+    {
+        state->ClosingConnection();
+    }
+
     MqttClientImpl::StateBase::StateBase(MqttClientImpl& clientConnection)
         : clientConnection(clientConnection)
     {}
@@ -125,6 +134,9 @@ namespace services
     {
         std::abort();
     }
+
+    void MqttClientImpl::StateBase::ClosingConnection()
+    {}
 
     void MqttClientImpl::StateBase::Publish(infra::BoundedConstString topic, infra::BoundedConstString payload)
     {
@@ -143,6 +155,12 @@ namespace services
     void MqttClientImpl::StateConnecting::Connected()
     {
         clientConnection.ConnectionObserver::Subject().RequestSendStream(MqttFormatter::MessageSizeConnect(clientId, username, password));
+    }
+
+    void MqttClientImpl::StateConnecting::ClosingConnection()
+    {
+        if (!signaledFailure)
+            factory.ConnectionFailed(MqttClientObserverFactory::ConnectFailReason::initializationFailed);
     }
 
     void MqttClientImpl::StateConnecting::SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream)
@@ -179,20 +197,26 @@ namespace services
                     newState.DataReceived(stream);
                 }
                 else
+                {
+                    signaledFailure = true; // The factory already got a ConnectionEstablished, so it should not get a ConnectionFailed
                     clientConnection.ConnectionObserver::Subject().AbortAndDestroy();
+                }
             });
         }
         else
-        {
-            factory.ConnectionFailed(MqttClientObserverFactory::ConnectFailReason::initializationFailed);
             clientConnection.ConnectionObserver::Subject().AbortAndDestroy();
-        }
     }
 
     void MqttClientImpl::StateConnecting::Timeout()
     {
+        signaledFailure = true;
         factory.ConnectionFailed(MqttClientObserverFactory::ConnectFailReason::initializationTimedOut);
         clientConnection.ConnectionObserver::Subject().AbortAndDestroy();
+    }
+
+    void MqttClientImpl::StateConnected::ClosingConnection()
+    {
+        clientConnection.GetObserver().ClosingConnection();
     }
 
     void MqttClientImpl::StateConnected::SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream)
@@ -201,11 +225,28 @@ namespace services
         formatter.MessagePublish(topic, payload);
 
         stream = nullptr;
-        clientConnection.GetObserver().PublishDone();
+        publishTimeout.Start(clientConnection.publishTimeout, [this]() { clientConnection.ConnectionObserver::Subject().AbortAndDestroy(); });
     }
 
     void MqttClientImpl::StateConnected::DataReceived(infra::DataInputStream stream)
-    {}
+    {
+        MqttParser parser(stream);
+        if (stream.Failed())
+            return;
+
+        if (parser.GetPacketType() == PacketType::packetTypePubAck)
+        {
+            uint16_t packetIdentifier;
+            stream >> packetIdentifier;
+
+            if (stream.Failed())
+                return;
+
+            publishTimeout.Cancel();
+            clientConnection.GetObserver().PublishDone();
+            clientConnection.ConnectionObserver::Subject().AckReceived();
+        }
+    }
 
     void MqttClientImpl::StateConnected::Publish(infra::BoundedConstString topic, infra::BoundedConstString payload)
     {

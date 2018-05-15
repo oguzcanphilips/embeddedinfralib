@@ -165,7 +165,6 @@ TEST_F(MqttClientTest, client_observer_allocation_failure_results_in_connection_
     connection.SimulateDataReceived(std::vector<uint8_t>{ 0x20, 0x00, 0x00, 0x00 });
     EXPECT_CALL(connection, AbortAndDestroyMock());
     ExecuteAllActions();
-
 }
 
 TEST_F(MqttClientTest, Publish_some_data)
@@ -174,8 +173,10 @@ TEST_F(MqttClientTest, Publish_some_data)
 
     client.Subject().Publish("topic", "payload");
 
+    ExecuteAllActions();
+    EXPECT_EQ((std::vector<uint8_t>{ 0x32, 0x10, 0x00, 0x05, 't', 'o', 'p', 'i', 'c', 0, 1, 'p', 'a', 'y', 'l', 'o', 'a', 'd' }), connection.sentData);
+
+    connection.SimulateDataReceived(std::vector<uint8_t>{ 0x40, 0x00, 0x01, 0x00 });
     EXPECT_CALL(client, PublishDone());
     ExecuteAllActions();
-
-    EXPECT_EQ((std::vector<uint8_t>{ 0x30, 0x0e, 0x00, 0x05, 't', 'o', 'p', 'i', 'c', 'p', 'a', 'y', 'l', 'o', 'a', 'd' }), connection.sentData);
 }

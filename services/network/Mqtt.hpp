@@ -12,8 +12,9 @@ namespace services
         : public infra::SingleObserver<MqttClientObserver, MqttClient>
     {
     public:
-        virtual void Connected() = 0;
+        virtual void Connected() {}
         virtual void PublishDone() = 0;
+        virtual void ClosingConnection() {}
     };
 
     class MqttClientObserverFactory

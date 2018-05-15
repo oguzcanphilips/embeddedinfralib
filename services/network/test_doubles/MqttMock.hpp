@@ -12,6 +12,7 @@ namespace services
     public:
         MOCK_METHOD0(Connected, void());
         MOCK_METHOD0(PublishDone, void());
+        MOCK_METHOD0(ClosingConnection, void());
     };
 
     class MqttClientObserverFactoryMock

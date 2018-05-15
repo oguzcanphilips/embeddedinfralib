@@ -13,7 +13,7 @@ namespace services
         , public MqttClient
     {
     public:
-        MqttClientImpl(MqttClientObserverFactory& factory, infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password);
+        MqttClientImpl(MqttClientObserverFactory& factory, infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password, infra::Duration publishTimeout = std::chrono::seconds(30));
 
         // Implementation of MqttClient
         virtual void Publish(infra::BoundedConstString topic, infra::BoundedConstString payload) override;
@@ -22,6 +22,7 @@ namespace services
         virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) override;
         virtual void DataReceived() override;
         virtual void Connected() override;
+        virtual void ClosingConnection() override;
 
     private:
         enum class PacketType : uint8_t
@@ -114,6 +115,7 @@ namespace services
 
         public:
             virtual void Connected();
+            virtual void ClosingConnection() = 0;
             virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) = 0;
             virtual void DataReceived(infra::DataInputStream stream) = 0;
 
@@ -130,6 +132,7 @@ namespace services
             StateConnecting(MqttClientImpl& clientConnection, MqttClientObserverFactory& factory, infra::BoundedConstString clientId, infra::BoundedConstString username, infra::BoundedConstString password);
 
             virtual void Connected() override;
+            virtual void ClosingConnection() override;
             virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) override;
             virtual void DataReceived(infra::DataInputStream stream) override;
 
@@ -142,6 +145,7 @@ namespace services
             infra::BoundedConstString username;
             infra::BoundedConstString password;
             infra::TimerSingleShot timeout;
+            bool signaledFailure = false;
         };
 
         class StateConnected
@@ -150,6 +154,7 @@ namespace services
         public:
             using StateBase::StateBase;
 
+            virtual void ClosingConnection();
             virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) override;
             virtual void DataReceived(infra::DataInputStream stream) override;
 
@@ -158,9 +163,11 @@ namespace services
         private:
             infra::BoundedConstString topic;
             infra::BoundedConstString payload;
+            infra::TimerSingleShot publishTimeout;
         };
 
     private:
+        infra::Duration publishTimeout;
         infra::PolymorphicVariant<StateBase, StateConnecting, StateConnected> state;
         infra::SharedPtr<MqttClientObserver> observer;
     };
