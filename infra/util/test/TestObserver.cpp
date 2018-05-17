@@ -62,13 +62,13 @@ public:
     MOCK_METHOD1(Aggregate, void(int));
 };
 
-TEST(ObserverTest, ConstructWithoutRegistration)
+TEST(ObserverTest, default_constructed_observer_is_not_attached)
 {
     MyObserver observer;
     EXPECT_FALSE(observer.Attached());
 }
 
-TEST(ObserverTest, ConstructWithRegistration)
+TEST(ObserverTest, construct_observer_with_subject)
 {
     MySubject subject;
 
@@ -77,15 +77,7 @@ TEST(ObserverTest, ConstructWithRegistration)
     EXPECT_EQ(&subject, &observer.Subject());
 }
 
-TEST(ObserverTest, TwoRegistrations)
-{
-    MySubject subject;
-
-    MyObserver observer1(subject);
-    MyObserver observer2(subject);
-}
-
-TEST(ObserverTest, NotifyOneObserver)
+TEST(ObserverTest, notify_one_observer)
 {
     MySubject subject;
 
@@ -93,6 +85,41 @@ TEST(ObserverTest, NotifyOneObserver)
 
     EXPECT_CALL(observer, Callback());
     subject.NotifyObservers([](MyObserver& o) { o.Callback(); } );
+}
+
+TEST(ObserverTest, notify_two_observers)
+{
+    MySubject subject;
+
+    MyObserver observer1(subject);
+    MyObserver observer2(subject);
+
+    EXPECT_CALL(observer1, Callback());
+    EXPECT_CALL(observer2, Callback());
+    subject.NotifyObservers([](MyObserver& o) { o.Callback(); });
+}
+
+TEST(ObserverTest, notify_two_observers_with_shortcut_call)
+{
+    MySubject subject;
+
+    MyObserver observer1(subject);
+    MyObserver observer2(subject);
+
+    EXPECT_CALL(observer1, Callback());
+    subject.NotifyObservers([](MyObserver& o) { o.Callback(); return true; });
+}
+
+TEST(ObserverTest, notify_two_observers_without_shortcut_call)
+{
+    MySubject subject;
+
+    MyObserver observer1(subject);
+    MyObserver observer2(subject);
+
+    EXPECT_CALL(observer1, Callback());
+    EXPECT_CALL(observer2, Callback());
+    subject.NotifyObservers([](MyObserver& o) { o.Callback(); return false; });
 }
 
 TEST(ObserverTest, RegisterAfterConstruction)
