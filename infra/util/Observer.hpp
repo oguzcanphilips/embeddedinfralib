@@ -109,14 +109,13 @@ namespace infra
         Subject& operator=(const Subject&) = delete;
         ~Subject();
 
+        friend class SingleObserver<ObserverType_, ObserverSubjectType>;
+        virtual void RegisterObserver(SingleObserver<ObserverType_, ObserverSubjectType>* observer);
+        virtual void UnregisterObserver(SingleObserver<ObserverType_, ObserverSubjectType>* observer);
+
     public:
         bool HasObserver() const;
         ObserverType& GetObserver() const;
-
-    private:
-        friend class SingleObserver<ObserverType_, ObserverSubjectType>;
-        void RegisterObserver(SingleObserver<ObserverType_, ObserverSubjectType>* observer);
-        void UnregisterObserver(SingleObserver<ObserverType_, ObserverSubjectType>* observer);
 
     private:
         SingleObserver<ObserverType_, ObserverSubjectType>* observer = nullptr;
