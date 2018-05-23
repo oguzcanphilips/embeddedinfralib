@@ -3,7 +3,6 @@
 #include "infra/event/EventDispatcher.hpp"
 #include "infra/timer/ScalableDerivedTimerService.hpp"
 #include "infra/timer/Timer.hpp"
-#include "infra/timer/TimerServiceManager.hpp"
 #include "infra/timer/test_helper/ClockFixture.hpp"
 #include "infra/util/test_helper/MockCallback.hpp"
 

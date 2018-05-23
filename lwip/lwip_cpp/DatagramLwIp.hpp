@@ -31,8 +31,7 @@ namespace services
             UdpWriter(udp_pcb* control, pbuf* buffer);
             ~UdpWriter();
 
-            virtual void Insert(infra::ConstByteRange range) override;
-            virtual void Insert(uint8_t element) override;
+            virtual void Insert(infra::ConstByteRange range, infra::StreamErrorPolicy& errorPolicy) override;
             virtual std::size_t Available() const override;
 
         private:
@@ -86,6 +85,7 @@ namespace services
         private:
             DatagramSenderPeerLwIp& datagramSender;
             infra::NotifyingSharedOptional<DatagramSendStreamLwIp> stream;
+            infra::SharedPtr<DatagramSendStreamLwIp> streamPtr;
         };
 
     private:
@@ -114,9 +114,8 @@ namespace services
             UdpReader(pbuf* buffer);
             ~UdpReader();
 
-            virtual void Extract(infra::ByteRange range) override;
-            virtual uint8_t ExtractOne() override;
-            virtual uint8_t Peek() override;
+            virtual void Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy) override;
+            virtual uint8_t Peek(infra::StreamErrorPolicy& errorPolicy) override;
             virtual infra::ConstByteRange ExtractContiguousRange(std::size_t max) override;
             virtual bool Empty() const override;
             virtual std::size_t Available() const override;

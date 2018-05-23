@@ -1,4 +1,3 @@
-#include "infra/timer/TimerServiceManager.hpp"
 #include "services/util/DebouncedButton.hpp"
 
 namespace services
@@ -11,6 +10,11 @@ namespace services
         , onReleased(onReleased)
     {
         this->buttonPin.EnableInterrupt([this]() { ButtonChanged(); }, hal::InterruptTrigger::bothEdges);
+    }
+
+    DebouncedButton::~DebouncedButton()
+    {
+        buttonPin.DisableInterrupt();
     }
 
     void DebouncedButton::ButtonChanged()

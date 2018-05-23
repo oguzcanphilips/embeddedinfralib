@@ -4,6 +4,7 @@
 #include "hal/interfaces/Ethernet.hpp"
 #include "infra/timer/Timer.hpp"
 #include "infra/util/BoundedDeque.hpp"
+#include "infra/util/BoundedString.hpp"
 #include "infra/util/Observer.hpp"
 #include "infra/util/Optional.hpp"
 #include "lwip/netif.h"
@@ -45,7 +46,7 @@ namespace services
     public:
         struct Config
         {
-            const char* hostName = "referenceproduct";
+            infra::BoundedString::WithStorage<32> hostName;
             std::array<char, 2> ifName = { { 'r', 'p' } };
             Ipv4Config ipConfig = { true };
         };

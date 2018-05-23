@@ -3,9 +3,7 @@
 
 #include "hal/interfaces/FileSystem.hpp"
 #include "infra/util/MemoryRange.hpp"
-#include "upgrade/pack/UpgradePackHeader.hpp"
 #include "upgrade/pack_builder/Input.hpp"
-#include "upgrade/pack_builder/InputFactory.hpp"
 #include "upgrade/pack_builder/ImageSigner.hpp"
 #include <memory>
 #include <vector>
@@ -27,9 +25,7 @@ namespace application
         };
 
     public:
-        UpgradePackBuilder(const std::vector<std::pair<std::string, std::string>>& targetAndFiles, const HeaderInfo& headerInfo,
-            InputFactory& inputFactory, ImageSigner& imageSigner);
-        UpgradePackBuilder(std::vector<std::unique_ptr<Input>>&& inputs, ImageSigner& signer);
+        UpgradePackBuilder(const HeaderInfo& headerInfo, std::vector<std::unique_ptr<Input>>&& inputs, ImageSigner& signer);
 
         std::vector<uint8_t>& UpgradePack();
         void WriteUpgradePack(const std::string& fileName, hal::FileSystem& fileSystem);

@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 #include "infra/timer/TimerLimitedRepeatingWithClosingAction.hpp"
-#include "infra/timer/TimerServiceManager.hpp"
 #include "infra/timer/test_helper/ClockFixture.hpp"
 #include "infra/util/test_helper/MockCallback.hpp"
 

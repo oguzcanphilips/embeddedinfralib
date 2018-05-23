@@ -13,7 +13,7 @@ namespace application
         upgradePackFlash.ReadBuffer(infra::MakeByteRange(headerPrologue), address);
         address += sizeof(UpgradePackHeaderPrologue);
 
-        bool sanity = (headerPrologue.status == UpgradePackStatus::readyToDeploy || headerPrologue.status == UpgradePackStatus::deployStarted) && headerPrologue.magic == upgradePackMagic;
+        bool sanity = headerPrologue.magic == upgradePackMagic;
         if (!sanity)
             return;
 
@@ -37,6 +37,28 @@ namespace application
 
             MarkAsDeployed();
         }
+    }
+
+    bool PackUpgrader::HasImage(const char* imageName) const
+    {
+        uint32_t imageAddress = 0;
+
+        UpgradePackHeaderPrologue headerPrologue;
+        upgradePackFlash.ReadBuffer(infra::MakeByteRange(headerPrologue), imageAddress);
+        imageAddress += sizeof(UpgradePackHeaderPrologue);
+        imageAddress += headerPrologue.signatureLength;
+
+        UpgradePackHeaderEpilogue headerEpilogue;
+        upgradePackFlash.ReadBuffer(infra::MakeByteRange(headerEpilogue), imageAddress);
+        imageAddress += sizeof(UpgradePackHeaderEpilogue);
+
+        for (std::size_t imageIndex = 0; imageIndex != headerEpilogue.numberOfImages; ++imageIndex)
+        {
+            if (IsImage(imageAddress, imageName))
+                return true;
+        }
+
+        return false;
     }
 
     bool PackUpgrader::TryUpgradeImage(infra::MemoryRange<ImageUpgrader*> imageUpgraders)
@@ -76,6 +98,15 @@ namespace application
 
         MarkAsError(upgradeErrorCodeNoSuitableImageUpgraderFound);
         return false;
+    }
+
+    bool PackUpgrader::IsImage(uint32_t& imageAddress, const char* imageName) const
+    {
+        ImageHeaderPrologue imageHeader;
+        upgradePackFlash.ReadBuffer(infra::MakeByteRange(imageHeader), imageAddress);
+        imageAddress += imageHeader.lengthOfHeaderAndImage;
+
+        return std::strncmp(imageHeader.targetName.data(), imageName, imageHeader.targetName.size()) == 0;
     }
 
     void PackUpgrader::MarkAsDeployStarted()

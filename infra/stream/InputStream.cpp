@@ -3,45 +3,10 @@
 
 namespace infra
 {
-    StreamReader::StreamReader(SoftFail)
-        : softFail(true)
-    {}
-
-    StreamReader::~StreamReader()
-    {
-        assert(checkedFail);
-    }
-
-    bool StreamReader::Failed() const
-    {
-        checkedFail = true;
-        return failed;
-    }
-    
-    void StreamReader::ReportResult(bool ok)
-    {
-        if (!ok)
-        {
-            failed = true;
-            assert(softFail);
-        }
-        checkedFail = !softFail;
-    }
-
-    void StreamReader::SetSoftFail()
-    {
-        softFail = true;
-    }
-    
-    InputStream::InputStream(StreamReader& reader)
+    InputStream::InputStream(StreamReader& reader, StreamErrorPolicy& errorPolicy)
         : reader(reader)
+        , errorPolicy(errorPolicy)
     {}
-
-    InputStream::InputStream(StreamReader& reader, infra::SoftFail)
-        : reader(reader)
-    {
-        reader.SetSoftFail();
-    }
 
     bool InputStream::Empty() const
     {
@@ -60,46 +25,33 @@ namespace infra
 
     bool InputStream::Failed() const
     {
-        return reader.Failed();
+        return errorPolicy.Failed();
     }
 
-    StreamReader& InputStream::Reader()
+    StreamReader& InputStream::Reader() const
     {
         return reader;
     }
 
-    DataInputStream::DataInputStream(StreamReader& reader)
-        : InputStream(reader)
-    {}
+    StreamErrorPolicy& InputStream::ErrorPolicy() const
+    {
+        return errorPolicy;
+    }
 
-    DataInputStream::DataInputStream(StreamReader& reader, SoftFail)
-        : InputStream(reader, infra::softFail)
-    {}
-    
     TextInputStream DataInputStream::operator>>(Text)
     {
-        return TextInputStream(Reader());
+        return TextInputStream(Reader(), ErrorPolicy());
     }
 
     DataInputStream& DataInputStream::operator>>(ByteRange data)
     {
-        Reader().Extract(data);
+        Reader().Extract(data, ErrorPolicy());
         return *this;
-    }
-
-    TextInputStream::TextInputStream(StreamReader& reader)
-        : InputStream(reader)
-    {}
-
-    TextInputStream::TextInputStream(StreamReader& reader, SoftFail)
-        : InputStream(reader)
-    {
-        Reader().SetSoftFail();
     }
 
     DataInputStream TextInputStream::operator>>(Data)
     {
-        return DataInputStream(Reader());
+        return DataInputStream(Reader(), ErrorPolicy());
     }
 
     TextInputStream TextInputStream::operator>>(Hex)
@@ -118,7 +70,7 @@ namespace infra
 
     TextInputStream& TextInputStream::operator>>(MemoryRange<char> text)
     {
-        Reader().Extract(ReinterpretCastByteRange(text));
+        Reader().Extract(ReinterpretCastByteRange(text), ErrorPolicy());
         return *this;
     }
     
@@ -130,7 +82,7 @@ namespace infra
 
     TextInputStream& TextInputStream::operator>>(char& c)
     {
-        c = Reader().ExtractOne();
+        Reader().Extract(infra::MakeByteRange(c), ErrorPolicy());
         return *this;
     }
 
@@ -186,17 +138,17 @@ namespace infra
         int32_t div = (integer < 0) ? -1 : 1;
         infra::StreamReader& reader = Reader();
 
-        char c = static_cast<char>(reader.Peek());
+        char c = static_cast<char>(reader.Peek(ErrorPolicy()));
         if (c == '.')
         {
-            reader.ExtractOne();
-            c = static_cast<char>(reader.Peek());
+            reader.Extract(infra::MakeByteRange(c), ErrorPolicy());
+            c = static_cast<char>(reader.Peek(ErrorPolicy()));
             while (c >= '0' && c <= '9')
             {
                 div *= 10;
                 frac = frac * 10 + static_cast<uint8_t>(c - '0');
-                reader.ExtractOne();
-                c = static_cast<char>(reader.Peek());
+                reader.Extract(infra::MakeByteRange(c), ErrorPolicy());
+                c = static_cast<char>(reader.Peek(ErrorPolicy()));
             }
         }
 
@@ -210,8 +162,9 @@ namespace infra
     {
         while (*literal != '\0')
         {
-            char c = static_cast<char>(Reader().ExtractOne());
-            Reader().ReportResult(c == *literal);
+            char c;
+            Reader().Extract(infra::MakeByteRange(c), ErrorPolicy());
+            ErrorPolicy().ReportResult(c == *literal);
             ++literal;
         }
 
@@ -220,11 +173,11 @@ namespace infra
 
     void TextInputStream::SkipSpaces()
     {
-        char c = static_cast<char>(Reader().Peek());
+        char c = static_cast<char>(Reader().Peek(ErrorPolicy()));
         while (c == ' ')
         {
-            Reader().ExtractOne();
-            c = static_cast<char>(Reader().Peek());
+            Reader().Extract(infra::MakeByteRange(c), ErrorPolicy());
+            c = static_cast<char>(Reader().Peek(ErrorPolicy()));
         }
     }
 
@@ -247,11 +200,11 @@ namespace infra
     void TextInputStream::ReadAsDecimal(int32_t& v)
     {
         SkipSpaces();
-        char c = Reader().Peek();
+        char c = Reader().Peek(ErrorPolicy());
 
         if (c == '-')
         {
-            Reader().ExtractOne();
+            Reader().Extract(infra::MakeByteRange(c), ErrorPolicy());
             v = -1;
         }
         else
@@ -269,27 +222,27 @@ namespace infra
         v = 0;
         for (std::size_t i = 0; (i != width.ValueOr(std::numeric_limits<std::size_t>::max()) && !Reader().Empty()) || i == 0; ++i)
         {
-            char c = static_cast<char>(Reader().Peek());
+            char c = static_cast<char>(Reader().Peek(ErrorPolicy()));
 
             if (c >= '0' && c <= '9')
                 v = v * 10 + static_cast<uint32_t>(c - '0');
             else
             {
-                Reader().ReportResult(i > 0);
+                ErrorPolicy().ReportResult(i > 0);
                 break;
             }
 
-            Reader().ExtractOne();
+            Reader().Extract(infra::MakeByteRange(c), ErrorPolicy());
         }
     }
 
     void TextInputStream::ReadAsHex(int32_t& v)
     {
         SkipSpaces();
-        char c = static_cast<char>(Reader().Peek());
+        char c = static_cast<char>(Reader().Peek(ErrorPolicy()));
         if (c == '-')
         {
-            Reader().ExtractOne();
+            Reader().Extract(infra::MakeByteRange(c), ErrorPolicy());
             v = -1;
         }
         else
@@ -308,7 +261,7 @@ namespace infra
 
         for (std::size_t i = 0; (i != width.ValueOr(std::numeric_limits<std::size_t>::max()) && !Reader().Empty()) || i == 0; ++i)
         {
-            char c = static_cast<char>(Reader().Peek());
+            char c = static_cast<char>(Reader().Peek(ErrorPolicy()));
 
             if (c >= '0' && c <= '9')
                 v = (v << 4) + static_cast<uint32_t>(c - '0');
@@ -318,11 +271,49 @@ namespace infra
                 v = (v << 4) + static_cast<uint32_t>(c - 'A') + 10;
             else
             {
-                Reader().ReportResult(i > 0);
+                ErrorPolicy().ReportResult(i > 0);
                 break;
             }
 
-            Reader().ExtractOne();
+            Reader().Extract(infra::MakeByteRange(c), ErrorPolicy());
         }
     }
+
+    DataInputStream::WithErrorPolicy::WithErrorPolicy(StreamReader& writer)
+        : DataInputStream(writer, errorPolicy)
+    {}
+
+    DataInputStream::WithErrorPolicy::WithErrorPolicy(StreamReader& writer, SoftFail)
+        : DataInputStream(writer, errorPolicy)
+        , errorPolicy(softFail)
+    {}
+
+    DataInputStream::WithErrorPolicy::WithErrorPolicy(StreamReader& writer, NoFail)
+        : DataInputStream(writer, errorPolicy)
+        , errorPolicy(softFail)
+    {}
+
+    DataInputStream::WithErrorPolicy::WithErrorPolicy(const WithErrorPolicy& other)
+        : DataInputStream(other.Reader(), errorPolicy)
+        , errorPolicy(other.ErrorPolicy())
+    {}
+
+    TextInputStream::WithErrorPolicy::WithErrorPolicy(StreamReader& writer)
+        : TextInputStream(writer, errorPolicy)
+    {}
+
+    TextInputStream::WithErrorPolicy::WithErrorPolicy(StreamReader& writer, SoftFail)
+        : TextInputStream(writer, errorPolicy)
+        , errorPolicy(softFail)
+    {}
+
+    TextInputStream::WithErrorPolicy::WithErrorPolicy(StreamReader& writer, NoFail)
+        : TextInputStream(writer, errorPolicy)
+        , errorPolicy(noFail)
+    {}
+
+    TextInputStream::WithErrorPolicy::WithErrorPolicy(const WithErrorPolicy& other)
+        : TextInputStream(other.Reader(), errorPolicy)
+        , errorPolicy(other.ErrorPolicy())
+    {}
 }

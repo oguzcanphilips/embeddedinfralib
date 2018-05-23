@@ -1,30 +1,36 @@
 ccola_component(network static_library)
 
-	ccola_sources(
-		Address.cpp
-		Address.hpp
-		Connection.cpp
-		Connection.hpp
-		ConnectionMbedTls.cpp
-		ConnectionMbedTls.hpp
-		Datagram.hpp
-		Multicast.hpp
-		TracingConnectionMbedTls.cpp
-		TracingConnectionMbedTls.hpp
-	)
+    ccola_sources(
+        Address.cpp
+        Address.hpp
+        CertificatesMbedTls.cpp
+        CertificatesMbedTls.hpp
+        Connection.cpp
+        Connection.hpp
+        ConnectionMbedTls.cpp
+        ConnectionMbedTls.hpp
+        Datagram.hpp
+        Mqtt.hpp
+        MqttClientImpl.hpp
+        MqttClientImpl.cpp
+        Multicast.hpp
+        TracingConnectionMbedTls.cpp
+        TracingConnectionMbedTls.hpp
+    )
 
-	ccola_dependencies(
-		infra.event
-		infra.stream
-		infra.timer
-		crypto.mbed_tls
-		hal.synchronous_interfaces
-		services.tracer
-	)
+    ccola_dependencies(
+        infra.event
+        infra.stream
+        infra.syntax
+        infra.timer
+        crypto.mbed_tls
+        hal.synchronous_interfaces
+        services.tracer
+    )
 
 ccola_end_component()
 
 ccola_subdirectories(
-	test_doubles
-	test
+    test_doubles
+    test
 )

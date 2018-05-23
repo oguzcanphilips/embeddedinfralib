@@ -1,4 +1,5 @@
 #include "hal/interfaces/test_doubles/FlashMock.hpp"
+#include "infra/util/test_helper/MockHelpers.hpp"
 
 namespace hal
 {
@@ -45,5 +46,13 @@ namespace hal
     {
         done = onDone;
         eraseSectorsMock(beginIndex, endIndex);
+    }
+
+    CleanFlashMock::CleanFlashMock(uint32_t numberOfSectors, uint32_t sizeOfEachSector)
+    {
+        EXPECT_CALL(*this, NumberOfSectors()).WillRepeatedly(testing::Return(numberOfSectors));
+        EXPECT_CALL(*this, SizeOfSector(testing::_)).WillRepeatedly(testing::Return(sizeOfEachSector));
+        EXPECT_CALL(*this, SectorOfAddress(testing::_)).WillRepeatedly(infra::Lambda([sizeOfEachSector](uint32_t address) { return address % sizeOfEachSector; }));
+        EXPECT_CALL(*this, AddressOfSector(testing::_)).WillRepeatedly(infra::Lambda([sizeOfEachSector](uint32_t sectorIndex) { return sectorIndex * sizeOfEachSector; }));
     }
 }

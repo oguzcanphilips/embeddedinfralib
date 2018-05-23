@@ -6,8 +6,13 @@ namespace services
     void ConnectionStub::RequestSendStream(std::size_t sendSize)
     {
         assert(sendStream.Allocatable());
+        assert(sendSize <= MaxSendStreamSize());
         sendStreamPtr = sendStream.Emplace(*this);
-        infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectionStub>& object) { object->GetObserver().SendStreamAvailable(std::move(object->sendStreamPtr)); }, SharedFromThis());
+        infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectionStub>& object)
+        {
+            infra::SharedPtr<infra::DataOutputStream> stream = std::move(object->sendStreamPtr);
+            object->GetObserver().SendStreamAvailable(std::move(stream));
+        }, SharedFromThis());
     }
 
     std::size_t ConnectionStub::MaxSendStreamSize() const
@@ -19,7 +24,7 @@ namespace services
     {
         assert(receiveStream.Allocatable());
         receivingIndex = 0;
-        return receiveStream.Emplace(*this);
+        return receiveStream.Emplace(*this, infra::softFail);
     }
 
     void ConnectionStub::AckReceived()
@@ -54,14 +59,9 @@ namespace services
         : connection(connection)
     {}
 
-    void ConnectionStub::StreamWriterStub::Insert(infra::ConstByteRange range)
+    void ConnectionStub::StreamWriterStub::Insert(infra::ConstByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
         connection.sentData.insert(connection.sentData.end(), range.begin(), range.end());
-    }
-
-    void ConnectionStub::StreamWriterStub::Insert(uint8_t element)
-    {
-        connection.sentData.push_back(element);
     }
 
     std::size_t ConnectionStub::StreamWriterStub::Available() const
@@ -70,28 +70,20 @@ namespace services
     }
 
     ConnectionStub::StreamReaderStub::StreamReaderStub(ConnectionStub& connection)
-        : infra::StreamReader(infra::softFail)
-        , connection(connection)
+        : connection(connection)
     {}
 
-    void ConnectionStub::StreamReaderStub::Extract(infra::ByteRange range)
+    void ConnectionStub::StreamReaderStub::Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
-        ReportResult(connection.receivingData.size() - connection.receivingIndex >= range.size());
+        errorPolicy.ReportResult(connection.receivingData.size() - connection.receivingIndex >= range.size());
         range.shrink_from_back_to(connection.receivingData.size() - connection.receivingIndex);
         std::copy(connection.receivingData.begin() + connection.receivingIndex, connection.receivingData.begin() + connection.receivingIndex + range.size(), range.begin());
         connection.receivingIndex += range.size();
     }
 
-    uint8_t ConnectionStub::StreamReaderStub::ExtractOne()
+    uint8_t ConnectionStub::StreamReaderStub::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
-        uint8_t result;
-        Extract(infra::MakeByteRange(result));
-        return result;
-    }
-
-    uint8_t ConnectionStub::StreamReaderStub::Peek()
-    {
-        ReportResult(connection.receivingData.size() - connection.receivingIndex >= 1);
+        errorPolicy.ReportResult(connection.receivingData.size() - connection.receivingIndex >= 1);
         if (connection.receivingData.size() - connection.receivingIndex >= 1)
             return connection.receivingData[connection.receivingIndex];
         else

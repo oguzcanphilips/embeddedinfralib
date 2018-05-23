@@ -4,19 +4,6 @@
 
 namespace infra
 {
-    StreamWriter::StreamWriter(SoftFail)
-        : failureMode(FailureMode::soft)
-    {}
-
-    StreamWriter::StreamWriter(NoFail)
-        : failureMode(FailureMode::no)
-    {}
-
-    StreamWriter::~StreamWriter()
-    {
-        assert(checkedFail);
-    }
-
     const uint8_t* StreamWriter::ConstructSaveMarker() const
     {
         std::abort();
@@ -37,34 +24,10 @@ namespace infra
         std::abort();
     }
 
-    void StreamWriter::SetNoFail()
-    {
-        failureMode = FailureMode::no;
-    }
-
-    bool StreamWriter::HasFailed() const
-    {
-        checkedFail = true;
-        return failed;
-    }
-
-    void StreamWriter::ReportResult(bool ok)
-    {
-        if (!ok)
-        {
-            failed = true;
-            assert(failureMode != FailureMode::assertion);
-        }
-        checkedFail = failureMode != FailureMode::soft;
-    }
-
     StreamWriterDummy::StreamWriterDummy()
     {}
 
-    void StreamWriterDummy::Insert(ConstByteRange range)
-    {}
-
-    void StreamWriterDummy::Insert(uint8_t element)
+    void StreamWriterDummy::Insert(ConstByteRange range, StreamErrorPolicy& errorPolicy)
     {}
 
     std::size_t StreamWriterDummy::Available() const
@@ -72,18 +35,14 @@ namespace infra
         return std::numeric_limits<std::size_t>::max();
     }
 
-    OutputStream::OutputStream(StreamWriter& writer)
+    OutputStream::OutputStream(StreamWriter& writer, StreamErrorPolicy& errorPolicy)
         : writer(writer)
+        , errorPolicy(errorPolicy)
     {}
-
-    void OutputStream::SetNoFail()
-    {
-        writer.SetNoFail();
-    }
 
     bool OutputStream::Failed() const
     {
-        return writer.HasFailed();
+        return errorPolicy.Failed();
     }
 
     const uint8_t* OutputStream::SaveMarker() const
@@ -101,47 +60,44 @@ namespace infra
         return writer.Available();
     }
     
-    StreamWriter& OutputStream::Writer()
+    StreamWriter& OutputStream::Writer() const
     {
         return writer;
     }
-
-    DataOutputStream::DataOutputStream(StreamWriter& writer)
-        : OutputStream(writer)
-    {}
+    
+    StreamErrorPolicy& OutputStream::ErrorPolicy() const
+    {
+        return errorPolicy;
+    }
 
     TextOutputStream DataOutputStream::operator<<(Text)
     {
-        return TextOutputStream(Writer());
+        return TextOutputStream(Writer(), ErrorPolicy());
     }
-
-    TextOutputStream::TextOutputStream(StreamWriter& writer)
-        : OutputStream(writer)
-    {}
 
     TextOutputStream& TextOutputStream::operator<<(const char* zeroTerminatedString)
     {
-        Writer().Insert(ReinterpretCastByteRange(MakeRange(zeroTerminatedString, zeroTerminatedString + std::strlen(zeroTerminatedString))));
+        Writer().Insert(ReinterpretCastByteRange(MakeRange(zeroTerminatedString, zeroTerminatedString + std::strlen(zeroTerminatedString))), ErrorPolicy());
 
         return *this;
     }
     TextOutputStream& TextOutputStream::operator<<(BoundedConstString string)
     {
-        Writer().Insert(ReinterpretCastByteRange(MakeRange(string.begin(), string.end())));
+        Writer().Insert(ReinterpretCastByteRange(MakeRange(string.begin(), string.end())), ErrorPolicy());
 
         return *this;
     }
 
     TextOutputStream& TextOutputStream::operator<<(const std::string& string)
     {
-        Writer().Insert(ReinterpretCastByteRange(MakeRange(string.data(), string.data() + string.size())));
+        Writer().Insert(ReinterpretCastByteRange(MakeRange(string.data(), string.data() + string.size())), ErrorPolicy());
 
         return *this;
     }
 
     DataOutputStream TextOutputStream::operator<<(Data)
     {
-        return DataOutputStream(Writer());
+        return DataOutputStream(Writer(), ErrorPolicy());
     }
 
     TextOutputStream TextOutputStream::operator<<(Hex)
@@ -173,7 +129,7 @@ namespace infra
 
     TextOutputStream& TextOutputStream::operator<<(char c)
     {
-        Writer().Insert(static_cast<uint8_t>(c));
+        Writer().Insert(infra::MakeByteRange(c), ErrorPolicy());
         return *this;
     }
 
@@ -200,7 +156,7 @@ namespace infra
     TextOutputStream& TextOutputStream::operator<<(int32_t v)
     {
         if (v < 0)
-            Writer().Insert('-');
+            Writer().Insert(infra::MakeByteRange('-'), ErrorPolicy());
         switch (radix)
         {
             case Radix::dec:
@@ -242,7 +198,7 @@ namespace infra
     TextOutputStream& TextOutputStream::operator<<(int64_t v)
     {
         if (v < 0)
-            Writer().Insert('-');
+            Writer().Insert(infra::MakeByteRange('-'), ErrorPolicy());
         switch (radix)
         {
             case Radix::dec:
@@ -285,7 +241,7 @@ namespace infra
     TextOutputStream& TextOutputStream::operator<<(int v)
     {
         if (v < 0)
-            Writer().Insert('-');
+            Writer().Insert(infra::MakeByteRange('-'), ErrorPolicy());
         switch (radix)
         {
             case Radix::dec:
@@ -352,11 +308,11 @@ namespace infra
 
         if (width)
             for (uint64_t i = nofDigits; i < width->width; ++i)
-                Writer().Insert(static_cast<uint8_t>(width->padding));
+                Writer().Insert(infra::MakeByteRange(width->padding), ErrorPolicy());
 
         while (mask != 0)
         {
-            Writer().Insert(static_cast<uint8_t>(((v / mask) % 10) + '0'));
+            Writer().Insert(infra::MakeByteRange(static_cast<char>(((v / mask) % 10) + '0')), ErrorPolicy());
             mask /= 10;
         }
     }
@@ -374,11 +330,11 @@ namespace infra
 
         if (width)
             for (uint64_t i = nofDigits; i < width->width; ++i)
-                Writer().Insert(static_cast<uint8_t>(width->padding));
+                Writer().Insert(infra::MakeByteRange(width->padding), ErrorPolicy());
 
         while (mask != 0)
         {
-            Writer().Insert('0' + ((v / mask) & 1));
+            Writer().Insert(infra::MakeByteRange(static_cast<char>('0' + ((v / mask) & 1))), ErrorPolicy());
             mask /= 2;
         }
     }
@@ -398,11 +354,11 @@ namespace infra
 
         if (width)
             for (uint64_t i = nofDigits; i < width->width; ++i)
-                Writer().Insert(static_cast<uint8_t>(width->padding));
+                Writer().Insert(infra::MakeByteRange(width->padding), ErrorPolicy());
 
         while (mask != 0)
         {
-            Writer().Insert(static_cast<uint8_t>(hexChars[(v / mask) % 16]));
+            Writer().Insert(infra::MakeByteRange(hexChars[(v / mask) % 16]), ErrorPolicy());
             mask /= 16;
         }
     }
@@ -415,7 +371,7 @@ namespace infra
             while (*format != '\0' && *format != '%')
                 ++format;
 
-            Writer().Insert(infra::ReinterpretCastByteRange(infra::MakeRange(start, format)));
+            Writer().Insert(infra::ReinterpretCastByteRange(infra::MakeRange(start, format)), ErrorPolicy());
 
             if (*format == '%')
             {
@@ -435,6 +391,44 @@ namespace infra
             }
         }
     }
+
+    DataOutputStream::WithErrorPolicy::WithErrorPolicy(StreamWriter& writer)
+        : DataOutputStream(writer, errorPolicy)
+    {}
+
+    DataOutputStream::WithErrorPolicy::WithErrorPolicy(StreamWriter& writer, SoftFail)
+        : DataOutputStream(writer, errorPolicy)
+        , errorPolicy(softFail)
+    {}
+
+    DataOutputStream::WithErrorPolicy::WithErrorPolicy(StreamWriter& writer, NoFail)
+        : DataOutputStream(writer, errorPolicy)
+        , errorPolicy(softFail)
+    {}
+
+    DataOutputStream::WithErrorPolicy::WithErrorPolicy(const WithErrorPolicy& other)
+        : DataOutputStream(other.Writer(), errorPolicy)
+        , errorPolicy(other.ErrorPolicy())
+    {}
+
+    TextOutputStream::WithErrorPolicy::WithErrorPolicy(StreamWriter& writer)
+        : TextOutputStream(writer, errorPolicy)
+    {}
+
+    TextOutputStream::WithErrorPolicy::WithErrorPolicy(StreamWriter& writer, SoftFail)
+        : TextOutputStream(writer, errorPolicy)
+        , errorPolicy(softFail)
+    {}
+
+    TextOutputStream::WithErrorPolicy::WithErrorPolicy(StreamWriter& writer, NoFail)
+        : TextOutputStream(writer, errorPolicy)
+        , errorPolicy(noFail)
+    {}
+
+    TextOutputStream::WithErrorPolicy::WithErrorPolicy(const WithErrorPolicy& other)
+        : TextOutputStream(other.Writer(), errorPolicy)
+        , errorPolicy(other.ErrorPolicy())
+    {}
 
     AsAsciiHelper::AsAsciiHelper(infra::ConstByteRange data)
         : data(data)

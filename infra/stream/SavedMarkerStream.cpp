@@ -3,7 +3,7 @@
 namespace infra
 {
     SavedMarkerTextStream::SavedMarkerTextStream(TextOutputStream stream, const uint8_t* marker)
-        : TextOutputStream(static_cast<StreamWriter&>(*this))
+        : TextOutputStream(static_cast<StreamWriter&>(*this), stream.ErrorPolicy())
         , stream(stream)
     {
         streamRange = stream.Writer().SaveState(marker);
@@ -14,16 +14,10 @@ namespace infra
         stream.Writer().RestoreState(streamRange);
     }
 
-    void SavedMarkerTextStream::Insert(ConstByteRange range)
+    void SavedMarkerTextStream::Insert(ConstByteRange range, StreamErrorPolicy& errorPolicy)
     {
         std::copy(range.begin(), range.end(), streamRange.begin());
         streamRange.pop_front(range.size());
-    }
-
-    void SavedMarkerTextStream::Insert(uint8_t element)
-    {
-        streamRange.front() = element;
-        streamRange.pop_front();
     }
 
     const uint8_t* SavedMarkerTextStream::ConstructSaveMarker() const
@@ -57,7 +51,7 @@ namespace infra
     }
 
     SavedMarkerDataStream::SavedMarkerDataStream(DataOutputStream stream, const uint8_t* marker)
-        : DataOutputStream(static_cast<StreamWriter&>(*this))
+        : DataOutputStream(static_cast<StreamWriter&>(*this), stream.ErrorPolicy())
         , stream(stream)
     {
         streamRange = stream.Writer().SaveState(marker);
@@ -68,16 +62,10 @@ namespace infra
         stream.Writer().RestoreState(streamRange);
     }
 
-    void SavedMarkerDataStream::Insert(ConstByteRange range)
+    void SavedMarkerDataStream::Insert(ConstByteRange range, StreamErrorPolicy& errorPolicy)
     {
         std::copy(range.begin(), range.end(), streamRange.begin());
         streamRange.pop_front(range.size());
-    }
-
-    void SavedMarkerDataStream::Insert(uint8_t element)
-    {
-        streamRange.front() = element;
-        streamRange.pop_front();
     }
 
     size_t SavedMarkerDataStream::Available() const

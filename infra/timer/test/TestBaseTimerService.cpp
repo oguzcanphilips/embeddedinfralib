@@ -3,7 +3,6 @@
 #include "infra/event/test_helper/EventDispatcherFixture.hpp"
 #include "infra/timer/BaseTimerService.hpp"
 #include "infra/timer/Timer.hpp"
-#include "infra/timer/TimerServiceManager.hpp"
 #include "infra/util/test_helper/MockCallback.hpp"
 
 class BaseTimerServiceTest

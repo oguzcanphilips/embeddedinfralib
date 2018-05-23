@@ -6,11 +6,6 @@ namespace infra
         : range(range)
     {}
 
-    ByteInputStreamReader::ByteInputStreamReader(ConstByteRange range, SoftFail)
-        : StreamReader(infra::softFail)
-        , range(range)
-    {}
-
     ConstByteRange ByteInputStreamReader::Processed() const
     {
         return MakeRange(range.begin(), range.begin() + offset);
@@ -21,25 +16,18 @@ namespace infra
         return MakeRange(range.begin() + offset, range.end());
     }
 
-    void ByteInputStreamReader::Extract(ByteRange dataRange)
+    void ByteInputStreamReader::Extract(ByteRange dataRange, StreamErrorPolicy& errorPolicy)
     {
-        ReportResult(dataRange.size() <= range.size() - offset);
+        errorPolicy.ReportResult(dataRange.size() <= range.size() - offset);
         std::copy(range.begin() + offset, range.begin() + offset + dataRange.size(), dataRange.begin());
         offset += dataRange.size();
     }
 
-    uint8_t ByteInputStreamReader::ExtractOne()
-    {
-        uint8_t element;
-        Extract(MakeByteRange(element));
-        return element;
-    }
-
-    uint8_t ByteInputStreamReader::Peek()
+    uint8_t ByteInputStreamReader::Peek(StreamErrorPolicy& errorPolicy)
     {
         uint8_t element;
         ByteRange dataRange(MakeByteRange(element));
-        ReportResult(dataRange.size() <= range.size() - offset);
+        errorPolicy.ReportResult(dataRange.size() <= range.size() - offset);
         std::copy(range.begin() + offset, range.begin() + offset + dataRange.size(), dataRange.begin());
         return element;
     }
@@ -62,4 +50,16 @@ namespace infra
     {
         return range.size() - offset;
     }
+
+    ByteInputStream::ByteInputStream(ConstByteRange storage)
+        : DataInputStream::WithReader<ByteInputStreamReader>(storage)
+    {}
+
+    ByteInputStream::ByteInputStream(ConstByteRange storage, const SoftFail&)
+        : DataInputStream::WithReader<ByteInputStreamReader>(storage, softFail)
+    {}
+
+    ByteInputStream::ByteInputStream(ConstByteRange storage, const NoFail&)
+        : DataInputStream::WithReader<ByteInputStreamReader>(storage, noFail)
+    {}
 }

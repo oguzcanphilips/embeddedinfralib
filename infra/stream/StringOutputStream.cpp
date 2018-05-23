@@ -6,32 +6,14 @@ namespace infra
         : string(string)
     {}
 
-    StringOutputStreamWriter::StringOutputStreamWriter(BoundedString& string, SoftFail)
-        : StreamWriter(infra::softFail)
-        , string(string)
-    {}
-
-    StringOutputStreamWriter::StringOutputStreamWriter(BoundedString& string, NoFail)
-        : StreamWriter(infra::noFail)
-        , string(string)
-    {}
-
-    void StringOutputStreamWriter::Insert(ConstByteRange range)
+    void StringOutputStreamWriter::Insert(ConstByteRange range, StreamErrorPolicy& errorPolicy)
     {
         std::size_t spaceLeft = Available();
         bool spaceOk = range.size() <= spaceLeft;
-        ReportResult(spaceOk);
+        errorPolicy.ReportResult(spaceOk);
         if (!spaceOk)
-            range.shrink_from_back_to(spaceLeft);            
+            range.shrink_from_back_to(spaceLeft);
         string.append(reinterpret_cast<const char*>(range.begin()), range.size());
-    }
-
-    void StringOutputStreamWriter::Insert(uint8_t element)
-    {
-        bool isOk = !string.full();
-        if (isOk)
-            string.push_back(static_cast<char>(element));
-        ReportResult(isOk);
     }
 
     std::size_t StringOutputStreamWriter::Available() const
@@ -64,5 +46,16 @@ namespace infra
         std::copy(reinterpret_cast<char*>(range.end()), string.end(), reinterpret_cast<char*>(range.begin()));
         string.resize(string.size() - range.size());
     }
-}
 
+    StringOutputStream::StringOutputStream(BoundedString& storage)
+        : TextOutputStream::WithWriter<StringOutputStreamWriter>(storage)
+    {}
+
+    StringOutputStream::StringOutputStream(BoundedString& storage, const SoftFail&)
+        : TextOutputStream::WithWriter<StringOutputStreamWriter>(storage, softFail)
+    {}
+
+    StringOutputStream::StringOutputStream(BoundedString& storage, const NoFail&)
+        : TextOutputStream::WithWriter<StringOutputStreamWriter>(storage, noFail)
+    {}
+}

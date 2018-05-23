@@ -22,7 +22,7 @@ namespace infra
             contentsEnd = buffer.begin();
         else
             ++contentsEnd;
-
+       
         NotifyDataAvailable();
     }
 
@@ -71,14 +71,41 @@ namespace infra
         return result;
     }
 
-    infra::ConstByteRange QueueForOneReaderOneIrqWriter::ContiguousRange() const
+    uint8_t QueueForOneReaderOneIrqWriter::operator [] (size_t position) const
+    {
+        size_t size = Size();
+        assert(size > 0);
+        assert(position < size);
+
+        uint8_t* begin = contentsBegin;
+        if (begin + position >= buffer.end())
+        {
+            position -= buffer.end() - begin;
+            begin = buffer.begin();
+        }
+
+        begin += position;
+
+        return *begin;
+    }
+
+    infra::ConstByteRange QueueForOneReaderOneIrqWriter::ContiguousRange(uint32_t offset) const
     {
         const uint8_t* end = contentsEnd.load();
+        uint8_t* begin = contentsBegin;
 
-        if (end < contentsBegin)
-            return infra::ConstByteRange(contentsBegin, buffer.end());
+        if (begin + offset >= buffer.end())
+        {
+            offset -= buffer.end() - begin;
+            begin = buffer.begin();
+        }
+
+        begin += offset;
+
+        if (end < begin)
+            return infra::ConstByteRange(begin, buffer.end());
         else
-            return infra::ConstByteRange(contentsBegin, end);
+            return infra::ConstByteRange(begin, end);
     }
 
     void QueueForOneReaderOneIrqWriter::Consume(uint32_t amount)
@@ -92,18 +119,28 @@ namespace infra
         contentsBegin += amount;
     }
 
-    void QueueForOneReaderOneIrqWriter::NotifyDataAvailable()
+    std::size_t QueueForOneReaderOneIrqWriter::Size() const
     {
+        const uint8_t* begin = contentsBegin.load();
+        const uint8_t* end = contentsEnd.load();
+
+        if (Full())
+            return buffer.size() - 1;
+        else if (end >= begin)
+            return end - begin;
+
+        return (buffer.end() - begin) + (end - buffer.begin());
+    }
+
+    void QueueForOneReaderOneIrqWriter::NotifyDataAvailable()
+    {        
         if (!Empty() && !notificationScheduled.exchange(true))
             infra::EventDispatcher::Instance().Schedule([this]() { DataAvailable(); });
     }
 
     void QueueForOneReaderOneIrqWriter::DataAvailable()
     {
-        onDataAvailable();
-
         notificationScheduled = false;
-
-        NotifyDataAvailable();
+        onDataAvailable();
     }
 }

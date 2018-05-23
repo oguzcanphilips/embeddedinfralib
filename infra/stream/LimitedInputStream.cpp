@@ -12,38 +12,20 @@ namespace infra
         , length(other.length)
     {}
 
-    void LimitedStreamReader::Extract(ByteRange range)
+    void LimitedStreamReader::Extract(ByteRange range, StreamErrorPolicy& errorPolicy)
     {
-        input.ReportResult(length >= range.size());
+        errorPolicy.ReportResult(length >= range.size());
         range.shrink_from_back_to(length);
         length -= range.size();
-        input.Extract(range);
-        input.ReportResult(!input.Failed());
+        input.Extract(range, errorPolicy);
     }
 
-    uint8_t LimitedStreamReader::ExtractOne()
+    uint8_t LimitedStreamReader::Peek(StreamErrorPolicy& errorPolicy)
     {
-        if (length >= 1)
-        {
-            --length;
-            uint8_t result = input.ExtractOne();
-            input.ReportResult(!input.Failed());
-            return result;
-        }
-        else
-        {
-            input.ReportResult(false);
-
-            return 0;
-        }
-    }
-
-    uint8_t LimitedStreamReader::Peek()
-    {
-        input.ReportResult(length != 0);
+        errorPolicy.ReportResult(length != 0);
 
         if (length != 0)
-            return input.Peek();
+            return input.Peek(errorPolicy);
         else
             return 0;
     }
@@ -63,20 +45,5 @@ namespace infra
     std::size_t LimitedStreamReader::Available() const
     {
         return std::min<uint32_t>(length, input.Available());
-    }
-
-    bool LimitedStreamReader::Failed() const
-    {
-        return input.Failed();
-    }
-
-    void LimitedStreamReader::ReportResult(bool ok)
-    {
-        input.ReportResult(ok);
-    }
-
-    void LimitedStreamReader::SetSoftFail()
-    {
-        input.SetSoftFail();
     }
 }

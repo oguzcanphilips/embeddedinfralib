@@ -5,8 +5,8 @@
 namespace services
 {
     TracingConnectionMbedTls::TracingConnectionMbedTls(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver,
-        MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession, Tracer& tracer)
-        : ConnectionMbedTls(std::move(createdObserver), certificates, randomDataGenerator, server, serverCache, clientSession)
+        CertificatesMbedTls& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, const ConnectionMbedTls::ParametersWorkaround& parameters, Tracer& tracer)
+        : ConnectionMbedTls(std::move(createdObserver), certificates, randomDataGenerator, parameters)
         , tracer(tracer)
     {}
 
@@ -27,15 +27,15 @@ namespace services
 
     void TracingConnectionMbedTls::TlsLog(int level, const char* file, int line, const char* message)
     {
-    	infra::BoundedConstString fileCopy(file);
+        infra::BoundedConstString fileCopy(file);
 
-    	tracer.Trace() << "[" << fileCopy.substr(fileCopy.find_last_of('\\') + 1) << ":" << line
-    			       << "] (" << level << "): " << message;
+        tracer.Trace() << "[" << fileCopy.substr(fileCopy.find_last_of('\\') + 1) << ":" << line
+                       << "] (" << level << "): " << message;
     }
 
     void TracingConnectionMbedTls::LogFailure(const char* what, int reason)
     {
-    	tracer.Trace() << what << ": ";
+        tracer.Trace() << what << ": ";
 
 #if defined(MBEDTLS_ERROR_C)
         infra::BoundedString::WithStorage<128> description;
@@ -55,15 +55,15 @@ namespace services
     }
 
     infra::SharedPtr<ConnectionMbedTls> AllocatorTracingConnectionMbedTlsAdapter::Allocate(infra::AutoResetFunction<void(infra::SharedPtr<services::ConnectionObserver> connectionObserver)>&& createdObserver,
-        MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, bool server, mbedtls2_ssl_cache_context* serverCache, mbedtls2_ssl_session* clientSession)
+        CertificatesMbedTls& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, const ConnectionMbedTls::ParametersWorkaround& parameters)
     {
         tracer.Trace() << "AllocatorTracingConnectionMbedTlsAdapter::Allocate()";
-        return allocator.Allocate(std::move(createdObserver), certificates, randomDataGenerator, server, serverCache, clientSession, tracer);
+        return allocator.Allocate(std::move(createdObserver), certificates, randomDataGenerator, parameters, tracer);
     }
 
     TracingConnectionFactoryMbedTls::TracingConnectionFactoryMbedTls(AllocatorTracingConnectionMbedTls& connectionAllocator, AllocatorConnectionMbedTlsListener& listenerAllocator, AllocatorConnectionMbedTlsConnector& connectorAllocator,
-        ConnectionFactory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, Tracer& tracer, DebugLevel level)
-        : ConnectionFactoryMbedTls(allocatorAdapter, listenerAllocator, connectorAllocator, factory, certificates, randomDataGenerator)
+        ConnectionFactory& factory, CertificatesMbedTls& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, Tracer& tracer, DebugLevel level, bool needsAuthenticationDefault)
+        : ConnectionFactoryMbedTls(allocatorAdapter, listenerAllocator, connectorAllocator, factory, certificates, randomDataGenerator, needsAuthenticationDefault)
         , allocatorAdapter(connectionAllocator, tracer)
     {
         tracer.Trace() << "TracingConnectionFactoryMbedTls::TracingConnectionFactoryMbedTls()";
@@ -72,9 +72,9 @@ namespace services
 #endif
     }
 
-    TracingConnectionIPv6FactoryMbedTls::TracingConnectionIPv6FactoryMbedTls(AllocatorTracingConnectionMbedTls& connectionAllocator, AllocatorConnectionIPv6MbedTlsListener& listenerAllocator, AllocatorConnectionIPv6MbedTlsConnector& connectorAllocator,
-        ConnectionIPv6Factory& factory, MbedTlsCertificates& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, Tracer& tracer, DebugLevel level)
-        : ConnectionIPv6FactoryMbedTls(allocatorAdapter, listenerAllocator, connectorAllocator, factory, certificates, randomDataGenerator)
+    TracingConnectionIPv6FactoryMbedTls::TracingConnectionIPv6FactoryMbedTls(AllocatorTracingConnectionMbedTls& connectionAllocator, AllocatorConnectionIPv6MbedTlsListener& listenerAllocator, AllocatorConnectionMbedTlsConnector& connectorAllocator,
+        ConnectionIPv6Factory& factory, CertificatesMbedTls& certificates, hal::SynchronousRandomDataGenerator& randomDataGenerator, Tracer& tracer, DebugLevel level, bool needsAuthenticationDefault)
+        : ConnectionIPv6FactoryMbedTls(allocatorAdapter, listenerAllocator, connectorAllocator, factory, certificates, randomDataGenerator, needsAuthenticationDefault)
         , allocatorAdapter(connectionAllocator, tracer)
     {
         tracer.Trace() << "TracingConnectionIPv6FactoryMbedTls::TracingConnectionIPv6FactoryMbedTls()";

@@ -6,11 +6,13 @@
 #include "infra/util/AutoResetFunction.hpp"
 #include "infra/util/Sequencer.hpp"
 #include "hal/interfaces/FlashHomogeneous.hpp"
+#include "hal/interfaces/FlashId.hpp"
 
 namespace services
 {
     class FlashSpi
         : public hal::FlashHomogeneous
+        , public hal::FlashId
     {
     public:
         static const uint8_t commandPageProgram;
@@ -20,6 +22,7 @@ namespace services
         static const uint8_t commandEraseSubSector;
         static const uint8_t commandEraseSector;
         static const uint8_t commandEraseBulk;
+        static const uint8_t commandReadId;
 
         static const uint32_t sizeSector = 65536;
         static const uint32_t sizeSubSector = 4096;
@@ -30,9 +33,13 @@ namespace services
         explicit FlashSpi(hal::SpiMaster& spi, uint32_t numberOfSubSectors = 512);
 
     public:
+        // implement Flash
         virtual void WriteBuffer(infra::ConstByteRange buffer, uint32_t address, infra::Function<void()> onDone) override;
         virtual void ReadBuffer(infra::ByteRange buffer, uint32_t address, infra::Function<void()> onDone) override;
         virtual void EraseSectors(uint32_t beginIndex, uint32_t endIndex, infra::Function<void()> onDone) override;
+
+        // implement FlashId
+        virtual void ReadFlashId(infra::ByteRange buffer, infra::Function<void()> onDone) override;
 
     private:
         std::array<uint8_t, 3> ConvertAddress(uint32_t address) const;

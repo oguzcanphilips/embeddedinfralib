@@ -1,6 +1,7 @@
 ccola_component(util_test gmock_test)
 
     ccola_sources(
+        TestConfigurationStore.cpp
         TestCyclicStore.cpp
         TestDebouncedButton.cpp
         TestDebugLed.cpp

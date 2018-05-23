@@ -13,6 +13,10 @@ namespace testing
     public:
         Matcher() = default;
 
+        explicit Matcher(const MatcherInterface<const infra::BoundedStringBase<T>&>* impl)
+            : internal::MatcherBase<infra::BoundedStringBase<T>>(impl)
+        {}
+
         explicit Matcher(const MatcherInterface<infra::BoundedStringBase<T>>* impl)
             : internal::MatcherBase<infra::BoundedStringBase<T>>(impl)
         {}

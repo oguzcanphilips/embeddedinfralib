@@ -6,13 +6,19 @@ namespace services
     ConnectionWin::ConnectionWin(EventDispatcherWithNetwork& network, SOCKET socket)
         : network(network)
         , socket(socket)
-    {}
+    {
+        UpdateEventFlags();
+
+        infra::EventDispatcher::Instance().Schedule([this]() { Receive(); });
+    }
 
     ConnectionWin::~ConnectionWin()
     {
         if (socket != 0)
         {
-            int result = closesocket(socket);
+            BOOL result = WSACloseEvent(event);
+            assert(result == TRUE);
+            result = closesocket(socket);
             if (result == SOCKET_ERROR)
             {
                 DWORD error = GetLastError();
@@ -36,7 +42,7 @@ namespace services
 
     infra::SharedPtr<infra::DataInputStream> ConnectionWin::ReceiveStream()
     {
-        return receiveStream.Emplace(*this);
+        return receiveStream.Emplace(*this, infra::softFail);
     }
 
     void ConnectionWin::AckReceived()
@@ -59,7 +65,7 @@ namespace services
 
     IPv4Address ConnectionWin::Ipv4Address() const
     {
-        sockaddr_in address {};
+        sockaddr_in address{};
         int addressLength = sizeof(address);
         getpeername(socket, reinterpret_cast<SOCKADDR*>(&address), &addressLength);
 
@@ -79,33 +85,33 @@ namespace services
         connectionObserver->Connected();
     }
 
-    bool ConnectionWin::ReadyToReceive() const
-    {
-        return !receiveBuffer.full();
-    }
-
-    bool ConnectionWin::ReadyToSend() const
-    {
-        return !sendBuffer.empty();
-    }
-
     void ConnectionWin::Receive()
     {
-        std::array<uint8_t, 2048> buffer;
-        int received = recv(socket, reinterpret_cast<char*>(buffer.data()), receiveBuffer.max_size() - receiveBuffer.size(), 0);
-        if (received == SOCKET_ERROR)
-            ResetOwnership();
-        else if (received != 0)
+        while (!receiveBuffer.full())
         {
-            receiveBuffer.insert(receiveBuffer.end(), buffer.data(), buffer.data() + received);
-
-            infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectionWin>& object)
+            std::array<uint8_t, 2048> buffer;
+            int received = recv(socket, reinterpret_cast<char*>(buffer.data()), receiveBuffer.max_size() - receiveBuffer.size(), 0);
+            if (received == SOCKET_ERROR)
             {
-                object->GetObserver().DataReceived();
-            }, SharedFromThis());
+                if (WSAGetLastError() != WSAEWOULDBLOCK)
+                    ResetOwnership();
+                return;
+            }
+            else if (received != 0)
+            {
+                receiveBuffer.insert(receiveBuffer.end(), buffer.data(), buffer.data() + received);
+
+                infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectionWin>& object)
+                {
+                    object->GetObserver().DataReceived();
+                }, SharedFromThis());
+            }
+            else
+            {
+                ResetOwnership();
+                return;
+            }
         }
-        else
-            ResetOwnership();
     }
 
     void ConnectionWin::Send()
@@ -114,20 +120,39 @@ namespace services
 
         do
         {
+            UpdateEventFlags();     // If there is something to send, update the flags before calling send, because FD_SEND is an edge-triggered event.
             sent = send(socket, reinterpret_cast<char*>(sendBuffer.contiguous_range(sendBuffer.begin()).begin())
                 , sendBuffer.contiguous_range(sendBuffer.begin()).size(), 0);
 
             if (sent == SOCKET_ERROR)
             {
-                ResetOwnership();
+                if (WSAGetLastError() != WSAEWOULDBLOCK)
+                    ResetOwnership();
                 return;
             }
+
+            UpdateEventFlags();
 
             sendBuffer.erase(sendBuffer.begin(), sendBuffer.begin() + sent);
         } while (sent != 0 && !sendBuffer.empty());
 
         if (requestedSendSize != 0)
             TryAllocateSendStream();
+    }
+
+    void ConnectionWin::TrySend()
+    {
+        if (trySend)
+        {
+            trySend = false;
+            Send();
+        }
+    }
+
+    void ConnectionWin::UpdateEventFlags()
+    {
+        int result = WSAEventSelect(socket, event, (!receiveBuffer.full() ? FD_READ : 0) | (!sendBuffer.empty() ? FD_WRITE : 0) | FD_CLOSE);
+        assert(result == 0);
     }
 
     void ConnectionWin::TryAllocateSendStream()
@@ -155,11 +180,11 @@ namespace services
     ConnectionWin::StreamWriterWin::~StreamWriterWin()
     {
         connection.sendBuffer.insert(connection.sendBuffer.end(), Processed().begin(), Processed().end());
+        connection.trySend = true;
     }
 
     ConnectionWin::StreamReaderWin::StreamReaderWin(ConnectionWin& connection)
-        : infra::StreamReader(infra::softFail)
-        , connection(connection)
+        : connection(connection)
     {}
 
     void ConnectionWin::StreamReaderWin::ConsumeRead()
@@ -168,18 +193,13 @@ namespace services
         sizeRead = 0;
     }
 
-    void ConnectionWin::StreamReaderWin::Extract(infra::ByteRange range)
+    void ConnectionWin::StreamReaderWin::Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
         std::copy(connection.receiveBuffer.begin() + sizeRead, connection.receiveBuffer.begin() + sizeRead + range.size(), range.begin());
         sizeRead += range.size();
     }
 
-    uint8_t ConnectionWin::StreamReaderWin::ExtractOne()
-    {
-        return connection.receiveBuffer[sizeRead++];
-    }
-
-    uint8_t ConnectionWin::StreamReaderWin::Peek()
+    uint8_t ConnectionWin::StreamReaderWin::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
         return connection.receiveBuffer[sizeRead];
     }
@@ -207,6 +227,8 @@ namespace services
     {
         listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         assert(listenSocket != INVALID_SOCKET);
+        int result = WSAEventSelect(listenSocket, event, FD_ACCEPT);
+        assert(result == 0);
 
         sockaddr_in address = {};
         address.sin_family = AF_INET;
@@ -227,14 +249,15 @@ namespace services
 
     ListenerWin::~ListenerWin()
     {
+        BOOL result = WSACloseEvent(event);
+        assert(result == TRUE);
         network.DeregisterListener(*this);
     }
 
     void ListenerWin::Accept()
     {
         SOCKET acceptedSocket = accept(listenSocket, NULL, NULL);
-        if (acceptedSocket == INVALID_SOCKET)
-            std::abort();
+        assert(acceptedSocket != INVALID_SOCKET);
 
         infra::SharedPtr<ConnectionWin> connection = infra::MakeSharedOnHeap<ConnectionWin>(network, acceptedSocket);
         factory.ConnectionAccepted([connection](infra::SharedPtr<services::ConnectionObserver> connectionObserver)
@@ -250,6 +273,8 @@ namespace services
     {
         connectSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         assert(connectSocket != INVALID_SOCKET);
+        int result = WSAEventSelect(connectSocket, event, FD_CONNECT);
+        assert(result == 0);
 
         sockaddr_in saddress = {};
         saddress.sin_family = AF_INET;
@@ -274,6 +299,8 @@ namespace services
 
     ConnectorWin::~ConnectorWin()
     {
+        BOOL result = WSACloseEvent(event);
+        assert(result == TRUE);
         network.DeregisterConnector(*this);
     }
 
@@ -286,14 +313,15 @@ namespace services
                 connection->SetObserver(connectionObserver);
         });
 
-        infra::EventDispatcher::Instance().Schedule([this]() { network.DeregisterConnector(*this); });
+        infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectorWin>& connector) { connector->network.DeregisterConnector(*connector); }, SharedFromThis());
     }
 
     void ConnectorWin::Failed()
     {
+        infra::WeakPtr<ConnectorWin> self = SharedFromThis();
         factory.ConnectionFailed(services::ClientConnectionObserverFactory::ConnectFailReason::refused);
 
-        infra::EventDispatcher::Instance().Schedule([this]() { network.DeregisterConnector(*this); });
+        infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectorWin>& connector) { connector->network.DeregisterConnector(*connector); }, self);
     }
 
     EventDispatcherWithNetwork::EventDispatcherWithNetwork()
@@ -305,6 +333,8 @@ namespace services
 
     EventDispatcherWithNetwork::~EventDispatcherWithNetwork()
     {
+        BOOL result = WSACloseEvent(wakeUpEvent);
+        assert(result == TRUE);
         WSACleanup();
     }
 
@@ -342,66 +372,84 @@ namespace services
     {
         return infra::MakeSharedOnHeap<ConnectorWin>(*this, address, port, factory);
     }
+    
+    void EventDispatcherWithNetwork::RequestExecution()
+    {
+        BOOL result = WSASetEvent(wakeUpEvent);
+        assert(result == TRUE);
+    }
 
     void EventDispatcherWithNetwork::Idle()
     {
-        FD_SET writeSet = {};
-        FD_SET readSet = {};
-        FD_SET exceptSet = {};
+        std::vector<WSAEVENT> events;
+        std::vector<std::function<void()>> functions;
+
+        events.push_back(wakeUpEvent);
+        functions.push_back([this]()
+        {
+            BOOL result = WSAResetEvent(wakeUpEvent);
+            assert(result == TRUE);
+        });
 
         for (auto& listener : listeners)
-            FD_SET(listener.listenSocket, &readSet);
+        {
+            WSANETWORKEVENTS networkEvents;
+            WSAEnumNetworkEvents(listener.listenSocket, listener.event, &networkEvents);
+            assert((networkEvents.lNetworkEvents & FD_ACCEPT) != 0);
+
+            events.push_back(listener.event);
+            functions.push_back([&listener]() { listener.Accept(); });
+        }
 
         for (auto& connector : connectors)
         {
-            FD_SET(connector.connectSocket, &writeSet);
-            FD_SET(connector.connectSocket, &exceptSet);
+            events.push_back(connector.event);
+            functions.push_back([&connector]()
+            {
+                WSANETWORKEVENTS networkEvents;
+                WSAEnumNetworkEvents(connector.connectSocket, connector.event, &networkEvents);
+                assert((networkEvents.lNetworkEvents & FD_CONNECT) != 0);
+
+                if (networkEvents.iErrorCode[FD_CONNECT_BIT] != 0)
+                    connector.Failed();
+                else
+                    connector.Connected();
+            });
         }
+
+        for (auto& weakConnection : connections)
+            if (infra::SharedPtr<ConnectionWin> connection = weakConnection)
+                connection->TrySend();
 
         for (auto& weakConnection : connections)
         {
             if (infra::SharedPtr<ConnectionWin> connection = weakConnection)
             {
-                if (connection->ReadyToReceive())
-                    FD_SET(connection->socket, &readSet);
-                if (connection->ReadyToSend())
-                    FD_SET(connection->socket, &writeSet);
+                connection->UpdateEventFlags();
+                events.push_back(connection->event);
+                functions.push_back([weakConnection]()
+                {
+                    if (infra::SharedPtr<ConnectionWin> connection = weakConnection)
+                    {
+                        WSANETWORKEVENTS networkEvents;
+                        WSAEnumNetworkEvents(connection->socket, connection->event, &networkEvents);
+
+                        if ((networkEvents.lNetworkEvents & FD_READ) != 0)
+                            connection->Receive();
+                        if ((networkEvents.lNetworkEvents & FD_WRITE) != 0)
+                            connection->Send();
+                        if ((networkEvents.lNetworkEvents & FD_CLOSE) != 0)
+                            connection->Receive();
+                    }
+                });
             }
         }
 
-        if (readSet.fd_count != 0 || writeSet.fd_count != 0 || exceptSet.fd_count != 0)
-        {
-            DWORD total = select(0, &readSet, &writeSet, &exceptSet, nullptr);
-            if (total == SOCKET_ERROR)
-                std::abort();
-        }
+        DWORD index = WSAWaitForMultipleEvents(events.size(), events.data(), FALSE, WSA_INFINITE, FALSE);
+        if (index >= WSA_WAIT_EVENT_0 && index < WSA_WAIT_EVENT_0 + events.size())
+            functions[index - WSA_WAIT_EVENT_0]();
         else
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-
-        for (auto& listener : listeners)
-        {
-            if (FD_ISSET(listener.listenSocket, &readSet))
-                listener.Accept();
-        }
-
-        for (auto& connector : connectors)
-        {
-            if (FD_ISSET(connector.connectSocket, &writeSet))
-                connector.Connected();
-            if (FD_ISSET(connector.connectSocket, &exceptSet))
-                connector.Failed();
-        }
-
-        for (auto& weakConnection : connections)
-        {
-            if (infra::SharedPtr<ConnectionWin> connection = weakConnection)
-            {
-                if (FD_ISSET(connection->socket, &readSet))
-                    connection->Receive();
-                if (FD_ISSET(connection->socket, &writeSet))
-                    connection->Send();
-            }
-        }
+            std::abort();
 
         connections.remove_if([](const infra::WeakPtr<ConnectionWin>& connection) { return connection.lock() == nullptr; });
     }

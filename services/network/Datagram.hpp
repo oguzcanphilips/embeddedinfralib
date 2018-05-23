@@ -8,7 +8,7 @@
 
 namespace services
 {
-	class DatagramSenderObserver
+    class DatagramSenderObserver
     {
     protected:
         DatagramSenderObserver() = default;
@@ -16,9 +16,9 @@ namespace services
         DatagramSenderObserver& operator=(const DatagramSenderObserver& other) = delete;
         virtual ~DatagramSenderObserver() = default;
 
-	public:
-		virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) = 0;
-	};
+    public:
+        virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) = 0;
+    };
 
     class DatagramSender
     {
@@ -32,17 +32,17 @@ namespace services
         virtual void RequestSendStream(std::size_t sendSize) = 0;
     };
 
-	class DatagramReceiver
-	{
+    class DatagramReceiver
+    {
     protected:
         DatagramReceiver() = default;
         DatagramReceiver(const DatagramReceiver& other) = delete;
         DatagramReceiver& operator=(const DatagramReceiver& other) = delete;
         virtual ~DatagramReceiver() = default;
 
-	public:
-        virtual void DataReceived(infra::DataInputStream stream, IPv4Address address) = 0;
-        virtual void DataReceived(infra::DataInputStream stream, IPv6Address address) = 0;
+    public:
+        virtual void DataReceived(infra::DataInputStream stream, IPv4Address address, uint16_t port) = 0;
+        virtual void DataReceived(infra::DataInputStream stream, IPv6Address address, uint16_t port) = 0;
     };
 
     class DatagramProvider

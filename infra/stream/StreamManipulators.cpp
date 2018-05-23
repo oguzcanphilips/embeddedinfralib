@@ -1,10 +1,8 @@
 #include "infra/stream/StreamManipulators.hpp"
+#include <cassert>
 
 namespace infra
 {
-    const SoftFail softFail;
-    const NoFail noFail;
-
     const Text text;
     const Hex hex;
     const Bin bin;

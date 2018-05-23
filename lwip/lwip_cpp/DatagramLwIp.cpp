@@ -51,20 +51,13 @@ namespace services
         pbuf_free(buffer);
     }
 
-    void DatagramSenderPeerLwIp::UdpWriter::Insert(infra::ConstByteRange range)
+    void DatagramSenderPeerLwIp::UdpWriter::Insert(infra::ConstByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
-        ReportResult(range.size() <= Available());
+        errorPolicy.ReportResult(range.size() <= Available());
         range.shrink_from_back_to(Available());
         err_t result = pbuf_take_at(buffer, range.begin(), static_cast<uint16_t>(range.size()), bufferOffset);
         assert(result == ERR_OK);
         bufferOffset += static_cast<uint16_t>(range.size());
-    }
-
-    void DatagramSenderPeerLwIp::UdpWriter::Insert(uint8_t element)
-    {
-        ReportResult(Available() >= 1);
-        pbuf_put_at(buffer, bufferOffset, element);
-        ++bufferOffset;
     }
 
     std::size_t DatagramSenderPeerLwIp::UdpWriter::Available() const
@@ -103,11 +96,11 @@ namespace services
     DatagramSenderPeerLwIp::StateBufferAllocated::StateBufferAllocated(DatagramSenderPeerLwIp& datagramSender, pbuf* buffer)
         : datagramSender(datagramSender)
         , stream([this]() { this->datagramSender.state.Emplace<StateIdle>(this->datagramSender); })
+        , streamPtr(stream.Emplace(datagramSender.control, buffer))
     {
-        infra::SharedPtr<DatagramSendStreamLwIp> streamPtr = stream.Emplace(datagramSender.control, buffer);
-        infra::EventDispatcherWithWeakPtr::Instance().Schedule([streamPtr](const infra::SharedPtr<DatagramSenderPeerLwIp>& datagramSender)
+        infra::EventDispatcherWithWeakPtr::Instance().Schedule([this](const infra::SharedPtr<DatagramSenderPeerLwIp>& datagramSender)
         {
-            datagramSender->sender.SendStreamAvailable(streamPtr);
+            datagramSender->sender.SendStreamAvailable(std::move(streamPtr));
         }, datagramSender.SharedFromThis());
     }
 
@@ -145,17 +138,16 @@ namespace services
 
     void DatagramReceiverPeerLwIp::Recv(pbuf* buffer, const ip_addr_t* address, u16_t port)
     {
-        infra::DataInputStream::WithReader<UdpReader> stream(buffer);
+        infra::DataInputStream::WithReader<UdpReader> stream(buffer, infra::softFail);
         if (IP_GET_TYPE(address) == IPADDR_TYPE_V4)
-            receiver.DataReceived(stream, IPv4Address{ ip4_addr1(ip_2_ip4(address)), ip4_addr2(ip_2_ip4(address)), ip4_addr3(ip_2_ip4(address)), ip4_addr4(ip_2_ip4(address)) });
+            receiver.DataReceived(stream, IPv4Address{ ip4_addr1(ip_2_ip4(address)), ip4_addr2(ip_2_ip4(address)), ip4_addr3(ip_2_ip4(address)), ip4_addr4(ip_2_ip4(address)) }, port);
         else
             receiver.DataReceived(stream, IPv6Address{ IP6_ADDR_BLOCK1(ip_2_ip6(address)), IP6_ADDR_BLOCK2(ip_2_ip6(address)), IP6_ADDR_BLOCK3(ip_2_ip6(address)), IP6_ADDR_BLOCK4(ip_2_ip6(address)),
-                IP6_ADDR_BLOCK5(ip_2_ip6(address)), IP6_ADDR_BLOCK6(ip_2_ip6(address)), IP6_ADDR_BLOCK7(ip_2_ip6(address)), IP6_ADDR_BLOCK8(ip_2_ip6(address))} );
+                IP6_ADDR_BLOCK5(ip_2_ip6(address)), IP6_ADDR_BLOCK6(ip_2_ip6(address)), IP6_ADDR_BLOCK7(ip_2_ip6(address)), IP6_ADDR_BLOCK8(ip_2_ip6(address))}, port );
     }
 
     DatagramReceiverPeerLwIp::UdpReader::UdpReader(pbuf* buffer)
-        : infra::StreamReader(infra::softFail)
-        , buffer(buffer)
+        : buffer(buffer)
     {}
 
     DatagramReceiverPeerLwIp::UdpReader::~UdpReader()
@@ -163,9 +155,9 @@ namespace services
         pbuf_free(buffer);
     }
 
-    void DatagramReceiverPeerLwIp::UdpReader::Extract(infra::ByteRange range)
+    void DatagramReceiverPeerLwIp::UdpReader::Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy)
     {
-        ReportResult(range.size() <= Available());
+        errorPolicy.ReportResult(range.size() <= Available());
         range.shrink_from_back_to(Available());
 
         u16_t numCopied = pbuf_copy_partial(buffer, range.begin(), static_cast<uint16_t>(range.size()), bufferOffset);
@@ -173,16 +165,9 @@ namespace services
         bufferOffset += static_cast<uint16_t>(range.size());
     }
 
-    uint8_t DatagramReceiverPeerLwIp::UdpReader::ExtractOne()
+    uint8_t DatagramReceiverPeerLwIp::UdpReader::Peek(infra::StreamErrorPolicy& errorPolicy)
     {
-        uint8_t result;
-        Extract(infra::MakeByteRange(result));
-        return result;
-    }
-
-    uint8_t DatagramReceiverPeerLwIp::UdpReader::Peek()
-    {
-        ReportResult(!Empty());
+        errorPolicy.ReportResult(!Empty());
 
         uint8_t result;
         pbuf_copy_partial(buffer, &result, 1, bufferOffset);

@@ -4,6 +4,11 @@
 
 namespace infra
 {
+    TimePoint Now(uint32_t timerServiceId)
+    {
+        return TimerServiceManager::Instance().GetTimerService(timerServiceId).Now();
+    }
+
     Timer::Timer(uint32_t timerServiceId)
         : timerService(TimerServiceManager::Instance().GetTimerService(timerServiceId))
     {}

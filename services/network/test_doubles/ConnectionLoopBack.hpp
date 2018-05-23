@@ -36,8 +36,7 @@ namespace services
             ~StreamWriterLoopBack();
 
         private:
-            virtual void Insert(infra::ConstByteRange range) override;
-            virtual void Insert(uint8_t element) override;
+            virtual void Insert(infra::ConstByteRange range, infra::StreamErrorPolicy& errorPolicy) override;
             virtual std::size_t Available() const override;
 
         private:
@@ -54,9 +53,8 @@ namespace services
             void ConsumeRead();
 
         private:
-            virtual void Extract(infra::ByteRange range) override;
-            virtual uint8_t ExtractOne() override;
-            virtual uint8_t Peek() override;
+            virtual void Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy) override;
+            virtual uint8_t Peek(infra::StreamErrorPolicy& errorPolicy) override;
             virtual infra::ConstByteRange ExtractContiguousRange(std::size_t max) override;
             virtual bool Empty() const override;
             virtual std::size_t Available() const override;
@@ -79,12 +77,14 @@ namespace services
         : public infra::EnableSharedFromThis<ConnectionLoopBack>
     {
     public:
-        ConnectionLoopBack();
+        ConnectionLoopBack(ClientConnectionObserverFactory& clientObserverFactory);
 
+        ClientConnectionObserverFactory& ClientObserverFactory();
         Connection& Server();
         Connection& Client();
 
     private:
+        ClientConnectionObserverFactory& clientObserverFactory;
         ConnectionLoopBackPeer server;
         ConnectionLoopBackPeer client;
     };

@@ -163,6 +163,35 @@ TEST(Asn1ObjectFormatter, add_utc_time)
     EXPECT_EQ(expected, stream.Storage());
 }
 
+TEST(Asn1ObjectFormatter, add_generalized_time)
+{
+    infra::ByteOutputStream::WithStorage<17> stream;
+    infra::Asn1Formatter formatter(stream);
+
+    formatter.AddGeneralizedTime(2050, 1, 1, 12, 15, 00);
+
+    std::array<uint8_t, 17> expected = { 0x18, 0x0F, '2', '0', '5', '0', '0', '1', '0', '1', '1', '2', '1', '5', '0', '0', 'Z' };
+
+    EXPECT_EQ(expected, stream.Storage());
+}
+
+TEST(Asn1ObjectFormatter, add_time)
+{    
+    {
+        infra::ByteOutputStream::WithStorage<32> stream;
+        infra::Asn1Formatter formatter(stream);
+        formatter.AddTime(1950, 1, 1, 1, 1, 1);
+        EXPECT_EQ(0x17, stream.Storage()[0]);
+    }
+
+    {
+        infra::ByteOutputStream::WithStorage<32> stream;
+        infra::Asn1Formatter formatter(stream);
+        formatter.AddTime(2050, 1, 1, 1, 1, 1);
+        EXPECT_EQ(0x18, stream.Storage()[0]);
+    }
+}
+
 TEST(Asn1ObjectFormatter, add_empty_optional)
 {
     infra::ByteOutputStream::WithStorage<2> stream;

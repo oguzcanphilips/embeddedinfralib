@@ -1,5 +1,4 @@
 #include "hal/interfaces/test_doubles/GpioStub.hpp"
-#include "infra/timer/TimerServiceManager.hpp"
 #include "infra/util/CompareMembers.hpp"
 
 namespace hal
@@ -100,13 +99,13 @@ namespace hal
     }
 
     GpioPinSpy::GpioPinSpy()
-        : start(infra::TimerServiceManager::Instance().GetTimerService(infra::systemTimerServiceId).Now())
+        : start(infra::Now())
     {}
 
     void GpioPinSpy::Set(bool value)
     {
         if (GetOutputLatch() != value)
-            pinChanges.push_back({ infra::TimerServiceManager::Instance().GetTimerService(infra::systemTimerServiceId).Now() - start, value });
+            pinChanges.push_back({ infra::Now() - start, value });
 
         GpioPinStub::Set(value);
     }

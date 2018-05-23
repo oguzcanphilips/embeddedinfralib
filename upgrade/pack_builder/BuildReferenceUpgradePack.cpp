@@ -1,15 +1,8 @@
 #include "hal/windows/FileSystemWin.hpp"
-#include "upgrade/pack_builder/BinaryObject.hpp"
-#include "mbedtls/memory_buffer_alloc.h"
 #include "upgrade/pack_builder/BuildReferenceUpgradePack.hpp"
 #include "upgrade/pack_builder/UpgradePackBuilder.hpp"
 #include "upgrade/pack_builder/UpgradePackInputFactory.hpp"
 #include <cctype>
-#include <cstdlib>
-#include <ctime>
-#include <iomanip>
-#include <iostream>
-#include <windows.h>
 
 namespace application
 {
@@ -27,11 +20,12 @@ namespace application
     }
 
     int BuildReferenceUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
-        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, int argc, const char* argv[], infra::ConstByteRange aesKey,
+        const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, std::string outputFilename,
+        std::vector<std::pair<std::string, std::string>>& targetAndFiles, std::vector<std::pair<std::string, std::string>>& buildOptions, infra::ConstByteRange aesKey,
         infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets)
     {
         ReferenceUpgradePackBuilderFacade builderFacade(headerInfo);
-        builderFacade.Build(supportedHexTargets, supportedBinaryTargets, argc, argv, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey, otherTargets);
+        builderFacade.Build(supportedHexTargets, supportedBinaryTargets, outputFilename, targetAndFiles, buildOptions, aesKey, ecDsa224PublicKey, ecDsa224PrivateKey, otherTargets);
         return builderFacade.Result();
     }
 
@@ -39,29 +33,23 @@ namespace application
         : UpgradePackBuilderFacade(headerInfo)
     {}
 
-    void ReferenceUpgradePackBuilderFacade::ParseArgument(int& index, int argc, const char* argv[])
+    void ReferenceUpgradePackBuilderFacade::PreBuilder(std::vector<std::pair<std::string, std::string>>& targetAndFiles, const std::vector<std::pair<std::string, std::string>>& buildOptions)
     {
-        if (argv[index] == std::string("-invalid_header_version"))
-            invalidHeaderVersion = true;
-        else if (argv[index] == std::string("-invalid_product"))
-            invalidProduct = true;
-        else if (argv[index] == std::string("-invalid_signature"))
-            invalidSignature = true;
-        else
-            UpgradePackBuilderFacade::ParseArgument(index, argc, argv);
+        for (auto option : buildOptions)
+        {
+            if (option.first == "invalidProduct")
+                headerInfo.productName = "Unknown Product Name";
+        }
     }
 
-    void ReferenceUpgradePackBuilderFacade::PreBuilder()
+    void ReferenceUpgradePackBuilderFacade::PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, const std::vector<std::pair<std::string, std::string>>& buildOptions)
     {
-        if (invalidProduct)
-            headerInfo.productName = "Unknown Product Name";
-    }
-
-    void ReferenceUpgradePackBuilderFacade::PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer)
-    {
-        if (invalidHeaderVersion)
-            reinterpret_cast<UpgradePackHeaderEpilogue*>(builder.UpgradePack().data() + sizeof(UpgradePackHeaderPrologue) + signer.SignatureLength())->headerVersion = 0xff;
-        if (invalidSignature)
-            std::fill(builder.UpgradePack().begin() + sizeof(UpgradePackHeaderPrologue), builder.UpgradePack().begin() + sizeof(UpgradePackHeaderPrologue) + signer.SignatureLength(), 0xff);
+        for (auto option : buildOptions)
+        {
+            if (option.first == "invalidHeaderVersion")
+                reinterpret_cast<UpgradePackHeaderEpilogue*>(builder.UpgradePack().data() + sizeof(UpgradePackHeaderPrologue) + signer.SignatureLength())->headerVersion = 0xff;
+            else if (option.first == "invalidSignature")
+                std::fill(builder.UpgradePack().begin() + sizeof(UpgradePackHeaderPrologue), builder.UpgradePack().begin() + sizeof(UpgradePackHeaderPrologue) + signer.SignatureLength(), 0xff);
+        }
     }
 }

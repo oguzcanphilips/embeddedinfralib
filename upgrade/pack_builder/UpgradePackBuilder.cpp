@@ -5,19 +5,9 @@
 
 namespace application
 {
-    UpgradePackBuilder::UpgradePackBuilder(const std::vector<std::pair<std::string, std::string>>& targetAndFiles,
-        const HeaderInfo& headerInfo, InputFactory& inputFactory, ImageSigner& imageSigner)
+    UpgradePackBuilder::UpgradePackBuilder(const HeaderInfo& headerInfo, std::vector<std::unique_ptr<Input>>&& inputs, ImageSigner& signer)
         : headerInfo(headerInfo)
-        , signer(imageSigner)
-    {
-        for (auto targetAndFile : targetAndFiles)
-            inputs.push_back(inputFactory.CreateInput(targetAndFile.first, targetAndFile.second));
-
-        CreateUpgradePack();
-    }
-
-    UpgradePackBuilder::UpgradePackBuilder(std::vector<std::unique_ptr<Input>>&& inputs, ImageSigner& signer)
-        : inputs(std::move(inputs))
+        , inputs(std::move(inputs))
         , signer(signer)
     {
         CreateUpgradePack();
@@ -48,7 +38,7 @@ namespace application
     {
         std::vector<uint8_t> signature = signer.ImageSignature(upgradePack);
 
-        UpgradePackHeaderPrologue prologue = {};    
+        UpgradePackHeaderPrologue prologue = {};
         prologue.status = UpgradePackStatus::readyToDeploy; 
         prologue.magic = upgradePackMagic;
         prologue.errorCode = 0xffffffff;

@@ -3,7 +3,7 @@
 
 #include "infra/util/Function.hpp"
 #include "infra/util/Optional.hpp"
-#include "protobuf/echo/ProtoParser.hpp"
+#include "infra/syntax/ProtoParser.hpp"
 #include "services/network/Connection.hpp"
 
 namespace services
@@ -22,7 +22,7 @@ namespace services
         void MethodDone();
 
     protected:
-        virtual void Handle(uint32_t methodId, services::ProtoParser& parser) = 0;
+        virtual void Handle(uint32_t methodId, infra::ProtoParser& parser) = 0;
         Echo& Rpc();
 
     private:
@@ -71,15 +71,13 @@ namespace services
         void DetachService(Service& service);
 
     private:
-        void ExecuteMethod(uint32_t serviceId, uint32_t methodId, services::ProtoParser& argument);
+        void ExecuteMethod(uint32_t serviceId, uint32_t methodId, infra::ProtoParser& argument);
 
     private:
         infra::IntrusiveList<Service> services;
         infra::SharedPtr<infra::DataOutputStream> sendStream;
         infra::IntrusiveList<ServiceProxy> sendRequesters;
         infra::Optional<uint32_t> serviceBusy;
-
-        static const uint32_t maxMessageSize = 1024;
     };
 }
 
