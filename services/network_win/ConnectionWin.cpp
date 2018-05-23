@@ -393,12 +393,15 @@ namespace services
 
         for (auto& listener : listeners)
         {
-            WSANETWORKEVENTS networkEvents;
-            WSAEnumNetworkEvents(listener.listenSocket, listener.event, &networkEvents);
-            assert((networkEvents.lNetworkEvents & FD_ACCEPT) != 0);
-
             events.push_back(listener.event);
-            functions.push_back([&listener]() { listener.Accept(); });
+            functions.push_back([&listener]()
+            {
+                WSANETWORKEVENTS networkEvents;
+                WSAEnumNetworkEvents(listener.listenSocket, listener.event, &networkEvents);
+                assert((networkEvents.lNetworkEvents & FD_ACCEPT) != 0);
+
+                listener.Accept();
+            });
         }
 
         for (auto& connector : connectors)
