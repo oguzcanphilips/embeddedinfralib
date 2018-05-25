@@ -11,11 +11,6 @@
 #include "lwip/tcp.h"
 #include "services/network/Address.hpp"
 #include "services/network/Connection.hpp"
-#include "lwip/opt.h"
-
-#ifndef TCP_WND_DEFAULT
-#define TCP_WND_DEFAULT TCP_WND
-#endif // !TCP_WND_DEFAULT
 
 namespace services
 {
@@ -93,10 +88,10 @@ namespace services
 
         infra::ConstByteRange sendBuffer;
         infra::TimerSingleShot retrySendTimer;
-        infra::BoundedDeque<infra::ConstByteRange>::WithMaxSize<8> sendBuffers;
-        infra::BoundedDeque<std::array<uint8_t, TCP_MSS>>::WithMaxSize<8> sendMemoryPool;
+        infra::BoundedDeque<infra::ConstByteRange>::WithMaxSize<TCP_SND_QUEUELEN> sendBuffers;
+        infra::BoundedDeque<std::array<uint8_t, TCP_MSS>>::WithMaxSize<TCP_SND_QUEUELEN> sendMemoryPool;
 
-        infra::BoundedDeque<uint8_t>::WithMaxSize<TCP_WND_DEFAULT> receiveBuffer;
+        infra::BoundedDeque<uint8_t>::WithMaxSize<TCP_WND> receiveBuffer;
         bool dataReceivedScheduled = false;
     };
 

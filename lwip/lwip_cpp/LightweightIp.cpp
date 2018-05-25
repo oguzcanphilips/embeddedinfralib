@@ -14,6 +14,7 @@ namespace services
         , randomDataGenerator(randomDataGenerator)
     {
         lwip_init();
+        sysCheckTimer.Start(std::chrono::milliseconds(50), [this]() { sys_check_timeouts(); }, infra::triggerImmediately);
     }
 
     uint32_t LightweightIp::Rand()
