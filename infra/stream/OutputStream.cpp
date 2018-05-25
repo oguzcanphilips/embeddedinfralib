@@ -237,7 +237,7 @@ namespace infra
         return *this;
     }
 
-#if !defined(_MSC_VER) && !defined(ESP_PLATFORM)                                                                        //TICS !POR#021
+#ifndef _MSC_VER                                                                                                    //TICS !POR#021
     TextOutputStream& TextOutputStream::operator<<(int v)
     {
         if (v < 0)
