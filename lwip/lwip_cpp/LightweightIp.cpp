@@ -13,7 +13,7 @@ namespace services
         : ConnectionFactoryLwIp(listenerAllocator, connectorAllocator, connectionAllocator)
         , randomDataGenerator(randomDataGenerator)
     {
-		tcpip_init();
+        lwip_init();
     }
 
     uint32_t LightweightIp::Rand()
