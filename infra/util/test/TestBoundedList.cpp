@@ -377,6 +377,22 @@ TEST(BoundedListTest, TestEraseAllAfterNothing)
     EXPECT_EQ(1, std::distance(list.begin(), list.end()));
 }
 
+TEST(BoundedListTest, TestRemove)
+{
+    infra::BoundedList<int>::WithMaxSize<5> list(std::size_t(3), 4);
+    list.remove(*std::next(list.begin()));
+    EXPECT_EQ(2, list.size());
+    EXPECT_EQ(2, std::distance(list.begin(), list.end()));
+
+    list.remove(list.back());
+    EXPECT_EQ(1, list.size());
+    EXPECT_EQ(1, std::distance(list.begin(), list.end()));
+
+    list.remove(list.front());
+    EXPECT_EQ(0, list.size());
+    EXPECT_EQ(0, std::distance(list.begin(), list.end()));
+}
+
 class BoundedListConstructionTest
     : public testing::Test
 {
