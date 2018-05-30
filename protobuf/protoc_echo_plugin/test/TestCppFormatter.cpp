@@ -455,6 +455,13 @@ TEST_F(CppFormatterTest, DataMember_prints_header)
     ExpectPrinted("type name;\n");
 }
 
+TEST_F(CppFormatterTest, initialized_DataMember_prints_header)
+{
+    application::DataMember initializedMember("name", "type", "initializer");
+    initializedMember.PrintHeader(*printer);
+    ExpectPrinted("type name = initializer;\n");
+}
+
 TEST_F(CppFormatterTest, DataMember_prints_nothing_in_source)
 {
     application::DataMember member("name", "type");

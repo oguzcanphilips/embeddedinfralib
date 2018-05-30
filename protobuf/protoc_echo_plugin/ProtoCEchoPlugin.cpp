@@ -87,7 +87,7 @@ namespace application
 
     void FieldGenerator::GenerateFieldConstant(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldConstantName(&descriptor) + " = " + google::protobuf::SimpleItoa(descriptor.number()), "static const uint32_t"));
+        entities.Add(std::make_shared<DataMember>(google::protobuf::compiler::cpp::FieldConstantName(&descriptor), "static const uint32_t", google::protobuf::SimpleItoa(descriptor.number())));
     }
 
     void FieldGenerator::CompareEqualBody(google::protobuf::io::Printer& printer)
@@ -97,7 +97,7 @@ namespace application
 
     void FieldGeneratorInt32::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(descriptor.name(), "int32_t"));
+        entities.Add(std::make_shared<DataMember>(descriptor.name(), "int32_t", "0"));
     }
 
     std::string FieldGeneratorInt32::MaxMessageSize() const
@@ -130,7 +130,7 @@ namespace application
 
     void FieldGeneratorFixed32::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(descriptor.name(), "uint32_t"));
+        entities.Add(std::make_shared<DataMember>(descriptor.name(), "uint32_t", "0"));
     }
 
     std::string FieldGeneratorFixed32::MaxMessageSize() const
@@ -163,7 +163,7 @@ namespace application
 
     void FieldGeneratorBool::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(descriptor.name(), "bool"));
+        entities.Add(std::make_shared<DataMember>(descriptor.name(), "bool", "false"));
     }
 
     std::string FieldGeneratorBool::MaxMessageSize() const
@@ -326,7 +326,7 @@ namespace application
 
     void FieldGeneratorUint32::GenerateFieldDeclaration(Entities& entities)
     {
-        entities.Add(std::make_shared<DataMember>(descriptor.name(), "uint32_t"));
+        entities.Add(std::make_shared<DataMember>(descriptor.name(), "uint32_t", "0"));
     }
 
     std::string FieldGeneratorUint32::MaxMessageSize() const
@@ -668,7 +668,7 @@ namespace application
             maxMessageSize += " + " + fieldGenerator->MaxMessageSize();
         }
 
-        fields->Add(std::make_shared<DataMember>("maxMessageSize = " + maxMessageSize, "static const uint32_t"));
+        fields->Add(std::make_shared<DataMember>("maxMessageSize", "static const uint32_t", maxMessageSize));
         
         classFormatter->Add(fields);
     }
@@ -846,7 +846,7 @@ namespace application
     {
         auto fields = std::make_shared<Access>("private");
 
-        fields->Add(std::make_shared<DataMember>("serviceId = " + google::protobuf::SimpleItoa(serviceId), "static const uint32_t"));
+        fields->Add(std::make_shared<DataMember>("serviceId", "static const uint32_t", google::protobuf::SimpleItoa(serviceId)));
 
         for (int i = 0; i != service.method_count(); ++i)
         {
@@ -854,7 +854,7 @@ namespace application
             if (methodId == 0)
                 throw UnspecifiedMethodId{ service.name(), service.method(i)->name() };
 
-            fields->Add(std::make_shared<DataMember>("id" + service.method(i)->name() + " = " + google::protobuf::SimpleItoa(methodId), "static const uint32_t"));
+            fields->Add(std::make_shared<DataMember>("id" + service.method(i)->name(), "static const uint32_t", google::protobuf::SimpleItoa(methodId)));
         }
 
         serviceFormatter->Add(fields);

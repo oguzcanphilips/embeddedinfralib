@@ -160,7 +160,7 @@ namespace application
         : public Entity
     {
     public:
-        DataMember(const std::string& name, const std::string& type);
+        DataMember(const std::string& name, const std::string& type, const std::string& initializer = std::string());
 
         virtual void PrintHeader(google::protobuf::io::Printer& printer) const override;
         virtual void PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const override;
@@ -168,6 +168,7 @@ namespace application
     private:
         std::string name;
         std::string type;
+        std::string initializer;
     };
 
     class IncludesByHeader

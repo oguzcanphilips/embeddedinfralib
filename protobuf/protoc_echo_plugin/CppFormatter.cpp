@@ -302,15 +302,19 @@ namespace application
         }
     }
 
-    DataMember::DataMember(const std::string& name, const std::string& type)
+    DataMember::DataMember(const std::string& name, const std::string& type, const std::string& initializer)
         : Entity(true, false)
         , name(name)
         , type(type)
+        , initializer(initializer)
     {}
 
     void DataMember::PrintHeader(google::protobuf::io::Printer& printer) const
     {
-        printer.Print("$type$ $name$;\n", "type", type, "name", name);
+        if (initializer.empty())
+            printer.Print("$type$ $name$;\n", "type", type, "name", name);
+        else
+            printer.Print("$type$ $name$ = $initializer$;\n", "type", type, "name", name, "initializer", initializer);
     }
 
     void DataMember::PrintSource(google::protobuf::io::Printer& printer, const std::string& scope) const
