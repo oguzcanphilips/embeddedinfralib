@@ -138,7 +138,7 @@ namespace application
         for (int i = 0; i != service.method_count(); ++i)
         {
             if (service.method(i)->input_type()->full_name() != EmptyRequest::descriptor()->full_name())
-                printer.Print("        public delegate void $method$Delegate($parameter$ parameter);\n", "method", service.method(i)->name(), "parameter", QualifiedName(*service.method(i)->input_type()));
+                printer.Print("        public delegate void $method$Delegate(global::$parameter$ parameter);\n", "method", service.method(i)->name(), "parameter", QualifiedName(*service.method(i)->input_type()));
             else
                 printer.Print("        public delegate void $method$Delegate();\n", "method", service.method(i)->name());
             printer.Print("        public $method$Delegate $method_var$;\n", "method", service.method(i)->name(), "method_var", service.method(i)->name());
@@ -169,7 +169,7 @@ namespace application
             if (service.method(i)->input_type()->full_name() != EmptyRequest::descriptor()->full_name())
                 printer.Print(R"(                case id$method_type$:
                 {
-                    var parameter = new $parameter_type$();
+                    var parameter = new global::$parameter_type$();
                     parameter.MergeFrom(stream);
                     $method$(parameter);
                     break;
@@ -252,7 +252,7 @@ namespace application
         for (int i = 0; i != service.method_count(); ++i)
         {
             if (service.method(i)->input_type()->full_name() != EmptyRequest::descriptor()->full_name())
-                printer.Print(R"(        public void $method$($parameter_type$ parameter)
+                printer.Print(R"(        public void $method$(global::$parameter_type$ parameter)
 )", "method", service.method(i)->name(), "parameter_type", QualifiedName(*service.method(i)->input_type()));
             else
                 printer.Print(R"(        public void $method$()
