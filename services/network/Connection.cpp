@@ -3,10 +3,6 @@
 
 namespace services
 {
-    ConnectionObserver::ConnectionObserver(services::Connection& connection)
-        : infra::SingleObserver<ConnectionObserver, Connection>(connection)
-    {}
-
     void Connection::SwitchObserver(const infra::SharedPtr<ConnectionObserver>& newObserver)
     {
         this->observer = newObserver;

@@ -15,20 +15,14 @@ namespace services
     class ConnectionObserver
         : public infra::SingleObserver<ConnectionObserver, Connection>
     {
-    protected:
-        ConnectionObserver() = default;
-        explicit ConnectionObserver(Connection& connection);
-        ConnectionObserver(const ConnectionObserver& other) = delete;
-        ConnectionObserver& operator=(const ConnectionObserver& other) = delete;
-        ~ConnectionObserver() = default;
+    public:
+        using infra::SingleObserver<ConnectionObserver, Connection>::SingleObserver;
 
     public:
         virtual void SendStreamAvailable(infra::SharedPtr<infra::DataOutputStream>&& stream) = 0;
         virtual void DataReceived() = 0;
         virtual void Connected() {}
         virtual void ClosingConnection() {}
-
-        using infra::SingleObserver<ConnectionObserver, Connection>::Attach;
 
     private:
         friend class Connection;
@@ -37,12 +31,6 @@ namespace services
     class Connection
         : public infra::Subject<ConnectionObserver>
     {
-    protected:
-        Connection() = default;
-        Connection(const Connection& other) = delete;
-        Connection& operator=(const Connection& other) = delete;
-        ~Connection() = default;
-
     public:
         // A new send stream may only be requested when any previous send stream has been destroyed
         virtual void RequestSendStream(std::size_t sendSize) = 0;
