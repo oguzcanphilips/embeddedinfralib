@@ -2,9 +2,10 @@
 #include <cstring>
 #include "infra/event/EventDispatcher.hpp"
 #include "lwip/lwip_cpp/LightweightIpOverEthernet.hpp"
-#include "netif/etharp.h"
-#include "lwip/ethip6.h"
 #include "lwip/dhcp.h"
+#include "lwip/ethip6.h"
+#include "lwip/igmp.h"
+#include "netif/etharp.h"
 
 namespace services
 {
@@ -13,12 +14,18 @@ namespace services
         , netInterface(netInterface)
     {
         netif_set_link_up(&netInterface);
+
+        for (auto group = netif_igmp_data(&netInterface); group != nullptr; group = group->next)
+            SetIgmpMacFilter(&group->group_address, NETIF_ADD_MAC_FILTER);
     }
 
     LightweightIpOverEthernet::~LightweightIpOverEthernet()
     {
         if (currentReceiveBufferFirst)
             pbuf_free(currentReceiveBufferFirst);
+
+        for (auto group = netif_igmp_data(&netInterface); group != nullptr; group = group->next)
+            SetIgmpMacFilter(&group->group_address, NETIF_DEL_MAC_FILTER);
 
         netif_set_link_down(&netInterface);
     }
@@ -173,6 +180,7 @@ namespace services
         }
 
         netif_add(&netInterface, ip_2_ip4(&ipaddr), ip_2_ip4(&netmask), ip_2_ip4(&gw), this, &LightweightIpOverEthernetFactory::StaticInit, &ethernet_input);
+        netif_set_up(&netInterface);
         netif_set_default(&netInterface);
 
         netif_set_hostname(&netInterface, config.hostName.Storage().data());
@@ -228,7 +236,7 @@ namespace services
         netInterface.hwaddr[5] = macAddress[5];
 
         netInterface.mtu = 1500;
-        netInterface.flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_IGMP | NETIF_FLAG_UP;
+        netInterface.flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_IGMP;
 
         return ERR_OK;
     }
