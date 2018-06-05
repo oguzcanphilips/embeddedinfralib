@@ -12,6 +12,7 @@ namespace services
     class LightweightIp
         : public ConnectionFactoryLwIp
         , public DatagramProviderLwIp
+        , public DatagramFactoryLwIp
         , public MulticastLwIp
         , public infra::InterfaceConnector<LightweightIp>
     {

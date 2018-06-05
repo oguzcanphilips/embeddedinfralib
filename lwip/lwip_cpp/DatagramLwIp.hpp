@@ -145,6 +145,139 @@ namespace services
         AllocatorDatagramSenderPeerLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MEMP_NUM_UDP_PCB> allocatorSenderPeer;
         AllocatorDatagramReceiverPeerLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MEMP_NUM_UDP_PCB> allocatorReceiverPeer;
     };
+
+    class DatagramExchangeLwIP
+        : public DatagramExchange
+        , public infra::EnableSharedFromThis<DatagramExchangeLwIP>
+    {
+    public:
+        DatagramExchangeLwIP(DatagramExchangeObserver& observer);
+        ~DatagramExchangeLwIP();
+
+        void ListenIPv4(uint16_t port, bool broadcastAllowed);
+        void ConnectIPv4(Udpv4Socket remote);
+        void ConnectIPv4(uint16_t localPort, Udpv4Socket remote, bool broadcastAllowed);
+        void ListenIPv6(uint16_t port);
+        void ConnectIPv6(Udpv6Socket remote);
+        void ConnectIPv6(uint16_t localPort, Udpv6Socket remote);
+
+        // Implementation of DatagramExchange
+        virtual void RequestSendStream(std::size_t sendSize) override;
+        virtual void RequestSendStream(std::size_t sendSize, UdpSocket to) override;
+
+    private:
+        static void StaticRecv(void* arg, udp_pcb* pcb, pbuf* buffer, const ip_addr_t* address, u16_t port);
+        void Recv(pbuf* buffer, const ip_addr_t* address, u16_t port);
+
+    private:
+        class UdpReader
+            : public infra::StreamReader
+        {
+        public:
+            UdpReader(pbuf* buffer);
+            ~UdpReader();
+
+            virtual void Extract(infra::ByteRange range, infra::StreamErrorPolicy& errorPolicy) override;
+            virtual uint8_t Peek(infra::StreamErrorPolicy& errorPolicy) override;
+            virtual infra::ConstByteRange ExtractContiguousRange(std::size_t max) override;
+            virtual bool Empty() const override;
+            virtual std::size_t Available() const override;
+
+        private:
+            pbuf* buffer;
+            uint16_t bufferOffset = 0;
+        };
+
+        class UdpWriter
+            : public infra::StreamWriter
+        {
+        public:
+            UdpWriter(udp_pcb* control, pbuf* buffer, infra::Optional<UdpSocket> remote);
+            ~UdpWriter();
+
+            virtual void Insert(infra::ConstByteRange range, infra::StreamErrorPolicy& errorPolicy) override;
+            virtual std::size_t Available() const override;
+
+        private:
+            udp_pcb* control;
+            pbuf* buffer;
+            infra::Optional<UdpSocket> remote;
+            uint16_t bufferOffset = 0;
+        };
+
+        using DatagramSendStreamLwIp = infra::DataOutputStream::WithWriter<UdpWriter>;
+
+        class StateBase
+        {
+        public:
+            virtual ~StateBase() = default;
+
+            virtual void RequestSendStream(std::size_t sendSize);
+            virtual void RequestSendStream(std::size_t sendSize, UdpSocket remote);
+        };
+
+        class StateIdle
+            : public StateBase
+        {
+        public:
+            StateIdle(DatagramExchangeLwIP& datagramExchange);
+
+            virtual void RequestSendStream(std::size_t sendSize) override;
+            virtual void RequestSendStream(std::size_t sendSize, UdpSocket remote);
+
+        private:
+            DatagramExchangeLwIP& datagramExchange;
+        };
+
+        class StateWaitingForBuffer
+            : public StateBase
+        {
+        public:
+            StateWaitingForBuffer(DatagramExchangeLwIP& datagramExchange, std::size_t sendSize);
+            StateWaitingForBuffer(DatagramExchangeLwIP& datagramExchange, std::size_t sendSize, infra::Optional<UdpSocket> remote);
+
+            void TryAllocateBuffer();
+
+        private:
+            DatagramExchangeLwIP& datagramExchange;
+            std::size_t sendSize;
+            infra::Optional<UdpSocket> remote;
+            infra::TimerRepeating allocateTimer;
+        };
+
+        class StateBufferAllocated
+            : public StateBase
+        {
+        public:
+            StateBufferAllocated(DatagramExchangeLwIP& datagramExchange, pbuf* buffer, infra::Optional<UdpSocket> remote);
+
+        private:
+            DatagramExchangeLwIP& datagramExchange;
+            infra::NotifyingSharedOptional<DatagramSendStreamLwIp> stream;
+            infra::SharedPtr<DatagramSendStreamLwIp> streamPtr;
+        };
+
+    private:
+        udp_pcb* control = nullptr;
+        infra::PolymorphicVariant<StateBase, StateIdle, StateWaitingForBuffer, StateBufferAllocated> state;
+    };
+
+    using AllocatorDatagramExchangeLwIp = infra::SharedObjectAllocator<DatagramExchangeLwIP, void(DatagramExchangeObserver& observer)>;
+
+    class DatagramFactoryLwIp
+        : public DatagramFactory
+    {
+    public:
+        virtual infra::SharedPtr<DatagramExchange> ListenIPv4(DatagramExchangeObserver& observer, uint16_t port, bool broadcastAllowed) override;
+        virtual infra::SharedPtr<DatagramExchange> ConnectIPv4(DatagramExchangeObserver& observer, Udpv4Socket remote) override;
+        virtual infra::SharedPtr<DatagramExchange> ConnectIPv4(DatagramExchangeObserver& observer, uint16_t localPort, Udpv4Socket remote, bool broadcastAllowed) override;
+        virtual infra::SharedPtr<DatagramExchange> ListenIPv6(DatagramExchangeObserver& observer, uint16_t port) override;
+        virtual infra::SharedPtr<DatagramExchange> ConnectIPv6(DatagramExchangeObserver& observer, Udpv6Socket remote) override;
+        virtual infra::SharedPtr<DatagramExchange> ConnectIPv6(DatagramExchangeObserver& observer, uint16_t localPort, Udpv6Socket remote) override;
+
+    private:
+        AllocatorDatagramExchangeLwIp::UsingAllocator<infra::SharedObjectAllocatorFixedSize>::WithStorage<MEMP_NUM_UDP_PCB> allocatorDatagramExchanges;
+    };
 }
 
 #endif
