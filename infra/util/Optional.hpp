@@ -37,6 +37,8 @@ namespace infra
         Optional(const Optional& other);
         Optional(Optional&& other);
         Optional(None);                                             //TICS !INT#001
+        template<class U>
+            explicit Optional(const Optional<U>& other);
         template<class... Args>
             explicit Optional(InPlace, Args&&... args);
 
@@ -161,6 +163,14 @@ namespace infra
     template<class T>
     Optional<T>::Optional(None)
     {}
+
+    template<class T>
+    template<class U>
+    Optional<T>::Optional(const Optional<U>& other)
+    {
+        if (other)
+            Emplace(*other);
+    }
 
     template<class T>
     template<class... Args>

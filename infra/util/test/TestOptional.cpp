@@ -41,6 +41,16 @@ TEST(OptionalTest, TestConstructedWithMovedValue)
     EXPECT_TRUE(*o);
 }
 
+TEST(OptionalTest, TestConstructedWithConvertibleValue)
+{
+    infra::Optional<short int> x(infra::inPlace, 1);
+    infra::Optional<int> y(x);
+    EXPECT_TRUE(static_cast<bool>(y));
+    EXPECT_EQ(1, *y);
+
+    EXPECT_FALSE(infra::Optional<int>(infra::Optional<short int>()));
+}
+
 TEST(OptionalTest, TestCopyConstruction)
 {
     infra::Optional<bool> o1(infra::inPlace, true);
