@@ -1,13 +1,54 @@
 #ifndef INFRA_JSON_HPP
 #define INFRA_JSON_HPP
 
+#include "infra/stream/OutputStream.hpp"
 #include "infra/util/BoundedString.hpp"
 #include "infra/util/Optional.hpp"
 #include "infra/util/ReverseRange.hpp"
 #include "infra/util/Variant.hpp"
 
+#ifdef _MSC_VER
+#include <string>
+#endif
+
 namespace infra
 {
+    class JsonString
+    {
+    public:
+        JsonString() = default;
+        JsonString(infra::BoundedConstString source);
+        JsonString(const char* source);
+
+        bool operator==(const JsonString& other) const;
+        bool operator!=(const JsonString& other) const;
+
+        bool operator==(infra::BoundedConstString other) const;
+        bool operator!=(infra::BoundedConstString other) const;
+        friend bool operator==(infra::BoundedConstString x, JsonString y);
+        friend bool operator!=(infra::BoundedConstString x, JsonString y);
+        bool operator==(const char* other) const;
+        bool operator!=(const char* other) const;
+        friend bool operator==(const char* x, JsonString y);
+        friend bool operator!=(const char* x, JsonString y);
+
+        bool empty() const;
+        std::size_t size() const;
+        infra::BoundedConstString::const_iterator begin() const;
+        infra::BoundedConstString::const_iterator end() const;
+
+        void ToString(infra::BoundedString& result) const;
+        void AppendTo(infra::BoundedString& result) const;
+#ifdef _MSC_VER
+        std::string ToStdString() const;
+#endif
+
+        friend infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, JsonString value);
+
+    private:
+        infra::BoundedConstString source;
+    };
+
     namespace JsonToken
     {
         class End
@@ -109,10 +150,10 @@ namespace infra
             bool operator==(const String& other) const;
             bool operator!=(const String& other) const;
 
-            infra::BoundedConstString Value() const;
+            JsonString Value() const;
 
         private:
-            infra::BoundedConstString value;
+            JsonString value;
         };
 
         class Integer
@@ -172,7 +213,7 @@ namespace infra
     class JsonObject;
     class JsonArray;
 
-    using JsonValue = infra::Variant<bool, int32_t, infra::BoundedConstString, JsonObject, JsonArray>;
+    using JsonValue = infra::Variant<bool, int32_t, JsonString, JsonObject, JsonArray>;
 
     class JsonObject
     {
@@ -187,14 +228,14 @@ namespace infra
 
         bool HasKey(infra::BoundedConstString key);
 
-        infra::BoundedConstString GetString(infra::BoundedConstString key);
+        JsonString GetString(infra::BoundedConstString key);
         bool GetBoolean(infra::BoundedConstString key);
         int32_t GetInteger(infra::BoundedConstString key);
         JsonObject GetObject(infra::BoundedConstString key);
         JsonArray GetArray(infra::BoundedConstString key);
         JsonValue GetValue(infra::BoundedConstString key);
 
-        infra::Optional<infra::BoundedConstString> GetOptionalString(infra::BoundedConstString key);
+        infra::Optional<JsonString> GetOptionalString(infra::BoundedConstString key);
         infra::Optional<bool> GetOptionalBoolean(infra::BoundedConstString key);
         infra::Optional<int32_t> GetOptionalInteger(infra::BoundedConstString key);
         infra::Optional<JsonObject> GetOptionalObject(infra::BoundedConstString key);
@@ -246,7 +287,7 @@ namespace infra
         bool operator==(const JsonKeyValue& other) const;
         bool operator!=(const JsonKeyValue& other) const;
 
-        infra::BoundedConstString key = "";
+        JsonString key;
         JsonValue value;
     };
 
@@ -385,7 +426,7 @@ namespace infra
 
     infra::detail::DoublePair<JsonValueArrayIterator<bool>> JsonBooleanArray(JsonArray& array);
     infra::detail::DoublePair<JsonValueArrayIterator<int32_t>> JsonIntegerArray(JsonArray& array);
-    infra::detail::DoublePair<JsonValueArrayIterator<infra::BoundedConstString>> JsonStringArray(JsonArray& array);
+    infra::detail::DoublePair<JsonValueArrayIterator<JsonString>> JsonStringArray(JsonArray& array);
     infra::detail::DoublePair<JsonValueArrayIterator<JsonObject>> JsonObjectArray(JsonArray& array);
     infra::detail::DoublePair<JsonValueArrayIterator<JsonArray>> JsonArrayArray(JsonArray& array);
     void CleanJsonContents(infra::BoundedString& contents);

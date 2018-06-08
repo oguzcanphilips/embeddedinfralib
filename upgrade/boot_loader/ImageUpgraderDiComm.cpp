@@ -52,7 +52,7 @@ namespace application
             return false;
 
         infra::JsonObject firmwareProperties(firmwarePropertiesString);
-        infra::BoundedConstString state = firmwareProperties.GetString("state");
+        infra::JsonString state = firmwareProperties.GetString("state");
         bool canUpgrade = firmwareProperties.GetOptionalBoolean("canupgrade").ValueOr(true);
         maxChunkSize = firmwareProperties.GetOptionalInteger("maxchunksize").ValueOr(chunkSizeMax);
 
@@ -101,7 +101,7 @@ namespace application
             if (diComm.GetProps("firmware", firmwarePropertiesString))
             {
                 firmwareProperties = infra::JsonObject(firmwarePropertiesString);
-                infra::BoundedConstString state = firmwareProperties.GetString("state");
+                infra::JsonString state = firmwareProperties.GetString("state");
 
                 if (state == "error")
                     return false;
@@ -131,7 +131,7 @@ namespace application
             if (diComm.GetProps("firmware", firmwarePropertiesString))
             {
                 firmwareProperties = infra::JsonObject(firmwarePropertiesString);
-                infra::BoundedConstString state = firmwareProperties.GetString("state");
+                infra::JsonString state = firmwareProperties.GetString("state");
                 if (state == "error")
                     return false;
 

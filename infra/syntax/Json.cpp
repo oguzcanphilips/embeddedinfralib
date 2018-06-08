@@ -22,6 +22,106 @@ namespace
 
 namespace infra
 {
+    JsonString::JsonString(infra::BoundedConstString source)
+        : source(source)
+    {}
+
+    JsonString::JsonString(const char* source)
+        : source(source)
+    {}
+
+    bool JsonString::operator==(const JsonString& other) const
+    {
+        return source == other.source;
+    }
+
+    bool JsonString::operator!=(const JsonString& other) const
+    {
+        return !(*this == other);
+    }
+
+    bool JsonString::operator==(infra::BoundedConstString other) const
+    {
+        return source == other;
+    }
+
+    bool JsonString::operator!=(infra::BoundedConstString other) const
+    {
+        return !(*this == other);
+    }
+
+    bool operator==(infra::BoundedConstString x, JsonString y)
+    {
+        return y == x;
+    }
+
+    bool operator!=(infra::BoundedConstString x, JsonString y)
+    {
+        return y != x;
+    }
+
+    bool JsonString::operator==(const char* other) const
+    {
+        return source == other;
+    }
+
+    bool JsonString::operator!=(const char* other) const
+    {
+        return !(*this == other);
+    }
+
+    bool operator==(const char* x, JsonString y)
+    {
+        return y == x;
+    }
+
+    bool operator!=(const char* x, JsonString y)
+    {
+        return y == x;
+    }
+
+    bool JsonString::empty() const
+    {
+        return size() == 0;
+    }
+
+    std::size_t JsonString::size() const
+    {
+        return std::distance(begin(), end());
+    }
+
+    infra::BoundedConstString::const_iterator JsonString::begin() const
+    {
+        return source.begin();
+    }
+
+    infra::BoundedConstString::const_iterator JsonString::end() const
+    {
+        return source.end();
+    }
+
+    void JsonString::ToString(infra::BoundedString& result) const
+    {
+        result.assign(source.begin(), source.begin() + std::min(source.size(), result.max_size()));
+    }
+
+    void JsonString::AppendTo(infra::BoundedString& result) const
+    {
+        result.append(source.substr(0, result.max_size() - result.size()));
+    }
+
+#ifdef _MSC_VER
+    std::string JsonString::ToStdString() const
+    {
+        return std::string(source.begin(), source.end());
+    }
+#endif
+
+    infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, JsonString value)
+    {
+        return stream << value.source;
+    }
+
     namespace JsonToken
     {
         bool End::operator==(const End& other) const
@@ -164,7 +264,7 @@ namespace infra
             return value != other.value;
         }
 
-        infra::BoundedConstString String::Value() const
+        JsonString String::Value() const
         {
             return value;
         }
@@ -362,9 +462,9 @@ namespace infra
         return false;
     }
 
-    infra::BoundedConstString JsonObject::GetString(infra::BoundedConstString key)
+    JsonString JsonObject::GetString(infra::BoundedConstString key)
     {
-        return GetValue<infra::BoundedConstString>(key);
+        return GetValue<JsonString>(key);
     }
 
     bool JsonObject::GetBoolean(infra::BoundedConstString key)
@@ -399,9 +499,9 @@ namespace infra
         return JsonValue();
     }
 
-    infra::Optional<infra::BoundedConstString> JsonObject::GetOptionalString(infra::BoundedConstString key)
+    infra::Optional<JsonString> JsonObject::GetOptionalString(infra::BoundedConstString key)
     {
-        return GetOptionalValue<infra::BoundedConstString>(key);
+        return GetOptionalValue<JsonString>(key);
     }
 
     infra::Optional<bool> JsonObject::GetOptionalBoolean(infra::BoundedConstString key)
@@ -879,11 +979,11 @@ namespace infra
             JsonValueArrayIterator<int32_t>(array.end(), array.end()));
     }
 
-    infra::detail::DoublePair<JsonValueArrayIterator<infra::BoundedConstString>> JsonStringArray(JsonArray& array)
+    infra::detail::DoublePair<JsonValueArrayIterator<JsonString>> JsonStringArray(JsonArray& array)
     {
-        return infra::detail::DoublePair<JsonValueArrayIterator<infra::BoundedConstString>>(
-            JsonValueArrayIterator<infra::BoundedConstString>(array.begin(), array.end()),
-            JsonValueArrayIterator<infra::BoundedConstString>(array.end(), array.end()));
+        return infra::detail::DoublePair<JsonValueArrayIterator<JsonString>>(
+            JsonValueArrayIterator<JsonString>(array.begin(), array.end()),
+            JsonValueArrayIterator<JsonString>(array.end(), array.end()));
     }
 
     infra::detail::DoublePair<JsonValueArrayIterator<JsonObject>> JsonObjectArray(JsonArray& array)

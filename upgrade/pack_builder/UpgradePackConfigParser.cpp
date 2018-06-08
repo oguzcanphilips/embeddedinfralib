@@ -3,14 +3,9 @@
 
 namespace
 {
-    std::string StdString(infra::BoundedConstString str)
+    std::pair<std::string, std::string> StdStringPair(infra::JsonString str1, infra::JsonString str2)
     {
-        return std::string(str.data(), str.size());
-    }
-
-    std::pair<std::string, std::string> StdStringPair(infra::BoundedConstString str1, infra::BoundedConstString str2)
-    {
-        return std::pair<std::string, std::string>(StdString(str1), StdString(str2));
+        return std::pair<std::string, std::string>(str1.ToStdString(), str2.ToStdString());
     }
 }
 
@@ -54,10 +49,10 @@ namespace application
 
         for (infra::JsonObjectIterator it = components->begin(); it != components->end() ; ++it)
         {
-            if (it->value.Is<infra::BoundedConstString>())
-                result.push_back(StdStringPair(it->key, it->value.Get<infra::BoundedConstString>()));
+            if (it->value.Is<infra::JsonString>())
+                result.push_back(std::make_pair(it->key.ToStdString(), it->value.Get<infra::JsonString>().ToStdString()));
             else
-                throw ParseException("ConfigParser error: invalid value for component: " + StdString(it->key));
+                throw ParseException("ConfigParser error: invalid value for component: " + it->key.ToStdString());
         }
 
         return result;
@@ -76,12 +71,12 @@ namespace application
 
         for (infra::JsonObjectIterator it = options->begin(); it != options->end(); ++it)
         {
-            if (it->value.Is<infra::BoundedConstString>())
-                result.push_back(StdStringPair(it->key, it->value.Get<infra::BoundedConstString>()));
+            if (it->value.Is<infra::JsonString>())
+                result.push_back(std::make_pair(it->key.ToStdString(), it->value.Get<infra::JsonString>().ToStdString()));
             else if (it->value.Is<int32_t>())
-                result.push_back(std::pair<std::string, std::string>(StdString(it->key), std::to_string(it->value.Get<int32_t>())));
+                result.push_back(std::pair<std::string, std::string>(it->key.ToStdString(), std::to_string(it->value.Get<int32_t>())));
             else
-                throw ParseException("ConfigParser error: invalid value for option: " + StdString(it->key));
+                throw ParseException("ConfigParser error: invalid value for option: " + it->key.ToStdString());
         }
 
         return result;
@@ -94,7 +89,7 @@ namespace application
             if (json.GetOptionalString("output_filename") == infra::none)
                 throw ParseException(std::string("ConfigParser error: output filename should be a string"));
             else
-                return StdString(json.GetString("output_filename"));
+                return json.GetString("output_filename").ToStdString();
         }
 
         return "";

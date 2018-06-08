@@ -227,7 +227,7 @@ TEST(JsonObjectIteratorTest, get_second_value_from_iterator)
     infra::JsonObjectIterator iterator(object.begin());
 
     ++iterator;
-    EXPECT_EQ("second_value", iterator->value.Get<infra::BoundedConstString>());
+    EXPECT_EQ("second_value", iterator->value.Get<infra::JsonString>());
 }
 
 TEST(JsonObjectIteratorTest, get_string_value_from_iterator)
@@ -235,7 +235,7 @@ TEST(JsonObjectIteratorTest, get_string_value_from_iterator)
     infra::JsonObject object(R"({ "key" : "value" })");
     infra::JsonObjectIterator iterator(object.begin());
 
-    EXPECT_EQ("value", iterator->value.Get<infra::BoundedConstString>());
+    EXPECT_EQ("value", iterator->value.Get<infra::JsonString>());
 }
 
 TEST(JsonObjectIteratorTest, get_integer_value_from_iterator)
@@ -341,7 +341,7 @@ TEST(JsonObjectTest, iterate_over_object)
     infra::JsonObject object(R"({ "key" : "value" })");
 
     for (auto keyValue : object)
-        EXPECT_EQ("value", keyValue.value.Get<infra::BoundedConstString>());
+        EXPECT_EQ("value", keyValue.value.Get<infra::JsonString>());
 }
 
 TEST(JsonObjectTest, incorrect_object_sets_error)
@@ -505,7 +505,7 @@ TEST(JsonObjectIteratorTest, get_value_from_iterator)
     infra::JsonArray jsonArray(R"([ "value" ])");
     infra::JsonArrayIterator iterator(jsonArray.begin());
 
-    EXPECT_EQ("value", iterator->Get<infra::BoundedConstString>());
+    EXPECT_EQ("value", iterator->Get<infra::JsonString>());
 }
 
 TEST(JsonObjectIteratorTest, get_multiple_values_from_iterator)
@@ -513,7 +513,7 @@ TEST(JsonObjectIteratorTest, get_multiple_values_from_iterator)
     infra::JsonArray jsonArray(R"([ "value", true, { "subobject" } ])");
     infra::JsonArrayIterator iterator(jsonArray.begin());
 
-    EXPECT_EQ("value", (iterator++)->Get<infra::BoundedConstString>());
+    EXPECT_EQ("value", (iterator++)->Get<infra::JsonString>());
     EXPECT_EQ(true, (iterator++)->Get<bool>());
     EXPECT_EQ(R"({ "subobject" })", (*iterator++).Get<infra::JsonObject>().ObjectString());
 }
@@ -537,7 +537,7 @@ TEST(JsonArrayTest, iterate_over_array)
     infra::JsonArray jsonArray(R"([ "value" ])");
 
     for (auto value : jsonArray)
-        EXPECT_EQ("value", value.Get<infra::BoundedConstString>());
+        EXPECT_EQ("value", value.Get<infra::JsonString>());
 
     EXPECT_EQ(1, std::distance(jsonArray.begin(), jsonArray.end()));
 }
