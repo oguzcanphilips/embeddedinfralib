@@ -13,6 +13,25 @@
 
 namespace infra
 {
+    class JsonStringIterator
+        : public std::iterator<std::forward_iterator_tag, char>
+    {
+    public:
+        JsonStringIterator(infra::BoundedConstString::const_iterator position, infra::BoundedConstString::const_iterator end);
+
+        char operator*() const;
+
+        JsonStringIterator& operator++();
+        JsonStringIterator operator++(int);
+
+        bool operator==(const JsonStringIterator& other) const;
+        bool operator!=(const JsonStringIterator& other) const;
+
+    private:
+        infra::BoundedConstString::const_iterator position;
+        infra::BoundedConstString::const_iterator end;
+    };
+
     class JsonString
     {
     public:
@@ -34,8 +53,8 @@ namespace infra
 
         bool empty() const;
         std::size_t size() const;
-        infra::BoundedConstString::const_iterator begin() const;
-        infra::BoundedConstString::const_iterator end() const;
+        JsonStringIterator begin() const;
+        JsonStringIterator end() const;
 
         void ToString(infra::BoundedString& result) const;
         void AppendTo(infra::BoundedString& result) const;

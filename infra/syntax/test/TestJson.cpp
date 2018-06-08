@@ -482,6 +482,69 @@ TEST(JsonObjectTest, nested_float_is_accepted)
     EXPECT_FALSE(object.Error());
 }
 
+TEST(JsonObjectTest, JsonString_ToString_unescapes)
+{
+    infra::JsonObject object(R"({ "key": "\"\\\n\t\r\b\f\u0032" })");
+
+    infra::BoundedString::WithStorage<32> data;
+    object.GetString("key").ToString(data);
+    EXPECT_EQ("\"\\\n\t\r\b\f ", data);
+}
+
+TEST(JsonObjectTest, JsonString_ToString_limits_to_destination)
+{
+    infra::JsonObject object(R"({ "key": "\"\\\n\t\r\b\f\u0032" })");
+
+    infra::BoundedString::WithStorage<4> data;
+    object.GetString("key").ToString(data);
+    EXPECT_EQ("\"\\\n\t", data);
+}
+
+TEST(JsonObjectTest, JsonString_ToStdString_unescapes)
+{
+    infra::JsonObject object(R"({ "key": "\"\\\n\t\r\b\f\u0032" })");
+
+    EXPECT_EQ("\"\\\n\t\r\b\f ", object.GetString("key").ToStdString());
+}
+
+TEST(JsonObjectTest, JsonString_equality_unescapes)
+{
+    infra::JsonObject object(R"({ "key": "\"\\\n\t\r\b\f\u0032" })");
+
+    EXPECT_TRUE("\"\\\n\t\r\b\f " == object.GetString("key"));
+    EXPECT_TRUE(object.GetString("key") == "\"\\\n\t\r\b\f ");
+    EXPECT_TRUE(infra::BoundedConstString("\"\\\n\t\r\b\f ") == object.GetString("key"));
+    EXPECT_TRUE(object.GetString("key") == infra::BoundedConstString("\"\\\n\t\r\b\f "));
+
+    EXPECT_FALSE("\"\\\n\t\r\b\f " != object.GetString("key"));
+    EXPECT_FALSE(object.GetString("key") != "\"\\\n\t\r\b\f ");
+    EXPECT_FALSE(infra::BoundedConstString("\"\\\n\t\r\b\f ") != object.GetString("key"));
+    EXPECT_FALSE(object.GetString("key") != infra::BoundedConstString("\"\\\n\t\r\b\f "));
+}
+
+TEST(JsonObjectTest, JsonString_size)
+{
+    infra::JsonObject object(R"({ "key": "\"\\\n\t\r\b\f\u0032" })");
+
+    EXPECT_EQ(8, object.GetString("key").size());
+    EXPECT_FALSE(object.GetString("key").empty());
+}
+
+TEST(JsonObjectTest, JsonString_corner_case_escaping)
+{
+    EXPECT_EQ("\1b", infra::JsonObject(R"({ "key": "\u1b" })").GetString("key"));
+    infra::JsonObject object1(R"({ "key": "\k" })");
+    EXPECT_EQ("k", object1.GetString("key"));
+}
+
+TEST(JsonObjectTest, iterator_equality)
+{
+    infra::JsonObject object(R"({ "key1": "bla", "key2": "bla", "key3": "bla3" })");
+
+    EXPECT_EQ(object.GetString("key1"), object.GetString("key2"));
+    EXPECT_NE(object.GetString("key1"), object.GetString("key3"));
+}
+
 TEST(JsonArrayIteratorTest, empty_array_iterator_compares_equal_to_end)
 {
     infra::JsonArray jsonArray(R"([ ])");

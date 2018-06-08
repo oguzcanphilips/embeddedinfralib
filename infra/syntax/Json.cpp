@@ -22,6 +22,91 @@ namespace
 
 namespace infra
 {
+    JsonStringIterator::JsonStringIterator(infra::BoundedConstString::const_iterator position, infra::BoundedConstString::const_iterator end)
+        : position(position)
+        , end(end)
+    {}
+
+    char JsonStringIterator::operator*() const
+    {
+        if (*position == '\\')
+        {
+            auto next = std::next(position);
+            // A JSON string cannot end in a backslash, since that backslash would have escaped the closing quotes, and without closing quotes
+            // no valid JSON string would have been produced
+            assert(next != end);
+
+            switch (*next++)
+            {
+                case '"':  return '"';
+                case '\\': return '\\';
+                case 'b': return '\b';
+                case 'f': return '\f';
+                case 'n': return '\n';
+                case 'r': return '\r';
+                case 't': return '\t';
+                case 'u':
+                {
+                    char result = 0;
+
+                    for (int skipCode = 0; skipCode != 4 && next != end; ++skipCode, ++next)
+                    {
+                        if (*next < '0' || *next > '9')
+                            break;
+
+                        result *= 10;
+                        result += *next - '0';
+                    }
+
+                    return result;
+                }
+                default: return *std::prev(next);
+            }
+        }
+        else
+            return *position;
+    }
+
+    JsonStringIterator& JsonStringIterator::operator++()
+    {
+        if (*position == '\\')
+        {
+            ++position;
+
+            if (position != end)
+                if (*position == 'u')
+                {
+                    ++position;
+                    for (int skipCode = 0; skipCode != 4 && position != end; ++skipCode, ++position)
+                        if (*position < '0' || *position > '9')
+                            break;
+                }
+                else
+                    ++position;
+        }
+        else
+            ++position;
+
+        return *this;
+    }
+
+    JsonStringIterator JsonStringIterator::operator++(int)
+    {
+        JsonStringIterator result(*this);
+        ++*this;
+        return result;
+    }
+
+    bool JsonStringIterator::operator==(const JsonStringIterator& other) const
+    {
+        return position == other.position;
+    }
+
+    bool JsonStringIterator::operator!=(const JsonStringIterator& other) const
+    {
+        return !(*this == other);
+    }
+
     JsonString::JsonString(infra::BoundedConstString source)
         : source(source)
     {}
@@ -42,7 +127,19 @@ namespace infra
 
     bool JsonString::operator==(infra::BoundedConstString other) const
     {
-        return source == other;
+        auto x = begin();
+        auto y = other.begin();
+
+        while (x != end() && y != other.end())
+        {
+            if (*x != *y)
+                return false;
+
+            ++x;
+            ++y;
+        }
+
+        return x == end() && y == other.end();
     }
 
     bool JsonString::operator!=(infra::BoundedConstString other) const
@@ -62,7 +159,19 @@ namespace infra
 
     bool JsonString::operator==(const char* other) const
     {
-        return source == other;
+        auto x = begin();
+        auto y = other;
+
+        while (x != end() && *y != 0)
+        {
+            if (*x != *y)
+                return false;
+
+            ++x;
+            ++y;
+        }
+
+        return x == end() && *y == 0;
     }
 
     bool JsonString::operator!=(const char* other) const
@@ -77,7 +186,7 @@ namespace infra
 
     bool operator!=(const char* x, JsonString y)
     {
-        return y == x;
+        return y != x;
     }
 
     bool JsonString::empty() const
@@ -90,36 +199,50 @@ namespace infra
         return std::distance(begin(), end());
     }
 
-    infra::BoundedConstString::const_iterator JsonString::begin() const
+    JsonStringIterator JsonString::begin() const
     {
-        return source.begin();
+        return JsonStringIterator(source.begin(), source.end());
     }
 
-    infra::BoundedConstString::const_iterator JsonString::end() const
+    JsonStringIterator JsonString::end() const
     {
-        return source.end();
+        return JsonStringIterator(source.end(), source.end());
     }
 
     void JsonString::ToString(infra::BoundedString& result) const
     {
-        result.assign(source.begin(), source.begin() + std::min(source.size(), result.max_size()));
+        result.clear();
+        AppendTo(result);
     }
 
     void JsonString::AppendTo(infra::BoundedString& result) const
     {
-        result.append(source.substr(0, result.max_size() - result.size()));
+        for (auto c : *this)
+        {
+            result.push_back(c);
+            if (result.full())
+                return;
+        }
     }
 
 #ifdef _MSC_VER
     std::string JsonString::ToStdString() const
     {
-        return std::string(source.begin(), source.end());
+        std::string result;
+
+        for (auto c : *this)
+            result.push_back(c);
+
+        return result;
     }
 #endif
 
     infra::TextOutputStream& operator<<(infra::TextOutputStream& stream, JsonString value)
     {
-        return stream << value.source;
+        for (auto c : value)
+            stream << c;
+
+        return stream;
     }
 
     namespace JsonToken
