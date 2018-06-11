@@ -56,6 +56,8 @@ namespace infra
         JsonStringIterator begin() const;
         JsonStringIterator end() const;
 
+        infra::BoundedConstString Raw() const;
+
         void ToString(infra::BoundedString& result) const;
         void AppendTo(infra::BoundedString& result) const;
 #ifdef _MSC_VER
@@ -170,6 +172,7 @@ namespace infra
             bool operator!=(const String& other) const;
 
             JsonString Value() const;
+            BoundedConstString RawValue() const;
 
         private:
             JsonString value;

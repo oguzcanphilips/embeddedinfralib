@@ -209,6 +209,11 @@ namespace infra
         return JsonStringIterator(source.end(), source.end());
     }
 
+    infra::BoundedConstString JsonString::Raw() const
+    {
+        return source;
+    }
+
     void JsonString::ToString(infra::BoundedString& result) const
     {
         result.clear();
@@ -390,6 +395,11 @@ namespace infra
         JsonString String::Value() const
         {
             return value;
+        }
+
+        BoundedConstString String::RawValue() const
+        {
+            return value.Raw();
         }
 
         Integer::Integer(int32_t value)
@@ -1180,7 +1190,7 @@ namespace infra
 
             void operator()(infra::JsonToken::String token)
             {
-                stream << '"' << token.Value() << '"';
+                stream << '"' << token.RawValue() << '"';
             }
 
             void operator()(infra::JsonToken::Integer token)

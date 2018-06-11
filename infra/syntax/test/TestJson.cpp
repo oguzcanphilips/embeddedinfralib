@@ -489,6 +489,7 @@ TEST(JsonObjectTest, JsonString_ToString_unescapes)
     infra::BoundedString::WithStorage<32> data;
     object.GetString("key").ToString(data);
     EXPECT_EQ("\"\\\n\t\r\b\f ", data);
+    EXPECT_EQ("\\\"\\\\\\n\\t\\r\\b\\f\\u0032", object.GetString("key").Raw());
 }
 
 TEST(JsonObjectTest, JsonString_ToString_limits_to_destination)
