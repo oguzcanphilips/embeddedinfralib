@@ -21,7 +21,7 @@ namespace services
     {
         sequencer.Load([this]()
         {
-            sequencer.Step([this]() { initDelayTimer.Start(std::chrono::milliseconds(50), [this]() { sequencer.Continue(); }); });
+            sequencer.Step([this]() { initDelayTimer.Start(std::chrono::milliseconds(100), [this]() { sequencer.Continue(); }); });
             sequencer.Step([this]() { SwitchToQuadSpeed(); });
             sequencer.Step([this]() { infra::EventDispatcher::Instance().Schedule([this]() { this->onInitialized(); }); });
         });
