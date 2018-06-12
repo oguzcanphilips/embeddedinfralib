@@ -31,6 +31,7 @@ namespace infra
         uint8_t operator [] (size_t position) const;
 
     private:
+        bool Full(const uint8_t* begin, const uint8_t* end) const;
         void NotifyDataAvailable();
         void DataAvailable();
 
