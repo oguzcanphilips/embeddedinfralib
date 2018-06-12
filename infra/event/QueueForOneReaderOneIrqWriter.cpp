@@ -30,7 +30,9 @@ namespace infra
     {
         std::size_t copySize = std::min<std::size_t>(data.size(), buffer.end() - contentsEnd);
         uint8_t* begin = contentsBegin.load();
-        assert(begin <= contentsEnd.load() || begin > contentsEnd.load() + copySize);
+        if (!(begin <= contentsEnd.load() || begin > contentsEnd.load() + copySize))
+            return;
+
         std::copy(data.begin(), data.begin() + copySize, contentsEnd.load());
 
         if (contentsEnd == buffer.end() - copySize)
@@ -54,8 +56,16 @@ namespace infra
 
     bool QueueForOneReaderOneIrqWriter::Full() const
     {
-        return (contentsEnd == buffer.end() - 1 || contentsBegin == contentsEnd + 1)
-            && (contentsEnd != buffer.end() - 1 || contentsBegin == buffer.begin());
+        const uint8_t* begin = contentsBegin.load();
+        const uint8_t* end = contentsEnd.load();
+
+        return Full(begin, end);
+    }
+
+    bool QueueForOneReaderOneIrqWriter::Full(const uint8_t* begin, const uint8_t* end) const
+    {
+        return (end == buffer.end() - 1 || begin == end + 1)
+            && (end != buffer.end() - 1 || begin == buffer.begin());
     }
 
     uint8_t QueueForOneReaderOneIrqWriter::Get()
@@ -124,7 +134,7 @@ namespace infra
         const uint8_t* begin = contentsBegin.load();
         const uint8_t* end = contentsEnd.load();
 
-        if (Full())
+        if (Full(begin, end))
             return buffer.size() - 1;
         else if (end >= begin)
             return end - begin;
