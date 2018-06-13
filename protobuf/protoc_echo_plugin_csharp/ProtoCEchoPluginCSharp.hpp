@@ -26,7 +26,22 @@ namespace application
             google::protobuf::compiler::GeneratorContext* generatorContext, std::string* error) const override;
     };
 
+    class CSharpGenerator
+    {
+    public:
+        CSharpGenerator(const google::protobuf::ServiceDescriptor& service, google::protobuf::io::Printer& printer);
+
+    protected:
+        void GenerateFieldConstants();
+
+    protected:
+        const google::protobuf::ServiceDescriptor& service;
+        google::protobuf::io::Printer& printer;
+        uint32_t serviceId;
+    };
+
     class CSharpServiceGenerator
+        : public CSharpGenerator
     {
     public:
         CSharpServiceGenerator(const google::protobuf::ServiceDescriptor& service, google::protobuf::io::Printer& printer);
@@ -36,19 +51,14 @@ namespace application
 
     private:
         void GenerateClassHeader();
-        void GenerateFieldConstants();
         void GenerateDelegates();
         void GenerateConstructor();
         void GenerateHandle();
         void GenerateClassFooter();
-
-    private:
-        const google::protobuf::ServiceDescriptor& service;
-        google::protobuf::io::Printer& printer;
-        uint32_t serviceId;
     };
 
     class CSharpServiceProxyGenerator
+        : public CSharpGenerator
     {
     public:
         CSharpServiceProxyGenerator(const google::protobuf::ServiceDescriptor& service, google::protobuf::io::Printer& printer);
@@ -58,15 +68,9 @@ namespace application
 
     private:
         void GenerateClassHeader();
-        void GenerateFieldConstants();
         void GenerateConstructor();
         void GenerateMethods();
         void GenerateClassFooter();
-
-    private:
-        const google::protobuf::ServiceDescriptor& service;
-        google::protobuf::io::Printer& printer;
-        uint32_t serviceId;
     };
 
     class CSharpEchoGenerator

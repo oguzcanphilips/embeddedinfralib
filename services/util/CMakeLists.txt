@@ -4,36 +4,38 @@ ccola_component(util static_library)
         ConfigurationStore.cpp
         ConfigurationStore.hpp
         CyclicStore.cpp
-        DebouncedButton.cpp
-        DebugLed.cpp
-        FlashDelayedInit.cpp
-        FlashMultipleAccess.cpp
-        FlashQuadSpiMicronN25q.cpp
-        FlashQuadSpiCypressFll.cpp
-        FlashSpi.cpp
-        FlashRegion.cpp
-        GpioPinInverted.cpp
-        I2cMultipleAccess.cpp
-        RepeatingButton.cpp
-        SignalLed.cpp
-        SpiMasterWithChipSelect.cpp
-        SpiMultipleAccess.cpp
-        Terminal.cpp
         CyclicStore.hpp
+        DebouncedButton.cpp
         DebouncedButton.hpp
+        DebugLed.cpp
         DebugLed.hpp
+        FlashDelayedInit.cpp
         FlashDelayedInit.hpp
+        FlashMultipleAccess.cpp
         FlashMultipleAccess.hpp
+        FlashQuadSpi.cpp
+        FlashQuadSpi.hpp
+        FlashQuadSpiMicronN25q.cpp
         FlashQuadSpiMicronN25q.hpp
+        FlashQuadSpiCypressFll.cpp
         FlashQuadSpiCypressFll.hpp
+        FlashSpi.cpp
         FlashSpi.hpp
+        FlashRegion.cpp
         FlashRegion.hpp
+        GpioPinInverted.cpp
         GpioPinInverted.hpp
+        I2cMultipleAccess.cpp
         I2cMultipleAccess.hpp
+        RepeatingButton.cpp
         RepeatingButton.hpp
+        SignalLed.cpp
         SignalLed.hpp
+        SpiMasterWithChipSelect.cpp
         SpiMasterWithChipSelect.hpp
+        SpiMultipleAccess.cpp
         SpiMultipleAccess.hpp
+        Terminal.cpp
         Terminal.hpp
     )
 
