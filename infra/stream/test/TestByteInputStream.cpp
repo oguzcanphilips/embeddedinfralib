@@ -2,6 +2,68 @@
 #include "infra/stream/ByteInputStream.hpp"
 #include <array>
 
+class ByteInputStreamReaderTest
+    : public testing::Test
+{
+public:
+    ByteInputStreamReaderTest()
+        : reader(data)
+    {}
+
+    std::array<uint8_t, 8> data{{1, 2, 3, 4, 5, 6, 7, 8}};
+    infra::ByteInputStreamReader reader;
+    infra::StreamErrorPolicy errorPolicy;
+};
+
+TEST_F(ByteInputStreamReaderTest, construction)
+{
+    EXPECT_FALSE(reader.Empty());
+    EXPECT_EQ(8, reader.Available());
+}
+
+TEST_F(ByteInputStreamReaderTest, Extract)
+{
+    std::array<uint8_t, 4> result;
+    reader.Extract(result, errorPolicy);
+    EXPECT_EQ((std::array<uint8_t, 4>{{1, 2, 3, 4}}), result);
+}
+
+TEST_F(ByteInputStreamReaderTest, Peek)
+{
+    EXPECT_EQ(1, reader.Peek(errorPolicy));
+}
+
+TEST_F(ByteInputStreamReaderTest, ExtractContiguousRange)
+{
+    EXPECT_EQ((std::array<uint8_t, 8>{{1, 2, 3, 4, 5, 6, 7, 8}}), reader.ExtractContiguousRange(16));
+}
+
+TEST_F(ByteInputStreamReaderTest, ExtractContiguousRange_limited_by_max)
+{
+    EXPECT_EQ((std::array<uint8_t, 2>{{1, 2}}), reader.ExtractContiguousRange(2));
+}
+
+TEST(ByteInputStreamTest, construct_with_range)
+{
+    std::array<uint8_t, 4> data{{1, 2, 3, 4}};
+    infra::ByteInputStream stream(data);
+    EXPECT_EQ((std::array<uint8_t, 4>{{1, 2, 3, 4}}), stream.ContiguousRange(16));
+}
+
+TEST(ByteInputStreamTest, construct_softFail_with_range)
+{
+    std::array<uint8_t, 4> data{{1, 2, 3, 4}};
+    infra::ByteInputStream stream(data, infra::softFail);
+    EXPECT_EQ((std::array<uint8_t, 4>{{1, 2, 3, 4}}), stream.ContiguousRange(16));
+}
+
+TEST(ByteInputStreamTest, construct_noFail_with_range)
+{
+    std::array<uint8_t, 4> data{ { 1, 2, 3, 4 } };
+    infra::ByteInputStream stream(data, infra::noFail);
+    EXPECT_EQ((std::array<uint8_t, 4>{ {1, 2, 3, 4}}), stream.ContiguousRange(16));
+}
+
 TEST(ByteInputStreamTest, StreamFromRange)
 {
     std::array<uint8_t, 4> from = { 0, 1, 2, 3 };

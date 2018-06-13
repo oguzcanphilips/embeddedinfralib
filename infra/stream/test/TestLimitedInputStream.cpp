@@ -1,6 +1,6 @@
 #include "gmock/gmock.h"
 #include "infra/stream/LimitedInputStream.hpp"
-#include "infra/stream/test/StreamReaderMock.hpp"
+#include "infra/stream/test/StreamMock.hpp"
 
 TEST(LimitedInputStreamTest, Extract)
 {

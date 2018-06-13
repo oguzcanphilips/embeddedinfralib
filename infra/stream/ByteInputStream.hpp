@@ -15,7 +15,7 @@ namespace infra
         ConstByteRange Processed() const;   // Invariant: Processed() ++ Remaining() == range
         ConstByteRange Remaining() const;
 
-    private:
+    public:
         virtual void Extract(ByteRange range, StreamErrorPolicy& errorPolicy) override;
         virtual uint8_t Peek(StreamErrorPolicy& errorPolicy) override;
         virtual ConstByteRange ExtractContiguousRange(std::size_t max) override;
