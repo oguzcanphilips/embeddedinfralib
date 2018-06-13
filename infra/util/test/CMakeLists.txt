@@ -13,6 +13,7 @@ ccola_component(util_test gmock_test)
         TestBoundedVector.cpp
         TestCompareMembers.cpp
         TestCyclicBuffer.cpp
+        TestEndian.cpp
         TestFixedPoint.cpp
         TestFunction.cpp
         TestInterfaceConnector.cpp
