@@ -2,10 +2,21 @@
 #define INFRA_ENDIAN_HPP
 
 #include "infra/util/ByteRange.hpp"
+#include <iterator>
 #include <type_traits>
 
 namespace infra
 {
+    namespace detail
+    {
+        // System Workbench's GCC does not yet support std::make_reverse_iterator
+        template<class Iterator>
+        std::reverse_iterator<Iterator> make_reverse_iterator(Iterator i)
+        {
+            return std::reverse_iterator<Iterator>(i);
+        }
+    }
+
     template<class T>
     T SwapEndian(T value)
     {
@@ -13,7 +24,7 @@ namespace infra
 
         T result;
         auto valueRange = infra::MakeByteRange(value);
-        std::copy(valueRange.begin(), valueRange.end(), std::make_reverse_iterator(infra::MakeByteRange(result).end()));
+        std::copy(valueRange.begin(), valueRange.end(), detail::make_reverse_iterator(infra::MakeByteRange(result).end()));
         return result;
     }
 
@@ -63,7 +74,7 @@ namespace infra
         }
 
     private:
-        T value = 0;
+        T value{};
     };
 }
 
