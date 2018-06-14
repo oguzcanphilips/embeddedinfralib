@@ -15,7 +15,7 @@ public:
         EXPECT_CALL(spiStub, SendDataMock(hal::QuadSpi::Header{ infra::MakeOptional(services::FlashQuadSpiCypressFll::commandEnterQpi), {}, {}, 0 },
             infra::ConstByteRange(), hal::QuadSpi::Lines::SingleSpeed()));
 
-        ForwardTime(std::chrono::milliseconds(1));
+        ForwardTime(std::chrono::milliseconds(100));
         testing::Mock::VerifyAndClear(&spiStub);
         testing::Mock::VerifyAndClear(&onInitialized);
     }

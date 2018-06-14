@@ -3,7 +3,6 @@
 
 namespace services
 {
-
     const uint8_t FlashQuadSpiMicronN25q::commandPageProgram = 0x32;
     const uint8_t FlashQuadSpiMicronN25q::commandReadData = 0x0B;
     const uint8_t FlashQuadSpiMicronN25q::commandReadStatusRegister = 0x05;
@@ -17,9 +16,8 @@ namespace services
 
     const uint8_t FlashQuadSpiMicronN25q::volatileRegisterForQuadSpeed = 0x5f;
 
-    FlashQuadSpiMicronN25q::FlashQuadSpiMicronN25q(hal::QuadSpi& spi, infra::Function<void()> onInitialized, uint32_t numberOfSubSectors)
-        : hal::FlashHomogeneous(numberOfSubSectors, sizeSubSector)
-        , spi(spi)
+    FlashQuadSpiMicronN25q::FlashQuadSpiMicronN25q(hal::QuadSpi& spi, infra::Function<void()> onInitialized, uint32_t numberOfSectors)
+        : FlashQuadSpi(spi, numberOfSectors, commandPageProgram)
         , onInitialized(onInitialized)
     {
         sequencer.Load([this]()
@@ -31,53 +29,11 @@ namespace services
         });
     }
 
-    void FlashQuadSpiMicronN25q::WriteBuffer(infra::ConstByteRange buffer, uint32_t address, infra::Function<void()> onDone)
-    {
-        this->onDone = onDone;
-        this->buffer = buffer;
-        this->address = address;
-
-        WriteBufferSequence();
-    }
-
     void FlashQuadSpiMicronN25q::ReadBuffer(infra::ByteRange buffer, uint32_t address, infra::Function<void()> onDone)
     {
         const hal::QuadSpi::Header header{ infra::MakeOptional(commandReadData), ConvertAddress(address), {}, 10 };
 
         spi.ReceiveData(header, buffer, hal::QuadSpi::Lines::QuadSpeed(), onDone);
-    }
-
-    void FlashQuadSpiMicronN25q::EraseSectors(uint32_t beginIndex, uint32_t endIndex, infra::Function<void()> onDone)
-    {
-        this->onDone = onDone;
-        sectorIndex = beginIndex;
-        sequencer.Load([this, endIndex]()
-        {
-            sequencer.While([this, endIndex]() { return sectorIndex != endIndex; });
-                sequencer.Step([this]() { WriteEnable(); });
-                sequencer.Step([this, endIndex]() { EraseSomeSectors(endIndex); });
-                sequencer.Step([this]() { HoldWhileWriteInProgress(); });
-            sequencer.EndWhile();
-            sequencer.Execute([this]() { infra::EventDispatcher::Instance().Schedule([this]() { this->onDone(); }); });
-        });
-    }
-
-    void FlashQuadSpiMicronN25q::WriteBufferSequence()
-    {
-        sequencer.Load([this]()
-        {
-            sequencer.While([this]() { return !this->buffer.empty(); });
-            sequencer.Step([this]() { WriteEnable(); });
-            sequencer.Step([this]() { PageProgram(); });
-            sequencer.Step([this]() { HoldWhileWriteInProgress(); });
-            sequencer.EndWhile();
-            sequencer.Execute([this]() { infra::EventDispatcher::Instance().Schedule([this]() { this->onDone(); }); });
-        });
-    }
-
-    infra::BoundedVector<uint8_t>::WithMaxSize<4> FlashQuadSpiMicronN25q::ConvertAddress(uint32_t address) const
-    {
-        return hal::QuadSpi::AddressToVector(address, 3);
     }
 
     void FlashQuadSpiMicronN25q::WriteEnableSingleSpeed()
@@ -98,17 +54,6 @@ namespace services
         spi.SendData(writeEnableHeader, {}, hal::QuadSpi::Lines::QuadSpeed(), [this]() { sequencer.Continue(); });
     }
 
-    void FlashQuadSpiMicronN25q::PageProgram()
-    {
-        hal::QuadSpi::Header pageProgramHeader{ infra::MakeOptional(commandPageProgram), ConvertAddress(address), {}, 0 };
-
-        infra::ConstByteRange currentBuffer = infra::Head(buffer, sizePage - AddressOffsetInSector(address) % sizePage);
-        buffer.pop_front(currentBuffer.size());
-        address += currentBuffer.size();
-
-        spi.SendData(pageProgramHeader, currentBuffer, hal::QuadSpi::Lines::QuadSpeed(), [this]() { sequencer.Continue(); });
-    }
-
     void FlashQuadSpiMicronN25q::EraseSomeSectors(uint32_t endIndex)
     {
         if (sectorIndex == 0 && endIndex == NumberOfSectors())
@@ -116,10 +61,10 @@ namespace services
             SendEraseBulk();
             sectorIndex += NumberOfSectors();
         }
-        else if (sectorIndex % (sizeSector / sizeSubSector) == 0 && sectorIndex + sizeSector / sizeSubSector <= endIndex)
+        else if (sectorIndex % (sizeBlock / sizeSector) == 0 && sectorIndex + sizeBlock / sizeSector <= endIndex)
         {
             SendEraseSector(sectorIndex);
-            sectorIndex += sizeSector / sizeSubSector;
+            sectorIndex += sizeBlock / sizeSector;
         }
         else
         {

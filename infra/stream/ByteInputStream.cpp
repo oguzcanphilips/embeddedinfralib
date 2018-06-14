@@ -42,7 +42,7 @@ namespace infra
     }
 
     bool ByteInputStreamReader::Empty() const
-    {
+    {  
         return offset == range.size();
     }
 

@@ -135,64 +135,17 @@ namespace infra
 
     TextOutputStream& TextOutputStream::operator<<(uint8_t v)
     {
-        switch (radix)
-        {
-            case Radix::dec:
-                OutputAsDecimal(v);
-                break;
-            case Radix::bin:
-                OutputAsBinary(v);
-                break;
-            case Radix::hex:
-                OutputAsHexadecimal(v);
-                break;
-            default:
-                std::abort();
-        }
-
-        return *this;
+        return *this << static_cast<uint64_t>(v);
     }
 
     TextOutputStream& TextOutputStream::operator<<(int32_t v)
     {
-        if (v < 0)
-            Writer().Insert(infra::MakeByteRange('-'), ErrorPolicy());
-        switch (radix)
-        {
-            case Radix::dec:
-                OutputAsDecimal(std::abs(v));
-                break;
-            case Radix::bin:
-                OutputAsBinary(std::abs(v));
-                break;
-            case Radix::hex:
-                OutputAsHexadecimal(std::abs(v));
-                break;
-            default:
-                std::abort();
-        }
-
-        return *this;
+        return *this << static_cast<int64_t>(v);
     }
 
     TextOutputStream& TextOutputStream::operator<<(uint32_t v)
     {
-        switch (radix)
-        {
-            case Radix::dec:
-                OutputAsDecimal(v);
-                break;
-            case Radix::bin:
-                OutputAsBinary(v);
-                break;
-            case Radix::hex:
-                OutputAsHexadecimal(v);
-                break;
-            default:
-                std::abort();
-        }
-
-        return *this;
+        return *this << static_cast<uint64_t>(v);
     }
 
     TextOutputStream& TextOutputStream::operator<<(int64_t v)
@@ -240,44 +193,12 @@ namespace infra
 #ifndef _MSC_VER                                                                                                    //TICS !POR#021
     TextOutputStream& TextOutputStream::operator<<(int v)
     {
-        if (v < 0)
-            Writer().Insert(infra::MakeByteRange('-'), ErrorPolicy());
-        switch (radix)
-        {
-            case Radix::dec:
-                OutputAsDecimal(std::abs(v));
-                break;
-            case Radix::bin:
-                OutputAsBinary(std::abs(v));
-                break;
-            case Radix::hex:
-                OutputAsHexadecimal(std::abs(v));
-                break;
-            default:
-                std::abort();
-        }
-
-        return *this;
+        return *this << static_cast<int64_t>(v);
     }
 
     TextOutputStream& TextOutputStream::operator<<(unsigned int v)
     {
-        switch (radix)
-        {
-            case Radix::dec:
-                OutputAsDecimal(v);
-                break;
-            case Radix::bin:
-                OutputAsBinary(v);
-                break;
-            case Radix::hex:
-                OutputAsHexadecimal(v);
-                break;
-            default:
-                std::abort();
-        }
-
-        return *this;
+        return *this << static_cast<uint64_t>(v);
     }
 #endif
 

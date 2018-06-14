@@ -9,9 +9,12 @@
 
 namespace application
 {
+    using TargetAndFiles = std::vector<std::pair<std::string, std::string>>;
+    using BuildOptions = std::vector<std::pair<std::string, std::string>>;
+
     int BuildUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
         const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, std::string outputFilename,
-        std::vector<std::pair<std::string, std::string>> targetAndFiles, std::vector<std::pair<std::string, std::string>> buildOptions, infra::ConstByteRange aesKey,
+        TargetAndFiles targetAndFiles, BuildOptions buildOptions, infra::ConstByteRange aesKey,
         infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets = std::vector<NoFileInputFactory*>());
 
     class UpgradePackBuilderFacade
@@ -21,23 +24,23 @@ namespace application
         virtual ~UpgradePackBuilderFacade() = default;
 
         void Build(const std::vector<std::string>& supportedHexTargets, const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets,
-            std::string outputFilename, std::vector<std::pair<std::string, std::string>>& targetAndFiles, std::vector<std::pair<std::string, std::string>>& buildOptions,
+            std::string outputFilename, TargetAndFiles& targetAndFiles, BuildOptions& buildOptions,
             infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets);
 
         int Result() const;
 
     protected:
-        virtual void PreBuilder(std::vector<std::pair<std::string, std::string>>& targetAndFiles, const std::vector<std::pair<std::string, std::string>>& buildOptions);
-        virtual void PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, const std::vector<std::pair<std::string, std::string>>& buildOptions);
+        virtual void PreBuilder(TargetAndFiles& targetAndFiles, const BuildOptions& buildOptions);
+        virtual void PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, const BuildOptions& buildOptions);
 
     private:
         void TryBuild(const std::vector<std::string>& supportedHexTargets, const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets,
-            std::string outputFilename, std::vector<std::pair<std::string, std::string>>& targetAndFiles, std::vector<std::pair<std::string, std::string>>& buildOptions, infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey,
+            std::string outputFilename, TargetAndFiles& targetAndFiles, BuildOptions& buildOptions, infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey,
             infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets);
 
         void ShowUsage(int argc, const char* argv[], const std::vector<std::string>& supportedHexTargets,
             const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, const std::vector<NoFileInputFactory*>& otherTargets) const;
-        void ShowUsage(std::vector<std::pair<std::string, std::string>>& targetAndFiles, std::vector<std::pair<std::string, std::string>>& buildOptions,
+        void ShowUsage(TargetAndFiles& targetAndFiles, BuildOptions& buildOptions,
             const std::vector<std::string>& supportedHexTargets, const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets,
             const std::vector<NoFileInputFactory*>& otherTargets) const;
 

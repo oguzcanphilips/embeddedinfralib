@@ -28,7 +28,7 @@ namespace application
 
     int BuildUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
         const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, std::string outputFilename,
-        std::vector<std::pair<std::string, std::string>> targetAndFiles, std::vector<std::pair<std::string, std::string>> buildOptions, infra::ConstByteRange aesKey,
+        TargetAndFiles targetAndFiles, BuildOptions buildOptions, infra::ConstByteRange aesKey,
         infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets)
     {
         UpgradePackBuilderFacade builderFacade(headerInfo);
@@ -45,7 +45,7 @@ namespace application
     }
 
     void UpgradePackBuilderFacade::Build(const std::vector<std::string>& supportedHexTargets, const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets,
-        std::string outputFilename, std::vector<std::pair<std::string, std::string>>& targetAndFiles, std::vector<std::pair<std::string, std::string>>& buildOptions, infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey,
+        std::string outputFilename, TargetAndFiles& targetAndFiles, BuildOptions& buildOptions, infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey,
         infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets)
     {
         try
@@ -109,7 +109,7 @@ namespace application
     }
 
     void UpgradePackBuilderFacade::TryBuild(const std::vector<std::string>& supportedHexTargets, const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets,
-        std::string outputFilename, std::vector<std::pair<std::string, std::string>>& targetAndFiles, std::vector<std::pair<std::string, std::string>>& buildOptions, infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey,
+        std::string outputFilename, TargetAndFiles& targetAndFiles, BuildOptions& buildOptions, infra::ConstByteRange aesKey, infra::ConstByteRange ecDsa224PublicKey,
         infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets)
     {
         application::SecureRandomNumberGenerator randomNumberGenerator;
@@ -150,7 +150,7 @@ namespace application
         std::cout << std::endl;
     }
 
-    void UpgradePackBuilderFacade::ShowUsage(std::vector<std::pair<std::string, std::string>>& targetAndFiles, std::vector<std::pair<std::string, std::string>>& buildOptions,
+    void UpgradePackBuilderFacade::ShowUsage(TargetAndFiles& targetAndFiles, BuildOptions& buildOptions,
         const std::vector<std::string>& supportedHexTargets, const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets,
         const std::vector<NoFileInputFactory*>& otherTargets) const
     {
@@ -182,7 +182,7 @@ namespace application
         return result;
     }
 
-    void UpgradePackBuilderFacade::PreBuilder(std::vector<std::pair<std::string, std::string>>& targetAndFiles, const std::vector<std::pair<std::string, std::string>>& buildOptions)
+    void UpgradePackBuilderFacade::PreBuilder(TargetAndFiles& targetAndFiles, const BuildOptions& buildOptions)
     {}
 
     void UpgradePackBuilderFacade::PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, const std::vector<std::pair<std::string, std::string>>& buildOptions)

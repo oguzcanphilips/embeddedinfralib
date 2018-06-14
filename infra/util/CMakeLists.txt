@@ -22,6 +22,7 @@ ccola_component(util static_library)
         CompareMembers.hpp
         CrcCcittCalculator.hpp
         CyclicBuffer.hpp
+        Endian.hpp
         FixedPoint.hpp
         Function.cpp
         Function.hpp

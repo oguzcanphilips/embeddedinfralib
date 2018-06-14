@@ -21,7 +21,7 @@ namespace application
 
     int BuildReferenceUpgradePack(const application::UpgradePackBuilder::HeaderInfo& headerInfo, const std::vector<std::string>& supportedHexTargets,
         const std::vector<std::pair<std::string, uint32_t>>& supportedBinaryTargets, std::string outputFilename,
-        std::vector<std::pair<std::string, std::string>>& targetAndFiles, std::vector<std::pair<std::string, std::string>>& buildOptions, infra::ConstByteRange aesKey,
+        TargetAndFiles& targetAndFiles, BuildOptions& buildOptions, infra::ConstByteRange aesKey,
         infra::ConstByteRange ecDsa224PublicKey, infra::ConstByteRange ecDsa224PrivateKey, const std::vector<NoFileInputFactory*>& otherTargets)
     {
         ReferenceUpgradePackBuilderFacade builderFacade(headerInfo);
@@ -33,7 +33,7 @@ namespace application
         : UpgradePackBuilderFacade(headerInfo)
     {}
 
-    void ReferenceUpgradePackBuilderFacade::PreBuilder(std::vector<std::pair<std::string, std::string>>& targetAndFiles, const std::vector<std::pair<std::string, std::string>>& buildOptions)
+    void ReferenceUpgradePackBuilderFacade::PreBuilder(TargetAndFiles& targetAndFiles, const BuildOptions& buildOptions)
     {
         for (auto option : buildOptions)
         {
@@ -42,7 +42,7 @@ namespace application
         }
     }
 
-    void ReferenceUpgradePackBuilderFacade::PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, const std::vector<std::pair<std::string, std::string>>& buildOptions)
+    void ReferenceUpgradePackBuilderFacade::PostBuilder(UpgradePackBuilder& builder, ImageSigner& signer, const BuildOptions& buildOptions)
     {
         for (auto option : buildOptions)
         {

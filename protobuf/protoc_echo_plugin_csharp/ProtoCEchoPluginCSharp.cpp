@@ -91,10 +91,32 @@ namespace application
         }
     }
 
-    CSharpServiceGenerator::CSharpServiceGenerator(const google::protobuf::ServiceDescriptor& service, google::protobuf::io::Printer& printer)
+    CSharpGenerator::CSharpGenerator(const google::protobuf::ServiceDescriptor& service, google::protobuf::io::Printer& printer)
         : service(service)
         , printer(printer)
         , serviceId(service.options().GetExtension(service_id))
+    {}
+
+    void CSharpGenerator::GenerateFieldConstants()
+    {
+        printer.Print(R"(        const int serviceId = $id$;
+
+)", "id", google::protobuf::SimpleItoa(serviceId));
+
+        for (int i = 0; i != service.method_count(); ++i)
+        {
+            uint32_t methodId = service.method(i)->options().GetExtension(method_id);
+            if (methodId == 0)
+                throw UnspecifiedMethodId{ service.name(), service.method(i)->name() };
+
+            printer.Print("        const int id$method$ = $id$;\n", "method", service.method(i)->name(), "id", google::protobuf::SimpleItoa(methodId));
+        }
+
+        printer.Print("\n");
+    }
+
+    CSharpServiceGenerator::CSharpServiceGenerator(const google::protobuf::ServiceDescriptor& service, google::protobuf::io::Printer& printer)
+        : CSharpGenerator(service, printer)
     {
         if (serviceId == 0)
             throw UnspecifiedServiceId{ service.name() };
@@ -113,24 +135,6 @@ namespace application
         : Service
     {
 )", "name", service.name());
-    }
-
-    void CSharpServiceGenerator::GenerateFieldConstants()
-    {
-        printer.Print(R"(        const int serviceId = $id$;
-
-)", "id", google::protobuf::SimpleItoa(serviceId));
-
-        for (int i = 0; i != service.method_count(); ++i)
-        {
-            uint32_t methodId = service.method(i)->options().GetExtension(method_id);
-            if (methodId == 0)
-                throw UnspecifiedMethodId{ service.name(), service.method(i)->name() };
-
-            printer.Print("        const int id$method$ = $id$;\n", "method", service.method(i)->name(), "id", google::protobuf::SimpleItoa(methodId));
-        }
-
-        printer.Print("\n");
     }
 
     void CSharpServiceGenerator::GenerateDelegates()
@@ -198,9 +202,7 @@ namespace application
     }
 
     CSharpServiceProxyGenerator::CSharpServiceProxyGenerator(const google::protobuf::ServiceDescriptor& service, google::protobuf::io::Printer& printer)
-        : service(service)
-        , printer(printer)
-        , serviceId(service.options().GetExtension(service_id))
+        : CSharpGenerator(service, printer)
     {
         if (serviceId == 0)
             throw UnspecifiedServiceId{ service.name() };
@@ -218,24 +220,6 @@ namespace application
         : ServiceProxy
     {
 )", "name", service.name());
-    }
-
-    void CSharpServiceProxyGenerator::GenerateFieldConstants()
-    {
-        printer.Print(R"(        const int serviceId = $id$;
-
-)", "id", google::protobuf::SimpleItoa(serviceId));
-
-        for (int i = 0; i != service.method_count(); ++i)
-        {
-            uint32_t methodId = service.method(i)->options().GetExtension(method_id);
-            if (methodId == 0)
-                throw UnspecifiedMethodId{ service.name(), service.method(i)->name() };
-
-            printer.Print("        const int id$method$ = $id$;\n", "method", service.method(i)->name(), "id", google::protobuf::SimpleItoa(methodId));
-        }
-
-        printer.Print("\n");
     }
 
     void CSharpServiceProxyGenerator::GenerateConstructor()
