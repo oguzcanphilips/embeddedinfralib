@@ -1,5 +1,5 @@
-#ifndef MULTICAST_MOCK_HPP
-#define    MULTICAST_MOCK_HPP
+#ifndef NETWORK_MULTICAST_MOCK_HPP
+#define NETWORK_MULTICAST_MOCK_HPP
 
 #include "gmock/gmock.h"
 #include "services/network/Multicast.hpp"
@@ -16,4 +16,5 @@ namespace services
         MOCK_METHOD1(LeaveMulticastGroup, void(IPv6Address multicastAddress));
     };
 }
+
 #endif
