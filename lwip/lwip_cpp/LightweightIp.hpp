@@ -14,6 +14,7 @@ namespace services
         , public DatagramProviderLwIp
         , public DatagramFactoryLwIp
         , public MulticastLwIp
+        , public IPv4Info
         , public infra::InterfaceConnector<LightweightIp>
     {
     public:
@@ -26,6 +27,10 @@ namespace services
         LightweightIp(AllocatorListenerLwIp& listenerAllocator, AllocatorConnectorLwIp& connectorAllocator, AllocatorConnectionLwIp& connectionAllocator, hal::SynchronousRandomDataGenerator& randomDataGenerator);
 
         uint32_t Rand();
+
+        // Implementation of IPv4Info
+        virtual IPv4Address GetIPv4Address() const override;
+        virtual IPv4InterfaceAddresses GetIPv4InterfaceAddresses() const override;
 
     private:
         hal::SynchronousRandomDataGenerator& randomDataGenerator;

@@ -9,6 +9,14 @@ extern "C" uint32_t StaticLwIpRand()
 
 namespace services
 {
+    namespace
+    {
+        IPv4Address Convert(ip_addr_t address)
+        {
+            return{ ip4_addr1(&address.u_addr.ip4), ip4_addr2(&address.u_addr.ip4), ip4_addr3(&address.u_addr.ip4), ip4_addr4(&address.u_addr.ip4), };
+        }
+    }
+
     LightweightIp::LightweightIp(AllocatorListenerLwIp& listenerAllocator, AllocatorConnectorLwIp& connectorAllocator, AllocatorConnectionLwIp& connectionAllocator, hal::SynchronousRandomDataGenerator& randomDataGenerator)
         : ConnectionFactoryLwIp(listenerAllocator, connectorAllocator, connectionAllocator)
         , randomDataGenerator(randomDataGenerator)
@@ -22,5 +30,15 @@ namespace services
         uint32_t result;
         randomDataGenerator.GenerateRandomData(infra::MakeByteRange(result));
         return result;
+    }
+
+    IPv4Address LightweightIp::GetIPv4Address() const
+    {
+        return Convert(netif_default->ip_addr);
+    }
+
+    IPv4InterfaceAddresses LightweightIp::GetIPv4InterfaceAddresses() const
+    {
+        return { Convert(netif_default->ip_addr), Convert(netif_default->netmask), Convert(netif_default->gw) };
     }
 }

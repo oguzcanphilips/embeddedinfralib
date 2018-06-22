@@ -40,6 +40,34 @@ namespace services
         bool operator==(const Ipv4Config& other) const;
         bool operator!=(const Ipv4Config& other) const;
     };
+
+    class IPv4Info
+    {
+    public:
+        IPv4Info() = default;
+        IPv4Info(const IPv4Info& other) = delete;
+        IPv4Info& operator=(const IPv4Info& other) = delete;
+        ~IPv4Info() = default;
+
+        virtual IPv4Address GetIPv4Address() const = 0;
+        virtual IPv4InterfaceAddresses GetIPv4InterfaceAddresses() const = 0;
+    };
+
+    class IPv6Info
+    {
+    public:
+        IPv6Info() = default;
+        IPv6Info(const IPv6Info& other) = delete;
+        IPv6Info& operator=(const IPv6Info& other) = delete;
+        ~IPv6Info() = default;
+
+        virtual IPv6Address LinkLocalAddress() const = 0;
+    };
+
+    class IPInfo
+        : public IPv4Info
+        , public IPv6Info
+    {};
 }
 
 namespace infra
