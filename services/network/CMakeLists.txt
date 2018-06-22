@@ -10,6 +10,8 @@ ccola_component(network static_library)
         ConnectionMbedTls.cpp
         ConnectionMbedTls.hpp
         Datagram.hpp
+        LlmnrResponder.cpp
+        LlmnrResponder.hpp
         Mqtt.hpp
         MqttClientImpl.hpp
         MqttClientImpl.cpp
