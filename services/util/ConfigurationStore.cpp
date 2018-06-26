@@ -213,7 +213,13 @@ namespace services
                 {
                     configurationStore.Serialize(factoryDefaultBlob, [this]()
                     {
-                        configurationStore.Erase([this]() { this->onRecovered(true); });
+                        configurationStore.Recover([this](bool success)
+                        {
+                            if (success)
+                                this->onRecovered(false);
+                            else
+                                configurationStore.Erase([this]() { this->onRecovered(true); });
+                        });
                     });
                 });
             }
