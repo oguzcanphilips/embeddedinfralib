@@ -132,6 +132,7 @@ namespace services
         infra::ByteRange readBuffer;
 
         bool found = false;
+        bool reachedEnd = false;
     };
 }
 

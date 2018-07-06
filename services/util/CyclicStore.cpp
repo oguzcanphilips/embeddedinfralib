@@ -339,7 +339,7 @@ namespace services
             else
             {
                 partialAddStarted = true;
-                infra::EventDispatcher::Instance().Schedule([this]() { sequencer.Continue(); });                
+                infra::EventDispatcher::Instance().Schedule([this]() { sequencer.Continue(); });
             }
         });
     }
@@ -387,6 +387,7 @@ namespace services
     {
         readBuffer = buffer;
         found = false;
+        reachedEnd = false;
 
         claimer.Claim([this, onDone]()
         {
@@ -400,14 +401,16 @@ namespace services
             sequencer.Load([this, onDone]()
             {
                 ReadSectorStatusIfAtStart();
-                sequencer.While([this]() { return sectorStatus == SectorStatus::used && !found; });
+                sequencer.While([this]() { return sectorStatus == SectorStatus::used && !found && !reachedEnd; });
                     sequencer.Step([this]()
                     {
                         store.flash.ReadBuffer(infra::MakeByteRange(blockHeader), address, [this]() { sequencer.Continue(); });
                         if (store.flash.SectorOfAddress(address + sizeof(blockHeader)) == store.flash.SectorOfAddress(address))
                             address += sizeof(blockHeader);
                         else
+                        {
                             address = store.flash.StartOfNextSectorCyclical(address);
+                        }
                     });
                     sequencer.If([this]() { return blockHeader.status == BlockStatus::dataReady; });
                         sequencer.If([this]() { return store.flash.AddressOffsetInSector(address) + blockHeader.BlockLength() <= store.flash.SizeOfSector(store.flash.SectorOfAddress(address)); });
@@ -426,11 +429,19 @@ namespace services
                                 address = store.flash.StartOfNextSectorCyclical(address);
                             });
                         sequencer.EndIf();
-                    sequencer.ElseIf([this]() { return blockHeader.status == BlockStatus::emptyUntilEnd || blockHeader.status == BlockStatus::empty; });
+                    sequencer.ElseIf([this]() { return blockHeader.status == BlockStatus::emptyUntilEnd; });
                         sequencer.Execute([this]()
                         {
                             if (!store.flash.AtStartOfSector(address))
+                            {
                                 address = store.flash.StartOfNextSectorCyclical(address);
+                            }
+                        });
+                    sequencer.ElseIf([this]() { return blockHeader.status == BlockStatus::empty; });
+                        sequencer.Execute([this]()
+                        {
+                            reachedEnd = true;
+                            address -= sizeof(blockHeader);
                         });
                     sequencer.ElseIf([this]() { return blockHeader.status == BlockStatus::writingLength; });
                         // Do nothing
@@ -461,7 +472,10 @@ namespace services
     void CyclicStore::Iterator::SectorIsErased(uint32_t sectorIndex)
     {
         if (store.flash.SectorOfAddress(address) == sectorIndex)
+        {
             address = store.flash.StartOfNextSectorCyclical(address);
+            firstSectorToRead = true;
+        }
     }
 
     void CyclicStore::Iterator::ReadSectorStatusIfAtStart()
@@ -470,15 +484,20 @@ namespace services
             sequencer.Step([this]()
             {
                 store.flash.ReadBuffer(infra::MakeByteRange(sectorStatus), address, [this]() { sequencer.Continue(); });
-                address += sizeof(sectorStatus);
             });
             sequencer.Execute([this]()
             {
+                if (sectorStatus != SectorStatus::empty)
+                    address += sizeof(sectorStatus);
+
                 if (sectorStatus == SectorStatus::firstInCycle)
+                {
                     if (firstSectorToRead)
                         sectorStatus = SectorStatus::used;
                     else
                         sectorStatus = SectorStatus::empty;
+                }
+
                 firstSectorToRead = false;
             });
         sequencer.EndIf();
