@@ -24,11 +24,11 @@ namespace infra
         } while (!scheduledActionsPushIndex.compare_exchange_weak(pushIndex, newPushIndex));
 
         scheduledActions[pushIndex].first.Construct<ActionFunction>(action);
-        assert(!scheduledActions[pushIndex].second);
+        really_assert(!scheduledActions[pushIndex].second);
         scheduledActions[pushIndex].second = true;
 
         minCapacity = std::min(minCapacity, (scheduledActions.size() + scheduledActionsPopIndex - pushIndex - 1) % scheduledActions.size() + 1);
-        assert(minCapacity >= 1);
+        really_assert(minCapacity >= 1);
 
         RequestExecution();
     }
