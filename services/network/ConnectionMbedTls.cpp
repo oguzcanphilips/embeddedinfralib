@@ -183,6 +183,12 @@ namespace services
     void ConnectionMbedTls::TlsLog(int level, const char* file, int line, const char* message)
     {}
 
+    void ConnectionMbedTls::ReceivedFirst(std::size_t size)
+    {}
+
+    void ConnectionMbedTls::SentFirst(std::size_t size)
+    {}
+
     void ConnectionMbedTls::TryAllocateSendStream()
     {
         assert(sendStream.Allocatable());
@@ -224,6 +230,12 @@ namespace services
 
             if (!buffer.empty() && !flushScheduled)
             {
+                if (firstSend)
+                {
+                    firstSend = false;
+                    SentFirst(buffer.size());
+                }
+
                 flushScheduled = true;
                 infra::EventDispatcherWithWeakPtr::Instance().Schedule([](const infra::SharedPtr<ConnectionMbedTls>& object)
                 {
@@ -245,6 +257,12 @@ namespace services
         infra::ConstByteRange streamBuffer = stream->ContiguousRange(buffer.size());
         std::copy(streamBuffer.begin(), streamBuffer.end(), buffer.begin());
         ConnectionObserver::Subject().AckReceived();
+
+        if (firstReceive)
+        {
+            firstReceive = false;
+            ReceivedFirst(streamBuffer.size());
+        }
 
         if (!streamBuffer.empty())
         {

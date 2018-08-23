@@ -33,6 +33,16 @@ namespace services
                        << "] (" << level << "): " << message;
     }
 
+    void TracingConnectionMbedTls::ReceivedFirst(std::size_t size)
+    {
+        tracer.Trace() << "TracingConnectionMbedTls::ReceivedFirst: " << size;
+    }
+
+    void TracingConnectionMbedTls::SentFirst(std::size_t size)
+    {
+        tracer.Trace() << "TracingConnectionMbedTls::SentFirst: " << size;
+    }
+
     void TracingConnectionMbedTls::LogFailure(const char* what, int reason)
     {
         tracer.Trace() << what << ": ";

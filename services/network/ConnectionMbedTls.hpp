@@ -62,6 +62,8 @@ namespace services
         virtual void TlsReadFailure(int reason);
         virtual void TlsWriteFailure(int reason);
         virtual void TlsLog(int level, const char* file, int line, const char* message);
+        virtual void ReceivedFirst(std::size_t size);
+        virtual void SentFirst(std::size_t size);
 
     private:
         void InitTls();
@@ -134,6 +136,9 @@ namespace services
         std::size_t encryptedSendStreamSize = 0;
 
         bool initialHandshake = true;
+
+        bool firstReceive = true;
+        bool firstSend = true;
     };
 
     using AllocatorConnectionMbedTls = infra::SharedObjectAllocator<ConnectionMbedTls,

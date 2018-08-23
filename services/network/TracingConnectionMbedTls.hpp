@@ -16,6 +16,8 @@ namespace services
         virtual void TlsReadFailure(int reason) override;
         virtual void TlsWriteFailure(int reason) override;
         virtual void TlsLog(int level, const char* file, int line, const char* message) override;
+        virtual void ReceivedFirst(std::size_t size) override;
+        virtual void SentFirst(std::size_t size) override;
 
     private:
         void LogFailure(const char* what, int reason);
