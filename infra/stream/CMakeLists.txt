@@ -11,6 +11,8 @@ ccola_component(stream static_library)
         IoOutputStream.hpp
         LimitedInputStream.cpp
         LimitedInputStream.hpp
+        LimitedOutputStream.cpp
+        LimitedOutputStream.hpp
         OutputStream.cpp
         OutputStream.hpp
         SavedMarkerStream.cpp
