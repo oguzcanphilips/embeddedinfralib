@@ -24,6 +24,7 @@ namespace infra
     void ByteOutputStreamWriter::Insert(ConstByteRange dataRange, StreamErrorPolicy& errorPolicy)
     {
         errorPolicy.ReportResult(dataRange.size() <= streamRange.size() - offset);
+        dataRange.shrink_from_back_to(streamRange.size() - offset);
         std::copy(dataRange.begin(), dataRange.begin() + dataRange.size(), streamRange.begin() + offset);
         offset += dataRange.size();
     }

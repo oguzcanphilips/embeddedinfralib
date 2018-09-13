@@ -1,4 +1,5 @@
 #include "infra/stream/StreamErrorPolicy.hpp"
+#include "infra/util/ReallyAssert.hpp"
 #include <cassert>
 
 namespace infra
@@ -30,7 +31,7 @@ namespace infra
         if (!ok)
         {
             failed = true;
-            assert(failureMode != FailureMode::assertion);
+            really_assert(failureMode != FailureMode::assertion);
         }
 
         checkedFail = failureMode != FailureMode::soft;
