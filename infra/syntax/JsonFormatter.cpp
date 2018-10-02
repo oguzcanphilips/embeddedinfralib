@@ -1,4 +1,5 @@
 #include "infra/syntax/JsonFormatter.hpp"
+#include <tuple>
 
 namespace infra
 {
@@ -28,7 +29,7 @@ namespace infra
             }
         }
 
-        auto NonEscapedSubString(infra::BoundedConstString string, std::size_t start)
+        std::tuple<std::size_t, infra::BoundedConstString> NonEscapedSubString(infra::BoundedConstString string, std::size_t start)
         {
             std::size_t escape = std::min(string.find_first_of("\"\b\f\n\r\t", start), string.size());
             infra::BoundedConstString nonEscapedSubString = string.substr(start, escape - start);
