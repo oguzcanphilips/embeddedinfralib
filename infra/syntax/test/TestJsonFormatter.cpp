@@ -182,6 +182,15 @@ TEST(JsonObjectFormatter, escape_strings)
     EXPECT_EQ("{ \"tag\":\"\\\"\\b\\f\\n\\r\\t\\u0011\" }", string);
 }
 
+TEST(JsonObjectFormatter, JsonEscapedStringSize_results_in_size_of_escaped_string)
+{
+    EXPECT_EQ(0, infra::JsonEscapedStringSize(""));
+    EXPECT_EQ(2, infra::JsonEscapedStringSize("{}"));
+    EXPECT_EQ(2, infra::JsonEscapedStringSize("\""));
+    EXPECT_EQ(4, infra::JsonEscapedStringSize("\r\n"));
+    EXPECT_EQ(12, infra::JsonEscapedStringSize("\x11\x11"));
+}
+
 TEST(JsonArrayFormatter, construction_results_in_empty_object)
 {
     infra::BoundedString::WithStorage<64> string;

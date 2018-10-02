@@ -8,6 +8,8 @@
 
 namespace infra
 {
+    std::size_t JsonEscapedStringSize(infra::BoundedConstString string);
+
     class JsonArrayFormatter;
 
     class JsonObjectFormatter

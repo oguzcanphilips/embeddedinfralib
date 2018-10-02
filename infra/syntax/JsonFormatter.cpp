@@ -4,6 +4,15 @@ namespace infra
 {
     namespace
     {
+        std::size_t EscapedCharacterSize(char c)
+        {
+            std::array<char, 7> shouldBeEscaped = { '"', '\\', '\b', '\f', '\n', '\r', '\t' };
+            if (std::any_of(shouldBeEscaped.begin(), shouldBeEscaped.end(), [c](char shouldBeEscaped) { return c == shouldBeEscaped; }))
+                return 2;
+            else
+                return 6;
+        }
+
         void InsertEscapedCharacter(infra::TextOutputStream& stream, char c)
         {
             switch (c)
@@ -19,21 +28,30 @@ namespace infra
             }
         }
 
+        auto NonEscapedSubString(infra::BoundedConstString string, std::size_t start)
+        {
+            std::size_t escape = std::min(string.find_first_of("\"\b\f\n\r\t", start), string.size());
+            infra::BoundedConstString nonEscapedSubString = string.substr(start, escape - start);
+
+            for (std::size_t control = start; control != escape; ++control)
+                if (string[control] < 0x20)
+                {
+                    escape = control;
+                    nonEscapedSubString = string.substr(start, escape - start);
+                    break;
+                }
+            
+            return std::make_tuple(escape, nonEscapedSubString);
+        }
+
         void InsertEscapedTag(infra::TextOutputStream& stream, infra::BoundedConstString tag)
         {
             std::size_t start = 0;
             while (start != tag.size())
             {
-                std::size_t escape = std::min(tag.find_first_of("\"\b\f\n\r\t", start), tag.size());
-                infra::BoundedConstString nonEscapedSubString = tag.substr(start, escape - start);
-
-                for (std::size_t control = start; control != escape; ++control)
-                    if (tag[control] < 0x20)
-                    {
-                        escape = control;
-                        nonEscapedSubString = tag.substr(start, escape - start);
-                        break;
-                    }
+                std::size_t escape;
+                infra::BoundedConstString nonEscapedSubString;
+                std::tie(escape, nonEscapedSubString) = NonEscapedSubString(tag, start);
 
                 start = escape;
                 if (!nonEscapedSubString.empty())
@@ -46,6 +64,30 @@ namespace infra
                 }
             }
         }
+    }
+
+    std::size_t JsonEscapedStringSize(infra::BoundedConstString string)
+    {
+        std::size_t start = 0;
+        std::size_t size = 0;
+
+        while (start != string.size())
+        {
+            std::size_t escape;
+            infra::BoundedConstString nonEscapedSubString;
+            std::tie(escape, nonEscapedSubString) = NonEscapedSubString(string, start);
+
+            start = escape;
+            if (!nonEscapedSubString.empty())
+                size += nonEscapedSubString.size();
+            if (start != string.size())
+            {
+                size += EscapedCharacterSize(string[start]);
+                ++start;
+            }
+        }
+
+        return size;
     }
 
     JsonObjectFormatter::JsonObjectFormatter(infra::TextOutputStream& stream)
